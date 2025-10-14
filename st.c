@@ -1530,7 +1530,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				xsetmode(set, MODE_FOCUS);
 				break;
 			case 1006: /* 1006: extended reporting mode */
-				xsetmode(set, MODE_MOUSESGR);
+				xsetmode(set, WIN_MODE_MOUSESGR);
 				break;
 			case 1034: /* 1034: enable 8-bit mode for keyboard input */
 				xsetmode(set, MODE_8BIT);
