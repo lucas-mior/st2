@@ -220,7 +220,7 @@ static ssize_t xwrite(int, const char *, size_t);
 
 /* Globals */
 static Term term;
-static Selection sel;
+static Selection selection;
 static CSIEscape csiescseq;
 static STREscape strescseq;
 static int iofd = 1;
@@ -399,9 +399,9 @@ base64_decode(const char *src)
 void
 selinit(void)
 {
-	sel.mode = SEL_IDLE;
-	sel.snap = 0;
-	sel.ob.x = -1;
+	selection.mode = SEL_IDLE;
+	selection.snap = 0;
+	selection.ob.x = -1;
 }
 
 int
@@ -422,17 +422,17 @@ void
 selstart(int col, int row, int snap)
 {
 	selclear();
-	sel.mode = SEL_EMPTY;
-	sel.type = SEL_REGULAR;
-	sel.alt = IS_SET(TERM_MODE_ALTSCREEN);
-	sel.snap = snap;
-	sel.oe.x = sel.ob.x = col;
-	sel.oe.y = sel.ob.y = row;
+	selection.mode = SEL_EMPTY;
+	selection.type = SEL_REGULAR;
+	selection.alt = IS_SET(TERM_MODE_ALTSCREEN);
+	selection.snap = snap;
+	selection.oe.x = selection.ob.x = col;
+	selection.oe.y = selection.ob.y = row;
 	sel_normalize();
 
-	if (sel.snap != 0)
-		sel.mode = SEL_READY;
-	term_set_dirt(sel.nb.y, sel.ne.y);
+	if (selection.snap != 0)
+		selection.mode = SEL_READY;
+	term_set_dirt(selection.nb.y, selection.ne.y);
 }
 
 void
@@ -440,28 +440,28 @@ selextend(int col, int row, int type, int done)
 {
 	int oldey, oldex, oldsby, oldsey, oldtype;
 
-	if (sel.mode == SEL_IDLE)
+	if (selection.mode == SEL_IDLE)
 		return;
-	if (done && sel.mode == SEL_EMPTY) {
+	if (done && selection.mode == SEL_EMPTY) {
 		selclear();
 		return;
 	}
 
-	oldey = sel.oe.y;
-	oldex = sel.oe.x;
-	oldsby = sel.nb.y;
-	oldsey = sel.ne.y;
-	oldtype = sel.type;
+	oldey = selection.oe.y;
+	oldex = selection.oe.x;
+	oldsby = selection.nb.y;
+	oldsey = selection.ne.y;
+	oldtype = selection.type;
 
-	sel.oe.x = col;
-	sel.oe.y = row;
+	selection.oe.x = col;
+	selection.oe.y = row;
 	sel_normalize();
-	sel.type = type;
+	selection.type = type;
 
-	if (oldey != sel.oe.y || oldex != sel.oe.x || oldtype != sel.type || sel.mode == SEL_EMPTY)
-		term_set_dirt(MIN(sel.nb.y, oldsby), MAX(sel.ne.y, oldsey));
+	if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type || selection.mode == SEL_EMPTY)
+		term_set_dirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
 
-	sel.mode = done ? SEL_IDLE : SEL_READY;
+	selection.mode = done ? SEL_IDLE : SEL_READY;
 }
 
 void
@@ -469,43 +469,43 @@ sel_normalize(void)
 {
 	int i;
 
-	if (sel.type == SEL_REGULAR && sel.ob.y != sel.oe.y) {
-		sel.nb.x = sel.ob.y < sel.oe.y ? sel.ob.x : sel.oe.x;
-		sel.ne.x = sel.ob.y < sel.oe.y ? sel.oe.x : sel.ob.x;
+	if (selection.type == SEL_REGULAR && selection.ob.y != selection.oe.y) {
+		selection.nb.x = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
+		selection.ne.x = selection.ob.y < selection.oe.y ? selection.oe.x : selection.ob.x;
 	} else {
-		sel.nb.x = MIN(sel.ob.x, sel.oe.x);
-		sel.ne.x = MAX(sel.ob.x, sel.oe.x);
+		selection.nb.x = MIN(selection.ob.x, selection.oe.x);
+		selection.ne.x = MAX(selection.ob.x, selection.oe.x);
 	}
-	sel.nb.y = MIN(sel.ob.y, sel.oe.y);
-	sel.ne.y = MAX(sel.ob.y, sel.oe.y);
+	selection.nb.y = MIN(selection.ob.y, selection.oe.y);
+	selection.ne.y = MAX(selection.ob.y, selection.oe.y);
 
-	sel_snap(&sel.nb.x, &sel.nb.y, -1);
-	sel_snap(&sel.ne.x, &sel.ne.y, +1);
+	sel_snap(&selection.nb.x, &selection.nb.y, -1);
+	sel_snap(&selection.ne.x, &selection.ne.y, +1);
 
 	/* expand selection over line breaks */
-	if (sel.type == SEL_RECTANGULAR)
+	if (selection.type == SEL_RECTANGULAR)
 		return;
-	i = term_line_len(sel.nb.y);
-	if (i < sel.nb.x)
-		sel.nb.x = i;
-	if (term_line_len(sel.ne.y) <= sel.ne.x)
-		sel.ne.x = term.col - 1;
+	i = term_line_len(selection.nb.y);
+	if (i < selection.nb.x)
+		selection.nb.x = i;
+	if (term_line_len(selection.ne.y) <= selection.ne.x)
+		selection.ne.x = term.col - 1;
 }
 
 int
 selected(int x, int y)
 {
-	if (sel.mode == SEL_EMPTY || sel.ob.x == -1 ||
-			sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
+	if (selection.mode == SEL_EMPTY || selection.ob.x == -1 ||
+			selection.alt != IS_SET(TERM_MODE_ALTSCREEN))
 		return 0;
 
-	if (sel.type == SEL_RECTANGULAR)
-		return BETWEEN(y, sel.nb.y, sel.ne.y)
-		    && BETWEEN(x, sel.nb.x, sel.ne.x);
+	if (selection.type == SEL_RECTANGULAR)
+		return BETWEEN(y, selection.nb.y, selection.ne.y)
+		    && BETWEEN(x, selection.nb.x, selection.ne.x);
 
-	return BETWEEN(y, sel.nb.y, sel.ne.y)
-	    && (y != sel.nb.y || x >= sel.nb.x)
-	    && (y != sel.ne.y || x <= sel.ne.x);
+	return BETWEEN(y, selection.nb.y, selection.ne.y)
+	    && (y != selection.nb.y || x >= selection.nb.x)
+	    && (y != selection.ne.y || x <= selection.ne.x);
 }
 
 void
@@ -515,7 +515,7 @@ sel_snap(int *x, int *y, int direction)
 	int delim, prevdelim;
 	const Glyph *gp, *prevgp;
 
-	switch (sel.snap) {
+	switch (selection.snap) {
 	case SNAP_WORD:
 		/*
 		 * Snap around if the word wraps around at the end or
@@ -588,25 +588,25 @@ getsel(void)
 	int y, bufsize, lastx, linelen;
 	const Glyph *gp, *last;
 
-	if (sel.ob.x == -1)
+	if (selection.ob.x == -1)
 		return NULL;
 
-	bufsize = (term.col+1) * (sel.ne.y-sel.nb.y+1) * UTF_SIZ;
+	bufsize = (term.col+1) * (selection.ne.y-selection.nb.y+1) * UTF_SIZ;
 	ptr = str = xmalloc(bufsize);
 
 	/* append every set & selected glyph to the selection */
-	for (y = sel.nb.y; y <= sel.ne.y; y++) {
+	for (y = selection.nb.y; y <= selection.ne.y; y++) {
 		if ((linelen = term_line_len(y)) == 0) {
 			*ptr++ = '\n';
 			continue;
 		}
 
-		if (sel.type == SEL_RECTANGULAR) {
-			gp = &term.line[y][sel.nb.x];
-			lastx = sel.ne.x;
+		if (selection.type == SEL_RECTANGULAR) {
+			gp = &term.line[y][selection.nb.x];
+			lastx = selection.ne.x;
 		} else {
-			gp = &term.line[y][sel.nb.y == y ? sel.nb.x : 0];
-			lastx = (sel.ne.y == y) ? sel.ne.x : term.col-1;
+			gp = &term.line[y][selection.nb.y == y ? selection.nb.x : 0];
+			lastx = (selection.ne.y == y) ? selection.ne.x : term.col-1;
 		}
 		last = &term.line[y][MIN(lastx, linelen-1)];
 		while (last >= gp && last->u == ' ')
@@ -628,8 +628,8 @@ getsel(void)
 		 * st.
 		 * FIXME: Fix the computer world.
 		 */
-		if ((y < sel.ne.y || lastx >= linelen) &&
-		    (!(last->mode & ATTR_WRAP) || sel.type == SEL_RECTANGULAR))
+		if ((y < selection.ne.y || lastx >= linelen) &&
+		    (!(last->mode & ATTR_WRAP) || selection.type == SEL_RECTANGULAR))
 			*ptr++ = '\n';
 	}
 	*ptr = 0;
@@ -639,11 +639,11 @@ getsel(void)
 void
 selclear(void)
 {
-	if (sel.ob.x == -1)
+	if (selection.ob.x == -1)
 		return;
-	sel.mode = SEL_IDLE;
-	sel.ob.x = -1;
-	term_set_dirt(sel.nb.y, sel.ne.y);
+	selection.mode = SEL_IDLE;
+	selection.ob.x = -1;
+	term_set_dirt(selection.nb.y, selection.ne.y);
 }
 
 void
@@ -1097,16 +1097,16 @@ term_scroll_up(int orig, int n)
 void
 sel_scroll(int orig, int n)
 {
-	if (sel.ob.x == -1 || sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
+	if (selection.ob.x == -1 || selection.alt != IS_SET(TERM_MODE_ALTSCREEN))
 		return;
 
-	if (BETWEEN(sel.nb.y, orig, term.bot) != BETWEEN(sel.ne.y, orig, term.bot)) {
+	if (BETWEEN(selection.nb.y, orig, term.bot) != BETWEEN(selection.ne.y, orig, term.bot)) {
 		selclear();
-	} else if (BETWEEN(sel.nb.y, orig, term.bot)) {
-		sel.ob.y += n;
-		sel.oe.y += n;
-		if (sel.ob.y < term.top || sel.ob.y > term.bot ||
-		    sel.oe.y < term.top || sel.oe.y > term.bot) {
+	} else if (BETWEEN(selection.nb.y, orig, term.bot)) {
+		selection.ob.y += n;
+		selection.oe.y += n;
+		if (selection.ob.y < term.top || selection.ob.y > term.bot ||
+		    selection.oe.y < term.top || selection.oe.y > term.bot) {
 			selclear();
 		} else {
 			sel_normalize();
