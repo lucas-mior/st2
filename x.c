@@ -829,7 +829,7 @@ xgetcolor(int x, unsigned char *r, unsigned char *g, unsigned char *b)
 }
 
 int
-xsetcolorname(int x, const char *name)
+x_set_color_name(int x, const char *name)
 {
 	Color ncolor;
 

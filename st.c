@@ -1935,7 +1935,7 @@ string_handle(void)
 
 			if (!strcmp(p, "?")) {
 				osc_color_response(par, osc_table[j].idx, 0);
-			} else if (xsetcolorname(osc_table[j].idx, p)) {
+			} else if (x_set_color_name(osc_table[j].idx, p)) {
 				fprintf(stderr, "erresc: invalid %s color: %s\n",
 				        osc_table[j].str, p);
 			} else {
@@ -1952,7 +1952,7 @@ string_handle(void)
 
 			if (p && !strcmp(p, "?")) {
 				osc_color_response(j, 0, 1);
-			} else if (xsetcolorname(j, p)) {
+			} else if (x_set_color_name(j, p)) {
 				if (par == 104 && narg <= 1) {
 					x_load_cols();
 					return; /* color reset without parameter */
@@ -1974,7 +1974,7 @@ string_handle(void)
 				break;
 			if ((j = par - 110) < 0 || j >= LEN(osc_table))
 				break; /* shouldn't be possible */
-			if (xsetcolorname(osc_table[j].idx, NULL)) {
+			if (x_set_color_name(osc_table[j].idx, NULL)) {
 				fprintf(stderr, "erresc: %s color not found\n", osc_table[j].str);
 			} else {
 				term_full_dirt();
