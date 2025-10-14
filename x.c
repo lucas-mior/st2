@@ -1696,7 +1696,7 @@ x_finish_draw(void)
 }
 
 void
-xximspot(int x, int y)
+x_xim_spot(int x, int y)
 {
 	if (x_window.ime.xic == NULL)
 		return;

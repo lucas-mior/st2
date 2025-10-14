@@ -2690,7 +2690,7 @@ draw(void)
 	term.ocy = term.cursor.y;
 	x_finish_draw();
 	if (ocx != term.ocx || ocy != term.ocy)
-		xximspot(term.ocx, term.ocy);
+		x_xim_spot(term.ocx, term.ocy);
 }
 
 void
