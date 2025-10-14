@@ -145,7 +145,7 @@ static int x_make_glyph_font_specs(XftGlyphFontSpec *, const Glyph *, int, int, 
 static void x_draw_glyph_font_specs(const XftGlyphFontSpec *, Glyph, int, int, int);
 static void x_draw_glyph(Glyph, int, int);
 static void x_clear(int, int, int, int);
-static int xgeommasktogravity(int);
+static int x_geom_mask_to_gravity(int);
 static int ximopen(Display *);
 static void ximinstantiate(Display *, XPointer, XPointer);
 static void ximdestroy(XIM, XPointer, XPointer);
@@ -884,7 +884,7 @@ xhints(void)
 		sizeh->flags |= USPosition | PWinGravity;
 		sizeh->x = xw.l;
 		sizeh->y = xw.t;
-		sizeh->win_gravity = xgeommasktogravity(xw.gm);
+		sizeh->win_gravity = x_geom_mask_to_gravity(xw.gm);
 	}
 
 	XSetWMProperties(xw.dpy, xw.win, NULL, NULL, NULL, 0, sizeh, &wm,
@@ -893,7 +893,7 @@ xhints(void)
 }
 
 int
-xgeommasktogravity(int mask)
+x_geom_mask_to_gravity(int mask)
 {
 	switch (mask & (XNegative|YNegative)) {
 	case 0:
