@@ -209,7 +209,7 @@ static void sel_scroll(int, int);
 static void sel_snap(int *, int *, int);
 
 static size_t utf8_decode(const char *, Rune *, size_t);
-static Rune utf8decodebyte(char, size_t *);
+static Rune utf8_decode_byte(char, size_t *);
 static char utf8encodebyte(Rune, size_t);
 static size_t utf8validate(Rune *, size_t);
 
@@ -289,11 +289,11 @@ utf8_decode(const char *c, Rune *u, size_t clen)
 	*u = UTF_INVALID;
 	if (!clen)
 		return 0;
-	udecoded = utf8decodebyte(c[0], &len);
+	udecoded = utf8_decode_byte(c[0], &len);
 	if (!BETWEEN(len, 1, UTF_SIZ))
 		return 1;
 	for (i = 1, j = 1; i < clen && j < len; ++i, ++j) {
-		udecoded = (udecoded << 6) | utf8decodebyte(c[i], &type);
+		udecoded = (udecoded << 6) | utf8_decode_byte(c[i], &type);
 		if (type != 0)
 			return j;
 	}
@@ -306,7 +306,7 @@ utf8_decode(const char *c, Rune *u, size_t clen)
 }
 
 Rune
-utf8decodebyte(char c, size_t *i)
+utf8_decode_byte(char c, size_t *i)
 {
 	for (*i = 0; *i < LEN(utfmask); ++(*i))
 		if (((uchar)c & utfmask[*i]) == utfbyte[*i])
