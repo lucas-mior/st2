@@ -52,7 +52,7 @@ typedef struct {
 
 /* function definitions used in config.h */
 static void user_clipboard_copy(const Arg *);
-static void clipboard_paste(const Arg *);
+static void user_clipboard_paste(const Arg *);
 static void toggle_numlock(const Arg *);
 static void sel_paste(const Arg *);
 static void user_zoom(const Arg *);
@@ -270,7 +270,7 @@ user_clipboard_copy(const Arg *dummy)
 }
 
 void
-clipboard_paste(const Arg *dummy)
+user_clipboard_paste(const Arg *dummy)
 {
 	Atom clipboard;
 
