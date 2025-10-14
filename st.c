@@ -2684,7 +2684,7 @@ draw(void)
 		cx--;
 
 	draw_region(0, 0, term.col, term.row);
-	xdrawcursor(cx, term.cursor.y, term.line[term.cursor.y][cx],
+	x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx],
 			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
 	term.ocx = cx;
 	term.ocy = term.cursor.y;
