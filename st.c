@@ -47,7 +47,7 @@ enum term_mode {
 	TERM_MODE_WRAP        = 1 << 0,
 	TERM_MODE_INSERT      = 1 << 1,
 	TERM_MODE_ALTSCREEN   = 1 << 2,
-	MODE_CRLF        = 1 << 3,
+	TERM_MODE_CRLF        = 1 << 3,
 	MODE_ECHO        = 1 << 4,
 	MODE_PRINT       = 1 << 5,
 	MODE_UTF8        = 1 << 6,
@@ -848,7 +848,7 @@ ttywrite(const char *s, size_t n, int may_echo)
 	if (may_echo && IS_SET(MODE_ECHO))
 		term_write(s, n, 1);
 
-	if (!IS_SET(MODE_CRLF)) {
+	if (!IS_SET(TERM_MODE_CRLF)) {
 		tty_write_raw(s, n);
 		return;
 	}
@@ -1590,7 +1590,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				MODBIT(term.mode, !set, MODE_ECHO);
 				break;
 			case 20: /* LNM -- Linefeed/new line */
-				MODBIT(term.mode, set, MODE_CRLF);
+				MODBIT(term.mode, set, TERM_MODE_CRLF);
 				break;
 			default:
 				fprintf(stderr,
@@ -2215,7 +2215,7 @@ term_control_code(uchar ascii)
 	case '\v':   /* VT */
 	case '\n':   /* LF */
 		/* go to first col if the mode is set */
-		term_new_line(IS_SET(MODE_CRLF));
+		term_new_line(IS_SET(TERM_MODE_CRLF));
 		return;
 	case '\a':   /* BEL */
 		if (term.esc & ESC_STR_END) {
