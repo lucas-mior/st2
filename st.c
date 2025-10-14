@@ -46,7 +46,7 @@
 enum term_mode {
 	TERM_MODE_WRAP        = 1 << 0,
 	TERM_MODE_INSERT      = 1 << 1,
-	MODE_ALTSCREEN   = 1 << 2,
+	TERM_MODE_ALTSCREEN   = 1 << 2,
 	MODE_CRLF        = 1 << 3,
 	MODE_ECHO        = 1 << 4,
 	MODE_PRINT       = 1 << 5,
@@ -424,7 +424,7 @@ selstart(int col, int row, int snap)
 	selclear();
 	sel.mode = SEL_EMPTY;
 	sel.type = SEL_REGULAR;
-	sel.alt = IS_SET(MODE_ALTSCREEN);
+	sel.alt = IS_SET(TERM_MODE_ALTSCREEN);
 	sel.snap = snap;
 	sel.oe.x = sel.ob.x = col;
 	sel.oe.y = sel.ob.y = row;
@@ -496,7 +496,7 @@ int
 selected(int x, int y)
 {
 	if (sel.mode == SEL_EMPTY || sel.ob.x == -1 ||
-			sel.alt != IS_SET(MODE_ALTSCREEN))
+			sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
 		return 0;
 
 	if (sel.type == SEL_RECTANGULAR)
@@ -997,7 +997,7 @@ void
 term_cursor(int mode)
 {
 	static TCursor c[2];
-	int alt = IS_SET(MODE_ALTSCREEN);
+	int alt = IS_SET(TERM_MODE_ALTSCREEN);
 
 	if (mode == CURSOR_SAVE) {
 		c[alt] = term.c;
@@ -1050,7 +1050,7 @@ term_swap_screen(void)
 
 	term.line = term.alt;
 	term.alt = tmp;
-	term.mode ^= MODE_ALTSCREEN;
+	term.mode ^= TERM_MODE_ALTSCREEN;
 	term_full_dirt();
 }
 
@@ -1097,7 +1097,7 @@ term_scroll_up(int orig, int n)
 void
 sel_scroll(int orig, int n)
 {
-	if (sel.ob.x == -1 || sel.alt != IS_SET(MODE_ALTSCREEN))
+	if (sel.ob.x == -1 || sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
 		return;
 
 	if (BETWEEN(sel.nb.y, orig, term.bot) != BETWEEN(sel.ne.y, orig, term.bot)) {
@@ -1544,7 +1544,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 			case 1047: /* swap screen buffer */
 				if (!allowaltscreen)
 					break;
-				alt = IS_SET(MODE_ALTSCREEN);
+				alt = IS_SET(TERM_MODE_ALTSCREEN);
 				if (alt) {
 					term_clear_region(0, 0, term.col-1,
 							term.row-1);
