@@ -152,7 +152,7 @@ typedef struct {
 	int narg;              /* nb of args */
 } STREscape;
 
-static void execsh(char *, char **);
+static void exec_shell(char *, char **);
 static void stty(char **);
 static void sigchld(int);
 static void ttywriteraw(const char *, size_t);
@@ -658,7 +658,7 @@ die(const char *errstr, ...)
 }
 
 void
-execsh(char *cmd, char **args)
+exec_shell(char *cmd, char **args)
 {
 	char *sh, *prog, *arg;
 	const struct passwd *pw;
@@ -799,7 +799,7 @@ ttynew(const char *line, char *cmd, const char *out, char **args)
 		if (pledge("stdio getpw proc exec", NULL) == -1)
 			die("pledge\n");
 #endif
-		execsh(cmd, args);
+		exec_shell(cmd, args);
 		break;
 	default:
 #ifdef __OpenBSD__
