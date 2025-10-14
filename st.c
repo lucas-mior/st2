@@ -1015,7 +1015,7 @@ term_reset(void)
 	term.cursor = (TCursor){{
 		.mode = ATTR_NULL,
 		.fg = default_foreground,
-		.bg = defaultbg
+		.bg = default_background
 	}, .x = 0, .y = 0, .state = CURSOR_DEFAULT};
 
 	memset(term.tabs, 0, term.col * sizeof(*term.tabs));
@@ -1038,7 +1038,7 @@ term_reset(void)
 void
 term_new(int col, int row)
 {
-	term = (Term){ .cursor = { .attr = { .fg = default_foreground, .bg = defaultbg } } };
+	term = (Term){ .cursor = { .attr = { .fg = default_foreground, .bg = default_background } } };
 	term_resize(col, row);
 	term_reset();
 }
@@ -1367,7 +1367,7 @@ term_set_attr(const int *attr, int l)
 				ATTR_INVISIBLE  |
 				ATTR_STRUCK     );
 			term.cursor.attr.fg = default_foreground;
-			term.cursor.attr.bg = defaultbg;
+			term.cursor.attr.bg = default_background;
 			break;
 		case 1:
 			term.cursor.attr.mode |= ATTR_BOLD;
@@ -1428,7 +1428,7 @@ term_set_attr(const int *attr, int l)
 				term.cursor.attr.bg = idx;
 			break;
 		case 49: /* set background color to default */
-			term.cursor.attr.bg = defaultbg;
+			term.cursor.attr.bg = default_background;
 			break;
 		case 58:
 			/* This starts a sequence to change the color of
@@ -1888,7 +1888,7 @@ string_handle(void)
 	int j, narg, par;
 	const struct { int idx; char *str; } osc_table[] = {
 		{ default_foreground, "foreground" },
-		{ defaultbg, "background" },
+		{ default_background, "background" },
 		{ defaultcs, "cursor" }
 	};
 
@@ -1961,7 +1961,7 @@ string_handle(void)
 				        j, p ? p : "(null)");
 			} else {
 				/*
-				 * TODO if defaultbg color is changed, borders
+				 * TODO if default_background color is changed, borders
 				 * are dirty
 				 */
 				term_full_dirt();

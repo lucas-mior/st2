@@ -852,7 +852,7 @@ void
 x_clear(int x1, int y1, int x2, int y2)
 {
 	XftDrawRect(x_window.draw,
-			&draw_context.col[IS_SET(MODE_REVERSE)? default_foreground : defaultbg],
+			&draw_context.col[IS_SET(MODE_REVERSE)? default_foreground : default_background],
 			x1, y1, x2-x1, y2-y1);
 }
 
@@ -1160,8 +1160,8 @@ x_init(int cols, int rows)
 		x_window.t += DisplayHeight(x_window.dpy, x_window.scr) - term_window.h - 2;
 
 	/* Events */
-	x_window.attrs.background_pixel = draw_context.col[defaultbg].pixel;
-	x_window.attrs.border_pixel = draw_context.col[defaultbg].pixel;
+	x_window.attrs.background_pixel = draw_context.col[default_background].pixel;
+	x_window.attrs.border_pixel = draw_context.col[default_background].pixel;
 	x_window.attrs.bit_gravity = NorthWestGravity;
 	x_window.attrs.event_mask = FocusChangeMask | KeyPressMask | KeyReleaseMask
 		| ExposureMask | VisibilityChangeMask | StructureNotifyMask
@@ -1184,7 +1184,7 @@ x_init(int cols, int rows)
 			&gcvalues);
 	x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, term_window.w, term_window.h,
 			DefaultDepth(x_window.dpy, x_window.scr));
-	XSetForeground(x_window.dpy, draw_context.graphics, draw_context.col[defaultbg].pixel);
+	XSetForeground(x_window.dpy, draw_context.graphics, draw_context.col[default_background].pixel);
 	XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, term_window.w, term_window.h);
 
 	/* font spec buffer */
@@ -1421,7 +1421,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 
 	if (IS_SET(MODE_REVERSE)) {
 		if (fg == &draw_context.col[default_foreground]) {
-			fg = &draw_context.col[defaultbg];
+			fg = &draw_context.col[default_background];
 		} else {
 			colfg.red = ~fg->color.red;
 			colfg.green = ~fg->color.green;
@@ -1432,7 +1432,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 			fg = &revfg;
 		}
 
-		if (bg == &draw_context.col[defaultbg]) {
+		if (bg == &draw_context.col[default_background]) {
 			bg = &draw_context.col[default_foreground];
 		} else {
 			colbg.red = ~bg->color.red;
@@ -1552,7 +1552,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 			g.fg = default_foreground;
 			g.bg = defaultrcs;
 		} else {
-			g.fg = defaultbg;
+			g.fg = default_background;
 			g.bg = defaultcs;
 		}
 		drawcol = draw_context.col[g.bg];
@@ -1692,7 +1692,7 @@ xfinishdraw(void)
 			term_window.h, 0, 0);
 	XSetForeground(x_window.dpy, draw_context.graphics,
 			draw_context.col[IS_SET(MODE_REVERSE)?
-				default_foreground : defaultbg].pixel);
+				default_foreground : default_background].pixel);
 }
 
 void
