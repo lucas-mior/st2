@@ -197,7 +197,7 @@ static int term_write(const char *, int, int);
 static void term_full_dirt(void);
 static void term_control_code(uchar );
 static void term_dec_test(char );
-static void tdefutf8(char);
+static void term_def_utf8(char);
 static int32_t tdefcolor(const int *, int *, int);
 static void tdeftran(char);
 static void tstrsequence(uchar);
@@ -2141,7 +2141,7 @@ term_put_tab(int n)
 }
 
 void
-tdefutf8(char ascii)
+term_def_utf8(char ascii)
 {
 	if (ascii == 'G')
 		term.mode |= MODE_UTF8;
@@ -2472,7 +2472,7 @@ check_control_code:
 			}
 			return;
 		} else if (term.esc & ESC_UTF8) {
-			tdefutf8(u);
+			term_def_utf8(u);
 		} else if (term.esc & ESC_ALTCHARSET) {
 			tdeftran(u);
 		} else if (term.esc & ESC_TEST) {
