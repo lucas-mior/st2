@@ -358,7 +358,7 @@ mousesel(XEvent *e, int done)
 	}
 	sel_extend(evcol(e), evrow(e), seltype, done);
 	if (done)
-		setsel(getsel(), e->xbutton.time);
+		setsel(get_sel(), e->xbutton.time);
 }
 
 void
@@ -575,7 +575,7 @@ handler_sel_notify(XEvent *e)
 		}
 
 		/*
-		 * As seen in getsel:
+		 * As seen in get_sel:
 		 * Line endings are inconsistent in the terminal and GUI world
 		 * copy and pasting. When receiving some selection data,
 		 * replace all '\n' with '\r'.

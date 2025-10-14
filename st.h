@@ -103,7 +103,7 @@ void sel_init(void);
 void sel_start(int, int, int);
 void sel_extend(int, int, int, int);
 int selected(int, int);
-char *getsel(void);
+char *get_sel(void);
 
 size_t utf8encode(Rune, char *);
 

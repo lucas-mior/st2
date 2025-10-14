@@ -582,7 +582,7 @@ sel_snap(int *x, int *y, int direction)
 }
 
 char *
-getsel(void)
+get_sel(void)
 {
 	char *str, *ptr;
 	int y, bufsize, lastx, linelen;
@@ -2093,7 +2093,7 @@ term_dump_sel(void)
 {
 	char *ptr;
 
-	if ((ptr = getsel())) {
+	if ((ptr = get_sel())) {
 		term_printer(ptr, strlen(ptr));
 		free(ptr);
 	}
