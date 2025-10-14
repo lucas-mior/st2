@@ -165,7 +165,7 @@ static int evcol(XEvent *);
 static int evrow(XEvent *);
 
 static void handler_expose(XEvent *);
-static void visibility(XEvent *);
+static void handler_visibility(XEvent *);
 static void unmap(XEvent *);
 static void kpress(XEvent *);
 static void cmessage(XEvent *);
@@ -193,7 +193,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
 	[KeyPress] = kpress,
 	[ClientMessage] = cmessage,
 	[ConfigureNotify] = resize,
-	[VisibilityNotify] = visibility,
+	[VisibilityNotify] = handler_visibility,
 	[UnmapNotify] = unmap,
 	[Expose] = handler_expose,
 	[FocusIn] = focus,
@@ -1714,7 +1714,7 @@ handler_expose(XEvent *ev)
 }
 
 void
-visibility(XEvent *ev)
+handler_visibility(XEvent *ev)
 {
 	XVisibilityEvent *e = &ev->xvisibility;
 
