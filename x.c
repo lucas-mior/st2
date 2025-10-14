@@ -175,7 +175,7 @@ static uint button_mask(uint);
 static int mouse_action(XEvent *, uint);
 static void handler_button_release(XEvent *);
 static void bpress(XEvent *);
-static void bmotion(XEvent *);
+static void handler_button_motion(XEvent *);
 static void propnotify(XEvent *);
 static void selnotify(XEvent *);
 static void selclear_(XEvent *);
@@ -198,7 +198,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
 	[Expose] = handler_expose,
 	[FocusIn] = handler_focus,
 	[FocusOut] = handler_focus,
-	[MotionNotify] = bmotion,
+	[MotionNotify] = handler_button_motion,
 	[ButtonPress] = bpress,
 	[ButtonRelease] = handler_button_release,
 /*
@@ -714,7 +714,7 @@ handler_button_release(XEvent *e)
 }
 
 void
-bmotion(XEvent *e)
+handler_button_motion(XEvent *e)
 {
 	if (IS_SET(MODE_MOUSE) && !(e->xbutton.state & forcemousemod)) {
 		mousereport(e);
