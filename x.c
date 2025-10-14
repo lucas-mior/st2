@@ -174,7 +174,7 @@ static void handler_focus(XEvent *);
 static uint button_mask(uint);
 static int mouse_action(XEvent *, uint);
 static void handler_button_release(XEvent *);
-static void bpress(XEvent *);
+static void handler_button_press(XEvent *);
 static void handler_button_motion(XEvent *);
 static void propnotify(XEvent *);
 static void selnotify(XEvent *);
@@ -199,7 +199,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
 	[FocusIn] = handler_focus,
 	[FocusOut] = handler_focus,
 	[MotionNotify] = handler_button_motion,
-	[ButtonPress] = bpress,
+	[ButtonPress] = handler_button_press,
 	[ButtonRelease] = handler_button_release,
 /*
  * Uncomment if you want the selection to disappear when you select something
@@ -466,7 +466,7 @@ mouse_action(XEvent *e, uint release)
 }
 
 void
-bpress(XEvent *e)
+handler_button_press(XEvent *e)
 {
 	int btn = e->xbutton.button;
 	struct timespec now;
