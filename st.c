@@ -196,7 +196,7 @@ static void term_set_mode(int, int, const int *, int);
 static int term_write(const char *, int, int);
 static void term_full_dirt(void);
 static void term_control_code(uchar );
-static void tdectest(char );
+static void term_dec_test(char );
 static void tdefutf8(char);
 static int32_t tdefcolor(const int *, int *, int);
 static void tdeftran(char);
@@ -2164,7 +2164,7 @@ tdeftran(char ascii)
 }
 
 void
-tdectest(char c)
+term_dec_test(char c)
 {
 	int x, y;
 
@@ -2476,7 +2476,7 @@ check_control_code:
 		} else if (term.esc & ESC_ALTCHARSET) {
 			tdeftran(u);
 		} else if (term.esc & ESC_TEST) {
-			tdectest(u);
+			term_dec_test(u);
 		} else {
 			if (!eschandle(u))
 				return;
