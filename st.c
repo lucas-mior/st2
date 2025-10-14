@@ -214,7 +214,7 @@ static char utf8_encode_byte(Rune, size_t);
 static size_t utf8_validate(Rune *, size_t);
 
 static char *base64_decode(const char *);
-static char base64dec_getc(const char **);
+static char base64_decode_getc(const char **);
 
 static ssize_t xwrite(int, const char *, size_t);
 
@@ -351,7 +351,7 @@ utf8_validate(Rune *u, size_t i)
 }
 
 char
-base64dec_getc(const char **src)
+base64_decode_getc(const char **src)
 {
 	while (**src && !isprint((unsigned char)**src))
 		(*src)++;
@@ -375,10 +375,10 @@ base64_decode(const char *src)
 		in_len += 4 - (in_len % 4);
 	result = dst = xmalloc(in_len / 4 * 3 + 1);
 	while (*src) {
-		int a = base64_digits[(unsigned char) base64dec_getc(&src)];
-		int b = base64_digits[(unsigned char) base64dec_getc(&src)];
-		int c = base64_digits[(unsigned char) base64dec_getc(&src)];
-		int d = base64_digits[(unsigned char) base64dec_getc(&src)];
+		int a = base64_digits[(unsigned char) base64_decode_getc(&src)];
+		int b = base64_digits[(unsigned char) base64_decode_getc(&src)];
+		int c = base64_digits[(unsigned char) base64_decode_getc(&src)];
+		int d = base64_digits[(unsigned char) base64_decode_getc(&src)];
 
 		/* invalid input. 'a' can be -1, e.g. if src is "\n" (c-str) */
 		if (a == -1 || b == -1)
