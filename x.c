@@ -155,7 +155,7 @@ static void cresize(int, int);
 static void x_resize(int, int);
 static void x_hints(void);
 static int x_load_color(int, const char *, Color *);
-static int xloadfont(Font *, FcPattern *);
+static int x_load_font(Font *, FcPattern *);
 static void xloadfonts(const char *, double);
 static void xunloadfont(Font *);
 static void xunloadfonts(void);
@@ -908,7 +908,7 @@ x_geom_mask_to_gravity(int mask)
 }
 
 int
-xloadfont(Font *f, FcPattern *pattern)
+x_load_font(Font *f, FcPattern *pattern)
 {
 	FcPattern *configured;
 	FcPattern *match;
@@ -1017,7 +1017,7 @@ xloadfonts(const char *fontstr, double fontsize)
 		defaultfontsize = usedfontsize;
 	}
 
-	if (xloadfont(&dc.font, pattern))
+	if (x_load_font(&dc.font, pattern))
 		die("can't open font %s\n", fontstr);
 
 	if (usedfontsize < 0) {
@@ -1034,17 +1034,17 @@ xloadfonts(const char *fontstr, double fontsize)
 
 	FcPatternDel(pattern, FC_SLANT);
 	FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
-	if (xloadfont(&dc.ifont, pattern))
+	if (x_load_font(&dc.ifont, pattern))
 		die("can't open font %s\n", fontstr);
 
 	FcPatternDel(pattern, FC_WEIGHT);
 	FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
-	if (xloadfont(&dc.ibfont, pattern))
+	if (x_load_font(&dc.ibfont, pattern))
 		die("can't open font %s\n", fontstr);
 
 	FcPatternDel(pattern, FC_SLANT);
 	FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ROMAN);
-	if (xloadfont(&dc.bfont, pattern))
+	if (x_load_font(&dc.bfont, pattern))
 		die("can't open font %s\n", fontstr);
 
 	FcPatternDestroy(pattern);
