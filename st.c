@@ -928,13 +928,13 @@ write_error:
 void
 tty_resize(int tty_width, int tty_height)
 {
-	struct winsize w;
+	struct winsize winsize;
 
-	w.ws_row = term.row;
-	w.ws_col = term.col;
-	w.ws_xpixel = tty_width;
-	w.ws_ypixel = tty_height;
-	if (ioctl(cmdfd, TIOCSWINSZ, &w) < 0)
+	winsize.ws_row = term.row;
+	winsize.ws_col = term.col;
+	winsize.ws_xpixel = tty_width;
+	winsize.ws_ypixel = tty_height;
+	if (ioctl(cmdfd, TIOCSWINSZ, &winsize) < 0)
 		fprintf(stderr, "Couldn't set window size: %s\n", strerror(errno));
 }
 
