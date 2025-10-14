@@ -447,17 +447,17 @@ button_mask(uint button)
 int
 mouse_action(XEvent *e, uint release)
 {
-	MouseShortcut *ms;
+	MouseShortcut *mouse_shortcut;
 
 	/* ignore Button<N>mask for Button<N> - it's set on release */
 	uint state = e->xbutton.state & ~button_mask(e->xbutton.button);
 
-	for (ms = mshortcuts; ms < mshortcuts + LEN(mshortcuts); ms++) {
-		if (ms->release == release &&
-		    ms->button == e->xbutton.button &&
-		    (match(ms->mod, state) ||  /* exact or forced */
-		     match(ms->mod, state & ~force_mouse_mod))) {
-			ms->func(&(ms->arg));
+	for (mouse_shortcut = mshortcuts; mouse_shortcut < mshortcuts + LEN(mshortcuts); mouse_shortcut++) {
+		if (mouse_shortcut->release == release &&
+		    mouse_shortcut->button == e->xbutton.button &&
+		    (match(mouse_shortcut->mod, state) ||  /* exact or forced */
+		     match(mouse_shortcut->mod, state & ~force_mouse_mod))) {
+			mouse_shortcut->func(&(mouse_shortcut->arg));
 			return 1;
 		}
 	}
