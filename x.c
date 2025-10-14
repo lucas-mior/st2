@@ -1127,7 +1127,7 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call)
 }
 
 void
-x_init(int cols, int rows)
+x_init(int number_cols, int rows)
 {
 	XGCValues gcvalues;
 	Cursor cursor;
@@ -1152,7 +1152,7 @@ x_init(int cols, int rows)
 	xloadcols();
 
 	/* adjust fixed window geometry */
-	term_window.w = 2 * borderpx + cols * term_window.cw;
+	term_window.w = 2 * borderpx + number_cols * term_window.cw;
 	term_window.h = 2 * borderpx + rows * term_window.ch;
 	if (x_window.gm & XNegative)
 		x_window.l += DisplayWidth(x_window.dpy, x_window.scr) - term_window.w - 2;
@@ -1188,7 +1188,7 @@ x_init(int cols, int rows)
 	XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, term_window.w, term_window.h);
 
 	/* font spec buffer */
-	x_window.specbuf = xmalloc(cols * sizeof(GlyphFontSpec));
+	x_window.specbuf = xmalloc(number_cols * sizeof(GlyphFontSpec));
 
 	/* Xft rendering context */
 	x_window.draw = XftDrawCreate(x_window.dpy, x_window.buf, x_window.vis, x_window.cmap);
@@ -2059,7 +2059,7 @@ main(int argc, char *argv[])
 		break;
 	case 'g':
 		x_window.gm = XParseGeometry(EARGF(usage()),
-				&x_window.l, &x_window.t, &cols, &rows);
+				&x_window.l, &x_window.t, &number_cols, &rows);
 		break;
 	case 'i':
 		x_window.isfixed = 1;
@@ -2096,10 +2096,10 @@ run:
 
 	setlocale(LC_CTYPE, "");
 	XSetLocaleModifiers("");
-	cols = MAX(cols, 1);
+	number_cols = MAX(number_cols, 1);
 	rows = MAX(rows, 1);
-	term_new(cols, rows);
-	x_init(cols, rows);
+	term_new(number_cols, rows);
+	x_init(number_cols, rows);
 	x_setenv();
 	sel_init();
 	run();
