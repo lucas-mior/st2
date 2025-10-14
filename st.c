@@ -202,7 +202,7 @@ static int32_t term_def_color(const int *, int *, int);
 static void term_def_tran(char);
 static void term_str_sequence(uchar);
 
-static void drawregion(int, int, int, int);
+static void draw_region(int, int, int, int);
 
 static void selnormalize(void);
 static void selscroll(int, int);
@@ -2654,7 +2654,7 @@ resettitle(void)
 }
 
 void
-drawregion(int x1, int y1, int x2, int y2)
+draw_region(int x1, int y1, int x2, int y2)
 {
 	int y;
 
@@ -2683,7 +2683,7 @@ draw(void)
 	if (term.line[term.c.y][cx].mode & ATTR_WDUMMY)
 		cx--;
 
-	drawregion(0, 0, term.col, term.row);
+	draw_region(0, 0, term.col, term.row);
 	xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
 			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
 	term.ocx = cx;
