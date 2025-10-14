@@ -200,7 +200,7 @@ static void term_dec_test(char );
 static void term_def_utf8(char);
 static int32_t term_def_color(const int *, int *, int);
 static void term_def_tran(char);
-static void tstrsequence(uchar);
+static void term_str_sequence(uchar);
 
 static void drawregion(int, int, int, int);
 
@@ -2177,7 +2177,7 @@ term_dec_test(char c)
 }
 
 void
-tstrsequence(uchar c)
+term_str_sequence(uchar c)
 {
 	switch (c) {
 	case 0x90:   /* DCS -- Device Control String */
@@ -2288,7 +2288,7 @@ term_control_code(uchar ascii)
 	case 0x9d:   /* OSC -- Operating System Command */
 	case 0x9e:   /* PM -- Privacy Message */
 	case 0x9f:   /* APC -- Application Program Command */
-		tstrsequence(ascii);
+		term_str_sequence(ascii);
 		return;
 	}
 	/* only CAN, SUB, \a and C1 chars interrupt a sequence */
@@ -2317,7 +2317,7 @@ eschandle(uchar ascii)
 	case '^': /* PM -- Privacy Message */
 	case ']': /* OSC -- Operating System Command */
 	case 'k': /* old title set compatibility */
-		tstrsequence(ascii);
+		term_str_sequence(ascii);
 		return 0;
 	case 'n': /* LS2 -- Locking shift 2 */
 	case 'o': /* LS3 -- Locking shift 3 */
