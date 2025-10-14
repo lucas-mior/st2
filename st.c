@@ -159,7 +159,7 @@ static void tty_write_raw(const char *, size_t);
 
 static void control_seq_intro_dump(void);
 static void control_seq_intro_handle(void);
-static void csiparse(void);
+static void control_seq_intro_parse(void);
 static void csireset(void);
 static void osc_color_response(int, int, int);
 static int eschandle(uchar);
@@ -1128,7 +1128,7 @@ tnewline(int first_col)
 }
 
 void
-csiparse(void)
+control_seq_intro_parse(void)
 {
 	char *p = csiescseq.buf, *np;
 	long int v;
@@ -2467,7 +2467,7 @@ check_control_code:
 					|| csiescseq.len >= \
 					sizeof(csiescseq.buf)-1) {
 				term.esc = 0;
-				csiparse();
+				control_seq_intro_parse();
 				control_seq_intro_handle();
 			}
 			return;
