@@ -142,7 +142,7 @@ typedef struct {
 
 static inline ushort sixd_to_16bit(int);
 static int x_make_glyph_font_specs(XftGlyphFontSpec *, const Glyph *, int, int, int);
-static void xdrawglyphfontspecs(const XftGlyphFontSpec *, Glyph, int, int, int);
+static void x_draw_glyph_font_specs(const XftGlyphFontSpec *, Glyph, int, int, int);
 static void xdrawglyph(Glyph, int, int);
 static void xclear(int, int, int, int);
 static int xgeommasktogravity(int);
@@ -1375,7 +1375,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, i
 }
 
 void
-xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, int y)
+x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, int y)
 {
 	int charlen = len * ((base.mode & ATTR_WIDE) ? 2 : 1);
 	int winx = borderpx + x * win.cw, winy = borderpx + y * win.ch,
@@ -1516,7 +1516,7 @@ xdrawglyph(Glyph g, int x, int y)
 	XftGlyphFontSpec spec;
 
 	numspecs = x_make_glyph_font_specs(&spec, &g, 1, x, y);
-	xdrawglyphfontspecs(&spec, g, numspecs, x, y);
+	x_draw_glyph_font_specs(&spec, g, numspecs, x, y);
 }
 
 void
@@ -1670,7 +1670,7 @@ xdrawline(Line line, int x1, int y1, int x2)
 		if (selected(x, y1))
 			new.mode ^= ATTR_REVERSE;
 		if (i > 0 && ATTRCMP(base, new)) {
-			xdrawglyphfontspecs(specs, base, i, ox, y1);
+			x_draw_glyph_font_specs(specs, base, i, ox, y1);
 			specs += i;
 			numspecs -= i;
 			i = 0;
@@ -1682,7 +1682,7 @@ xdrawline(Line line, int x1, int y1, int x2)
 		i++;
 	}
 	if (i > 0)
-		xdrawglyphfontspecs(specs, base, i, ox, y1);
+		x_draw_glyph_font_specs(specs, base, i, ox, y1);
 }
 
 void
