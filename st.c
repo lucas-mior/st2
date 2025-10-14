@@ -1507,22 +1507,22 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				x_set_mode(!set, WIN_MODE_HIDE);
 				break;
 			case 9:    /* X10 mouse compatibility mode */
-				xsetpointermotion(0);
+				x_set_pointer_motion(0);
 				x_set_mode(0, WIN_MODE_MOUSE);
 				x_set_mode(set, WIN_MODE_MOUSEX10);
 				break;
 			case 1000: /* 1000: report button press */
-				xsetpointermotion(0);
+				x_set_pointer_motion(0);
 				x_set_mode(0, WIN_MODE_MOUSE);
 				x_set_mode(set, WIN_MODE_MOUSEBTN);
 				break;
 			case 1002: /* 1002: report motion on button press */
-				xsetpointermotion(0);
+				x_set_pointer_motion(0);
 				x_set_mode(0, WIN_MODE_MOUSE);
 				x_set_mode(set, WIN_MODE_MOUSEMOTION);
 				break;
 			case 1003: /* 1003: enable all mouse motions */
-				xsetpointermotion(set);
+				x_set_pointer_motion(set);
 				x_set_mode(0, WIN_MODE_MOUSE);
 				x_set_mode(set, WIN_MODE_MOUSEMANY);
 				break;

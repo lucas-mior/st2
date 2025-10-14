@@ -35,7 +35,7 @@ void x_set_icon_title(char *);
 void x_set_title(char *);
 int x_set_cursor(int);
 void x_set_mode(int, unsigned int);
-void xsetpointermotion(int);
+void x_set_pointer_motion(int);
 void xsetsel(char *);
 int xstartdraw(void);
 void xximspot(int, int);

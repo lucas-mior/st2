@@ -1728,7 +1728,7 @@ handler_unmap(XEvent *ev)
 }
 
 void
-xsetpointermotion(int set)
+x_set_pointer_motion(int set)
 {
 	MODBIT(x_window.attrs.event_mask, set, PointerMotionMask);
 	XChangeWindowAttributes(x_window.dpy, x_window.win, CWEventMask, &x_window.attrs);
