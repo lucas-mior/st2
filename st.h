@@ -88,7 +88,7 @@ void toggleprinter(const Arg *);
 
 int term_attr_set(int);
 void term_new(int, int);
-void tresize(int, int);
+void term_resize(int, int);
 void tsetdirtattr(int);
 void ttyhangup(void);
 int ttynew(const char *, char *, const char *, char **);

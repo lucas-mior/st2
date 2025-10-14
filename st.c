@@ -1039,7 +1039,7 @@ void
 term_new(int col, int row)
 {
 	term = (Term){ .c = { .attr = { .fg = defaultfg, .bg = defaultbg } } };
-	tresize(col, row);
+	term_resize(col, row);
 	term_reset();
 }
 
@@ -2566,7 +2566,7 @@ term_write(const char *buf, int buflen, int show_ctrl)
 }
 
 void
-tresize(int col, int row)
+term_resize(int col, int row)
 {
 	int i;
 	int minrow = MIN(row, term.row);
@@ -2576,7 +2576,7 @@ tresize(int col, int row)
 
 	if (col < 1 || row < 1) {
 		fprintf(stderr,
-		        "tresize: error resizing to %dx%d\n", col, row);
+		        "term_resize: error resizing to %dx%d\n", col, row);
 		return;
 	}
 

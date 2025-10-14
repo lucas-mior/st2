@@ -739,7 +739,7 @@ cresize(int width, int height)
 	col = MAX(1, col);
 	row = MAX(1, row);
 
-	tresize(col, row);
+	term_resize(col, row);
 	x_resize(col, row);
 	ttyresize(win.tw, win.th);
 }
