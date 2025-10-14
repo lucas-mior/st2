@@ -347,7 +347,7 @@ evrow(XEvent *e)
 void
 mousesel(XEvent *e, int done)
 {
-	int type, seltype = SEL_REGULAR;
+	int type, seltype = SELECTION_REGULAR;
 	uint state = e->xbutton.state & ~(Button1Mask | force_mouse_mod);
 
 	for (type = 1; type < LEN(selmasks); ++type) {

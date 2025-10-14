@@ -43,7 +43,7 @@ enum selection_mode {
 };
 
 enum selection_type {
-	SEL_REGULAR = 1,
+	SELECTION_REGULAR = 1,
 	SELECTION_RECTANGULAR = 2
 };
 

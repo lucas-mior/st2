@@ -423,7 +423,7 @@ sel_start(int col, int row, int snap)
 {
 	sel_clear();
 	selection.mode = SELECTION_EMPTY;
-	selection.type = SEL_REGULAR;
+	selection.type = SELECTION_REGULAR;
 	selection.alt = IS_SET(TERM_MODE_ALTSCREEN);
 	selection.snap = snap;
 	selection.oe.x = selection.ob.x = col;
@@ -469,7 +469,7 @@ sel_normalize(void)
 {
 	int i;
 
-	if (selection.type == SEL_REGULAR && selection.ob.y != selection.oe.y) {
+	if (selection.type == SELECTION_REGULAR && selection.ob.y != selection.oe.y) {
 		selection.nb.x = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
 		selection.ne.x = selection.ob.y < selection.oe.y ? selection.oe.x : selection.ob.x;
 	} else {
