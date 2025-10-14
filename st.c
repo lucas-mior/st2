@@ -183,7 +183,7 @@ static void term_move_to(int, int);
 static void term_move_abs_to(int, int);
 static void term_new_line(int);
 static void term_put_tab(int);
-static void tputc(Rune);
+static void term_putc(Rune);
 static void treset(void);
 static void tscrollup(int, int);
 static void tscrolldown(int, int);
@@ -1655,7 +1655,7 @@ control_seq_intro_handle(void)
 		LIMIT(csiescseq.arg[0], 1, 65535);
 		if (term.lastc)
 			while (csiescseq.arg[0]-- > 0)
-				tputc(term.lastc);
+				term_putc(term.lastc);
 		break;
 	case 'C': /* CUF -- Cursor <n> Forward */
 	case 'a': /* HPR -- Cursor <n> Forward */
@@ -2384,7 +2384,7 @@ eschandle(uchar ascii)
 }
 
 void
-tputc(Rune u)
+term_putc(Rune u)
 {
 	char c[UTF_SIZ];
 	int control;
@@ -2553,14 +2553,14 @@ twrite(const char *buf, int buflen, int show_ctrl)
 		if (show_ctrl && ISCONTROL(u)) {
 			if (u & 0x80) {
 				u &= 0x7f;
-				tputc('^');
-				tputc('[');
+				term_putc('^');
+				term_putc('[');
 			} else if (u != '\n' && u != '\r' && u != '\t') {
 				u ^= 0x40;
-				tputc('^');
+				term_putc('^');
 			}
 		}
-		tputc(u);
+		term_putc(u);
 	}
 	return n;
 }
