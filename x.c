@@ -689,7 +689,7 @@ setsel(char *str, Time t)
 }
 
 void
-xsetsel(char *str)
+x_set_sel(char *str)
 {
 	setsel(str, CurrentTime);
 }

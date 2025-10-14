@@ -36,6 +36,6 @@ void x_set_title(char *);
 int x_set_cursor(int);
 void x_set_mode(int, unsigned int);
 void x_set_pointer_motion(int);
-void xsetsel(char *);
+void x_set_sel(char *);
 int xstartdraw(void);
 void xximspot(int, int);

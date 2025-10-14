@@ -1917,7 +1917,7 @@ string_handle(void)
 			if (narg > 2 && allowwindowops) {
 				dec = base64_decode(strescseq.args[2]);
 				if (dec) {
-					xsetsel(dec);
+					x_set_sel(dec);
 					x_clipboard_copy();
 				} else {
 					fprintf(stderr, "erresc: invalid base64\n");
