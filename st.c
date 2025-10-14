@@ -1533,7 +1533,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				xsetmode(set, WIN_MODE_MOUSESGR);
 				break;
 			case 1034: /* 1034: enable 8-bit mode for keyboard input */
-				xsetmode(set, MODE_8BIT);
+				xsetmode(set, WIN_MODE_8BIT);
 				break;
 			case 1049: /* swap screen & set/restore cursor as xterm */
 				if (!allowaltscreen)

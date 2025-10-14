@@ -1877,7 +1877,7 @@ handler_key_press(XEvent *ev)
 	if (len == 0)
 		return;
 	if (len == 1 && e->state & Mod1Mask) {
-		if (IS_SET(MODE_8BIT)) {
+		if (IS_SET(WIN_MODE_8BIT)) {
 			if (*buf < 0177) {
 				c = *buf | 0x80;
 				len = utf8_encode(c, buf);
