@@ -2083,7 +2083,7 @@ user_print_screen(const Arg *arg)
 }
 
 void
-printsel(const Arg *arg)
+user_print_sel(const Arg *arg)
 {
 	term_dump_sel();
 }

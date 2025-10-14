@@ -82,7 +82,7 @@ void redraw(void);
 void draw(void);
 
 void user_print_screen(const Arg *);
-void printsel(const Arg *);
+void user_print_sel(const Arg *);
 void user_send_break(const Arg *);
 void user_toggle_printer(const Arg *);
 
