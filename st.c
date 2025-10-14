@@ -177,7 +177,7 @@ static void term_cursor(int);
 static void term_delete_char(int);
 static void term_delete_line(int);
 static void term_insert_blank(int);
-static void tinsertblankline(int);
+static void term_insert_blank_line(int);
 static int tlinelen(int);
 static void tmoveto(int, int);
 static void tmoveato(int, int);
@@ -1285,7 +1285,7 @@ term_insert_blank(int n)
 }
 
 void
-tinsertblankline(int n)
+term_insert_blank_line(int n)
 {
 	if (BETWEEN(term.c.y, term.top, term.bot))
 		tscrolldown(term.c.y, n);
@@ -1747,7 +1747,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'L': /* IL -- Insert <n> blank lines */
 		DEFAULT(csiescseq.arg[0], 1);
-		tinsertblankline(csiescseq.arg[0]);
+		term_insert_blank_line(csiescseq.arg[0]);
 		break;
 	case 'l': /* RM -- Reset Mode */
 		tsetmode(csiescseq.priv, 0, csiescseq.arg, csiescseq.narg);
