@@ -1735,7 +1735,7 @@ xsetpointermotion(int set)
 }
 
 void
-xsetmode(int set, unsigned int flags)
+x_set_mode(int set, unsigned int flags)
 {
 	int mode = term_window.mode;
 	MODBIT(term_window.mode, set, flags);

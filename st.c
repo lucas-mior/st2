@@ -1481,10 +1481,10 @@ term_set_mode(int priv, int set, const int *args, int narg)
 		if (priv) {
 			switch (*args) {
 			case 1: /* DECCKM -- Cursor key */
-				xsetmode(set, WIN_MODE_APPCURSOR);
+				x_set_mode(set, WIN_MODE_APPCURSOR);
 				break;
 			case 5: /* DECSCNM -- Reverse video */
-				xsetmode(set, WIN_MODE_REVERSE);
+				x_set_mode(set, WIN_MODE_REVERSE);
 				break;
 			case 6: /* DECOM -- Origin */
 				MODBIT(term.cursor.state, set, CURSOR_ORIGIN);
@@ -1504,36 +1504,36 @@ term_set_mode(int priv, int set, const int *args, int narg)
 			case 12: /* att610 -- Start blinking cursor (IGNORED) */
 				break;
 			case 25: /* DECTCEM -- Text Cursor Enable Mode */
-				xsetmode(!set, WIN_MODE_HIDE);
+				x_set_mode(!set, WIN_MODE_HIDE);
 				break;
 			case 9:    /* X10 mouse compatibility mode */
 				xsetpointermotion(0);
-				xsetmode(0, WIN_MODE_MOUSE);
-				xsetmode(set, WIN_MODE_MOUSEX10);
+				x_set_mode(0, WIN_MODE_MOUSE);
+				x_set_mode(set, WIN_MODE_MOUSEX10);
 				break;
 			case 1000: /* 1000: report button press */
 				xsetpointermotion(0);
-				xsetmode(0, WIN_MODE_MOUSE);
-				xsetmode(set, WIN_MODE_MOUSEBTN);
+				x_set_mode(0, WIN_MODE_MOUSE);
+				x_set_mode(set, WIN_MODE_MOUSEBTN);
 				break;
 			case 1002: /* 1002: report motion on button press */
 				xsetpointermotion(0);
-				xsetmode(0, WIN_MODE_MOUSE);
-				xsetmode(set, WIN_MODE_MOUSEMOTION);
+				x_set_mode(0, WIN_MODE_MOUSE);
+				x_set_mode(set, WIN_MODE_MOUSEMOTION);
 				break;
 			case 1003: /* 1003: enable all mouse motions */
 				xsetpointermotion(set);
-				xsetmode(0, WIN_MODE_MOUSE);
-				xsetmode(set, WIN_MODE_MOUSEMANY);
+				x_set_mode(0, WIN_MODE_MOUSE);
+				x_set_mode(set, WIN_MODE_MOUSEMANY);
 				break;
 			case 1004: /* 1004: send handler_focus events to tty */
-				xsetmode(set, WIN_MODE_FOCUS);
+				x_set_mode(set, WIN_MODE_FOCUS);
 				break;
 			case 1006: /* 1006: extended reporting mode */
-				xsetmode(set, WIN_MODE_MOUSESGR);
+				x_set_mode(set, WIN_MODE_MOUSESGR);
 				break;
 			case 1034: /* 1034: enable 8-bit mode for keyboard input */
-				xsetmode(set, WIN_MODE_8BIT);
+				x_set_mode(set, WIN_MODE_8BIT);
 				break;
 			case 1049: /* swap screen & set/restore cursor as xterm */
 				if (!allowaltscreen)
@@ -1558,7 +1558,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
 				break;
 			case 2004: /* 2004: bracketed paste mode */
-				xsetmode(set, WIN_MODE_BRCKTPASTE);
+				x_set_mode(set, WIN_MODE_BRCKTPASTE);
 				break;
 			/* Not implemented mouse modes. See comments there. */
 			case 1001: /* mouse highlight mode; can hang the
@@ -1581,7 +1581,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 			case 0:  /* Error (IGNORED) */
 				break;
 			case 2:
-				xsetmode(set, WIN_MODE_KBDLOCK);
+				x_set_mode(set, WIN_MODE_KBDLOCK);
 				break;
 			case 4:  /* IRM -- Insertion-replacement */
 				MODBIT(term.mode, set, TERM_MODE_INSERT);
@@ -2357,13 +2357,13 @@ eschandle(uchar ascii)
 		term_reset();
 		reset_title();
 		x_load_cols();
-		xsetmode(0, WIN_MODE_HIDE);
+		x_set_mode(0, WIN_MODE_HIDE);
 		break;
 	case '=': /* DECPAM -- Application keypad */
-		xsetmode(1, WIN_MODE_APPKEYPAD);
+		x_set_mode(1, WIN_MODE_APPKEYPAD);
 		break;
 	case '>': /* DECPNM -- Normal keypad */
-		xsetmode(0, WIN_MODE_APPKEYPAD);
+		x_set_mode(0, WIN_MODE_APPKEYPAD);
 		break;
 	case '7': /* DECSC -- Save Cursor */
 		term_cursor(CURSOR_SAVE);
