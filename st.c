@@ -157,7 +157,7 @@ static void stty(char **);
 static void handler_sigchld(int);
 static void tty_write_raw(const char *, size_t);
 
-static void csidump(void);
+static void control_seq_intro_dump(void);
 static void csihandle(void);
 static void csiparse(void);
 static void csireset(void);
@@ -1449,7 +1449,7 @@ tsetattr(const int *attr, int l)
 				fprintf(stderr,
 					"erresc(default): gfx attr %d unknown\n",
 					attr[i]);
-				csidump();
+				control_seq_intro_dump();
 			}
 			break;
 		}
@@ -1612,7 +1612,7 @@ csihandle(void)
 	default:
 	unknown:
 		fprintf(stderr, "erresc: unknown csi ");
-		csidump();
+		control_seq_intro_dump();
 		/* die(""); */
 		break;
 	case '@': /* ICH -- Insert <n> blank char */
@@ -1827,7 +1827,7 @@ csihandle(void)
 }
 
 void
-csidump(void)
+control_seq_intro_dump(void)
 {
 	size_t i;
 	uint c;
