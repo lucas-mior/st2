@@ -53,7 +53,7 @@ typedef struct {
 /* function definitions used in config.h */
 static void clipboard_copy(const Arg *);
 static void clipboard_paste(const Arg *);
-static void numlock(const Arg *);
+static void toggle_numlock(const Arg *);
 static void selpaste(const Arg *);
 static void zoom(const Arg *);
 static void zoomabs(const Arg *);
@@ -287,7 +287,7 @@ selpaste(const Arg *dummy)
 }
 
 void
-numlock(const Arg *dummy)
+toggle_numlock(const Arg *dummy)
 {
 	win.mode ^= MODE_NUMLOCK;
 }
