@@ -149,7 +149,7 @@ static int x_geom_mask_to_gravity(int);
 static int x_im_open(Display *);
 static void x_im_instantiate(Display *, XPointer, XPointer);
 static void x_im_destroy(XIM, XPointer, XPointer);
-static int xicdestroy(XIC, XPointer, XPointer);
+static int x_ic_destroy(XIC, XPointer, XPointer);
 static void xinit(int, int);
 static void cresize(int, int);
 static void xresize(int, int);
@@ -1076,7 +1076,7 @@ int
 x_im_open(Display *dpy)
 {
 	XIMCallback imdestroy = { .client_data = NULL, .callback = x_im_destroy };
-	XICCallback icdestroy = { .client_data = NULL, .callback = xicdestroy };
+	XICCallback icdestroy = { .client_data = NULL, .callback = x_ic_destroy };
 
 	xw.ime.xim = XOpenIM(xw.dpy, NULL, NULL, NULL);
 	if (xw.ime.xim == NULL)
@@ -1120,7 +1120,7 @@ x_im_destroy(XIM xim, XPointer client, XPointer call)
 }
 
 int
-xicdestroy(XIC xim, XPointer client, XPointer call)
+x_ic_destroy(XIC xim, XPointer client, XPointer call)
 {
 	xw.ime.xic = NULL;
 	return 1;
