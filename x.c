@@ -1541,11 +1541,11 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		g.mode |= ATTR_REVERSE;
 		g.bg = default_foreground;
 		if (selected(cx, cy)) {
-			drawcol = draw_context.col[defaultcs];
+			drawcol = draw_context.col[default_cursor];
 			g.fg = defaultrcs;
 		} else {
 			drawcol = draw_context.col[defaultrcs];
-			g.fg = defaultcs;
+			g.fg = default_cursor;
 		}
 	} else {
 		if (selected(cx, cy)) {
@@ -1553,7 +1553,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 			g.bg = defaultrcs;
 		} else {
 			g.fg = default_background;
-			g.bg = defaultcs;
+			g.bg = default_cursor;
 		}
 		drawcol = draw_context.col[g.bg];
 	}

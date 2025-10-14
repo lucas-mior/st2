@@ -1889,7 +1889,7 @@ string_handle(void)
 	const struct { int idx; char *str; } osc_table[] = {
 		{ default_foreground, "foreground" },
 		{ default_background, "background" },
-		{ defaultcs, "cursor" }
+		{ default_cursor, "cursor" }
 	};
 
 	term.esc &= ~(ESC_STR_END|ESC_STR);
