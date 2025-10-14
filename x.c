@@ -373,7 +373,7 @@ mousereport(XEvent *e)
 	if (e->type == MotionNotify) {
 		if (x == ox && y == oy)
 			return;
-		if (!IS_SET(WIN_MODE_MOUSEMOTION) && !IS_SET(MODE_MOUSEMANY))
+		if (!IS_SET(WIN_MODE_MOUSEMOTION) && !IS_SET(WIN_MODE_MOUSEMANY))
 			return;
 		/* WIN_MODE_MOUSEMOTION: no reporting if no button is pressed */
 		if (IS_SET(WIN_MODE_MOUSEMOTION) && buttons == 0)
@@ -403,7 +403,7 @@ mousereport(XEvent *e)
 	oy = y;
 
 	/* Encode btn into code. If no button is pressed for a motion event in
-	 * MODE_MOUSEMANY, then encode it as a release. */
+	 * WIN_MODE_MOUSEMANY, then encode it as a release. */
 	if ((!IS_SET(WIN_MODE_MOUSESGR) && e->type == ButtonRelease) || btn == 12)
 		code += 3;
 	else if (btn >= 8)

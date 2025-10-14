@@ -1524,7 +1524,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 			case 1003: /* 1003: enable all mouse motions */
 				xsetpointermotion(set);
 				xsetmode(0, MODE_MOUSE);
-				xsetmode(set, MODE_MOUSEMANY);
+				xsetmode(set, WIN_MODE_MOUSEMANY);
 				break;
 			case 1004: /* 1004: send handler_focus events to tty */
 				xsetmode(set, WIN_MODE_FOCUS);

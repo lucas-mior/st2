@@ -16,11 +16,11 @@ enum win_mode {
 	WIN_MODE_FBLINK      = 1 << 12,
 	WIN_MODE_FOCUS       = 1 << 13,
 	WIN_MODE_MOUSEX10    = 1 << 14,
-	MODE_MOUSEMANY   = 1 << 15,
+	WIN_MODE_MOUSEMANY   = 1 << 15,
 	MODE_BRCKTPASTE  = 1 << 16,
 	MODE_NUMLOCK     = 1 << 17,
 	MODE_MOUSE       = WIN_MODE_MOUSEBTN|WIN_MODE_MOUSEMOTION|WIN_MODE_MOUSEX10\
-	                  |MODE_MOUSEMANY,
+	                  |WIN_MODE_MOUSEMANY,
 };
 
 void xbell(void);
