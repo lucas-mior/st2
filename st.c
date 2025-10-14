@@ -49,7 +49,7 @@ enum term_mode {
 	TERM_MODE_ALTSCREEN   = 1 << 2,
 	TERM_MODE_CRLF        = 1 << 3,
 	TERM_MODE_ECHO        = 1 << 4,
-	MODE_PRINT       = 1 << 5,
+	TERM_MODE_PRINT       = 1 << 5,
 	MODE_UTF8        = 1 << 6,
 };
 
@@ -758,7 +758,7 @@ ttynew(const char *line, char *cmd, const char *out, char **args)
 	int m, s;
 
 	if (out) {
-		term.mode |= MODE_PRINT;
+		term.mode |= TERM_MODE_PRINT;
 		iofd = (!strcmp(out, "-")) ?
 			  1 : open(out, O_WRONLY | O_CREAT, 0666);
 		if (iofd < 0) {
@@ -1640,10 +1640,10 @@ control_seq_intro_handle(void)
 			term_dump_sel();
 			break;
 		case 4:
-			term.mode &= ~MODE_PRINT;
+			term.mode &= ~TERM_MODE_PRINT;
 			break;
 		case 5:
-			term.mode |= MODE_PRINT;
+			term.mode |= TERM_MODE_PRINT;
 			break;
 		}
 		break;
@@ -2073,7 +2073,7 @@ term_printer(char *s, size_t len)
 void
 toggleprinter(const Arg *arg)
 {
-	term.mode ^= MODE_PRINT;
+	term.mode ^= TERM_MODE_PRINT;
 }
 
 void
@@ -2401,7 +2401,7 @@ term_putc(Rune u)
 			width = 1;
 	}
 
-	if (IS_SET(MODE_PRINT))
+	if (IS_SET(TERM_MODE_PRINT))
 		term_printer(c, len);
 
 	/*
