@@ -146,7 +146,7 @@ static void x_draw_glyph_font_specs(const XftGlyphFontSpec *, Glyph, int, int, i
 static void x_draw_glyph(Glyph, int, int);
 static void x_clear(int, int, int, int);
 static int x_geom_mask_to_gravity(int);
-static int ximopen(Display *);
+static int x_im_open(Display *);
 static void ximinstantiate(Display *, XPointer, XPointer);
 static void ximdestroy(XIM, XPointer, XPointer);
 static int xicdestroy(XIC, XPointer, XPointer);
@@ -1073,7 +1073,7 @@ xunloadfonts(void)
 }
 
 int
-ximopen(Display *dpy)
+x_im_open(Display *dpy)
 {
 	XIMCallback imdestroy = { .client_data = NULL, .callback = ximdestroy };
 	XICCallback icdestroy = { .client_data = NULL, .callback = xicdestroy };
@@ -1105,7 +1105,7 @@ ximopen(Display *dpy)
 void
 ximinstantiate(Display *dpy, XPointer client, XPointer call)
 {
-	if (ximopen(dpy))
+	if (x_im_open(dpy))
 		XUnregisterIMInstantiateCallback(xw.dpy, NULL, NULL, NULL,
 		                                 ximinstantiate, NULL);
 }
@@ -1194,7 +1194,7 @@ xinit(int cols, int rows)
 	xw.draw = XftDrawCreate(xw.dpy, xw.buf, xw.vis, xw.cmap);
 
 	/* input methods */
-	if (!ximopen(xw.dpy)) {
+	if (!x_im_open(xw.dpy)) {
 		XRegisterIMInstantiateCallback(xw.dpy, NULL, NULL, NULL,
 	                                       ximinstantiate, NULL);
 	}
