@@ -185,7 +185,7 @@ static void term_new_line(int);
 static void term_put_tab(int);
 static void term_putc(Rune);
 static void term_reset(void);
-static void tscrollup(int, int);
+static void term_scroll_up(int, int);
 static void tscrolldown(int, int);
 static void tsetattr(const int *, int);
 static void tsetchar(Rune, const Glyph *, int, int);
@@ -1075,7 +1075,7 @@ tscrolldown(int orig, int n)
 }
 
 void
-tscrollup(int orig, int n)
+term_scroll_up(int orig, int n)
 {
 	int i;
 	Line temp;
@@ -1120,7 +1120,7 @@ term_new_line(int first_col)
 	int y = term.c.y;
 
 	if (y == term.bot) {
-		tscrollup(term.top, 1);
+		term_scroll_up(term.top, 1);
 	} else {
 		y++;
 	}
@@ -1295,7 +1295,7 @@ void
 term_delete_line(int n)
 {
 	if (BETWEEN(term.c.y, term.top, term.bot))
-		tscrollup(term.c.y, n);
+		term_scroll_up(term.c.y, n);
 }
 
 int32_t
@@ -1739,7 +1739,7 @@ control_seq_intro_handle(void)
 	case 'S': /* SU -- Scroll <n> line up */
 		if (csiescseq.priv) break;
 		DEFAULT(csiescseq.arg[0], 1);
-		tscrollup(term.top, csiescseq.arg[0]);
+		term_scroll_up(term.top, csiescseq.arg[0]);
 		break;
 	case 'T': /* SD -- Scroll <n> line down */
 		DEFAULT(csiescseq.arg[0], 1);
@@ -2332,7 +2332,7 @@ eschandle(uchar ascii)
 		return 0;
 	case 'D': /* IND -- Linefeed */
 		if (term.c.y == term.bot) {
-			tscrollup(term.top, 1);
+			term_scroll_up(term.top, 1);
 		} else {
 			term_move_to(term.c.x, term.c.y+1);
 		}
@@ -2582,7 +2582,7 @@ tresize(int col, int row)
 
 	/*
 	 * slide screen to keep cursor where we expect it -
-	 * tscrollup would work here, but we can optimize to
+	 * term_scroll_up would work here, but we can optimize to
 	 * memmove because we're freeing the earlier lines
 	 */
 	for (i = 0; i <= term.c.y - row; i++) {
