@@ -419,7 +419,7 @@ term_line_len(int y)
 }
 
 void
-selstart(int col, int row, int snap)
+sel_start(int col, int row, int snap)
 {
 	sel_clear();
 	selection.mode = SEL_EMPTY;

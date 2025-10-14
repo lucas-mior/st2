@@ -499,7 +499,7 @@ handler_button_press(XEvent *e)
 		xsel.tclick2 = xsel.tclick1;
 		xsel.tclick1 = now;
 
-		selstart(evcol(e), evrow(e), snap);
+		sel_start(evcol(e), evrow(e), snap);
 	}
 }
 
