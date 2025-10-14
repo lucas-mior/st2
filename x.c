@@ -289,7 +289,7 @@ user_sel_paste(const Arg *dummy)
 void
 user_toggle_numlock(const Arg *dummy)
 {
-	term_window.mode ^= MODE_NUMLOCK;
+	term_window.mode ^= WIN_MODE_NUMLOCK;
 }
 
 void
@@ -1227,7 +1227,7 @@ x_init(int number_cols, int number_rows)
 	XChangeProperty(x_window.dpy, x_window.win, x_window.netwmpid, XA_CARDINAL, 32,
 			PropModeReplace, (uchar *)&thispid, 1);
 
-	term_window.mode = MODE_NUMLOCK;
+	term_window.mode = WIN_MODE_NUMLOCK;
 	reset_title();
 	x_hints();
 	XMapWindow(x_window.dpy, x_window.win);
@@ -1826,7 +1826,7 @@ kmap(KeySym k, uint state)
 
 		if (IS_SET(WIN_MODE_APPKEYPAD) ? kp->appkey < 0 : kp->appkey > 0)
 			continue;
-		if (IS_SET(MODE_NUMLOCK) && kp->appkey == 2)
+		if (IS_SET(WIN_MODE_NUMLOCK) && kp->appkey == 2)
 			continue;
 
 		if (IS_SET(WIN_MODE_APPCURSOR) ? kp->appcursor < 0 : kp->appcursor > 0)
