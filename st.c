@@ -188,7 +188,7 @@ static void term_reset(void);
 static void term_scroll_up(int, int);
 static void term_scroll_down(int, int);
 static void term_set_attr(const int *, int);
-static void tsetchar(Rune, const Glyph *, int, int);
+static void term_set_char(Rune, const Glyph *, int, int);
 static void tsetdirt(int, int);
 static void tsetscroll(int, int);
 static void tswapscreen(void);
@@ -1185,7 +1185,7 @@ term_move_to(int x, int y)
 }
 
 void
-tsetchar(Rune u, const Glyph *attr, int x, int y)
+term_set_char(Rune u, const Glyph *attr, int x, int y)
 {
 	static const char *vt100_0[62] = { /* 0x41 - 0x7e */
 		"↑", "↓", "→", "←", "█", "▚", "☃", /* A - G */
@@ -2171,7 +2171,7 @@ tdectest(char c)
 	if (c == '8') { /* DEC screen alignment test. */
 		for (x = 0; x < term.col; ++x) {
 			for (y = 0; y < term.row; ++y)
-				tsetchar('E', &term.c.attr, x, y);
+				term_set_char('E', &term.c.attr, x, y);
 		}
 	}
 }
@@ -2235,7 +2235,7 @@ tcontrolcode(uchar ascii)
 		term.charset = 1 - (ascii - '\016');
 		return;
 	case '\032': /* SUB */
-		tsetchar('?', &term.c.attr, term.c.x, term.c.y);
+		term_set_char('?', &term.c.attr, term.c.x, term.c.y);
 		/* FALLTHROUGH */
 	case '\030': /* CAN */
 		control_seq_intro_reset();
@@ -2512,7 +2512,7 @@ check_control_code:
 		gp = &term.line[term.c.y][term.c.x];
 	}
 
-	tsetchar(u, &term.c.attr, term.c.x, term.c.y);
+	term_set_char(u, &term.c.attr, term.c.x, term.c.y);
 	term.lastc = u;
 
 	if (width == 2) {
