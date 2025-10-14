@@ -14,7 +14,7 @@ enum win_mode {
 	WIN_MODE_8BIT        = 1 << 10,
 	WIN_MODE_BLINK       = 1 << 11,
 	WIN_MODE_FBLINK      = 1 << 12,
-	MODE_FOCUS       = 1 << 13,
+	WIN_MODE_FOCUS       = 1 << 13,
 	MODE_MOUSEX10    = 1 << 14,
 	MODE_MOUSEMANY   = 1 << 15,
 	MODE_BRCKTPASTE  = 1 << 16,

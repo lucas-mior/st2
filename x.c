@@ -1784,13 +1784,13 @@ handler_focus(XEvent *ev)
 			XSetICFocus(x_window.ime.xic);
 		term_window.mode |= WIN_MODE_FOCUSED;
 		x_set_urgency(0);
-		if (IS_SET(MODE_FOCUS))
+		if (IS_SET(WIN_MODE_FOCUS))
 			tty_write("\033[I", 3, 0);
 	} else {
 		if (x_window.ime.xic)
 			XUnsetICFocus(x_window.ime.xic);
 		term_window.mode &= ~WIN_MODE_FOCUSED;
-		if (IS_SET(MODE_FOCUS))
+		if (IS_SET(WIN_MODE_FOCUS))
 			tty_write("\033[O", 3, 0);
 	}
 }
