@@ -158,7 +158,7 @@ static int x_load_color(int, const char *, Color *);
 static int x_load_font(Font *, FcPattern *);
 static void x_load_fonts(const char *, double);
 static void x_unload_font(Font *);
-static void xunloadfonts(void);
+static void x_unload_fonts(void);
 static void xsetenv(void);
 static void xseturgency(int);
 static int evcol(XEvent *);
@@ -304,7 +304,7 @@ zoom(const Arg *arg)
 void
 zoom_abs(const Arg *arg)
 {
-	xunloadfonts();
+	x_unload_fonts();
 	x_load_fonts(usedfont, arg->f);
 	cresize(0, 0);
 	redraw();
@@ -1060,7 +1060,7 @@ x_unload_font(Font *f)
 }
 
 void
-xunloadfonts(void)
+x_unload_fonts(void)
 {
 	/* Free the loaded fonts in the font cache.  */
 	while (frclen > 0)
