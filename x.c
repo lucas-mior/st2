@@ -816,7 +816,7 @@ x_load_cols(void)
 }
 
 int
-xgetcolor(int x, unsigned char *r, unsigned char *g, unsigned char *b)
+x_get_color(int x, unsigned char *r, unsigned char *g, unsigned char *b)
 {
 	if (!BETWEEN(x, 0, draw_context.collen - 1))
 		return 1;

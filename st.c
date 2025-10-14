@@ -1863,7 +1863,7 @@ osc_color_response(int num, int index, int is_osc4)
 	char buf[32];
 	unsigned char r, g, b;
 
-	if (xgetcolor(is_osc4 ? num : index, &r, &g, &b)) {
+	if (x_get_color(is_osc4 ? num : index, &r, &g, &b)) {
 		fprintf(stderr, "erresc: failed to fetch %s color %d\n",
 		        is_osc4 ? "osc4" : "osc",
 		        is_osc4 ? num : index);
