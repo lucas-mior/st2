@@ -1559,7 +1559,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	}
 
 	/* draw the new one */
-	if (IS_SET(MODE_FOCUSED)) {
+	if (IS_SET(WIN_MODE_FOCUSED)) {
 		switch (term_window.cursor) {
 		case 7: /* st extension */
 			g.u = 0x2603; /* snowman (U+2603) */
@@ -1765,7 +1765,7 @@ x_set_urgency(int add)
 void
 xbell(void)
 {
-	if (!(IS_SET(MODE_FOCUSED)))
+	if (!(IS_SET(WIN_MODE_FOCUSED)))
 		x_set_urgency(1);
 	if (bellvolume)
 		XkbBell(x_window.dpy, x_window.win, bellvolume, (Atom)NULL);
@@ -1782,14 +1782,14 @@ handler_focus(XEvent *ev)
 	if (ev->type == FocusIn) {
 		if (x_window.ime.xic)
 			XSetICFocus(x_window.ime.xic);
-		term_window.mode |= MODE_FOCUSED;
+		term_window.mode |= WIN_MODE_FOCUSED;
 		x_set_urgency(0);
 		if (IS_SET(MODE_FOCUS))
 			tty_write("\033[I", 3, 0);
 	} else {
 		if (x_window.ime.xic)
 			XUnsetICFocus(x_window.ime.xic);
-		term_window.mode &= ~MODE_FOCUSED;
+		term_window.mode &= ~WIN_MODE_FOCUSED;
 		if (IS_SET(MODE_FOCUS))
 			tty_write("\033[O", 3, 0);
 	}
@@ -1900,10 +1900,10 @@ handler_client_message(XEvent *e)
 	 */
 	if (e->xclient.message_type == x_window.xembed && e->xclient.format == 32) {
 		if (e->xclient.data.l[1] == XEMBED_FOCUS_IN) {
-			term_window.mode |= MODE_FOCUSED;
+			term_window.mode |= WIN_MODE_FOCUSED;
 			x_set_urgency(0);
 		} else if (e->xclient.data.l[1] == XEMBED_FOCUS_OUT) {
-			term_window.mode &= ~MODE_FOCUSED;
+			term_window.mode &= ~WIN_MODE_FOCUSED;
 		}
 	} else if (e->xclient.data.l[0] == x_window.wmdeletewin) {
 		tty_hangup();
