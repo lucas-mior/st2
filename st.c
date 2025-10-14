@@ -160,7 +160,7 @@ static void tty_write_raw(const char *, size_t);
 static void control_seq_intro_dump(void);
 static void control_seq_intro_handle(void);
 static void control_seq_intro_parse(void);
-static void csireset(void);
+static void control_seq_intro_reset(void);
 static void osc_color_response(int, int, int);
 static int eschandle(uchar);
 static void strdump(void);
@@ -1851,7 +1851,7 @@ control_seq_intro_dump(void)
 }
 
 void
-csireset(void)
+control_seq_intro_reset(void)
 {
 	memset(&csiescseq, 0, sizeof(csiescseq));
 }
@@ -2226,7 +2226,7 @@ tcontrolcode(uchar ascii)
 		}
 		break;
 	case '\033': /* ESC */
-		csireset();
+		control_seq_intro_reset();
 		term.esc &= ~(ESC_CSI|ESC_ALTCHARSET|ESC_TEST);
 		term.esc |= ESC_START;
 		return;
@@ -2238,7 +2238,7 @@ tcontrolcode(uchar ascii)
 		tsetchar('?', &term.c.attr, term.c.x, term.c.y);
 		/* FALLTHROUGH */
 	case '\030': /* CAN */
-		csireset();
+		control_seq_intro_reset();
 		break;
 	case '\005': /* ENQ (IGNORED) */
 	case '\000': /* NUL (IGNORED) */
