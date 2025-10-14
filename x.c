@@ -55,7 +55,7 @@ static void clipboard_copy(const Arg *);
 static void clipboard_paste(const Arg *);
 static void toggle_numlock(const Arg *);
 static void sel_paste(const Arg *);
-static void zoom(const Arg *);
+static void user_zoom(const Arg *);
 static void zoom_abs(const Arg *);
 static void zoom_reset(const Arg *);
 static void tty_send(const Arg *);
@@ -293,7 +293,7 @@ toggle_numlock(const Arg *dummy)
 }
 
 void
-zoom(const Arg *arg)
+user_zoom(const Arg *arg)
 {
 	Arg larg;
 
