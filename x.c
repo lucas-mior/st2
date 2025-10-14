@@ -1763,7 +1763,7 @@ x_set_urgency(int add)
 }
 
 void
-xbell(void)
+x_bell(void)
 {
 	if (!(IS_SET(WIN_MODE_FOCUSED)))
 		x_set_urgency(1);

@@ -2222,7 +2222,7 @@ term_control_code(uchar ascii)
 			/* backwards compatibility to xterm */
 			string_handle();
 		} else {
-			xbell();
+			x_bell();
 		}
 		break;
 	case '\033': /* ESC */

@@ -23,7 +23,7 @@ enum win_mode {
 	                  |WIN_MODE_MOUSEMANY,
 };
 
-void xbell(void);
+void x_bell(void);
 void xclipcopy(void);
 void xdrawcursor(int, int, Glyph, int, int, Glyph);
 void xdrawline(Line, int, int, int);
