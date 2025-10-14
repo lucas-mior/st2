@@ -1615,7 +1615,7 @@ x_setenv(void)
 }
 
 void
-xseticontitle(char *p)
+x_set_icon_title(char *p)
 {
 	XTextProperty prop;
 	DEFAULT(p, opt_title);

@@ -1902,12 +1902,12 @@ string_handle(void)
 		case 0:
 			if (narg > 1) {
 				xsettitle(strescseq.args[1]);
-				xseticontitle(strescseq.args[1]);
+				x_set_icon_title(strescseq.args[1]);
 			}
 			return;
 		case 1:
 			if (narg > 1)
-				xseticontitle(strescseq.args[1]);
+				x_set_icon_title(strescseq.args[1]);
 			return;
 		case 2:
 			if (narg > 1)
