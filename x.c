@@ -56,7 +56,7 @@ static void clipboard_paste(const Arg *);
 static void toggle_numlock(const Arg *);
 static void sel_paste(const Arg *);
 static void zoom(const Arg *);
-static void zoomabs(const Arg *);
+static void zoom_abs(const Arg *);
 static void zoomreset(const Arg *);
 static void ttysend(const Arg *);
 
@@ -298,11 +298,11 @@ zoom(const Arg *arg)
 	Arg larg;
 
 	larg.f = usedfontsize + arg->f;
-	zoomabs(&larg);
+	zoom_abs(&larg);
 }
 
 void
-zoomabs(const Arg *arg)
+zoom_abs(const Arg *arg)
 {
 	xunloadfonts();
 	xloadfonts(usedfont, arg->f);
@@ -318,7 +318,7 @@ zoomreset(const Arg *arg)
 
 	if (defaultfontsize > 0) {
 		larg.f = defaultfontsize;
-		zoomabs(&larg);
+		zoom_abs(&larg);
 	}
 }
 
