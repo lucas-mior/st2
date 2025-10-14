@@ -57,7 +57,7 @@ static void toggle_numlock(const Arg *);
 static void sel_paste(const Arg *);
 static void user_zoom(const Arg *);
 static void zoom_abs(const Arg *);
-static void zoom_reset(const Arg *);
+static void user_zoom_reset(const Arg *);
 static void tty_send(const Arg *);
 
 /* config.h for applying patches and the configuration. */
@@ -312,7 +312,7 @@ zoom_abs(const Arg *arg)
 }
 
 void
-zoom_reset(const Arg *arg)
+user_zoom_reset(const Arg *arg)
 {
 	Arg larg;
 
