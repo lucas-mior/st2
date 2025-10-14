@@ -153,7 +153,7 @@ static int x_ic_destroy(XIC, XPointer, XPointer);
 static void x_init(int, int);
 static void cresize(int, int);
 static void x_resize(int, int);
-static void xhints(void);
+static void x_hints(void);
 static int xloadcolor(int, const char *, Color *);
 static int xloadfont(Font *, FcPattern *);
 static void xloadfonts(const char *, double);
@@ -308,7 +308,7 @@ zoom_abs(const Arg *arg)
 	xloadfonts(usedfont, arg->f);
 	cresize(0, 0);
 	redraw();
-	xhints();
+	x_hints();
 }
 
 void
@@ -857,7 +857,7 @@ x_clear(int x1, int y1, int x2, int y2)
 }
 
 void
-xhints(void)
+x_hints(void)
 {
 	XClassHint class = {opt_name ? opt_name : termname,
 	                    opt_class ? opt_class : termname};
@@ -1229,7 +1229,7 @@ x_init(int cols, int rows)
 
 	win.mode = MODE_NUMLOCK;
 	resettitle();
-	xhints();
+	x_hints();
 	XMapWindow(xw.dpy, xw.win);
 	XSync(xw.dpy, False);
 
