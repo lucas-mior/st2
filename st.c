@@ -1519,7 +1519,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 			case 1002: /* 1002: report motion on button press */
 				xsetpointermotion(0);
 				xsetmode(0, MODE_MOUSE);
-				xsetmode(set, MODE_MOUSEMOTION);
+				xsetmode(set, WIN_MODE_MOUSEMOTION);
 				break;
 			case 1003: /* 1003: enable all mouse motions */
 				xsetpointermotion(set);

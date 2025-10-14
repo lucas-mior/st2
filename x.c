@@ -373,10 +373,10 @@ mousereport(XEvent *e)
 	if (e->type == MotionNotify) {
 		if (x == ox && y == oy)
 			return;
-		if (!IS_SET(MODE_MOUSEMOTION) && !IS_SET(MODE_MOUSEMANY))
+		if (!IS_SET(WIN_MODE_MOUSEMOTION) && !IS_SET(MODE_MOUSEMANY))
 			return;
-		/* MODE_MOUSEMOTION: no reporting if no button is pressed */
-		if (IS_SET(MODE_MOUSEMOTION) && buttons == 0)
+		/* WIN_MODE_MOUSEMOTION: no reporting if no button is pressed */
+		if (IS_SET(WIN_MODE_MOUSEMOTION) && buttons == 0)
 			return;
 		/* Set btn to lowest-numbered pressed button, or 12 if no
 		 * buttons are pressed. */
