@@ -176,7 +176,7 @@ static void term_clear_region(int, int, int, int);
 static void term_cursor(int);
 static void term_delete_char(int);
 static void term_delete_line(int);
-static void tinsertblank(int);
+static void term_insert_blank(int);
 static void tinsertblankline(int);
 static int tlinelen(int);
 static void tmoveto(int, int);
@@ -1268,7 +1268,7 @@ term_delete_char(int n)
 }
 
 void
-tinsertblank(int n)
+term_insert_blank(int n)
 {
 	int dst, src, size;
 	Glyph *line;
@@ -1617,7 +1617,7 @@ control_seq_intro_handle(void)
 		break;
 	case '@': /* ICH -- Insert <n> blank char */
 		DEFAULT(csiescseq.arg[0], 1);
-		tinsertblank(csiescseq.arg[0]);
+		term_insert_blank(csiescseq.arg[0]);
 		break;
 	case 'A': /* CUU -- Cursor <n> Up */
 		DEFAULT(csiescseq.arg[0], 1);
