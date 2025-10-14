@@ -51,7 +51,7 @@ typedef struct {
 #define XK_SWITCH_MOD (1<<13|1<<14)
 
 /* function definitions used in config.h */
-static void clipboard_copy(const Arg *);
+static void user_clipboard_copy(const Arg *);
 static void clipboard_paste(const Arg *);
 static void toggle_numlock(const Arg *);
 static void sel_paste(const Arg *);
@@ -255,7 +255,7 @@ static char *opt_title = NULL;
 static uint buttons; /* bit field of pressed buttons */
 
 void
-clipboard_copy(const Arg *dummy)
+user_clipboard_copy(const Arg *dummy)
 {
 	Atom clipboard;
 
@@ -607,7 +607,7 @@ handler_sel_notify(XEvent *e)
 void
 xclipcopy(void)
 {
-	clipboard_copy(NULL);
+	user_clipboard_copy(NULL);
 }
 
 void
