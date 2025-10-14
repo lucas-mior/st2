@@ -164,7 +164,7 @@ static unsigned int mouse_background = 0;
 static unsigned int default_attr = 11;
 
 /*
- * Force mouse select/shortcuts while mask is active (when MODE_MOUSE is set).
+ * Force mouse select/shortcuts while mask is active (when WIN_MODE_MOUSE is set).
  * Note that if you want to use ShiftMask with selmasks, set this to an other
  * modifier, set to 0 to not use it.
  */

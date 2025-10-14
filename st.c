@@ -1508,22 +1508,22 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				break;
 			case 9:    /* X10 mouse compatibility mode */
 				xsetpointermotion(0);
-				xsetmode(0, MODE_MOUSE);
+				xsetmode(0, WIN_MODE_MOUSE);
 				xsetmode(set, WIN_MODE_MOUSEX10);
 				break;
 			case 1000: /* 1000: report button press */
 				xsetpointermotion(0);
-				xsetmode(0, MODE_MOUSE);
+				xsetmode(0, WIN_MODE_MOUSE);
 				xsetmode(set, WIN_MODE_MOUSEBTN);
 				break;
 			case 1002: /* 1002: report motion on button press */
 				xsetpointermotion(0);
-				xsetmode(0, MODE_MOUSE);
+				xsetmode(0, WIN_MODE_MOUSE);
 				xsetmode(set, WIN_MODE_MOUSEMOTION);
 				break;
 			case 1003: /* 1003: enable all mouse motions */
 				xsetpointermotion(set);
-				xsetmode(0, MODE_MOUSE);
+				xsetmode(0, WIN_MODE_MOUSE);
 				xsetmode(set, WIN_MODE_MOUSEMANY);
 				break;
 			case 1004: /* 1004: send handler_focus events to tty */

@@ -475,7 +475,7 @@ handler_button_press(XEvent *e)
 	if (1 <= btn && btn <= 11)
 		buttons |= 1 << (btn-1);
 
-	if (IS_SET(MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
+	if (IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
 		mousereport(e);
 		return;
 	}
@@ -702,7 +702,7 @@ handler_button_release(XEvent *e)
 	if (1 <= btn && btn <= 11)
 		buttons &= ~(1 << (btn-1));
 
-	if (IS_SET(MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
+	if (IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
 		mousereport(e);
 		return;
 	}
@@ -716,7 +716,7 @@ handler_button_release(XEvent *e)
 void
 handler_button_motion(XEvent *e)
 {
-	if (IS_SET(MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
+	if (IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
 		mousereport(e);
 		return;
 	}
