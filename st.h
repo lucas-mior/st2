@@ -83,7 +83,7 @@ void draw(void);
 
 void printscreen(const Arg *);
 void printsel(const Arg *);
-void sendbreak(const Arg *);
+void user_send_break(const Arg *);
 void toggleprinter(const Arg *);
 
 int term_attr_set(int);

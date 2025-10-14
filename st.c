@@ -2054,7 +2054,7 @@ string_reset(void)
 }
 
 void
-sendbreak(const Arg *arg)
+user_send_break(const Arg *arg)
 {
 	if (tcsendbreak(cmdfd, 0))
 		perror("Error sending break");
