@@ -187,7 +187,7 @@ static void term_putc(Rune);
 static void term_reset(void);
 static void term_scroll_up(int, int);
 static void term_scroll_down(int, int);
-static void tsetattr(const int *, int);
+static void term_set_attr(const int *, int);
 static void tsetchar(Rune, const Glyph *, int, int);
 static void tsetdirt(int, int);
 static void tsetscroll(int, int);
@@ -1349,7 +1349,7 @@ tdefcolor(const int *attr, int *npar, int l)
 }
 
 void
-tsetattr(const int *attr, int l)
+term_set_attr(const int *attr, int l)
 {
 	int i;
 	int32_t idx;
@@ -1777,7 +1777,7 @@ control_seq_intro_handle(void)
 		tsetmode(csiescseq.priv, 1, csiescseq.arg, csiescseq.narg);
 		break;
 	case 'm': /* SGR -- Terminal attribute (color) */
-		tsetattr(csiescseq.arg, csiescseq.narg);
+		term_set_attr(csiescseq.arg, csiescseq.narg);
 		break;
 	case 'n': /* DSR -- Device Status Report */
 		switch (csiescseq.arg[0]) {
