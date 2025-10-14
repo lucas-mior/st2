@@ -87,7 +87,7 @@ void sendbreak(const Arg *);
 void toggleprinter(const Arg *);
 
 int term_attr_set(int);
-void tnew(int, int);
+void term_new(int, int);
 void tresize(int, int);
 void tsetdirtattr(int);
 void ttyhangup(void);

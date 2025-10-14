@@ -1036,7 +1036,7 @@ term_reset(void)
 }
 
 void
-tnew(int col, int row)
+term_new(int col, int row)
 {
 	term = (Term){ .c = { .attr = { .fg = defaultfg, .bg = defaultbg } } };
 	tresize(col, row);
