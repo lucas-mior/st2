@@ -169,7 +169,7 @@ static void string_parse(void);
 static void string_reset(void);
 
 static void term_printer(char *, size_t);
-static void tdumpsel(void);
+static void term_dump_sel(void);
 static void tdumpline(int);
 static void tdump(void);
 static void tclearregion(int, int, int, int);
@@ -1637,7 +1637,7 @@ control_seq_intro_handle(void)
 			tdumpline(term.c.y);
 			break;
 		case 2:
-			tdumpsel();
+			term_dump_sel();
 			break;
 		case 4:
 			term.mode &= ~MODE_PRINT;
@@ -2085,11 +2085,11 @@ printscreen(const Arg *arg)
 void
 printsel(const Arg *arg)
 {
-	tdumpsel();
+	term_dump_sel();
 }
 
 void
-tdumpsel(void)
+term_dump_sel(void)
 {
 	char *ptr;
 
