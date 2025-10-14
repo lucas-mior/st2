@@ -169,7 +169,7 @@ static void handler_visibility(XEvent *);
 static void handler_unmap(XEvent *);
 static void handler_key_press(XEvent *);
 static void handler_client_message(XEvent *);
-static void resize(XEvent *);
+static void handler_configure_notify(XEvent *);
 static void focus(XEvent *);
 static uint buttonmask(uint);
 static int mouseaction(XEvent *, uint);
@@ -192,7 +192,7 @@ static void usage(void);
 static void (*handler[LASTEvent])(XEvent *) = {
 	[KeyPress] = handler_key_press,
 	[ClientMessage] = handler_client_message,
-	[ConfigureNotify] = resize,
+	[ConfigureNotify] = handler_configure_notify,
 	[VisibilityNotify] = handler_visibility,
 	[UnmapNotify] = handler_unmap,
 	[Expose] = handler_expose,
@@ -756,7 +756,7 @@ x_resize(int col, int row)
 	XftDrawChange(xw.draw, xw.buf);
 	x_clear(0, 0, win.w, win.h);
 
-	/* resize to new width */
+	/* handler_configure_notify to new width */
 	xw.specbuf = xrealloc(xw.specbuf, col * sizeof(GlyphFontSpec));
 }
 
@@ -1912,7 +1912,7 @@ handler_client_message(XEvent *e)
 }
 
 void
-resize(XEvent *e)
+handler_configure_notify(XEvent *e)
 {
 	if (e->xconfigure.width == win.w && e->xconfigure.height == win.h)
 		return;
