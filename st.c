@@ -193,7 +193,7 @@ static void term_set_dirt(int, int);
 static void term_set_scroll(int, int);
 static void term_swap_screen(void);
 static void term_set_mode(int, int, const int *, int);
-static int twrite(const char *, int, int);
+static int term_write(const char *, int, int);
 static void tfulldirt(void);
 static void tcontrolcode(uchar );
 static void tdectest(char );
@@ -831,7 +831,7 @@ ttyread(void)
 		die("couldn't read from shell: %s\n", strerror(errno));
 	default:
 		buflen += ret;
-		written = twrite(buf, buflen, 0);
+		written = term_write(buf, buflen, 0);
 		buflen -= written;
 		/* keep any incomplete UTF-8 byte sequence for the next call */
 		if (buflen > 0)
@@ -846,7 +846,7 @@ ttywrite(const char *s, size_t n, int may_echo)
 	const char *next;
 
 	if (may_echo && IS_SET(MODE_ECHO))
-		twrite(s, n, 1);
+		term_write(s, n, 1);
 
 	if (!IS_SET(MODE_CRLF)) {
 		tty_write_raw(s, n);
@@ -2534,7 +2534,7 @@ check_control_code:
 }
 
 int
-twrite(const char *buf, int buflen, int show_ctrl)
+term_write(const char *buf, int buflen, int show_ctrl)
 {
 	int charsize;
 	Rune u;
