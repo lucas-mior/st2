@@ -160,7 +160,7 @@ static void x_load_fonts(const char *, double);
 static void x_unload_font(Font *);
 static void x_unload_fonts(void);
 static void x_setenv(void);
-static void xseturgency(int);
+static void x_set_urgency(int);
 static int evcol(XEvent *);
 static int evrow(XEvent *);
 
@@ -1753,7 +1753,7 @@ xsetcursor(int cursor)
 }
 
 void
-xseturgency(int add)
+x_set_urgency(int add)
 {
 	XWMHints *h = XGetWMHints(xw.dpy, xw.win);
 
@@ -1766,7 +1766,7 @@ void
 xbell(void)
 {
 	if (!(IS_SET(MODE_FOCUSED)))
-		xseturgency(1);
+		x_set_urgency(1);
 	if (bellvolume)
 		XkbBell(xw.dpy, xw.win, bellvolume, (Atom)NULL);
 }
@@ -1783,7 +1783,7 @@ focus(XEvent *ev)
 		if (xw.ime.xic)
 			XSetICFocus(xw.ime.xic);
 		win.mode |= MODE_FOCUSED;
-		xseturgency(0);
+		x_set_urgency(0);
 		if (IS_SET(MODE_FOCUS))
 			ttywrite("\033[I", 3, 0);
 	} else {
@@ -1901,7 +1901,7 @@ cmessage(XEvent *e)
 	if (e->xclient.message_type == xw.xembed && e->xclient.format == 32) {
 		if (e->xclient.data.l[1] == XEMBED_FOCUS_IN) {
 			win.mode |= MODE_FOCUSED;
-			xseturgency(0);
+			x_set_urgency(0);
 		} else if (e->xclient.data.l[1] == XEMBED_FOCUS_OUT) {
 			win.mode &= ~MODE_FOCUSED;
 		}
