@@ -48,7 +48,7 @@ enum selection_type {
 };
 
 enum selection_snap {
-	SNAP_WORD = 1,
+	SELECTION_SNAP_WORD = 1,
 	SNAP_LINE = 2
 };
 

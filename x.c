@@ -492,7 +492,7 @@ handler_button_press(XEvent *e)
 		if (TIMEDIFF(now, xsel.tclick2) <= tripleclicktimeout) {
 			snap = SNAP_LINE;
 		} else if (TIMEDIFF(now, xsel.tclick1) <= doubleclicktimeout) {
-			snap = SNAP_WORD;
+			snap = SELECTION_SNAP_WORD;
 		} else {
 			snap = 0;
 		}

@@ -516,7 +516,7 @@ sel_snap(int *x, int *y, int direction)
 	const Glyph *gp, *prevgp;
 
 	switch (selection.snap) {
-	case SNAP_WORD:
+	case SELECTION_SNAP_WORD:
 		/*
 		 * Snap around if the word wraps around at the end or
 		 * beginning of a line.
