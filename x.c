@@ -2101,7 +2101,7 @@ run:
 	term_new(cols, rows);
 	x_init(cols, rows);
 	x_setenv();
-	selinit();
+	sel_init();
 	run();
 
 	return 0;

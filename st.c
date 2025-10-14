@@ -397,7 +397,7 @@ base64_decode(const char *src)
 }
 
 void
-selinit(void)
+sel_init(void)
 {
 	selection.mode = SEL_IDLE;
 	selection.snap = 0;

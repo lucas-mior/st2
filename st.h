@@ -99,7 +99,7 @@ void tty_write(const char *, size_t, int);
 void reset_title(void);
 
 void sel_clear(void);
-void selinit(void);
+void sel_init(void);
 void selstart(int, int, int);
 void selextend(int, int, int, int);
 int selected(int, int);
