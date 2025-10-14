@@ -165,7 +165,7 @@ static void osc_color_response(int, int, int);
 static int eschandle(uchar);
 static void string_dump(void);
 static void string_handle(void);
-static void strparse(void);
+static void string_parse(void);
 static void strreset(void);
 
 static void tprinter(char *, size_t);
@@ -1893,7 +1893,7 @@ string_handle(void)
 	};
 
 	term.esc &= ~(ESC_STR_END|ESC_STR);
-	strparse();
+	string_parse();
 	par = (narg = strescseq.narg) ? atoi(strescseq.args[0]) : 0;
 
 	switch (strescseq.type) {
@@ -1996,7 +1996,7 @@ string_handle(void)
 }
 
 void
-strparse(void)
+string_parse(void)
 {
 	int c;
 	char *p = strescseq.buf;
