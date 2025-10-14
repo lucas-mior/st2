@@ -44,7 +44,7 @@
 #define ISDELIM(u)		(u && wcschr(worddelimiters, u))
 
 enum term_mode {
-	MODE_WRAP        = 1 << 0,
+	TERM_MODE_WRAP        = 1 << 0,
 	MODE_INSERT      = 1 << 1,
 	MODE_ALTSCREEN   = 1 << 2,
 	MODE_CRLF        = 1 << 3,
@@ -1023,7 +1023,7 @@ term_reset(void)
 		term.tabs[i] = 1;
 	term.top = 0;
 	term.bot = term.row - 1;
-	term.mode = MODE_WRAP|MODE_UTF8;
+	term.mode = TERM_MODE_WRAP|MODE_UTF8;
 	memset(term.trantbl, CS_USA, sizeof(term.trantbl));
 	term.charset = 0;
 
@@ -1491,7 +1491,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				term_move_abs_to(0, 0);
 				break;
 			case 7: /* DECAWM -- Auto wrap */
-				MODBIT(term.mode, set, MODE_WRAP);
+				MODBIT(term.mode, set, TERM_MODE_WRAP);
 				break;
 			case 0:  /* Error (IGNORED) */
 			case 2:  /* DECANM -- ANSI/VT52 (IGNORED) */
@@ -2493,7 +2493,7 @@ check_control_code:
 		selclear();
 
 	gp = &term.line[term.c.y][term.c.x];
-	if (IS_SET(MODE_WRAP) && (term.c.state & CURSOR_WRAPNEXT)) {
+	if (IS_SET(TERM_MODE_WRAP) && (term.c.state & CURSOR_WRAPNEXT)) {
 		gp->mode |= ATTR_WRAP;
 		term_new_line(1);
 		gp = &term.line[term.c.y][term.c.x];
@@ -2505,7 +2505,7 @@ check_control_code:
 	}
 
 	if (term.c.x+width > term.col) {
-		if (IS_SET(MODE_WRAP))
+		if (IS_SET(TERM_MODE_WRAP))
 			term_new_line(1);
 		else
 			term_move_to(term.col - width, term.c.y);
