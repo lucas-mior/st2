@@ -191,7 +191,7 @@ static void term_set_attr(const int *, int);
 static void term_set_char(Rune, const Glyph *, int, int);
 static void term_set_dirt(int, int);
 static void term_set_scroll(int, int);
-static void tswapscreen(void);
+static void term_swap_screen(void);
 static void tsetmode(int, int, const int *, int);
 static int twrite(const char *, int, int);
 static void tfulldirt(void);
@@ -1031,7 +1031,7 @@ term_reset(void)
 		term_move_to(0, 0);
 		term_cursor(CURSOR_SAVE);
 		term_clear_region(0, 0, term.col-1, term.row-1);
-		tswapscreen();
+		term_swap_screen();
 	}
 }
 
@@ -1044,7 +1044,7 @@ tnew(int col, int row)
 }
 
 void
-tswapscreen(void)
+term_swap_screen(void)
 {
 	Line *tmp = term.line;
 
@@ -1550,7 +1550,7 @@ tsetmode(int priv, int set, const int *args, int narg)
 							term.row-1);
 				}
 				if (set ^ alt) /* set is always 1 or 0 */
-					tswapscreen();
+					term_swap_screen();
 				if (*args != 1049)
 					break;
 				/* FALLTHROUGH */
@@ -2641,7 +2641,7 @@ tresize(int col, int row)
 		if (0 < col && minrow < row) {
 			term_clear_region(0, minrow, col - 1, row - 1);
 		}
-		tswapscreen();
+		term_swap_screen();
 		term_cursor(CURSOR_LOAD);
 	}
 	term.c = c;
