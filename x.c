@@ -587,10 +587,10 @@ handler_sel_notify(XEvent *e)
 			*repl++ = '\r';
 		}
 
-		if (IS_SET(MODE_BRCKTPASTE) && ofs == 0)
+		if (IS_SET(WIN_MODE_BRCKTPASTE) && ofs == 0)
 			tty_write("\033[200~", 6, 0);
 		tty_write((char *)data, nitems * format / 8, 1);
-		if (IS_SET(MODE_BRCKTPASTE) && rem == 0)
+		if (IS_SET(WIN_MODE_BRCKTPASTE) && rem == 0)
 			tty_write("\033[201~", 6, 0);
 		XFree(data);
 		/* number of 32-bit chunks returned */
