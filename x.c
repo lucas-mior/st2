@@ -1029,7 +1029,7 @@ x_load_fonts(const char *fontstr, double fontsize)
 	}
 
 	/* Setting character width and height. */
-	term_window.cw = ceilf(draw_context.font.width * cwscale);
+	term_window.cw = ceilf(draw_context.font.width * char_width_scale);
 	term_window.ch = ceilf(draw_context.font.height * chscale);
 
 	FcPatternDel(pattern, FC_SLANT);
