@@ -171,7 +171,7 @@ static void handler_key_press(XEvent *);
 static void handler_client_message(XEvent *);
 static void handler_configure_notify(XEvent *);
 static void handler_focus(XEvent *);
-static uint buttonmask(uint);
+static uint button_mask(uint);
 static int mouseaction(XEvent *, uint);
 static void brelease(XEvent *);
 static void bpress(XEvent *);
@@ -434,7 +434,7 @@ mousereport(XEvent *e)
 }
 
 uint
-buttonmask(uint button)
+button_mask(uint button)
 {
 	return button == Button1 ? Button1Mask
 	     : button == Button2 ? Button2Mask
@@ -450,7 +450,7 @@ mouseaction(XEvent *e, uint release)
 	MouseShortcut *ms;
 
 	/* ignore Button<N>mask for Button<N> - it's set on release */
-	uint state = e->xbutton.state & ~buttonmask(e->xbutton.button);
+	uint state = e->xbutton.state & ~button_mask(e->xbutton.button);
 
 	for (ms = mshortcuts; ms < mshortcuts + LEN(mshortcuts); ms++) {
 		if (ms->release == release &&
