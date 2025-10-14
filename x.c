@@ -152,7 +152,7 @@ static void x_im_destroy(XIM, XPointer, XPointer);
 static int x_ic_destroy(XIC, XPointer, XPointer);
 static void x_init(int, int);
 static void cresize(int, int);
-static void xresize(int, int);
+static void x_resize(int, int);
 static void xhints(void);
 static int xloadcolor(int, const char *, Color *);
 static int xloadfont(Font *, FcPattern *);
@@ -740,12 +740,12 @@ cresize(int width, int height)
 	row = MAX(1, row);
 
 	tresize(col, row);
-	xresize(col, row);
+	x_resize(col, row);
 	ttyresize(win.tw, win.th);
 }
 
 void
-xresize(int col, int row)
+x_resize(int col, int row)
 {
 	win.tw = col * win.cw;
 	win.th = row * win.ch;
