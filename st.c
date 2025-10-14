@@ -154,7 +154,7 @@ typedef struct {
 
 static void exec_shell(char *, char **);
 static void stty(char **);
-static void sigchld(int);
+static void handler_sigchld(int);
 static void ttywriteraw(const char *, size_t);
 
 static void csidump(void);
@@ -710,7 +710,7 @@ exec_shell(char *cmd, char **args)
 }
 
 void
-sigchld(int a)
+handler_sigchld(int a)
 {
 	int stat;
 	pid_t p;
@@ -808,7 +808,7 @@ ttynew(const char *line, char *cmd, const char *out, char **args)
 #endif
 		close(s);
 		cmdfd = m;
-		signal(SIGCHLD, sigchld);
+		signal(SIGCHLD, handler_sigchld);
 		break;
 	}
 	return cmdfd;
