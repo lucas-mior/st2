@@ -973,7 +973,7 @@ term_set_dirt(int top, int bot)
 }
 
 void
-tsetdirtattr(int attr)
+term_set_dirt_attr(int attr)
 {
 	int i, j;
 

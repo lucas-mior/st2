@@ -2011,7 +2011,7 @@ run(void)
 				if (-timeout > blinktimeout) /* start visible */
 					win.mode |= MODE_BLINK;
 				win.mode ^= MODE_BLINK;
-				tsetdirtattr(ATTR_BLINK);
+				term_set_dirt_attr(ATTR_BLINK);
 				lastblink = now;
 				timeout = blinktimeout;
 			}
