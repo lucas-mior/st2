@@ -2071,7 +2071,7 @@ term_printer(char *s, size_t len)
 }
 
 void
-toggleprinter(const Arg *arg)
+user_toggle_printer(const Arg *arg)
 {
 	term.mode ^= TERM_MODE_PRINT;
 }
