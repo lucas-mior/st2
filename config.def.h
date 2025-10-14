@@ -200,7 +200,7 @@ static Shortcut shortcuts[] = {
 	{ TERMMOD,              XK_V,           user_clipboard_paste,      {.i =  0} },
 	{ TERMMOD,              XK_Y,           user_sel_paste,       {.i =  0} },
 	{ ShiftMask,            XK_Insert,      user_sel_paste,       {.i =  0} },
-	{ TERMMOD,              XK_Num_Lock,    toggle_numlock,        {.i =  0} },
+	{ TERMMOD,              XK_Num_Lock,    user_toggle_numlock,        {.i =  0} },
 };
 
 /*
@@ -212,7 +212,7 @@ static Shortcut shortcuts[] = {
  * appkey value:
  * * 0: no value
  * * > 0: keypad application mode enabled
- * *   = 2: term.toggle_numlock = 1
+ * *   = 2: term.user_toggle_numlock = 1
  * * < 0: keypad application mode disabled
  * appcursor value:
  * * 0: no value
@@ -232,7 +232,7 @@ static KeySym mappedkeys[] = { -1 };
 
 /*
  * State bits to ignore when matching key or button events.  By default,
- * toggle_numlock (Mod2Mask) and keyboard layout (XK_SWITCH_MOD) are ignored.
+ * user_toggle_numlock (Mod2Mask) and keyboard layout (XK_SWITCH_MOD) are ignored.
  */
 static uint ignoremod = Mod2Mask|XK_SWITCH_MOD;
 
