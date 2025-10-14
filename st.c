@@ -195,7 +195,7 @@ static void term_swap_screen(void);
 static void term_set_mode(int, int, const int *, int);
 static int term_write(const char *, int, int);
 static void term_full_dirt(void);
-static void tcontrolcode(uchar );
+static void term_control_code(uchar );
 static void tdectest(char );
 static void tdefutf8(char);
 static int32_t tdefcolor(const int *, int *, int);
@@ -2199,7 +2199,7 @@ tstrsequence(uchar c)
 }
 
 void
-tcontrolcode(uchar ascii)
+term_control_code(uchar ascii)
 {
 	switch (ascii) {
 	case '\t':   /* HT */
@@ -2453,7 +2453,7 @@ check_control_code:
 		/* in UTF-8 mode ignore handling C1 control characters */
 		if (IS_SET(MODE_UTF8) && ISCONTROLC1(u))
 			return;
-		tcontrolcode(u);
+		term_control_code(u);
 		/*
 		 * control codes are not shown ever
 		 */
