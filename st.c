@@ -198,7 +198,7 @@ static void term_full_dirt(void);
 static void term_control_code(uchar );
 static void term_dec_test(char );
 static void term_def_utf8(char);
-static int32_t tdefcolor(const int *, int *, int);
+static int32_t term_def_color(const int *, int *, int);
 static void tdeftran(char);
 static void tstrsequence(uchar);
 
@@ -1299,7 +1299,7 @@ term_delete_line(int n)
 }
 
 int32_t
-tdefcolor(const int *attr, int *npar, int l)
+term_def_color(const int *attr, int *npar, int l)
 {
 	int32_t idx = -1;
 	uint r, g, b;
@@ -1417,14 +1417,14 @@ term_set_attr(const int *attr, int l)
 			term.c.attr.mode &= ~ATTR_STRUCK;
 			break;
 		case 38:
-			if ((idx = tdefcolor(attr, &i, l)) >= 0)
+			if ((idx = term_def_color(attr, &i, l)) >= 0)
 				term.c.attr.fg = idx;
 			break;
 		case 39: /* set foreground color to default */
 			term.c.attr.fg = defaultfg;
 			break;
 		case 48:
-			if ((idx = tdefcolor(attr, &i, l)) >= 0)
+			if ((idx = term_def_color(attr, &i, l)) >= 0)
 				term.c.attr.bg = idx;
 			break;
 		case 49: /* set background color to default */
@@ -1434,7 +1434,7 @@ term_set_attr(const int *attr, int l)
 			/* This starts a sequence to change the color of
 			 * "underline" pixels. We don't support that and
 			 * instead eat up a following "5;n" or "2;r;g;b". */
-			tdefcolor(attr, &i, l);
+			term_def_color(attr, &i, l);
 			break;
 		default:
 			if (BETWEEN(attr[i], 30, 37)) {
