@@ -791,7 +791,7 @@ x_load_color(int i, const char *name, Color *ncolor)
 }
 
 void
-xloadcols(void)
+x_load_cols(void)
 {
 	int i;
 	static int loaded;
@@ -1149,7 +1149,7 @@ x_init(int number_cols, int number_rows)
 
 	/* colors */
 	x_window.cmap = XDefaultColormap(x_window.dpy, x_window.scr);
-	xloadcols();
+	x_load_cols();
 
 	/* adjust fixed window geometry */
 	term_window.w = 2 * border_pixels + number_cols * term_window.cw;

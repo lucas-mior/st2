@@ -1954,7 +1954,7 @@ string_handle(void)
 				osc_color_response(j, 0, 1);
 			} else if (xsetcolorname(j, p)) {
 				if (par == 104 && narg <= 1) {
-					xloadcols();
+					x_load_cols();
 					return; /* color reset without parameter */
 				}
 				fprintf(stderr, "erresc: invalid color j=%d, p=%s\n",
@@ -2356,7 +2356,7 @@ eschandle(uchar ascii)
 	case 'c': /* RIS -- Reset to initial state */
 		term_reset();
 		reset_title();
-		xloadcols();
+		x_load_cols();
 		xsetmode(0, WIN_MODE_HIDE);
 		break;
 	case '=': /* DECPAM -- Application keypad */
