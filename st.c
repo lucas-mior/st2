@@ -181,7 +181,7 @@ static void term_insert_blank_line(int);
 static int term_line_len(int);
 static void term_move_to(int, int);
 static void term_move_abs_to(int, int);
-static void tnewline(int);
+static void term_new_line(int);
 static void tputtab(int);
 static void tputc(Rune);
 static void treset(void);
@@ -1115,7 +1115,7 @@ selscroll(int orig, int n)
 }
 
 void
-tnewline(int first_col)
+term_new_line(int first_col)
 {
 	int y = term.c.y;
 
@@ -2215,7 +2215,7 @@ tcontrolcode(uchar ascii)
 	case '\v':   /* VT */
 	case '\n':   /* LF */
 		/* go to first col if the mode is set */
-		tnewline(IS_SET(MODE_CRLF));
+		term_new_line(IS_SET(MODE_CRLF));
 		return;
 	case '\a':   /* BEL */
 		if (term.esc & ESC_STR_END) {
@@ -2253,7 +2253,7 @@ tcontrolcode(uchar ascii)
 	case 0x84:   /* TODO: IND */
 		break;
 	case 0x85:   /* NEL -- Next line */
-		tnewline(1); /* always go to first col */
+		term_new_line(1); /* always go to first col */
 		break;
 	case 0x86:   /* TODO: SSA */
 	case 0x87:   /* TODO: ESA */
@@ -2338,7 +2338,7 @@ eschandle(uchar ascii)
 		}
 		break;
 	case 'E': /* NEL -- Next line */
-		tnewline(1); /* always go to first col */
+		term_new_line(1); /* always go to first col */
 		break;
 	case 'H': /* HTS -- Horizontal tab stop */
 		term.tabs[term.c.x] = 1;
@@ -2495,7 +2495,7 @@ check_control_code:
 	gp = &term.line[term.c.y][term.c.x];
 	if (IS_SET(MODE_WRAP) && (term.c.state & CURSOR_WRAPNEXT)) {
 		gp->mode |= ATTR_WRAP;
-		tnewline(1);
+		term_new_line(1);
 		gp = &term.line[term.c.y][term.c.x];
 	}
 
@@ -2506,7 +2506,7 @@ check_control_code:
 
 	if (term.c.x+width > term.col) {
 		if (IS_SET(MODE_WRAP))
-			tnewline(1);
+			term_new_line(1);
 		else
 			term_move_to(term.col - width, term.c.y);
 		gp = &term.line[term.c.y][term.c.x];
