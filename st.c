@@ -211,7 +211,7 @@ static void sel_snap(int *, int *, int);
 static size_t utf8_decode(const char *, Rune *, size_t);
 static Rune utf8_decode_byte(char, size_t *);
 static char utf8_encode_byte(Rune, size_t);
-static size_t utf8validate(Rune *, size_t);
+static size_t utf8_validate(Rune *, size_t);
 
 static char *base64dec(const char *);
 static char base64dec_getc(const char **);
@@ -300,7 +300,7 @@ utf8_decode(const char *c, Rune *u, size_t clen)
 	if (j < len)
 		return 0;
 	*u = udecoded;
-	utf8validate(u, len);
+	utf8_validate(u, len);
 
 	return len;
 }
@@ -320,7 +320,7 @@ utf8encode(Rune u, char *c)
 {
 	size_t len, i;
 
-	len = utf8validate(&u, 0);
+	len = utf8_validate(&u, 0);
 	if (len > UTF_SIZ)
 		return 0;
 
@@ -340,7 +340,7 @@ utf8_encode_byte(Rune u, size_t i)
 }
 
 size_t
-utf8validate(Rune *u, size_t i)
+utf8_validate(Rune *u, size_t i)
 {
 	if (!BETWEEN(*u, utfmin[i], utfmax[i]) || BETWEEN(*u, 0xD800, 0xDFFF))
 		*u = UTF_INVALID;
