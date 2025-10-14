@@ -150,7 +150,7 @@ static int x_im_open(Display *);
 static void x_im_instantiate(Display *, XPointer, XPointer);
 static void x_im_destroy(XIM, XPointer, XPointer);
 static int x_ic_destroy(XIC, XPointer, XPointer);
-static void xinit(int, int);
+static void x_init(int, int);
 static void cresize(int, int);
 static void xresize(int, int);
 static void xhints(void);
@@ -1127,7 +1127,7 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call)
 }
 
 void
-xinit(int cols, int rows)
+x_init(int cols, int rows)
 {
 	XGCValues gcvalues;
 	Cursor cursor;
@@ -2099,7 +2099,7 @@ run:
 	cols = MAX(cols, 1);
 	rows = MAX(rows, 1);
 	tnew(cols, rows);
-	xinit(cols, rows);
+	x_init(cols, rows);
 	xsetenv();
 	selinit();
 	run();
