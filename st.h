@@ -92,7 +92,7 @@ void term_resize(int, int);
 void term_set_dirt_attr(int);
 void tty_hangup(void);
 int tty_new(const char *, char *, const char *, char **);
-size_t ttyread(void);
+size_t tty_read(void);
 void ttyresize(int, int);
 void ttywrite(const char *, size_t, int);
 

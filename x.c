@@ -1969,7 +1969,7 @@ run(void)
 		clock_gettime(CLOCK_MONOTONIC, &now);
 
 		if (FD_ISSET(ttyfd, &rfd))
-			ttyread();
+			tty_read();
 
 		xev = 0;
 		while (XPending(xw.dpy)) {

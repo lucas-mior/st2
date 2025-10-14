@@ -815,7 +815,7 @@ tty_new(const char *line, char *cmd, const char *out, char **args)
 }
 
 size_t
-ttyread(void)
+tty_read(void)
 {
 	static char buf[BUFSIZ];
 	static int buflen = 0;
@@ -908,7 +908,7 @@ tty_write_raw(const char *s, size_t n)
 				 * again. Empty it.
 				 */
 				if (n < lim)
-					lim = ttyread();
+					lim = tty_read();
 				n -= r;
 				s += r;
 			} else {
@@ -917,7 +917,7 @@ tty_write_raw(const char *s, size_t n)
 			}
 		}
 		if (FD_ISSET(cmdfd, &rfd))
-			lim = ttyread();
+			lim = tty_read();
 	}
 	return;
 
