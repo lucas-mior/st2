@@ -199,7 +199,7 @@ static void term_control_code(uchar );
 static void term_dec_test(char );
 static void term_def_utf8(char);
 static int32_t term_def_color(const int *, int *, int);
-static void tdeftran(char);
+static void term_def_tran(char);
 static void tstrsequence(uchar);
 
 static void drawregion(int, int, int, int);
@@ -2150,7 +2150,7 @@ term_def_utf8(char ascii)
 }
 
 void
-tdeftran(char ascii)
+term_def_tran(char ascii)
 {
 	static char cs[] = "0B";
 	static int vcs[] = {CS_GRAPHIC0, CS_USA};
@@ -2474,7 +2474,7 @@ check_control_code:
 		} else if (term.esc & ESC_UTF8) {
 			term_def_utf8(u);
 		} else if (term.esc & ESC_ALTCHARSET) {
-			tdeftran(u);
+			term_def_tran(u);
 		} else if (term.esc & ESC_TEST) {
 			term_dec_test(u);
 		} else {
