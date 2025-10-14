@@ -2077,7 +2077,7 @@ user_toggle_printer(const Arg *arg)
 }
 
 void
-printscreen(const Arg *arg)
+user_print_screen(const Arg *arg)
 {
 	term_dump();
 }

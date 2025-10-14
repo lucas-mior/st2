@@ -81,7 +81,7 @@ void die(const char *, ...);
 void redraw(void);
 void draw(void);
 
-void printscreen(const Arg *);
+void user_print_screen(const Arg *);
 void printsel(const Arg *);
 void user_send_break(const Arg *);
 void user_toggle_printer(const Arg *);
