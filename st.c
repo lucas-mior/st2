@@ -206,7 +206,7 @@ static void draw_region(int, int, int, int);
 
 static void sel_normalize(void);
 static void sel_scroll(int, int);
-static void selsnap(int *, int *, int);
+static void sel_snap(int *, int *, int);
 
 static size_t utf8decode(const char *, Rune *, size_t);
 static Rune utf8decodebyte(char, size_t *);
@@ -479,8 +479,8 @@ sel_normalize(void)
 	sel.nb.y = MIN(sel.ob.y, sel.oe.y);
 	sel.ne.y = MAX(sel.ob.y, sel.oe.y);
 
-	selsnap(&sel.nb.x, &sel.nb.y, -1);
-	selsnap(&sel.ne.x, &sel.ne.y, +1);
+	sel_snap(&sel.nb.x, &sel.nb.y, -1);
+	sel_snap(&sel.ne.x, &sel.ne.y, +1);
 
 	/* expand selection over line breaks */
 	if (sel.type == SEL_RECTANGULAR)
@@ -509,7 +509,7 @@ selected(int x, int y)
 }
 
 void
-selsnap(int *x, int *y, int direction)
+sel_snap(int *x, int *y, int direction)
 {
 	int newx, newy, xt, yt;
 	int delim, prevdelim;
