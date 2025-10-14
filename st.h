@@ -44,7 +44,7 @@ enum selection_mode {
 
 enum selection_type {
 	SEL_REGULAR = 1,
-	SEL_RECTANGULAR = 2
+	SELECTION_RECTANGULAR = 2
 };
 
 enum selection_snap {

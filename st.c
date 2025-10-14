@@ -483,7 +483,7 @@ sel_normalize(void)
 	sel_snap(&selection.ne.x, &selection.ne.y, +1);
 
 	/* expand selection over line breaks */
-	if (selection.type == SEL_RECTANGULAR)
+	if (selection.type == SELECTION_RECTANGULAR)
 		return;
 	i = term_line_len(selection.nb.y);
 	if (i < selection.nb.x)
@@ -499,7 +499,7 @@ selected(int x, int y)
 			selection.alt != IS_SET(TERM_MODE_ALTSCREEN))
 		return 0;
 
-	if (selection.type == SEL_RECTANGULAR)
+	if (selection.type == SELECTION_RECTANGULAR)
 		return BETWEEN(y, selection.nb.y, selection.ne.y)
 		    && BETWEEN(x, selection.nb.x, selection.ne.x);
 
@@ -601,7 +601,7 @@ get_sel(void)
 			continue;
 		}
 
-		if (selection.type == SEL_RECTANGULAR) {
+		if (selection.type == SELECTION_RECTANGULAR) {
 			gp = &term.line[y][selection.nb.x];
 			lastx = selection.ne.x;
 		} else {
@@ -629,7 +629,7 @@ get_sel(void)
 		 * FIXME: Fix the computer world.
 		 */
 		if ((y < selection.ne.y || lastx >= linelen) &&
-		    (!(last->mode & ATTR_WRAP) || selection.type == SEL_RECTANGULAR))
+		    (!(last->mode & ATTR_WRAP) || selection.type == SELECTION_RECTANGULAR))
 			*ptr++ = '\n';
 	}
 	*ptr = 0;
