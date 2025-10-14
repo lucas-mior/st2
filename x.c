@@ -147,7 +147,7 @@ static void x_draw_glyph(Glyph, int, int);
 static void x_clear(int, int, int, int);
 static int x_geom_mask_to_gravity(int);
 static int x_im_open(Display *);
-static void ximinstantiate(Display *, XPointer, XPointer);
+static void x_im_instantiate(Display *, XPointer, XPointer);
 static void ximdestroy(XIM, XPointer, XPointer);
 static int xicdestroy(XIC, XPointer, XPointer);
 static void xinit(int, int);
@@ -1103,11 +1103,11 @@ x_im_open(Display *dpy)
 }
 
 void
-ximinstantiate(Display *dpy, XPointer client, XPointer call)
+x_im_instantiate(Display *dpy, XPointer client, XPointer call)
 {
 	if (x_im_open(dpy))
 		XUnregisterIMInstantiateCallback(xw.dpy, NULL, NULL, NULL,
-		                                 ximinstantiate, NULL);
+		                                 x_im_instantiate, NULL);
 }
 
 void
@@ -1115,7 +1115,7 @@ ximdestroy(XIM xim, XPointer client, XPointer call)
 {
 	xw.ime.xim = NULL;
 	XRegisterIMInstantiateCallback(xw.dpy, NULL, NULL, NULL,
-	                               ximinstantiate, NULL);
+	                               x_im_instantiate, NULL);
 	XFree(xw.ime.spotlist);
 }
 
@@ -1196,7 +1196,7 @@ xinit(int cols, int rows)
 	/* input methods */
 	if (!x_im_open(xw.dpy)) {
 		XRegisterIMInstantiateCallback(xw.dpy, NULL, NULL, NULL,
-	                                       ximinstantiate, NULL);
+	                                       x_im_instantiate, NULL);
 	}
 
 	/* white cursor, black outline */
