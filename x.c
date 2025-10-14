@@ -1632,7 +1632,7 @@ x_set_icon_title(char *p)
 }
 
 void
-xsettitle(char *p)
+x_set_title(char *p)
 {
 	XTextProperty prop;
 	DEFAULT(p, opt_title);

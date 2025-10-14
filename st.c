@@ -1901,7 +1901,7 @@ string_handle(void)
 		switch (par) {
 		case 0:
 			if (narg > 1) {
-				xsettitle(strescseq.args[1]);
+				x_set_title(strescseq.args[1]);
 				x_set_icon_title(strescseq.args[1]);
 			}
 			return;
@@ -1911,7 +1911,7 @@ string_handle(void)
 			return;
 		case 2:
 			if (narg > 1)
-				xsettitle(strescseq.args[1]);
+				x_set_title(strescseq.args[1]);
 			return;
 		case 52: /* manipulate selection data */
 			if (narg > 2 && allowwindowops) {
@@ -1983,7 +1983,7 @@ string_handle(void)
 		}
 		break;
 	case 'k': /* old title set compatibility */
-		xsettitle(strescseq.args[0]);
+		x_set_title(strescseq.args[0]);
 		return;
 	case 'P': /* DCS -- Device Control String */
 	case '_': /* APC -- Application Program Command */
@@ -2650,7 +2650,7 @@ term_resize(int col, int row)
 void
 reset_title(void)
 {
-	xsettitle(NULL);
+	x_set_title(NULL);
 }
 
 void
