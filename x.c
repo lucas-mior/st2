@@ -331,7 +331,7 @@ tty_send(const Arg *arg)
 int
 evcol(XEvent *e)
 {
-	int x = e->xbutton.x - borderpx;
+	int x = e->xbutton.x - border_pixels;
 	LIMIT(x, 0, term_window.tty_width - 1);
 	return x / term_window.cw;
 }
@@ -339,7 +339,7 @@ evcol(XEvent *e)
 int
 evrow(XEvent *e)
 {
-	int y = e->xbutton.y - borderpx;
+	int y = e->xbutton.y - border_pixels;
 	LIMIT(y, 0, term_window.tty_height - 1);
 	return y / term_window.ch;
 }
@@ -734,8 +734,8 @@ cresize(int width, int height)
 	if (height != 0)
 		term_window.h = height;
 
-	col = (term_window.w - 2 * borderpx) / term_window.cw;
-	row = (term_window.h - 2 * borderpx) / term_window.ch;
+	col = (term_window.w - 2 * border_pixels) / term_window.cw;
+	row = (term_window.h - 2 * border_pixels) / term_window.ch;
 	col = MAX(1, col);
 	row = MAX(1, row);
 
@@ -871,10 +871,10 @@ x_hints(void)
 	sizeh->width = term_window.w;
 	sizeh->height_inc = term_window.ch;
 	sizeh->width_inc = term_window.cw;
-	sizeh->base_height = 2 * borderpx;
-	sizeh->base_width = 2 * borderpx;
-	sizeh->min_height = term_window.ch + 2 * borderpx;
-	sizeh->min_width = term_window.cw + 2 * borderpx;
+	sizeh->base_height = 2 * border_pixels;
+	sizeh->base_width = 2 * border_pixels;
+	sizeh->min_height = term_window.ch + 2 * border_pixels;
+	sizeh->min_width = term_window.cw + 2 * border_pixels;
 	if (x_window.isfixed) {
 		sizeh->flags |= PMaxSize;
 		sizeh->min_width = sizeh->max_width = term_window.w;
@@ -1152,8 +1152,8 @@ x_init(int number_cols, int number_rows)
 	xloadcols();
 
 	/* adjust fixed window geometry */
-	term_window.w = 2 * borderpx + number_cols * term_window.cw;
-	term_window.h = 2 * borderpx + number_rows * term_window.ch;
+	term_window.w = 2 * border_pixels + number_cols * term_window.cw;
+	term_window.h = 2 * border_pixels + number_rows * term_window.ch;
 	if (x_window.gm & XNegative)
 		x_window.l += DisplayWidth(x_window.dpy, x_window.scr) - term_window.w - 2;
 	if (x_window.gm & YNegative)
@@ -1245,7 +1245,7 @@ x_init(int number_cols, int number_rows)
 int
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x, int y)
 {
-	float winx = borderpx + x * term_window.cw, winy = borderpx + y * term_window.ch, xp, yp;
+	float winx = border_pixels + x * term_window.cw, winy = border_pixels + y * term_window.ch, xp, yp;
 	ushort mode, prevmode = USHRT_MAX;
 	Font *font = &draw_context.font;
 	int frcflags = FRC_NORMAL;
@@ -1378,7 +1378,7 @@ void
 x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, int y)
 {
 	int charlen = len * ((base.mode & ATTR_WIDE) ? 2 : 1);
-	int winx = borderpx + x * term_window.cw, winy = borderpx + y * term_window.ch,
+	int winx = border_pixels + x * term_window.cw, winy = border_pixels + y * term_window.ch,
 	    width = charlen * term_window.cw;
 	Color *fg, *bg, *temp, revfg, revbg, truefg, truebg;
 	XRenderColor colfg, colbg;
@@ -1468,17 +1468,17 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 
 	/* Intelligent cleaning up of the borders. */
 	if (x == 0) {
-		x_clear(0, (y == 0)? 0 : winy, borderpx,
+		x_clear(0, (y == 0)? 0 : winy, border_pixels,
 			winy + term_window.ch +
-			((winy + term_window.ch >= borderpx + term_window.tty_height)? term_window.h : 0));
+			((winy + term_window.ch >= border_pixels + term_window.tty_height)? term_window.h : 0));
 	}
-	if (winx + width >= borderpx + term_window.tty_width) {
+	if (winx + width >= border_pixels + term_window.tty_width) {
 		x_clear(winx + width, (y == 0)? 0 : winy, term_window.w,
-			((winy + term_window.ch >= borderpx + term_window.tty_height)? term_window.h : (winy + term_window.ch)));
+			((winy + term_window.ch >= border_pixels + term_window.tty_height)? term_window.h : (winy + term_window.ch)));
 	}
 	if (y == 0)
-		x_clear(winx, 0, winx + width, borderpx);
-	if (winy + term_window.ch >= borderpx + term_window.tty_height)
+		x_clear(winx, 0, winx + width, border_pixels);
+	if (winy + term_window.ch >= border_pixels + term_window.tty_height)
 		x_clear(winx, winy + term_window.ch, winx + width, term_window.h);
 
 	/* Clean up the region we want to draw to. */
@@ -1572,35 +1572,35 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		case 3: /* Blinking Underline */
 		case 4: /* Steady Underline */
 			XftDrawRect(x_window.draw, &drawcol,
-					borderpx + cx * term_window.cw,
-					borderpx + (cy + 1) * term_window.ch - \
+					border_pixels + cx * term_window.cw,
+					border_pixels + (cy + 1) * term_window.ch - \
 						cursorthickness,
 					term_window.cw, cursorthickness);
 			break;
 		case 5: /* Blinking bar */
 		case 6: /* Steady bar */
 			XftDrawRect(x_window.draw, &drawcol,
-					borderpx + cx * term_window.cw,
-					borderpx + cy * term_window.ch,
+					border_pixels + cx * term_window.cw,
+					border_pixels + cy * term_window.ch,
 					cursorthickness, term_window.ch);
 			break;
 		}
 	} else {
 		XftDrawRect(x_window.draw, &drawcol,
-				borderpx + cx * term_window.cw,
-				borderpx + cy * term_window.ch,
+				border_pixels + cx * term_window.cw,
+				border_pixels + cy * term_window.ch,
 				term_window.cw - 1, 1);
 		XftDrawRect(x_window.draw, &drawcol,
-				borderpx + cx * term_window.cw,
-				borderpx + cy * term_window.ch,
+				border_pixels + cx * term_window.cw,
+				border_pixels + cy * term_window.ch,
 				1, term_window.ch - 1);
 		XftDrawRect(x_window.draw, &drawcol,
-				borderpx + (cx + 1) * term_window.cw - 1,
-				borderpx + cy * term_window.ch,
+				border_pixels + (cx + 1) * term_window.cw - 1,
+				border_pixels + cy * term_window.ch,
 				1, term_window.ch - 1);
 		XftDrawRect(x_window.draw, &drawcol,
-				borderpx + cx * term_window.cw,
-				borderpx + (cy + 1) * term_window.ch - 1,
+				border_pixels + cx * term_window.cw,
+				border_pixels + (cy + 1) * term_window.ch - 1,
 				term_window.cw, 1);
 	}
 }
@@ -1701,8 +1701,8 @@ xximspot(int x, int y)
 	if (x_window.ime.xic == NULL)
 		return;
 
-	x_window.ime.spot.x = borderpx + x * term_window.cw;
-	x_window.ime.spot.y = borderpx + (y + 1) * term_window.ch;
+	x_window.ime.spot.x = border_pixels + x * term_window.cw;
+	x_window.ime.spot.y = border_pixels + (y + 1) * term_window.ch;
 
 	XSetICValues(x_window.ime.xic, XNPreeditAttributes, x_window.ime.spotlist, NULL);
 }
