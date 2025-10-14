@@ -176,7 +176,7 @@ static int mouse_action(XEvent *, uint);
 static void handler_button_release(XEvent *);
 static void handler_button_press(XEvent *);
 static void handler_button_motion(XEvent *);
-static void propnotify(XEvent *);
+static void handler_prop_notify(XEvent *);
 static void handler_sel_notify(XEvent *);
 static void handler_sel_clear(XEvent *);
 static void selrequest(XEvent *);
@@ -211,7 +211,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
  * PropertyNotify is only turned on when there is some INCR transfer happening
  * for the selection retrieval.
  */
-	[PropertyNotify] = propnotify,
+	[PropertyNotify] = handler_prop_notify,
 	[SelectionRequest] = selrequest,
 };
 
@@ -504,7 +504,7 @@ handler_button_press(XEvent *e)
 }
 
 void
-propnotify(XEvent *e)
+handler_prop_notify(XEvent *e)
 {
 	XPropertyEvent *xpev;
 	Atom clipboard = XInternAtom(xw.dpy, "CLIPBOARD", 0);
