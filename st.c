@@ -555,7 +555,7 @@ sel_snap(int *x, int *y, int direction)
 			prevdelim = delim;
 		}
 		break;
-	case SNAP_LINE:
+	case SELECTION_SNAP_LINE:
 		/*
 		 * Snap around if the the previous line or the current one
 		 * has set ATTR_WRAP at its end. Then the whole next or

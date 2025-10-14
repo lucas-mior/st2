@@ -49,7 +49,7 @@ enum selection_type {
 
 enum selection_snap {
 	SELECTION_SNAP_WORD = 1,
-	SNAP_LINE = 2
+	SELECTION_SNAP_LINE = 2
 };
 
 typedef unsigned char uchar;
