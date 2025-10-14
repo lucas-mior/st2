@@ -154,7 +154,7 @@ static void x_init(int, int);
 static void cresize(int, int);
 static void x_resize(int, int);
 static void x_hints(void);
-static int xloadcolor(int, const char *, Color *);
+static int x_load_color(int, const char *, Color *);
 static int xloadfont(Font *, FcPattern *);
 static void xloadfonts(const char *, double);
 static void xunloadfont(Font *);
@@ -767,7 +767,7 @@ sixd_to_16bit(int x)
 }
 
 int
-xloadcolor(int i, const char *name, Color *ncolor)
+x_load_color(int i, const char *name, Color *ncolor)
 {
 	XRenderColor color = { .alpha = 0xffff };
 
@@ -806,7 +806,7 @@ xloadcols(void)
 	}
 
 	for (i = 0; i < dc.collen; i++)
-		if (!xloadcolor(i, NULL, &dc.col[i])) {
+		if (!x_load_color(i, NULL, &dc.col[i])) {
 			if (colorname[i])
 				die("could not allocate color '%s'\n", colorname[i]);
 			else
@@ -836,7 +836,7 @@ xsetcolorname(int x, const char *name)
 	if (!BETWEEN(x, 0, dc.collen - 1))
 		return 1;
 
-	if (!xloadcolor(x, name, &ncolor))
+	if (!x_load_color(x, name, &ncolor))
 		return 1;
 
 	XftColorFree(xw.dpy, xw.vis, xw.cmap, &dc.col[x]);
