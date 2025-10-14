@@ -205,7 +205,7 @@ static void term_str_sequence(uchar);
 static void draw_region(int, int, int, int);
 
 static void sel_normalize(void);
-static void selscroll(int, int);
+static void sel_scroll(int, int);
 static void selsnap(int *, int *, int);
 
 static size_t utf8decode(const char *, Rune *, size_t);
@@ -1071,7 +1071,7 @@ term_scroll_down(int orig, int n)
 		term.line[i-n] = temp;
 	}
 
-	selscroll(orig, n);
+	sel_scroll(orig, n);
 }
 
 void
@@ -1091,11 +1091,11 @@ term_scroll_up(int orig, int n)
 		term.line[i+n] = temp;
 	}
 
-	selscroll(orig, -n);
+	sel_scroll(orig, -n);
 }
 
 void
-selscroll(int orig, int n)
+sel_scroll(int orig, int n)
 {
 	if (sel.ob.x == -1 || sel.alt != IS_SET(MODE_ALTSCREEN))
 		return;
