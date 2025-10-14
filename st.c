@@ -316,7 +316,7 @@ utf8_decode_byte(char c, size_t *i)
 }
 
 size_t
-utf8encode(Rune u, char *c)
+utf8_encode(Rune u, char *c)
 {
 	size_t len, i;
 
@@ -616,7 +616,7 @@ get_sel(void)
 			if (gp->mode & ATTR_WDUMMY)
 				continue;
 
-			ptr += utf8encode(gp->u, ptr);
+			ptr += utf8_encode(gp->u, ptr);
 		}
 
 		/*
@@ -2109,7 +2109,7 @@ term_dump_line(int n)
 	end = &bp[MIN(term_line_len(n), term.col) - 1];
 	if (bp != end || bp->u != ' ') {
 		for ( ; bp <= end; ++bp)
-			term_printer(buf, utf8encode(bp->u, buf));
+			term_printer(buf, utf8_encode(bp->u, buf));
 	}
 	term_printer("\n", 1);
 }
@@ -2396,7 +2396,7 @@ term_putc(Rune u)
 		c[0] = u;
 		width = len = 1;
 	} else {
-		len = utf8encode(u, c);
+		len = utf8_encode(u, c);
 		if (!control && (width = wcwidth(u)) == -1)
 			width = 1;
 	}

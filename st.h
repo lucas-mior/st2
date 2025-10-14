@@ -105,7 +105,7 @@ void sel_extend(int, int, int, int);
 int selected(int, int);
 char *get_sel(void);
 
-size_t utf8encode(Rune, char *);
+size_t utf8_encode(Rune, char *);
 
 void *xmalloc(size_t);
 void *xrealloc(void *, size_t);

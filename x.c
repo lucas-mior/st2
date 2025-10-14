@@ -1880,7 +1880,7 @@ handler_key_press(XEvent *ev)
 		if (IS_SET(MODE_8BIT)) {
 			if (*buf < 0177) {
 				c = *buf | 0x80;
-				len = utf8encode(c, buf);
+				len = utf8_encode(c, buf);
 			}
 		} else {
 			buf[1] = buf[0];
