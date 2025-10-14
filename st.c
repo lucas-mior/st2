@@ -163,7 +163,7 @@ static void control_seq_intro_parse(void);
 static void control_seq_intro_reset(void);
 static void osc_color_response(int, int, int);
 static int eschandle(uchar);
-static void strdump(void);
+static void string_dump(void);
 static void strhandle(void);
 static void strparse(void);
 static void strreset(void);
@@ -1992,7 +1992,7 @@ strhandle(void)
 	}
 
 	fprintf(stderr, "erresc: unknown str ");
-	strdump();
+	string_dump();
 }
 
 void
@@ -2018,7 +2018,7 @@ strparse(void)
 }
 
 void
-strdump(void)
+string_dump(void)
 {
 	size_t i;
 	uint c;
