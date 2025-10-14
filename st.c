@@ -210,7 +210,7 @@ static void sel_snap(int *, int *, int);
 
 static size_t utf8_decode(const char *, Rune *, size_t);
 static Rune utf8_decode_byte(char, size_t *);
-static char utf8encodebyte(Rune, size_t);
+static char utf8_encode_byte(Rune, size_t);
 static size_t utf8validate(Rune *, size_t);
 
 static char *base64dec(const char *);
@@ -325,16 +325,16 @@ utf8encode(Rune u, char *c)
 		return 0;
 
 	for (i = len - 1; i != 0; --i) {
-		c[i] = utf8encodebyte(u, 0);
+		c[i] = utf8_encode_byte(u, 0);
 		u >>= 6;
 	}
-	c[0] = utf8encodebyte(u, len);
+	c[0] = utf8_encode_byte(u, len);
 
 	return len;
 }
 
 char
-utf8encodebyte(Rune u, size_t i)
+utf8_encode_byte(Rune u, size_t i)
 {
 	return utfbyte[i] | (u & ~utfmask[i]);
 }
