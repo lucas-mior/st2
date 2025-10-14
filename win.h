@@ -1,7 +1,7 @@
 /* See LICENSE for license details. */
 
 enum win_mode {
-	MODE_VISIBLE     = 1 << 0,
+	WIN_MODE_VISIBLE     = 1 << 0,
 	MODE_FOCUSED     = 1 << 1,
 	MODE_APPKEYPAD   = 1 << 2,
 	MODE_MOUSEBTN    = 1 << 3,

@@ -1651,7 +1651,7 @@ xsettitle(char *p)
 int
 xstartdraw(void)
 {
-	return IS_SET(MODE_VISIBLE);
+	return IS_SET(WIN_MODE_VISIBLE);
 }
 
 void
@@ -1718,13 +1718,13 @@ handler_visibility(XEvent *ev)
 {
 	XVisibilityEvent *e = &ev->xvisibility;
 
-	MODBIT(term_window.mode, e->state != VisibilityFullyObscured, MODE_VISIBLE);
+	MODBIT(term_window.mode, e->state != VisibilityFullyObscured, WIN_MODE_VISIBLE);
 }
 
 void
 handler_unmap(XEvent *ev)
 {
-	term_window.mode &= ~MODE_VISIBLE;
+	term_window.mode &= ~WIN_MODE_VISIBLE;
 }
 
 void
