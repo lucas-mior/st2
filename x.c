@@ -144,7 +144,7 @@ static inline ushort sixd_to_16bit(int);
 static int x_make_glyph_font_specs(XftGlyphFontSpec *, const Glyph *, int, int, int);
 static void x_draw_glyph_font_specs(const XftGlyphFontSpec *, Glyph, int, int, int);
 static void x_draw_glyph(Glyph, int, int);
-static void xclear(int, int, int, int);
+static void x_clear(int, int, int, int);
 static int xgeommasktogravity(int);
 static int ximopen(Display *);
 static void ximinstantiate(Display *, XPointer, XPointer);
@@ -754,7 +754,7 @@ xresize(int col, int row)
 	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
 			DefaultDepth(xw.dpy, xw.scr));
 	XftDrawChange(xw.draw, xw.buf);
-	xclear(0, 0, win.w, win.h);
+	x_clear(0, 0, win.w, win.h);
 
 	/* resize to new width */
 	xw.specbuf = xrealloc(xw.specbuf, col * sizeof(GlyphFontSpec));
@@ -849,7 +849,7 @@ xsetcolorname(int x, const char *name)
  * Absolute coordinates.
  */
 void
-xclear(int x1, int y1, int x2, int y2)
+x_clear(int x1, int y1, int x2, int y2)
 {
 	XftDrawRect(xw.draw,
 			&dc.col[IS_SET(MODE_REVERSE)? defaultfg : defaultbg],
@@ -1468,18 +1468,18 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 
 	/* Intelligent cleaning up of the borders. */
 	if (x == 0) {
-		xclear(0, (y == 0)? 0 : winy, borderpx,
+		x_clear(0, (y == 0)? 0 : winy, borderpx,
 			winy + win.ch +
 			((winy + win.ch >= borderpx + win.th)? win.h : 0));
 	}
 	if (winx + width >= borderpx + win.tw) {
-		xclear(winx + width, (y == 0)? 0 : winy, win.w,
+		x_clear(winx + width, (y == 0)? 0 : winy, win.w,
 			((winy + win.ch >= borderpx + win.th)? win.h : (winy + win.ch)));
 	}
 	if (y == 0)
-		xclear(winx, 0, winx + width, borderpx);
+		x_clear(winx, 0, winx + width, borderpx);
 	if (winy + win.ch >= borderpx + win.th)
-		xclear(winx, winy + win.ch, winx + width, win.h);
+		x_clear(winx, winy + win.ch, winx + width, win.h);
 
 	/* Clean up the region we want to draw to. */
 	XftDrawRect(xw.draw, bg, winx, winy, width, win.ch);
