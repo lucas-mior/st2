@@ -852,7 +852,7 @@ void
 x_clear(int x1, int y1, int x2, int y2)
 {
 	XftDrawRect(x_window.draw,
-			&draw_context.col[IS_SET(MODE_REVERSE)? defaultfg : defaultbg],
+			&draw_context.col[IS_SET(MODE_REVERSE)? default_foreground : defaultbg],
 			x1, y1, x2-x1, y2-y1);
 }
 
@@ -1420,7 +1420,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 		fg = &draw_context.col[base.fg + 8];
 
 	if (IS_SET(MODE_REVERSE)) {
-		if (fg == &draw_context.col[defaultfg]) {
+		if (fg == &draw_context.col[default_foreground]) {
 			fg = &draw_context.col[defaultbg];
 		} else {
 			colfg.red = ~fg->color.red;
@@ -1433,7 +1433,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 		}
 
 		if (bg == &draw_context.col[defaultbg]) {
-			bg = &draw_context.col[defaultfg];
+			bg = &draw_context.col[default_foreground];
 		} else {
 			colbg.red = ~bg->color.red;
 			colbg.green = ~bg->color.green;
@@ -1539,7 +1539,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 
 	if (IS_SET(MODE_REVERSE)) {
 		g.mode |= ATTR_REVERSE;
-		g.bg = defaultfg;
+		g.bg = default_foreground;
 		if (selected(cx, cy)) {
 			drawcol = draw_context.col[defaultcs];
 			g.fg = defaultrcs;
@@ -1549,7 +1549,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		}
 	} else {
 		if (selected(cx, cy)) {
-			g.fg = defaultfg;
+			g.fg = default_foreground;
 			g.bg = defaultrcs;
 		} else {
 			g.fg = defaultbg;
@@ -1692,7 +1692,7 @@ xfinishdraw(void)
 			term_window.h, 0, 0);
 	XSetForeground(x_window.dpy, draw_context.graphics,
 			draw_context.col[IS_SET(MODE_REVERSE)?
-				defaultfg : defaultbg].pixel);
+				default_foreground : defaultbg].pixel);
 }
 
 void
