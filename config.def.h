@@ -153,7 +153,7 @@ static unsigned int number_rows = 24;
 /*
  * Default colour and shape of the mouse cursor
  */
-static unsigned int mouseshape = XC_xterm;
+static unsigned int mouse_shape = XC_xterm;
 static unsigned int mousefg = 7;
 static unsigned int mousebg = 0;
 
