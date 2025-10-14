@@ -168,7 +168,7 @@ static unsigned int default_attr = 11;
  * Note that if you want to use ShiftMask with selmasks, set this to an other
  * modifier, set to 0 to not use it.
  */
-static uint forcemousemod = ShiftMask;
+static uint force_mouse_mod = ShiftMask;
 
 /*
  * Internal mouse shortcuts.
