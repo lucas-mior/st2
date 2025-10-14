@@ -1655,7 +1655,7 @@ xstartdraw(void)
 }
 
 void
-xdrawline(Line line, int x1, int y1, int x2)
+x_draw_line(Line line, int x1, int y1, int x2)
 {
 	int i, x, ox, numspecs;
 	Glyph base, new;

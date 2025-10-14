@@ -2663,7 +2663,7 @@ draw_region(int x1, int y1, int x2, int y2)
 			continue;
 
 		term.dirty[y] = 0;
-		xdrawline(term.line[y], x1, y, x2);
+		x_draw_line(term.line[y], x1, y, x2);
 	}
 }
 
