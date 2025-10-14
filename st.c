@@ -939,7 +939,7 @@ ttyresize(int tw, int th)
 }
 
 void
-ttyhangup(void)
+tty_hangup(void)
 {
 	/* Send SIGHUP to shell */
 	kill(pid, SIGHUP);

@@ -1906,7 +1906,7 @@ handler_client_message(XEvent *e)
 			win.mode &= ~MODE_FOCUSED;
 		}
 	} else if (e->xclient.data.l[0] == xw.wmdeletewin) {
-		ttyhangup();
+		tty_hangup();
 		exit(0);
 	}
 }
