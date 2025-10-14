@@ -116,7 +116,7 @@ typedef struct {
 	Line *line;   /* screen */
 	Line *alt;    /* alternate screen */
 	int *dirty;   /* dirtyness of lines */
-	TCursor c;    /* cursor */
+	TCursor cursor;    /* cursor */
 	int ocx;      /* old cursor col */
 	int ocy;      /* old cursor row */
 	int top;      /* top    scroll limit */
@@ -1000,9 +1000,9 @@ term_cursor(int mode)
 	int alt = IS_SET(TERM_MODE_ALTSCREEN);
 
 	if (mode == CURSOR_SAVE) {
-		c[alt] = term.c;
+		c[alt] = term.cursor;
 	} else if (mode == CURSOR_LOAD) {
-		term.c = c[alt];
+		term.cursor = c[alt];
 		term_move_to(c[alt].x, c[alt].y);
 	}
 }
@@ -1012,7 +1012,7 @@ term_reset(void)
 {
 	uint i;
 
-	term.c = (TCursor){{
+	term.cursor = (TCursor){{
 		.mode = ATTR_NULL,
 		.fg = defaultfg,
 		.bg = defaultbg
@@ -1038,7 +1038,7 @@ term_reset(void)
 void
 term_new(int col, int row)
 {
-	term = (Term){ .c = { .attr = { .fg = defaultfg, .bg = defaultbg } } };
+	term = (Term){ .cursor = { .attr = { .fg = defaultfg, .bg = defaultbg } } };
 	term_resize(col, row);
 	term_reset();
 }
@@ -1117,14 +1117,14 @@ sel_scroll(int orig, int n)
 void
 term_new_line(int first_col)
 {
-	int y = term.c.y;
+	int y = term.cursor.y;
 
 	if (y == term.bot) {
 		term_scroll_up(term.top, 1);
 	} else {
 		y++;
 	}
-	term_move_to(first_col ? 0 : term.c.x, y);
+	term_move_to(first_col ? 0 : term.cursor.x, y);
 }
 
 void
@@ -1164,7 +1164,7 @@ control_seq_intro_parse(void)
 void
 term_move_abs_to(int x, int y)
 {
-	term_move_to(x, y + ((term.c.state & CURSOR_ORIGIN) ? term.top: 0));
+	term_move_to(x, y + ((term.cursor.state & CURSOR_ORIGIN) ? term.top: 0));
 }
 
 void
@@ -1172,16 +1172,16 @@ term_move_to(int x, int y)
 {
 	int miny, maxy;
 
-	if (term.c.state & CURSOR_ORIGIN) {
+	if (term.cursor.state & CURSOR_ORIGIN) {
 		miny = term.top;
 		maxy = term.bot;
 	} else {
 		miny = 0;
 		maxy = term.row - 1;
 	}
-	term.c.state &= ~CURSOR_WRAPNEXT;
-	term.c.x = LIMIT(x, 0, term.col-1);
-	term.c.y = LIMIT(y, miny, maxy);
+	term.cursor.state &= ~CURSOR_WRAPNEXT;
+	term.cursor.x = LIMIT(x, 0, term.col-1);
+	term.cursor.y = LIMIT(y, miny, maxy);
 }
 
 void
@@ -1242,8 +1242,8 @@ term_clear_region(int x1, int y1, int x2, int y2)
 			gp = &term.line[y][x];
 			if (selected(x, y))
 				sel_clear();
-			gp->fg = term.c.attr.fg;
-			gp->bg = term.c.attr.bg;
+			gp->fg = term.cursor.attr.fg;
+			gp->bg = term.cursor.attr.bg;
 			gp->mode = 0;
 			gp->u = ' ';
 		}
@@ -1256,15 +1256,15 @@ term_delete_char(int n)
 	int dst, src, size;
 	Glyph *line;
 
-	LIMIT(n, 0, term.col - term.c.x);
+	LIMIT(n, 0, term.col - term.cursor.x);
 
-	dst = term.c.x;
-	src = term.c.x + n;
+	dst = term.cursor.x;
+	src = term.cursor.x + n;
 	size = term.col - src;
-	line = term.line[term.c.y];
+	line = term.line[term.cursor.y];
 
 	memmove(&line[dst], &line[src], size * sizeof(Glyph));
-	term_clear_region(term.col-n, term.c.y, term.col-1, term.c.y);
+	term_clear_region(term.col-n, term.cursor.y, term.col-1, term.cursor.y);
 }
 
 void
@@ -1273,29 +1273,29 @@ term_insert_blank(int n)
 	int dst, src, size;
 	Glyph *line;
 
-	LIMIT(n, 0, term.col - term.c.x);
+	LIMIT(n, 0, term.col - term.cursor.x);
 
-	dst = term.c.x + n;
-	src = term.c.x;
+	dst = term.cursor.x + n;
+	src = term.cursor.x;
 	size = term.col - dst;
-	line = term.line[term.c.y];
+	line = term.line[term.cursor.y];
 
 	memmove(&line[dst], &line[src], size * sizeof(Glyph));
-	term_clear_region(src, term.c.y, dst - 1, term.c.y);
+	term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y);
 }
 
 void
 term_insert_blank_line(int n)
 {
-	if (BETWEEN(term.c.y, term.top, term.bot))
-		term_scroll_down(term.c.y, n);
+	if (BETWEEN(term.cursor.y, term.top, term.bot))
+		term_scroll_down(term.cursor.y, n);
 }
 
 void
 term_delete_line(int n)
 {
-	if (BETWEEN(term.c.y, term.top, term.bot))
-		term_scroll_up(term.c.y, n);
+	if (BETWEEN(term.cursor.y, term.top, term.bot))
+		term_scroll_up(term.cursor.y, n);
 }
 
 int32_t
@@ -1357,7 +1357,7 @@ term_set_attr(const int *attr, int l)
 	for (i = 0; i < l; i++) {
 		switch (attr[i]) {
 		case 0:
-			term.c.attr.mode &= ~(
+			term.cursor.attr.mode &= ~(
 				ATTR_BOLD       |
 				ATTR_FAINT      |
 				ATTR_ITALIC     |
@@ -1366,69 +1366,69 @@ term_set_attr(const int *attr, int l)
 				ATTR_REVERSE    |
 				ATTR_INVISIBLE  |
 				ATTR_STRUCK     );
-			term.c.attr.fg = defaultfg;
-			term.c.attr.bg = defaultbg;
+			term.cursor.attr.fg = defaultfg;
+			term.cursor.attr.bg = defaultbg;
 			break;
 		case 1:
-			term.c.attr.mode |= ATTR_BOLD;
+			term.cursor.attr.mode |= ATTR_BOLD;
 			break;
 		case 2:
-			term.c.attr.mode |= ATTR_FAINT;
+			term.cursor.attr.mode |= ATTR_FAINT;
 			break;
 		case 3:
-			term.c.attr.mode |= ATTR_ITALIC;
+			term.cursor.attr.mode |= ATTR_ITALIC;
 			break;
 		case 4:
-			term.c.attr.mode |= ATTR_UNDERLINE;
+			term.cursor.attr.mode |= ATTR_UNDERLINE;
 			break;
 		case 5: /* slow blink */
 			/* FALLTHROUGH */
 		case 6: /* rapid blink */
-			term.c.attr.mode |= ATTR_BLINK;
+			term.cursor.attr.mode |= ATTR_BLINK;
 			break;
 		case 7:
-			term.c.attr.mode |= ATTR_REVERSE;
+			term.cursor.attr.mode |= ATTR_REVERSE;
 			break;
 		case 8:
-			term.c.attr.mode |= ATTR_INVISIBLE;
+			term.cursor.attr.mode |= ATTR_INVISIBLE;
 			break;
 		case 9:
-			term.c.attr.mode |= ATTR_STRUCK;
+			term.cursor.attr.mode |= ATTR_STRUCK;
 			break;
 		case 22:
-			term.c.attr.mode &= ~(ATTR_BOLD | ATTR_FAINT);
+			term.cursor.attr.mode &= ~(ATTR_BOLD | ATTR_FAINT);
 			break;
 		case 23:
-			term.c.attr.mode &= ~ATTR_ITALIC;
+			term.cursor.attr.mode &= ~ATTR_ITALIC;
 			break;
 		case 24:
-			term.c.attr.mode &= ~ATTR_UNDERLINE;
+			term.cursor.attr.mode &= ~ATTR_UNDERLINE;
 			break;
 		case 25:
-			term.c.attr.mode &= ~ATTR_BLINK;
+			term.cursor.attr.mode &= ~ATTR_BLINK;
 			break;
 		case 27:
-			term.c.attr.mode &= ~ATTR_REVERSE;
+			term.cursor.attr.mode &= ~ATTR_REVERSE;
 			break;
 		case 28:
-			term.c.attr.mode &= ~ATTR_INVISIBLE;
+			term.cursor.attr.mode &= ~ATTR_INVISIBLE;
 			break;
 		case 29:
-			term.c.attr.mode &= ~ATTR_STRUCK;
+			term.cursor.attr.mode &= ~ATTR_STRUCK;
 			break;
 		case 38:
 			if ((idx = term_def_color(attr, &i, l)) >= 0)
-				term.c.attr.fg = idx;
+				term.cursor.attr.fg = idx;
 			break;
 		case 39: /* set foreground color to default */
-			term.c.attr.fg = defaultfg;
+			term.cursor.attr.fg = defaultfg;
 			break;
 		case 48:
 			if ((idx = term_def_color(attr, &i, l)) >= 0)
-				term.c.attr.bg = idx;
+				term.cursor.attr.bg = idx;
 			break;
 		case 49: /* set background color to default */
-			term.c.attr.bg = defaultbg;
+			term.cursor.attr.bg = defaultbg;
 			break;
 		case 58:
 			/* This starts a sequence to change the color of
@@ -1438,13 +1438,13 @@ term_set_attr(const int *attr, int l)
 			break;
 		default:
 			if (BETWEEN(attr[i], 30, 37)) {
-				term.c.attr.fg = attr[i] - 30;
+				term.cursor.attr.fg = attr[i] - 30;
 			} else if (BETWEEN(attr[i], 40, 47)) {
-				term.c.attr.bg = attr[i] - 40;
+				term.cursor.attr.bg = attr[i] - 40;
 			} else if (BETWEEN(attr[i], 90, 97)) {
-				term.c.attr.fg = attr[i] - 90 + 8;
+				term.cursor.attr.fg = attr[i] - 90 + 8;
 			} else if (BETWEEN(attr[i], 100, 107)) {
-				term.c.attr.bg = attr[i] - 100 + 8;
+				term.cursor.attr.bg = attr[i] - 100 + 8;
 			} else {
 				fprintf(stderr,
 					"erresc(default): gfx attr %d unknown\n",
@@ -1487,7 +1487,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				xsetmode(set, MODE_REVERSE);
 				break;
 			case 6: /* DECOM -- Origin */
-				MODBIT(term.c.state, set, CURSOR_ORIGIN);
+				MODBIT(term.cursor.state, set, CURSOR_ORIGIN);
 				term_move_abs_to(0, 0);
 				break;
 			case 7: /* DECAWM -- Auto wrap */
@@ -1621,12 +1621,12 @@ control_seq_intro_handle(void)
 		break;
 	case 'A': /* CUU -- Cursor <n> Up */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_move_to(term.c.x, term.c.y-csiescseq.arg[0]);
+		term_move_to(term.cursor.x, term.cursor.y-csiescseq.arg[0]);
 		break;
 	case 'B': /* CUD -- Cursor <n> Down */
 	case 'e': /* VPR --Cursor <n> Down */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_move_to(term.c.x, term.c.y+csiescseq.arg[0]);
+		term_move_to(term.cursor.x, term.cursor.y+csiescseq.arg[0]);
 		break;
 	case 'i': /* MC -- Media Copy */
 		switch (csiescseq.arg[0]) {
@@ -1634,7 +1634,7 @@ control_seq_intro_handle(void)
 			term_dump();
 			break;
 		case 1:
-			term_dump_line(term.c.y);
+			term_dump_line(term.cursor.y);
 			break;
 		case 2:
 			term_dump_sel();
@@ -1660,24 +1660,24 @@ control_seq_intro_handle(void)
 	case 'C': /* CUF -- Cursor <n> Forward */
 	case 'a': /* HPR -- Cursor <n> Forward */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_move_to(term.c.x+csiescseq.arg[0], term.c.y);
+		term_move_to(term.cursor.x+csiescseq.arg[0], term.cursor.y);
 		break;
 	case 'D': /* CUB -- Cursor <n> Backward */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_move_to(term.c.x-csiescseq.arg[0], term.c.y);
+		term_move_to(term.cursor.x-csiescseq.arg[0], term.cursor.y);
 		break;
 	case 'E': /* CNL -- Cursor <n> Down and first col */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_move_to(0, term.c.y+csiescseq.arg[0]);
+		term_move_to(0, term.cursor.y+csiescseq.arg[0]);
 		break;
 	case 'F': /* CPL -- Cursor <n> Up and first col */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_move_to(0, term.c.y-csiescseq.arg[0]);
+		term_move_to(0, term.cursor.y-csiescseq.arg[0]);
 		break;
 	case 'g': /* TBC -- Tabulation clear */
 		switch (csiescseq.arg[0]) {
 		case 0: /* clear current tab stop */
-			term.tabs[term.c.x] = 0;
+			term.tabs[term.cursor.x] = 0;
 			break;
 		case 3: /* clear all the tabs */
 			memset(term.tabs, 0, term.col * sizeof(*term.tabs));
@@ -1689,7 +1689,7 @@ control_seq_intro_handle(void)
 	case 'G': /* CHA -- Move to <col> */
 	case '`': /* HPA */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_move_to(csiescseq.arg[0]-1, term.c.y);
+		term_move_to(csiescseq.arg[0]-1, term.cursor.y);
 		break;
 	case 'H': /* CUP -- Move to <row> <col> */
 	case 'f': /* HVP */
@@ -1704,16 +1704,16 @@ control_seq_intro_handle(void)
 	case 'J': /* ED -- Clear screen */
 		switch (csiescseq.arg[0]) {
 		case 0: /* below */
-			term_clear_region(term.c.x, term.c.y, term.col-1, term.c.y);
-			if (term.c.y < term.row-1) {
-				term_clear_region(0, term.c.y+1, term.col-1,
+			term_clear_region(term.cursor.x, term.cursor.y, term.col-1, term.cursor.y);
+			if (term.cursor.y < term.row-1) {
+				term_clear_region(0, term.cursor.y+1, term.col-1,
 						term.row-1);
 			}
 			break;
 		case 1: /* above */
-			if (term.c.y > 0)
-				term_clear_region(0, 0, term.col-1, term.c.y-1);
-			term_clear_region(0, term.c.y, term.c.x, term.c.y);
+			if (term.cursor.y > 0)
+				term_clear_region(0, 0, term.col-1, term.cursor.y-1);
+			term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y);
 			break;
 		case 2: /* all */
 			term_clear_region(0, 0, term.col-1, term.row-1);
@@ -1725,14 +1725,14 @@ control_seq_intro_handle(void)
 	case 'K': /* EL -- Clear line */
 		switch (csiescseq.arg[0]) {
 		case 0: /* right */
-			term_clear_region(term.c.x, term.c.y, term.col-1,
-					term.c.y);
+			term_clear_region(term.cursor.x, term.cursor.y, term.col-1,
+					term.cursor.y);
 			break;
 		case 1: /* left */
-			term_clear_region(0, term.c.y, term.c.x, term.c.y);
+			term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y);
 			break;
 		case 2: /* all */
-			term_clear_region(0, term.c.y, term.col-1, term.c.y);
+			term_clear_region(0, term.cursor.y, term.col-1, term.cursor.y);
 			break;
 		}
 		break;
@@ -1758,8 +1758,8 @@ control_seq_intro_handle(void)
 		break;
 	case 'X': /* ECH -- Erase <n> char */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_clear_region(term.c.x, term.c.y,
-				term.c.x + csiescseq.arg[0] - 1, term.c.y);
+		term_clear_region(term.cursor.x, term.cursor.y,
+				term.cursor.x + csiescseq.arg[0] - 1, term.cursor.y);
 		break;
 	case 'P': /* DCH -- Delete <n> char */
 		DEFAULT(csiescseq.arg[0], 1);
@@ -1771,7 +1771,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'd': /* VPA -- Move to <row> */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_move_abs_to(term.c.x, csiescseq.arg[0]-1);
+		term_move_abs_to(term.cursor.x, csiescseq.arg[0]-1);
 		break;
 	case 'h': /* SM -- Set terminal mode */
 		term_set_mode(csiescseq.priv, 1, csiescseq.arg, csiescseq.narg);
@@ -1786,7 +1786,7 @@ control_seq_intro_handle(void)
 			break;
 		case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
 			len = snprintf(buf, sizeof(buf), "\033[%i;%iR",
-			               term.c.y+1, term.c.x+1);
+			               term.cursor.y+1, term.cursor.x+1);
 			tty_write(buf, len, 0);
 			break;
 		default:
@@ -2126,7 +2126,7 @@ term_dump(void)
 void
 term_put_tab(int n)
 {
-	uint x = term.c.x;
+	uint x = term.cursor.x;
 
 	if (n > 0) {
 		while (x < term.col && n--)
@@ -2137,7 +2137,7 @@ term_put_tab(int n)
 			for (--x; x > 0 && !term.tabs[x]; --x)
 				/* nothing */ ;
 	}
-	term.c.x = LIMIT(x, 0, term.col-1);
+	term.cursor.x = LIMIT(x, 0, term.col-1);
 }
 
 void
@@ -2171,7 +2171,7 @@ term_dec_test(char c)
 	if (c == '8') { /* DEC screen alignment test. */
 		for (x = 0; x < term.col; ++x) {
 			for (y = 0; y < term.row; ++y)
-				term_set_char('E', &term.c.attr, x, y);
+				term_set_char('E', &term.cursor.attr, x, y);
 		}
 	}
 }
@@ -2206,10 +2206,10 @@ term_control_code(uchar ascii)
 		term_put_tab(1);
 		return;
 	case '\b':   /* BS */
-		term_move_to(term.c.x-1, term.c.y);
+		term_move_to(term.cursor.x-1, term.cursor.y);
 		return;
 	case '\r':   /* CR */
-		term_move_to(0, term.c.y);
+		term_move_to(0, term.cursor.y);
 		return;
 	case '\f':   /* LF */
 	case '\v':   /* VT */
@@ -2235,7 +2235,7 @@ term_control_code(uchar ascii)
 		term.charset = 1 - (ascii - '\016');
 		return;
 	case '\032': /* SUB */
-		term_set_char('?', &term.c.attr, term.c.x, term.c.y);
+		term_set_char('?', &term.cursor.attr, term.cursor.x, term.cursor.y);
 		/* FALLTHROUGH */
 	case '\030': /* CAN */
 		control_seq_intro_reset();
@@ -2259,7 +2259,7 @@ term_control_code(uchar ascii)
 	case 0x87:   /* TODO: ESA */
 		break;
 	case 0x88:   /* HTS -- Horizontal tab stop */
-		term.tabs[term.c.x] = 1;
+		term.tabs[term.cursor.x] = 1;
 		break;
 	case 0x89:   /* TODO: HTJ */
 	case 0x8a:   /* TODO: VTS */
@@ -2331,23 +2331,23 @@ eschandle(uchar ascii)
 		term.esc |= ESC_ALTCHARSET;
 		return 0;
 	case 'D': /* IND -- Linefeed */
-		if (term.c.y == term.bot) {
+		if (term.cursor.y == term.bot) {
 			term_scroll_up(term.top, 1);
 		} else {
-			term_move_to(term.c.x, term.c.y+1);
+			term_move_to(term.cursor.x, term.cursor.y+1);
 		}
 		break;
 	case 'E': /* NEL -- Next line */
 		term_new_line(1); /* always go to first col */
 		break;
 	case 'H': /* HTS -- Horizontal tab stop */
-		term.tabs[term.c.x] = 1;
+		term.tabs[term.cursor.x] = 1;
 		break;
 	case 'M': /* RI -- Reverse index */
-		if (term.c.y == term.top) {
+		if (term.cursor.y == term.top) {
 			term_scroll_down(term.top, 1);
 		} else {
-			term_move_to(term.c.x, term.c.y-1);
+			term_move_to(term.cursor.x, term.cursor.y-1);
 		}
 		break;
 	case 'Z': /* DECID -- Identify Terminal */
@@ -2489,36 +2489,36 @@ check_control_code:
 		 */
 		return;
 	}
-	if (selected(term.c.x, term.c.y))
+	if (selected(term.cursor.x, term.cursor.y))
 		sel_clear();
 
-	gp = &term.line[term.c.y][term.c.x];
-	if (IS_SET(TERM_MODE_WRAP) && (term.c.state & CURSOR_WRAPNEXT)) {
+	gp = &term.line[term.cursor.y][term.cursor.x];
+	if (IS_SET(TERM_MODE_WRAP) && (term.cursor.state & CURSOR_WRAPNEXT)) {
 		gp->mode |= ATTR_WRAP;
 		term_new_line(1);
-		gp = &term.line[term.c.y][term.c.x];
+		gp = &term.line[term.cursor.y][term.cursor.x];
 	}
 
-	if (IS_SET(TERM_MODE_INSERT) && term.c.x+width < term.col) {
-		memmove(gp+width, gp, (term.col - term.c.x - width) * sizeof(Glyph));
+	if (IS_SET(TERM_MODE_INSERT) && term.cursor.x+width < term.col) {
+		memmove(gp+width, gp, (term.col - term.cursor.x - width) * sizeof(Glyph));
 		gp->mode &= ~ATTR_WIDE;
 	}
 
-	if (term.c.x+width > term.col) {
+	if (term.cursor.x+width > term.col) {
 		if (IS_SET(TERM_MODE_WRAP))
 			term_new_line(1);
 		else
-			term_move_to(term.col - width, term.c.y);
-		gp = &term.line[term.c.y][term.c.x];
+			term_move_to(term.col - width, term.cursor.y);
+		gp = &term.line[term.cursor.y][term.cursor.x];
 	}
 
-	term_set_char(u, &term.c.attr, term.c.x, term.c.y);
+	term_set_char(u, &term.cursor.attr, term.cursor.x, term.cursor.y);
 	term.lastc = u;
 
 	if (width == 2) {
 		gp->mode |= ATTR_WIDE;
-		if (term.c.x+1 < term.col) {
-			if (gp[1].mode == ATTR_WIDE && term.c.x+2 < term.col) {
+		if (term.cursor.x+1 < term.col) {
+			if (gp[1].mode == ATTR_WIDE && term.cursor.x+2 < term.col) {
 				gp[2].u = ' ';
 				gp[2].mode &= ~ATTR_WDUMMY;
 			}
@@ -2526,10 +2526,10 @@ check_control_code:
 			gp[1].mode = ATTR_WDUMMY;
 		}
 	}
-	if (term.c.x+width < term.col) {
-		term_move_to(term.c.x+width, term.c.y);
+	if (term.cursor.x+width < term.col) {
+		term_move_to(term.cursor.x+width, term.cursor.y);
 	} else {
-		term.c.state |= CURSOR_WRAPNEXT;
+		term.cursor.state |= CURSOR_WRAPNEXT;
 	}
 }
 
@@ -2585,7 +2585,7 @@ term_resize(int col, int row)
 	 * term_scroll_up would work here, but we can optimize to
 	 * memmove because we're freeing the earlier lines
 	 */
-	for (i = 0; i <= term.c.y - row; i++) {
+	for (i = 0; i <= term.cursor.y - row; i++) {
 		free(term.line[i]);
 		free(term.alt[i]);
 	}
@@ -2631,9 +2631,9 @@ term_resize(int col, int row)
 	/* reset scrolling region */
 	term_set_scroll(0, row-1);
 	/* make use of the LIMIT in term_move_to */
-	term_move_to(term.c.x, term.c.y);
+	term_move_to(term.cursor.x, term.cursor.y);
 	/* Clearing both screens (it makes dirty all lines) */
-	c = term.c;
+	c = term.cursor;
 	for (i = 0; i < 2; i++) {
 		if (mincol < col && 0 < minrow) {
 			term_clear_region(mincol, 0, col - 1, minrow - 1);
@@ -2644,7 +2644,7 @@ term_resize(int col, int row)
 		term_swap_screen();
 		term_cursor(CURSOR_LOAD);
 	}
-	term.c = c;
+	term.cursor = c;
 }
 
 void
@@ -2670,7 +2670,7 @@ draw_region(int x1, int y1, int x2, int y2)
 void
 draw(void)
 {
-	int cx = term.c.x, ocx = term.ocx, ocy = term.ocy;
+	int cx = term.cursor.x, ocx = term.ocx, ocy = term.ocy;
 
 	if (!xstartdraw())
 		return;
@@ -2680,14 +2680,14 @@ draw(void)
 	LIMIT(term.ocy, 0, term.row-1);
 	if (term.line[term.ocy][term.ocx].mode & ATTR_WDUMMY)
 		term.ocx--;
-	if (term.line[term.c.y][cx].mode & ATTR_WDUMMY)
+	if (term.line[term.cursor.y][cx].mode & ATTR_WDUMMY)
 		cx--;
 
 	draw_region(0, 0, term.col, term.row);
-	xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
+	xdrawcursor(cx, term.cursor.y, term.line[term.cursor.y][cx],
 			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
 	term.ocx = cx;
-	term.ocy = term.c.y;
+	term.ocy = term.cursor.y;
 	xfinishdraw();
 	if (ocx != term.ocx || ocy != term.ocy)
 		xximspot(term.ocx, term.ocy);
