@@ -1481,7 +1481,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 		if (priv) {
 			switch (*args) {
 			case 1: /* DECCKM -- Cursor key */
-				xsetmode(set, MODE_APPCURSOR);
+				xsetmode(set, WIN_MODE_APPCURSOR);
 				break;
 			case 5: /* DECSCNM -- Reverse video */
 				xsetmode(set, WIN_MODE_REVERSE);
