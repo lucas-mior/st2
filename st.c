@@ -2688,7 +2688,7 @@ draw(void)
 			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
 	term.ocx = cx;
 	term.ocy = term.cursor.y;
-	xfinishdraw();
+	x_finish_draw();
 	if (ocx != term.ocx || ocy != term.ocy)
 		xximspot(term.ocx, term.ocy);
 }

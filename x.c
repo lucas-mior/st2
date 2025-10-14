@@ -1686,7 +1686,7 @@ x_draw_line(Line line, int x1, int y1, int x2)
 }
 
 void
-xfinishdraw(void)
+x_finish_draw(void)
 {
 	XCopyArea(x_window.dpy, x_window.buf, x_window.win, draw_context.graphics, 0, 0, term_window.w,
 			term_window.h, 0, 0);
