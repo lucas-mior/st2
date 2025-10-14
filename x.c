@@ -1203,7 +1203,7 @@ x_init(int number_cols, int number_rows)
 	cursor = XCreateFontCursor(x_window.dpy, mouse_shape);
 	XDefineCursor(x_window.dpy, x_window.win, cursor);
 
-	if (XParseColor(x_window.dpy, x_window.cmap, colorname[mousefg], &xmousefg) == 0) {
+	if (XParseColor(x_window.dpy, x_window.cmap, colorname[mouse_foreground], &xmousefg) == 0) {
 		xmousefg.red   = 0xffff;
 		xmousefg.green = 0xffff;
 		xmousefg.blue  = 0xffff;
