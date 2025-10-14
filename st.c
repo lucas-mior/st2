@@ -155,7 +155,7 @@ typedef struct {
 static void exec_shell(char *, char **);
 static void stty(char **);
 static void handler_sigchld(int);
-static void ttywriteraw(const char *, size_t);
+static void tty_write_raw(const char *, size_t);
 
 static void csidump(void);
 static void csihandle(void);
@@ -849,7 +849,7 @@ ttywrite(const char *s, size_t n, int may_echo)
 		twrite(s, n, 1);
 
 	if (!IS_SET(MODE_CRLF)) {
-		ttywriteraw(s, n);
+		tty_write_raw(s, n);
 		return;
 	}
 
@@ -857,11 +857,11 @@ ttywrite(const char *s, size_t n, int may_echo)
 	while (n > 0) {
 		if (*s == '\r') {
 			next = s + 1;
-			ttywriteraw("\r\n", 2);
+			tty_write_raw("\r\n", 2);
 		} else {
 			next = memchr(s, '\r', n);
 			DEFAULT(next, s + n);
-			ttywriteraw(s, next - s);
+			tty_write_raw(s, next - s);
 		}
 		n -= next - s;
 		s = next;
@@ -869,7 +869,7 @@ ttywrite(const char *s, size_t n, int may_echo)
 }
 
 void
-ttywriteraw(const char *s, size_t n)
+tty_write_raw(const char *s, size_t n)
 {
 	fd_set wfd, rfd;
 	ssize_t r;
