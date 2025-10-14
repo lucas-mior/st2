@@ -138,7 +138,7 @@ typedef struct {
 	size_t collen;
 	Font font, bfont, ifont, ibfont;
 	GC gc;
-} DC;
+} DrawingContext;
 
 static inline ushort sixd_to_16bit(int);
 static int x_make_glyph_font_specs(XftGlyphFontSpec *, const Glyph *, int, int, int);
@@ -216,7 +216,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
 };
 
 /* Globals */
-static DC dc;
+static DrawingContext dc;
 static XWindow x_window;
 static XSelection xsel;
 static TermWindow term_window;
