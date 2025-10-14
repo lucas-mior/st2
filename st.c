@@ -753,7 +753,7 @@ stty(char **args)
 }
 
 int
-ttynew(const char *line, char *cmd, const char *out, char **args)
+tty_new(const char *line, char *cmd, const char *out, char **args)
 {
 	int m, s;
 
