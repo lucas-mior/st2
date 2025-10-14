@@ -58,7 +58,7 @@ static void sel_paste(const Arg *);
 static void zoom(const Arg *);
 static void zoom_abs(const Arg *);
 static void zoom_reset(const Arg *);
-static void ttysend(const Arg *);
+static void tty_send(const Arg *);
 
 /* config.h for applying patches and the configuration. */
 #include "config.h"
@@ -323,7 +323,7 @@ zoom_reset(const Arg *arg)
 }
 
 void
-ttysend(const Arg *arg)
+tty_send(const Arg *arg)
 {
 	ttywrite(arg->s, strlen(arg->s), 1);
 }
