@@ -172,7 +172,7 @@ static void handler_client_message(XEvent *);
 static void handler_configure_notify(XEvent *);
 static void handler_focus(XEvent *);
 static uint button_mask(uint);
-static int mouseaction(XEvent *, uint);
+static int mouse_action(XEvent *, uint);
 static void brelease(XEvent *);
 static void bpress(XEvent *);
 static void bmotion(XEvent *);
@@ -445,7 +445,7 @@ button_mask(uint button)
 }
 
 int
-mouseaction(XEvent *e, uint release)
+mouse_action(XEvent *e, uint release)
 {
 	MouseShortcut *ms;
 
@@ -480,7 +480,7 @@ bpress(XEvent *e)
 		return;
 	}
 
-	if (mouseaction(e, 0))
+	if (mouse_action(e, 0))
 		return;
 
 	if (btn == Button1) {
@@ -707,7 +707,7 @@ brelease(XEvent *e)
 		return;
 	}
 
-	if (mouseaction(e, 1))
+	if (mouse_action(e, 1))
 		return;
 	if (btn == Button1)
 		mousesel(e, 1);
