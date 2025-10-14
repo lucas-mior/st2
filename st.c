@@ -182,7 +182,7 @@ static int term_line_len(int);
 static void term_move_to(int, int);
 static void term_move_abs_to(int, int);
 static void term_new_line(int);
-static void tputtab(int);
+static void term_put_tab(int);
 static void tputc(Rune);
 static void treset(void);
 static void tscrollup(int, int);
@@ -1699,7 +1699,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'I': /* CHT -- Cursor Forward Tabulation <n> tab stops */
 		DEFAULT(csiescseq.arg[0], 1);
-		tputtab(csiescseq.arg[0]);
+		term_put_tab(csiescseq.arg[0]);
 		break;
 	case 'J': /* ED -- Clear screen */
 		switch (csiescseq.arg[0]) {
@@ -1767,7 +1767,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'Z': /* CBT -- Cursor Backward Tabulation <n> tab stops */
 		DEFAULT(csiescseq.arg[0], 1);
-		tputtab(-csiescseq.arg[0]);
+		term_put_tab(-csiescseq.arg[0]);
 		break;
 	case 'd': /* VPA -- Move to <row> */
 		DEFAULT(csiescseq.arg[0], 1);
@@ -2124,7 +2124,7 @@ term_dump(void)
 }
 
 void
-tputtab(int n)
+term_put_tab(int n)
 {
 	uint x = term.c.x;
 
@@ -2203,7 +2203,7 @@ tcontrolcode(uchar ascii)
 {
 	switch (ascii) {
 	case '\t':   /* HT */
-		tputtab(1);
+		term_put_tab(1);
 		return;
 	case '\b':   /* BS */
 		term_move_to(term.c.x-1, term.c.y);
