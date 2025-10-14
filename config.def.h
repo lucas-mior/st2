@@ -141,7 +141,7 @@ static unsigned int default_reverse_cursor = 257;
  * 6: Bar ("|")
  * 7: Snowman ("☃")
  */
-static unsigned int cursorshape = 2;
+static unsigned int cursor_shape = 2;
 
 /*
  * Default columns and rows numbers
