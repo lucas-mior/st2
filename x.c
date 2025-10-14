@@ -79,7 +79,7 @@ typedef XftGlyphFontSpec GlyphFontSpec;
 
 /* Purely graphic info */
 typedef struct {
-	int tw, th; /* tty width and height */
+	int tty_width, th; /* tty width and height */
 	int w, h; /* window width and height */
 	int ch; /* char height */
 	int cw; /* char width  */
@@ -332,7 +332,7 @@ int
 evcol(XEvent *e)
 {
 	int x = e->xbutton.x - borderpx;
-	LIMIT(x, 0, win.tw - 1);
+	LIMIT(x, 0, win.tty_width - 1);
 	return x / win.cw;
 }
 
@@ -741,13 +741,13 @@ cresize(int width, int height)
 
 	term_resize(col, row);
 	x_resize(col, row);
-	tty_resize(win.tw, win.th);
+	tty_resize(win.tty_width, win.th);
 }
 
 void
 x_resize(int col, int row)
 {
-	win.tw = col * win.cw;
+	win.tty_width = col * win.cw;
 	win.th = row * win.ch;
 
 	XFreePixmap(xw.dpy, xw.buf);
@@ -1472,7 +1472,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 			winy + win.ch +
 			((winy + win.ch >= borderpx + win.th)? win.h : 0));
 	}
-	if (winx + width >= borderpx + win.tw) {
+	if (winx + width >= borderpx + win.tty_width) {
 		x_clear(winx + width, (y == 0)? 0 : winy, win.w,
 			((winy + win.ch >= borderpx + win.th)? win.h : (winy + win.ch)));
 	}
