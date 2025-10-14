@@ -605,7 +605,7 @@ handler_sel_notify(XEvent *e)
 }
 
 void
-xclipcopy(void)
+x_clipboard_copy(void)
 {
 	user_clipboard_copy(NULL);
 }

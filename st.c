@@ -1918,7 +1918,7 @@ string_handle(void)
 				dec = base64_decode(strescseq.args[2]);
 				if (dec) {
 					xsetsel(dec);
-					xclipcopy();
+					x_clipboard_copy();
 				} else {
 					fprintf(stderr, "erresc: invalid base64\n");
 				}
