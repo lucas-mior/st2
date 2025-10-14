@@ -180,7 +180,7 @@ static void term_insert_blank(int);
 static void term_insert_blank_line(int);
 static int term_line_len(int);
 static void term_move_to(int, int);
-static void tmoveato(int, int);
+static void term_move_abs_to(int, int);
 static void tnewline(int);
 static void tputtab(int);
 static void tputc(Rune);
@@ -1162,7 +1162,7 @@ control_seq_intro_parse(void)
 
 /* for absolute user moves, when decom is set */
 void
-tmoveato(int x, int y)
+term_move_abs_to(int x, int y)
 {
 	term_move_to(x, y + ((term.c.state & CURSOR_ORIGIN) ? term.top: 0));
 }
@@ -1488,7 +1488,7 @@ tsetmode(int priv, int set, const int *args, int narg)
 				break;
 			case 6: /* DECOM -- Origin */
 				MODBIT(term.c.state, set, CURSOR_ORIGIN);
-				tmoveato(0, 0);
+				term_move_abs_to(0, 0);
 				break;
 			case 7: /* DECAWM -- Auto wrap */
 				MODBIT(term.mode, set, MODE_WRAP);
@@ -1695,7 +1695,7 @@ control_seq_intro_handle(void)
 	case 'f': /* HVP */
 		DEFAULT(csiescseq.arg[0], 1);
 		DEFAULT(csiescseq.arg[1], 1);
-		tmoveato(csiescseq.arg[1]-1, csiescseq.arg[0]-1);
+		term_move_abs_to(csiescseq.arg[1]-1, csiescseq.arg[0]-1);
 		break;
 	case 'I': /* CHT -- Cursor Forward Tabulation <n> tab stops */
 		DEFAULT(csiescseq.arg[0], 1);
@@ -1771,7 +1771,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'd': /* VPA -- Move to <row> */
 		DEFAULT(csiescseq.arg[0], 1);
-		tmoveato(term.c.x, csiescseq.arg[0]-1);
+		term_move_abs_to(term.c.x, csiescseq.arg[0]-1);
 		break;
 	case 'h': /* SM -- Set terminal mode */
 		tsetmode(csiescseq.priv, 1, csiescseq.arg, csiescseq.narg);
@@ -1800,7 +1800,7 @@ control_seq_intro_handle(void)
 			DEFAULT(csiescseq.arg[0], 1);
 			DEFAULT(csiescseq.arg[1], term.row);
 			tsetscroll(csiescseq.arg[0]-1, csiescseq.arg[1]-1);
-			tmoveato(0, 0);
+			term_move_abs_to(0, 0);
 		}
 		break;
 	case 's': /* DECSC -- Save cursor position (ANSI.SYS) */
