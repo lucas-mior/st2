@@ -506,13 +506,13 @@ handler_button_press(XEvent *e)
 void
 handler_prop_notify(XEvent *e)
 {
-	XPropertyEvent *xpev;
+	XPropertyEvent *x_property_event;
 	Atom clipboard = XInternAtom(x_window.dpy, "CLIPBOARD", 0);
 
-	xpev = &e->xproperty;
-	if (xpev->state == PropertyNewValue &&
-			(xpev->atom == XA_PRIMARY ||
-			 xpev->atom == clipboard)) {
+	x_property_event = &e->xproperty;
+	if (x_property_event->state == PropertyNewValue &&
+			(x_property_event->atom == XA_PRIMARY ||
+			 x_property_event->atom == clipboard)) {
 		handler_sel_notify(e);
 	}
 }
