@@ -170,7 +170,7 @@ static void handler_unmap(XEvent *);
 static void handler_key_press(XEvent *);
 static void handler_client_message(XEvent *);
 static void handler_configure_notify(XEvent *);
-static void focus(XEvent *);
+static void handler_focus(XEvent *);
 static uint buttonmask(uint);
 static int mouseaction(XEvent *, uint);
 static void brelease(XEvent *);
@@ -196,8 +196,8 @@ static void (*handler[LASTEvent])(XEvent *) = {
 	[VisibilityNotify] = handler_visibility,
 	[UnmapNotify] = handler_unmap,
 	[Expose] = handler_expose,
-	[FocusIn] = focus,
-	[FocusOut] = focus,
+	[FocusIn] = handler_focus,
+	[FocusOut] = handler_focus,
 	[MotionNotify] = bmotion,
 	[ButtonPress] = bpress,
 	[ButtonRelease] = brelease,
@@ -1772,7 +1772,7 @@ xbell(void)
 }
 
 void
-focus(XEvent *ev)
+handler_focus(XEvent *ev)
 {
 	XFocusChangeEvent *e = &ev->xfocus;
 
