@@ -946,7 +946,7 @@ ttyhangup(void)
 }
 
 int
-tattrset(int attr)
+term_attr_set(int attr)
 {
 	int i, j;
 

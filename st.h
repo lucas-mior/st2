@@ -86,7 +86,7 @@ void printsel(const Arg *);
 void sendbreak(const Arg *);
 void toggleprinter(const Arg *);
 
-int tattrset(int);
+int term_attr_set(int);
 void tnew(int, int);
 void tresize(int, int);
 void tsetdirtattr(int);
