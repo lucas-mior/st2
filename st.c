@@ -926,7 +926,7 @@ write_error:
 }
 
 void
-ttyresize(int tw, int th)
+tty_resize(int tw, int th)
 {
 	struct winsize w;
 
