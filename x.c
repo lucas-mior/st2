@@ -54,7 +54,7 @@ typedef struct {
 static void clipboard_copy(const Arg *);
 static void clipboard_paste(const Arg *);
 static void toggle_numlock(const Arg *);
-static void selpaste(const Arg *);
+static void sel_paste(const Arg *);
 static void zoom(const Arg *);
 static void zoomabs(const Arg *);
 static void zoomreset(const Arg *);
@@ -280,7 +280,7 @@ clipboard_paste(const Arg *dummy)
 }
 
 void
-selpaste(const Arg *dummy)
+sel_paste(const Arg *dummy)
 {
 	XConvertSelection(xw.dpy, XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
 			xw.win, CurrentTime);
