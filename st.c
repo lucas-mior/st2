@@ -173,7 +173,7 @@ static void term_dump_sel(void);
 static void term_dump_line(int);
 static void term_dump(void);
 static void term_clear_region(int, int, int, int);
-static void tcursor(int);
+static void term_cursor(int);
 static void tdeletechar(int);
 static void tdeleteline(int);
 static void tinsertblank(int);
@@ -994,7 +994,7 @@ tfulldirt(void)
 }
 
 void
-tcursor(int mode)
+term_cursor(int mode)
 {
 	static TCursor c[2];
 	int alt = IS_SET(MODE_ALTSCREEN);
@@ -1029,7 +1029,7 @@ treset(void)
 
 	for (i = 0; i < 2; i++) {
 		tmoveto(0, 0);
-		tcursor(CURSOR_SAVE);
+		term_cursor(CURSOR_SAVE);
 		term_clear_region(0, 0, term.col-1, term.row-1);
 		tswapscreen();
 	}
@@ -1538,7 +1538,7 @@ tsetmode(int priv, int set, const int *args, int narg)
 			case 1049: /* swap screen & set/restore cursor as xterm */
 				if (!allowaltscreen)
 					break;
-				tcursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
+				term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
 				/* FALLTHROUGH */
 			case 47: /* swap screen buffer */
 			case 1047: /* swap screen buffer */
@@ -1555,7 +1555,7 @@ tsetmode(int priv, int set, const int *args, int narg)
 					break;
 				/* FALLTHROUGH */
 			case 1048: /* save/restore cursor (like DECSC/DECRC) */
-				tcursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
+				term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
 				break;
 			case 2004: /* 2004: bracketed paste mode */
 				xsetmode(set, MODE_BRCKTPASTE);
@@ -1804,13 +1804,13 @@ control_seq_intro_handle(void)
 		}
 		break;
 	case 's': /* DECSC -- Save cursor position (ANSI.SYS) */
-		tcursor(CURSOR_SAVE);
+		term_cursor(CURSOR_SAVE);
 		break;
 	case 'u': /* DECRC -- Restore cursor position (ANSI.SYS) */
 		if (csiescseq.priv) {
 			goto unknown;
 		} else {
-			tcursor(CURSOR_LOAD);
+			term_cursor(CURSOR_LOAD);
 		}
 		break;
 	case ' ':
@@ -2366,10 +2366,10 @@ eschandle(uchar ascii)
 		xsetmode(0, MODE_APPKEYPAD);
 		break;
 	case '7': /* DECSC -- Save Cursor */
-		tcursor(CURSOR_SAVE);
+		term_cursor(CURSOR_SAVE);
 		break;
 	case '8': /* DECRC -- Restore Cursor */
-		tcursor(CURSOR_LOAD);
+		term_cursor(CURSOR_LOAD);
 		break;
 	case '\\': /* ST -- String Terminator */
 		if (term.esc & ESC_STR_END)
@@ -2642,7 +2642,7 @@ tresize(int col, int row)
 			term_clear_region(0, minrow, col - 1, row - 1);
 		}
 		tswapscreen();
-		tcursor(CURSOR_LOAD);
+		term_cursor(CURSOR_LOAD);
 	}
 	term.c = c;
 }
