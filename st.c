@@ -1484,7 +1484,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				xsetmode(set, MODE_APPCURSOR);
 				break;
 			case 5: /* DECSCNM -- Reverse video */
-				xsetmode(set, MODE_REVERSE);
+				xsetmode(set, WIN_MODE_REVERSE);
 				break;
 			case 6: /* DECOM -- Origin */
 				MODBIT(term.cursor.state, set, CURSOR_ORIGIN);

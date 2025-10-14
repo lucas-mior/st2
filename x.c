@@ -852,7 +852,7 @@ void
 x_clear(int x1, int y1, int x2, int y2)
 {
 	XftDrawRect(x_window.draw,
-			&draw_context.col[IS_SET(MODE_REVERSE)? default_foreground : default_background],
+			&draw_context.col[IS_SET(WIN_MODE_REVERSE)? default_foreground : default_background],
 			x1, y1, x2-x1, y2-y1);
 }
 
@@ -1419,7 +1419,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 	if ((base.mode & ATTR_BOLD_FAINT) == ATTR_BOLD && BETWEEN(base.fg, 0, 7))
 		fg = &draw_context.col[base.fg + 8];
 
-	if (IS_SET(MODE_REVERSE)) {
+	if (IS_SET(WIN_MODE_REVERSE)) {
 		if (fg == &draw_context.col[default_foreground]) {
 			fg = &draw_context.col[default_background];
 		} else {
@@ -1537,7 +1537,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	 */
 	g.mode &= ATTR_BOLD|ATTR_ITALIC|ATTR_UNDERLINE|ATTR_STRUCK|ATTR_WIDE;
 
-	if (IS_SET(MODE_REVERSE)) {
+	if (IS_SET(WIN_MODE_REVERSE)) {
 		g.mode |= ATTR_REVERSE;
 		g.bg = default_foreground;
 		if (selected(cx, cy)) {
@@ -1691,7 +1691,7 @@ xfinishdraw(void)
 	XCopyArea(x_window.dpy, x_window.buf, x_window.win, draw_context.graphics, 0, 0, term_window.w,
 			term_window.h, 0, 0);
 	XSetForeground(x_window.dpy, draw_context.graphics,
-			draw_context.col[IS_SET(MODE_REVERSE)?
+			draw_context.col[IS_SET(WIN_MODE_REVERSE)?
 				default_foreground : default_background].pixel);
 }
 
@@ -1739,7 +1739,7 @@ xsetmode(int set, unsigned int flags)
 {
 	int mode = term_window.mode;
 	MODBIT(term_window.mode, set, flags);
-	if ((term_window.mode & MODE_REVERSE) != (mode & MODE_REVERSE))
+	if ((term_window.mode & WIN_MODE_REVERSE) != (mode & WIN_MODE_REVERSE))
 		redraw();
 }
 
