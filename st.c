@@ -179,7 +179,7 @@ static void term_delete_line(int);
 static void term_insert_blank(int);
 static void term_insert_blank_line(int);
 static int term_line_len(int);
-static void tmoveto(int, int);
+static void term_move_to(int, int);
 static void tmoveato(int, int);
 static void tnewline(int);
 static void tputtab(int);
@@ -1003,7 +1003,7 @@ term_cursor(int mode)
 		c[alt] = term.c;
 	} else if (mode == CURSOR_LOAD) {
 		term.c = c[alt];
-		tmoveto(c[alt].x, c[alt].y);
+		term_move_to(c[alt].x, c[alt].y);
 	}
 }
 
@@ -1028,7 +1028,7 @@ treset(void)
 	term.charset = 0;
 
 	for (i = 0; i < 2; i++) {
-		tmoveto(0, 0);
+		term_move_to(0, 0);
 		term_cursor(CURSOR_SAVE);
 		term_clear_region(0, 0, term.col-1, term.row-1);
 		tswapscreen();
@@ -1124,7 +1124,7 @@ tnewline(int first_col)
 	} else {
 		y++;
 	}
-	tmoveto(first_col ? 0 : term.c.x, y);
+	term_move_to(first_col ? 0 : term.c.x, y);
 }
 
 void
@@ -1164,11 +1164,11 @@ control_seq_intro_parse(void)
 void
 tmoveato(int x, int y)
 {
-	tmoveto(x, y + ((term.c.state & CURSOR_ORIGIN) ? term.top: 0));
+	term_move_to(x, y + ((term.c.state & CURSOR_ORIGIN) ? term.top: 0));
 }
 
 void
-tmoveto(int x, int y)
+term_move_to(int x, int y)
 {
 	int miny, maxy;
 
@@ -1621,12 +1621,12 @@ control_seq_intro_handle(void)
 		break;
 	case 'A': /* CUU -- Cursor <n> Up */
 		DEFAULT(csiescseq.arg[0], 1);
-		tmoveto(term.c.x, term.c.y-csiescseq.arg[0]);
+		term_move_to(term.c.x, term.c.y-csiescseq.arg[0]);
 		break;
 	case 'B': /* CUD -- Cursor <n> Down */
 	case 'e': /* VPR --Cursor <n> Down */
 		DEFAULT(csiescseq.arg[0], 1);
-		tmoveto(term.c.x, term.c.y+csiescseq.arg[0]);
+		term_move_to(term.c.x, term.c.y+csiescseq.arg[0]);
 		break;
 	case 'i': /* MC -- Media Copy */
 		switch (csiescseq.arg[0]) {
@@ -1660,19 +1660,19 @@ control_seq_intro_handle(void)
 	case 'C': /* CUF -- Cursor <n> Forward */
 	case 'a': /* HPR -- Cursor <n> Forward */
 		DEFAULT(csiescseq.arg[0], 1);
-		tmoveto(term.c.x+csiescseq.arg[0], term.c.y);
+		term_move_to(term.c.x+csiescseq.arg[0], term.c.y);
 		break;
 	case 'D': /* CUB -- Cursor <n> Backward */
 		DEFAULT(csiescseq.arg[0], 1);
-		tmoveto(term.c.x-csiescseq.arg[0], term.c.y);
+		term_move_to(term.c.x-csiescseq.arg[0], term.c.y);
 		break;
 	case 'E': /* CNL -- Cursor <n> Down and first col */
 		DEFAULT(csiescseq.arg[0], 1);
-		tmoveto(0, term.c.y+csiescseq.arg[0]);
+		term_move_to(0, term.c.y+csiescseq.arg[0]);
 		break;
 	case 'F': /* CPL -- Cursor <n> Up and first col */
 		DEFAULT(csiescseq.arg[0], 1);
-		tmoveto(0, term.c.y-csiescseq.arg[0]);
+		term_move_to(0, term.c.y-csiescseq.arg[0]);
 		break;
 	case 'g': /* TBC -- Tabulation clear */
 		switch (csiescseq.arg[0]) {
@@ -1689,7 +1689,7 @@ control_seq_intro_handle(void)
 	case 'G': /* CHA -- Move to <col> */
 	case '`': /* HPA */
 		DEFAULT(csiescseq.arg[0], 1);
-		tmoveto(csiescseq.arg[0]-1, term.c.y);
+		term_move_to(csiescseq.arg[0]-1, term.c.y);
 		break;
 	case 'H': /* CUP -- Move to <row> <col> */
 	case 'f': /* HVP */
@@ -2206,10 +2206,10 @@ tcontrolcode(uchar ascii)
 		tputtab(1);
 		return;
 	case '\b':   /* BS */
-		tmoveto(term.c.x-1, term.c.y);
+		term_move_to(term.c.x-1, term.c.y);
 		return;
 	case '\r':   /* CR */
-		tmoveto(0, term.c.y);
+		term_move_to(0, term.c.y);
 		return;
 	case '\f':   /* LF */
 	case '\v':   /* VT */
@@ -2334,7 +2334,7 @@ eschandle(uchar ascii)
 		if (term.c.y == term.bot) {
 			tscrollup(term.top, 1);
 		} else {
-			tmoveto(term.c.x, term.c.y+1);
+			term_move_to(term.c.x, term.c.y+1);
 		}
 		break;
 	case 'E': /* NEL -- Next line */
@@ -2347,7 +2347,7 @@ eschandle(uchar ascii)
 		if (term.c.y == term.top) {
 			tscrolldown(term.top, 1);
 		} else {
-			tmoveto(term.c.x, term.c.y-1);
+			term_move_to(term.c.x, term.c.y-1);
 		}
 		break;
 	case 'Z': /* DECID -- Identify Terminal */
@@ -2508,7 +2508,7 @@ check_control_code:
 		if (IS_SET(MODE_WRAP))
 			tnewline(1);
 		else
-			tmoveto(term.col - width, term.c.y);
+			term_move_to(term.col - width, term.c.y);
 		gp = &term.line[term.c.y][term.c.x];
 	}
 
@@ -2527,7 +2527,7 @@ check_control_code:
 		}
 	}
 	if (term.c.x+width < term.col) {
-		tmoveto(term.c.x+width, term.c.y);
+		term_move_to(term.c.x+width, term.c.y);
 	} else {
 		term.c.state |= CURSOR_WRAPNEXT;
 	}
@@ -2630,8 +2630,8 @@ tresize(int col, int row)
 	term.row = row;
 	/* reset scrolling region */
 	tsetscroll(0, row-1);
-	/* make use of the LIMIT in tmoveto */
-	tmoveto(term.c.x, term.c.y);
+	/* make use of the LIMIT in term_move_to */
+	term_move_to(term.c.x, term.c.y);
 	/* Clearing both screens (it makes dirty all lines) */
 	c = term.c;
 	for (i = 0; i < 2; i++) {
