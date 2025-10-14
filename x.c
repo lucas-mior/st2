@@ -166,7 +166,7 @@ static int evrow(XEvent *);
 
 static void handler_expose(XEvent *);
 static void handler_visibility(XEvent *);
-static void unmap(XEvent *);
+static void handler_unmap(XEvent *);
 static void kpress(XEvent *);
 static void cmessage(XEvent *);
 static void resize(XEvent *);
@@ -194,7 +194,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
 	[ClientMessage] = cmessage,
 	[ConfigureNotify] = resize,
 	[VisibilityNotify] = handler_visibility,
-	[UnmapNotify] = unmap,
+	[UnmapNotify] = handler_unmap,
 	[Expose] = handler_expose,
 	[FocusIn] = focus,
 	[FocusOut] = focus,
@@ -1722,7 +1722,7 @@ handler_visibility(XEvent *ev)
 }
 
 void
-unmap(XEvent *ev)
+handler_unmap(XEvent *ev)
 {
 	win.mode &= ~MODE_VISIBLE;
 }
