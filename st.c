@@ -2360,10 +2360,10 @@ eschandle(uchar ascii)
 		xsetmode(0, MODE_HIDE);
 		break;
 	case '=': /* DECPAM -- Application keypad */
-		xsetmode(1, MODE_APPKEYPAD);
+		xsetmode(1, WIN_MODE_APPKEYPAD);
 		break;
 	case '>': /* DECPNM -- Normal keypad */
-		xsetmode(0, MODE_APPKEYPAD);
+		xsetmode(0, WIN_MODE_APPKEYPAD);
 		break;
 	case '7': /* DECSC -- Save Cursor */
 		term_cursor(CURSOR_SAVE);

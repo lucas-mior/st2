@@ -3,7 +3,7 @@
 enum win_mode {
 	WIN_MODE_VISIBLE     = 1 << 0,
 	WIN_MODE_FOCUSED     = 1 << 1,
-	MODE_APPKEYPAD   = 1 << 2,
+	WIN_MODE_APPKEYPAD   = 1 << 2,
 	MODE_MOUSEBTN    = 1 << 3,
 	MODE_MOUSEMOTION = 1 << 4,
 	MODE_REVERSE     = 1 << 5,
