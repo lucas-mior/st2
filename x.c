@@ -159,7 +159,7 @@ static int x_load_font(Font *, FcPattern *);
 static void x_load_fonts(const char *, double);
 static void x_unload_font(Font *);
 static void x_unload_fonts(void);
-static void xsetenv(void);
+static void x_setenv(void);
 static void xseturgency(int);
 static int evcol(XEvent *);
 static int evrow(XEvent *);
@@ -1606,7 +1606,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 }
 
 void
-xsetenv(void)
+x_setenv(void)
 {
 	char buf[sizeof(long) * 8 + 1];
 
@@ -2100,7 +2100,7 @@ run:
 	rows = MAX(rows, 1);
 	tnew(cols, rows);
 	x_init(cols, rows);
-	xsetenv();
+	x_setenv();
 	selinit();
 	run();
 
