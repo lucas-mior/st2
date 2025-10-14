@@ -45,7 +45,7 @@
 
 enum term_mode {
 	TERM_MODE_WRAP        = 1 << 0,
-	MODE_INSERT      = 1 << 1,
+	TERM_MODE_INSERT      = 1 << 1,
 	MODE_ALTSCREEN   = 1 << 2,
 	MODE_CRLF        = 1 << 3,
 	MODE_ECHO        = 1 << 4,
@@ -1584,7 +1584,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 				xsetmode(set, MODE_KBDLOCK);
 				break;
 			case 4:  /* IRM -- Insertion-replacement */
-				MODBIT(term.mode, set, MODE_INSERT);
+				MODBIT(term.mode, set, TERM_MODE_INSERT);
 				break;
 			case 12: /* SRM -- Send/Receive */
 				MODBIT(term.mode, !set, MODE_ECHO);
@@ -2499,7 +2499,7 @@ check_control_code:
 		gp = &term.line[term.c.y][term.c.x];
 	}
 
-	if (IS_SET(MODE_INSERT) && term.c.x+width < term.col) {
+	if (IS_SET(TERM_MODE_INSERT) && term.c.x+width < term.col) {
 		memmove(gp+width, gp, (term.col - term.c.x - width) * sizeof(Glyph));
 		gp->mode &= ~ATTR_WIDE;
 	}
