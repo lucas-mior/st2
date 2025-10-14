@@ -175,7 +175,7 @@ static void term_dump(void);
 static void term_clear_region(int, int, int, int);
 static void term_cursor(int);
 static void term_delete_char(int);
-static void tdeleteline(int);
+static void term_delete_line(int);
 static void tinsertblank(int);
 static void tinsertblankline(int);
 static int tlinelen(int);
@@ -1292,7 +1292,7 @@ tinsertblankline(int n)
 }
 
 void
-tdeleteline(int n)
+term_delete_line(int n)
 {
 	if (BETWEEN(term.c.y, term.top, term.bot))
 		tscrollup(term.c.y, n);
@@ -1754,7 +1754,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'M': /* DL -- Delete <n> lines */
 		DEFAULT(csiescseq.arg[0], 1);
-		tdeleteline(csiescseq.arg[0]);
+		term_delete_line(csiescseq.arg[0]);
 		break;
 	case 'X': /* ECH -- Erase <n> char */
 		DEFAULT(csiescseq.arg[0], 1);
