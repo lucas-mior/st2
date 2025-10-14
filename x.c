@@ -143,7 +143,7 @@ typedef struct {
 static inline ushort sixd_to_16bit(int);
 static int x_make_glyph_font_specs(XftGlyphFontSpec *, const Glyph *, int, int, int);
 static void x_draw_glyph_font_specs(const XftGlyphFontSpec *, Glyph, int, int, int);
-static void xdrawglyph(Glyph, int, int);
+static void x_draw_glyph(Glyph, int, int);
 static void xclear(int, int, int, int);
 static int xgeommasktogravity(int);
 static int ximopen(Display *);
@@ -1510,7 +1510,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 }
 
 void
-xdrawglyph(Glyph g, int x, int y)
+x_draw_glyph(Glyph g, int x, int y)
 {
 	int numspecs;
 	XftGlyphFontSpec spec;
@@ -1527,7 +1527,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	/* remove the old cursor */
 	if (selected(ox, oy))
 		og.mode ^= ATTR_REVERSE;
-	xdrawglyph(og, ox, oy);
+	x_draw_glyph(og, ox, oy);
 
 	if (IS_SET(MODE_HIDE))
 		return;
@@ -1567,7 +1567,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		case 0: /* Blinking Block */
 		case 1: /* Blinking Block (Default) */
 		case 2: /* Steady Block */
-			xdrawglyph(g, cx, cy);
+			x_draw_glyph(g, cx, cy);
 			break;
 		case 3: /* Blinking Underline */
 		case 4: /* Steady Underline */
