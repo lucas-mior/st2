@@ -171,7 +171,7 @@ static void string_reset(void);
 static void term_printer(char *, size_t);
 static void term_dump_sel(void);
 static void term_dump_line(int);
-static void tdump(void);
+static void term_dump(void);
 static void tclearregion(int, int, int, int);
 static void tcursor(int);
 static void tdeletechar(int);
@@ -1631,7 +1631,7 @@ control_seq_intro_handle(void)
 	case 'i': /* MC -- Media Copy */
 		switch (csiescseq.arg[0]) {
 		case 0:
-			tdump();
+			term_dump();
 			break;
 		case 1:
 			term_dump_line(term.c.y);
@@ -2079,7 +2079,7 @@ toggleprinter(const Arg *arg)
 void
 printscreen(const Arg *arg)
 {
-	tdump();
+	term_dump();
 }
 
 void
@@ -2115,7 +2115,7 @@ term_dump_line(int n)
 }
 
 void
-tdump(void)
+term_dump(void)
 {
 	int i;
 
