@@ -1529,7 +1529,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		og.mode ^= ATTR_REVERSE;
 	x_draw_glyph(og, ox, oy);
 
-	if (IS_SET(MODE_HIDE))
+	if (IS_SET(WIN_MODE_HIDE))
 		return;
 
 	/*

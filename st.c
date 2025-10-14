@@ -1504,7 +1504,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 			case 12: /* att610 -- Start blinking cursor (IGNORED) */
 				break;
 			case 25: /* DECTCEM -- Text Cursor Enable Mode */
-				xsetmode(!set, MODE_HIDE);
+				xsetmode(!set, WIN_MODE_HIDE);
 				break;
 			case 9:    /* X10 mouse compatibility mode */
 				xsetpointermotion(0);
@@ -2357,7 +2357,7 @@ eschandle(uchar ascii)
 		term_reset();
 		reset_title();
 		xloadcols();
-		xsetmode(0, MODE_HIDE);
+		xsetmode(0, WIN_MODE_HIDE);
 		break;
 	case '=': /* DECPAM -- Application keypad */
 		xsetmode(1, WIN_MODE_APPKEYPAD);
