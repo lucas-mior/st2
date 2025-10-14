@@ -213,7 +213,7 @@ static Rune utf8_decode_byte(char, size_t *);
 static char utf8_encode_byte(Rune, size_t);
 static size_t utf8_validate(Rune *, size_t);
 
-static char *base64dec(const char *);
+static char *base64_decode(const char *);
 static char base64dec_getc(const char **);
 
 static ssize_t xwrite(int, const char *, size_t);
@@ -359,7 +359,7 @@ base64dec_getc(const char **src)
 }
 
 char *
-base64dec(const char *src)
+base64_decode(const char *src)
 {
 	size_t in_len = strlen(src);
 	char *result, *dst;
@@ -1915,7 +1915,7 @@ string_handle(void)
 			return;
 		case 52: /* manipulate selection data */
 			if (narg > 2 && allowwindowops) {
-				dec = base64dec(strescseq.args[2]);
+				dec = base64_decode(strescseq.args[2]);
 				if (dec) {
 					xsetsel(dec);
 					xclipcopy();
