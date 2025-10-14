@@ -166,7 +166,7 @@ static int eschandle(uchar);
 static void string_dump(void);
 static void string_handle(void);
 static void string_parse(void);
-static void strreset(void);
+static void string_reset(void);
 
 static void tprinter(char *, size_t);
 static void tdumpsel(void);
@@ -2045,7 +2045,7 @@ string_dump(void)
 }
 
 void
-strreset(void)
+string_reset(void)
 {
 	strescseq = (STREscape){
 		.buf = xrealloc(strescseq.buf, STR_BUF_SIZ),
@@ -2193,7 +2193,7 @@ tstrsequence(uchar c)
 		c = ']';
 		break;
 	}
-	strreset();
+	string_reset();
 	strescseq.type = c;
 	term.esc |= ESC_STR;
 }
