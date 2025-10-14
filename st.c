@@ -422,7 +422,7 @@ void
 sel_start(int col, int row, int snap)
 {
 	sel_clear();
-	selection.mode = SEL_EMPTY;
+	selection.mode = SELECTION_EMPTY;
 	selection.type = SEL_REGULAR;
 	selection.alt = IS_SET(TERM_MODE_ALTSCREEN);
 	selection.snap = snap;
@@ -442,7 +442,7 @@ sel_extend(int col, int row, int type, int done)
 
 	if (selection.mode == SELECTION_IDLE)
 		return;
-	if (done && selection.mode == SEL_EMPTY) {
+	if (done && selection.mode == SELECTION_EMPTY) {
 		sel_clear();
 		return;
 	}
@@ -458,7 +458,7 @@ sel_extend(int col, int row, int type, int done)
 	sel_normalize();
 	selection.type = type;
 
-	if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type || selection.mode == SEL_EMPTY)
+	if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type || selection.mode == SELECTION_EMPTY)
 		term_set_dirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
 
 	selection.mode = done ? SELECTION_IDLE : SEL_READY;
@@ -495,7 +495,7 @@ sel_normalize(void)
 int
 selected(int x, int y)
 {
-	if (selection.mode == SEL_EMPTY || selection.ob.x == -1 ||
+	if (selection.mode == SELECTION_EMPTY || selection.ob.x == -1 ||
 			selection.alt != IS_SET(TERM_MODE_ALTSCREEN))
 		return 0;
 
