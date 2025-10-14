@@ -155,7 +155,7 @@ static unsigned int number_rows = 24;
  */
 static unsigned int mouse_shape = XC_xterm;
 static unsigned int mouse_foreground = 7;
-static unsigned int mousebg = 0;
+static unsigned int mouse_background = 0;
 
 /*
  * Color used to display font attributes when fontconfig selected a font which
