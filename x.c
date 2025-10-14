@@ -1228,7 +1228,7 @@ x_init(int cols, int rows)
 			PropModeReplace, (uchar *)&thispid, 1);
 
 	win.mode = MODE_NUMLOCK;
-	resettitle();
+	reset_title();
 	x_hints();
 	XMapWindow(xw.dpy, xw.win);
 	XSync(xw.dpy, False);

@@ -96,7 +96,7 @@ size_t tty_read(void);
 void tty_resize(int, int);
 void tty_write(const char *, size_t, int);
 
-void resettitle(void);
+void reset_title(void);
 
 void selclear(void);
 void selinit(void);

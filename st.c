@@ -2355,7 +2355,7 @@ eschandle(uchar ascii)
 		break;
 	case 'c': /* RIS -- Reset to initial state */
 		term_reset();
-		resettitle();
+		reset_title();
 		xloadcols();
 		xsetmode(0, MODE_HIDE);
 		break;
@@ -2648,7 +2648,7 @@ term_resize(int col, int row)
 }
 
 void
-resettitle(void)
+reset_title(void)
 {
 	xsettitle(NULL);
 }
