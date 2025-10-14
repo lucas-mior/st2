@@ -168,7 +168,7 @@ static void string_handle(void);
 static void string_parse(void);
 static void string_reset(void);
 
-static void tprinter(char *, size_t);
+static void term_printer(char *, size_t);
 static void tdumpsel(void);
 static void tdumpline(int);
 static void tdump(void);
@@ -2061,7 +2061,7 @@ sendbreak(const Arg *arg)
 }
 
 void
-tprinter(char *s, size_t len)
+term_printer(char *s, size_t len)
 {
 	if (iofd != -1 && xwrite(iofd, s, len) < 0) {
 		perror("Error writing to output file");
@@ -2094,7 +2094,7 @@ tdumpsel(void)
 	char *ptr;
 
 	if ((ptr = getsel())) {
-		tprinter(ptr, strlen(ptr));
+		term_printer(ptr, strlen(ptr));
 		free(ptr);
 	}
 }
@@ -2109,9 +2109,9 @@ tdumpline(int n)
 	end = &bp[MIN(tlinelen(n), term.col) - 1];
 	if (bp != end || bp->u != ' ') {
 		for ( ; bp <= end; ++bp)
-			tprinter(buf, utf8encode(bp->u, buf));
+			term_printer(buf, utf8encode(bp->u, buf));
 	}
-	tprinter("\n", 1);
+	term_printer("\n", 1);
 }
 
 void
@@ -2402,7 +2402,7 @@ tputc(Rune u)
 	}
 
 	if (IS_SET(MODE_PRINT))
-		tprinter(c, len);
+		term_printer(c, len);
 
 	/*
 	 * STR sequence must be checked before anything else
