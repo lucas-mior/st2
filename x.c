@@ -167,7 +167,7 @@ static int evrow(XEvent *);
 static void handler_expose(XEvent *);
 static void handler_visibility(XEvent *);
 static void handler_unmap(XEvent *);
-static void kpress(XEvent *);
+static void handler_key_press(XEvent *);
 static void cmessage(XEvent *);
 static void resize(XEvent *);
 static void focus(XEvent *);
@@ -190,7 +190,7 @@ static void run(void);
 static void usage(void);
 
 static void (*handler[LASTEvent])(XEvent *) = {
-	[KeyPress] = kpress,
+	[KeyPress] = handler_key_press,
 	[ClientMessage] = cmessage,
 	[ConfigureNotify] = resize,
 	[VisibilityNotify] = handler_visibility,
@@ -1839,7 +1839,7 @@ kmap(KeySym k, uint state)
 }
 
 void
-kpress(XEvent *ev)
+handler_key_press(XEvent *ev)
 {
 	XKeyEvent *e = &ev->xkey;
 	KeySym ksym = NoSymbol;
