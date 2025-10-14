@@ -137,7 +137,7 @@ typedef struct {
 	Color *col;
 	size_t collen;
 	Font font, bfont, ifont, ibfont;
-	GC gc;
+	GC graphics;
 } DrawingContext;
 
 static inline ushort sixd_to_16bit(int);
@@ -1180,12 +1180,12 @@ x_init(int cols, int rows)
 
 	memset(&gcvalues, 0, sizeof(gcvalues));
 	gcvalues.graphics_exposures = False;
-	draw_context.gc = XCreateGC(x_window.dpy, x_window.win, GCGraphicsExposures,
+	draw_context.graphics = XCreateGC(x_window.dpy, x_window.win, GCGraphicsExposures,
 			&gcvalues);
 	x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, term_window.w, term_window.h,
 			DefaultDepth(x_window.dpy, x_window.scr));
-	XSetForeground(x_window.dpy, draw_context.gc, draw_context.col[defaultbg].pixel);
-	XFillRectangle(x_window.dpy, x_window.buf, draw_context.gc, 0, 0, term_window.w, term_window.h);
+	XSetForeground(x_window.dpy, draw_context.graphics, draw_context.col[defaultbg].pixel);
+	XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, term_window.w, term_window.h);
 
 	/* font spec buffer */
 	x_window.specbuf = xmalloc(cols * sizeof(GlyphFontSpec));
@@ -1688,9 +1688,9 @@ xdrawline(Line line, int x1, int y1, int x2)
 void
 xfinishdraw(void)
 {
-	XCopyArea(x_window.dpy, x_window.buf, x_window.win, draw_context.gc, 0, 0, term_window.w,
+	XCopyArea(x_window.dpy, x_window.buf, x_window.win, draw_context.graphics, 0, 0, term_window.w,
 			term_window.h, 0, 0);
-	XSetForeground(x_window.dpy, draw_context.gc,
+	XSetForeground(x_window.dpy, draw_context.graphics,
 			draw_context.col[IS_SET(MODE_REVERSE)?
 				defaultfg : defaultbg].pixel);
 }
