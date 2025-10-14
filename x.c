@@ -1387,10 +1387,10 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 	/* Fallback on color display for attributes not supported by the font */
 	if (base.mode & ATTR_ITALIC && base.mode & ATTR_BOLD) {
 		if (draw_context.ibfont.badslant || draw_context.ibfont.badweight)
-			base.fg = defaultattr;
+			base.fg = default_attr;
 	} else if ((base.mode & ATTR_ITALIC && draw_context.ifont.badslant) ||
 	    (base.mode & ATTR_BOLD && draw_context.bfont.badweight)) {
-		base.fg = defaultattr;
+		base.fg = default_attr;
 	}
 
 	if (IS_TRUECOL(base.fg)) {
