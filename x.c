@@ -1127,7 +1127,7 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call)
 }
 
 void
-x_init(int number_cols, int rows)
+x_init(int number_cols, int number_rows)
 {
 	XGCValues gcvalues;
 	Cursor cursor;
@@ -1153,7 +1153,7 @@ x_init(int number_cols, int rows)
 
 	/* adjust fixed window geometry */
 	term_window.w = 2 * borderpx + number_cols * term_window.cw;
-	term_window.h = 2 * borderpx + rows * term_window.ch;
+	term_window.h = 2 * borderpx + number_rows * term_window.ch;
 	if (x_window.gm & XNegative)
 		x_window.l += DisplayWidth(x_window.dpy, x_window.scr) - term_window.w - 2;
 	if (x_window.gm & YNegative)
@@ -2059,7 +2059,7 @@ main(int argc, char *argv[])
 		break;
 	case 'g':
 		x_window.gm = XParseGeometry(EARGF(usage()),
-				&x_window.l, &x_window.t, &number_cols, &rows);
+				&x_window.l, &x_window.t, &number_cols, &number_rows);
 		break;
 	case 'i':
 		x_window.isfixed = 1;
@@ -2097,9 +2097,9 @@ run:
 	setlocale(LC_CTYPE, "");
 	XSetLocaleModifiers("");
 	number_cols = MAX(number_cols, 1);
-	rows = MAX(rows, 1);
-	term_new(number_cols, rows);
-	x_init(number_cols, rows);
+	number_rows = MAX(number_rows, 1);
+	term_new(number_cols, number_rows);
+	x_init(number_cols, number_rows);
 	x_setenv();
 	sel_init();
 	run();

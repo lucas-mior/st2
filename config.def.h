@@ -144,11 +144,11 @@ static unsigned int default_reverse_cursor = 257;
 static unsigned int cursor_shape = 2;
 
 /*
- * Default columns and rows numbers
+ * Default columns and number_rows numbers
  */
 
 static unsigned int number_cols = 80;
-static unsigned int rows = 24;
+static unsigned int number_rows = 24;
 
 /*
  * Default colour and shape of the mouse cursor
