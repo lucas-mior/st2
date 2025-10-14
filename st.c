@@ -158,7 +158,7 @@ static void handler_sigchld(int);
 static void tty_write_raw(const char *, size_t);
 
 static void control_seq_intro_dump(void);
-static void csihandle(void);
+static void control_seq_intro_handle(void);
 static void csiparse(void);
 static void csireset(void);
 static void osc_color_response(int, int, int);
@@ -1603,7 +1603,7 @@ tsetmode(int priv, int set, const int *args, int narg)
 }
 
 void
-csihandle(void)
+control_seq_intro_handle(void)
 {
 	char buf[40];
 	int len;
@@ -2468,7 +2468,7 @@ check_control_code:
 					sizeof(csiescseq.buf)-1) {
 				term.esc = 0;
 				csiparse();
-				csihandle();
+				control_seq_intro_handle();
 			}
 			return;
 		} else if (term.esc & ESC_UTF8) {
