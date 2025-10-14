@@ -189,7 +189,7 @@ static void term_scroll_up(int, int);
 static void term_scroll_down(int, int);
 static void term_set_attr(const int *, int);
 static void term_set_char(Rune, const Glyph *, int, int);
-static void tsetdirt(int, int);
+static void term_set_dirt(int, int);
 static void tsetscroll(int, int);
 static void tswapscreen(void);
 static void tsetmode(int, int, const int *, int);
@@ -432,7 +432,7 @@ selstart(int col, int row, int snap)
 
 	if (sel.snap != 0)
 		sel.mode = SEL_READY;
-	tsetdirt(sel.nb.y, sel.ne.y);
+	term_set_dirt(sel.nb.y, sel.ne.y);
 }
 
 void
@@ -459,7 +459,7 @@ selextend(int col, int row, int type, int done)
 	sel.type = type;
 
 	if (oldey != sel.oe.y || oldex != sel.oe.x || oldtype != sel.type || sel.mode == SEL_EMPTY)
-		tsetdirt(MIN(sel.nb.y, oldsby), MAX(sel.ne.y, oldsey));
+		term_set_dirt(MIN(sel.nb.y, oldsby), MAX(sel.ne.y, oldsey));
 
 	sel.mode = done ? SEL_IDLE : SEL_READY;
 }
@@ -643,7 +643,7 @@ selclear(void)
 		return;
 	sel.mode = SEL_IDLE;
 	sel.ob.x = -1;
-	tsetdirt(sel.nb.y, sel.ne.y);
+	term_set_dirt(sel.nb.y, sel.ne.y);
 }
 
 void
@@ -961,7 +961,7 @@ tattrset(int attr)
 }
 
 void
-tsetdirt(int top, int bot)
+term_set_dirt(int top, int bot)
 {
 	int i;
 
@@ -980,7 +980,7 @@ tsetdirtattr(int attr)
 	for (i = 0; i < term.row-1; i++) {
 		for (j = 0; j < term.col-1; j++) {
 			if (term.line[i][j].mode & attr) {
-				tsetdirt(i, i);
+				term_set_dirt(i, i);
 				break;
 			}
 		}
@@ -990,7 +990,7 @@ tsetdirtattr(int attr)
 void
 tfulldirt(void)
 {
-	tsetdirt(0, term.row-1);
+	term_set_dirt(0, term.row-1);
 }
 
 void
@@ -1062,7 +1062,7 @@ term_scroll_down(int orig, int n)
 
 	LIMIT(n, 0, term.bot-orig+1);
 
-	tsetdirt(orig, term.bot-n);
+	term_set_dirt(orig, term.bot-n);
 	term_clear_region(0, term.bot-n+1, term.col-1, term.bot);
 
 	for (i = term.bot; i >= orig+n; i--) {
@@ -1083,7 +1083,7 @@ term_scroll_up(int orig, int n)
 	LIMIT(n, 0, term.bot-orig+1);
 
 	term_clear_region(0, orig, term.col-1, orig+n-1);
-	tsetdirt(orig+n, term.bot);
+	term_set_dirt(orig+n, term.bot);
 
 	for (i = orig; i <= term.bot-n; i++) {
 		temp = term.line[i];
