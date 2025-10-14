@@ -174,7 +174,7 @@ static void term_dump_line(int);
 static void term_dump(void);
 static void term_clear_region(int, int, int, int);
 static void term_cursor(int);
-static void tdeletechar(int);
+static void term_delete_char(int);
 static void tdeleteline(int);
 static void tinsertblank(int);
 static void tinsertblankline(int);
@@ -1251,7 +1251,7 @@ term_clear_region(int x1, int y1, int x2, int y2)
 }
 
 void
-tdeletechar(int n)
+term_delete_char(int n)
 {
 	int dst, src, size;
 	Glyph *line;
@@ -1763,7 +1763,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'P': /* DCH -- Delete <n> char */
 		DEFAULT(csiescseq.arg[0], 1);
-		tdeletechar(csiescseq.arg[0]);
+		term_delete_char(csiescseq.arg[0]);
 		break;
 	case 'Z': /* CBT -- Cursor Backward Tabulation <n> tab stops */
 		DEFAULT(csiescseq.arg[0], 1);
