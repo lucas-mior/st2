@@ -157,7 +157,7 @@ static void x_hints(void);
 static int x_load_color(int, const char *, Color *);
 static int x_load_font(Font *, FcPattern *);
 static void x_load_fonts(const char *, double);
-static void xunloadfont(Font *);
+static void x_unload_font(Font *);
 static void xunloadfonts(void);
 static void xsetenv(void);
 static void xseturgency(int);
@@ -1051,7 +1051,7 @@ x_load_fonts(const char *fontstr, double fontsize)
 }
 
 void
-xunloadfont(Font *f)
+x_unload_font(Font *f)
 {
 	XftFontClose(xw.dpy, f->match);
 	FcPatternDestroy(f->pattern);
@@ -1066,10 +1066,10 @@ xunloadfonts(void)
 	while (frclen > 0)
 		XftFontClose(xw.dpy, frc[--frclen].font);
 
-	xunloadfont(&dc.font);
-	xunloadfont(&dc.bfont);
-	xunloadfont(&dc.ifont);
-	xunloadfont(&dc.ibfont);
+	x_unload_font(&dc.font);
+	x_unload_font(&dc.bfont);
+	x_unload_font(&dc.ifont);
+	x_unload_font(&dc.ibfont);
 }
 
 int
