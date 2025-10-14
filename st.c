@@ -186,7 +186,7 @@ static void term_put_tab(int);
 static void term_putc(Rune);
 static void term_reset(void);
 static void term_scroll_up(int, int);
-static void tscrolldown(int, int);
+static void term_scroll_down(int, int);
 static void tsetattr(const int *, int);
 static void tsetchar(Rune, const Glyph *, int, int);
 static void tsetdirt(int, int);
@@ -1055,7 +1055,7 @@ tswapscreen(void)
 }
 
 void
-tscrolldown(int orig, int n)
+term_scroll_down(int orig, int n)
 {
 	int i;
 	Line temp;
@@ -1288,7 +1288,7 @@ void
 term_insert_blank_line(int n)
 {
 	if (BETWEEN(term.c.y, term.top, term.bot))
-		tscrolldown(term.c.y, n);
+		term_scroll_down(term.c.y, n);
 }
 
 void
@@ -1743,7 +1743,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'T': /* SD -- Scroll <n> line down */
 		DEFAULT(csiescseq.arg[0], 1);
-		tscrolldown(term.top, csiescseq.arg[0]);
+		term_scroll_down(term.top, csiescseq.arg[0]);
 		break;
 	case 'L': /* IL -- Insert <n> blank lines */
 		DEFAULT(csiescseq.arg[0], 1);
@@ -2345,7 +2345,7 @@ eschandle(uchar ascii)
 		break;
 	case 'M': /* RI -- Reverse index */
 		if (term.c.y == term.top) {
-			tscrolldown(term.top, 1);
+			term_scroll_down(term.top, 1);
 		} else {
 			term_move_to(term.c.x, term.c.y-1);
 		}
