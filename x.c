@@ -1460,7 +1460,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 		bg = temp;
 	}
 
-	if (base.mode & ATTR_BLINK && term_window.mode & MODE_BLINK)
+	if (base.mode & ATTR_BLINK && term_window.mode & WIN_MODE_BLINK)
 		fg = bg;
 
 	if (base.mode & ATTR_INVISIBLE)
@@ -2009,8 +2009,8 @@ run(void)
 			timeout = blinktimeout - TIMEDIFF(now, lastblink);
 			if (timeout <= 0) {
 				if (-timeout > blinktimeout) /* start visible */
-					term_window.mode |= MODE_BLINK;
-				term_window.mode ^= MODE_BLINK;
+					term_window.mode |= WIN_MODE_BLINK;
+				term_window.mode ^= WIN_MODE_BLINK;
 				term_set_dirt_attr(ATTR_BLINK);
 				lastblink = now;
 				timeout = blinktimeout;
