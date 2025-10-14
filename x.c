@@ -389,8 +389,8 @@ mousereport(XEvent *e)
 		if (btn < 1 || btn > 11)
 			return;
 		if (e->type == ButtonRelease) {
-			/* MODE_MOUSEX10: no button release reporting */
-			if (IS_SET(MODE_MOUSEX10))
+			/* WIN_MODE_MOUSEX10: no button release reporting */
+			if (IS_SET(WIN_MODE_MOUSEX10))
 				return;
 			/* Don't send release events for the scroll wheel */
 			if (btn == 4 || btn == 5)
@@ -413,7 +413,7 @@ mousereport(XEvent *e)
 	else
 		code += btn - 1;
 
-	if (!IS_SET(MODE_MOUSEX10)) {
+	if (!IS_SET(WIN_MODE_MOUSEX10)) {
 		code += ((state & ShiftMask  ) ?  4 : 0)
 		      + ((state & Mod1Mask   ) ?  8 : 0) /* meta key: alt */
 		      + ((state & ControlMask) ? 16 : 0);
