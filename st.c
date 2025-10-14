@@ -204,7 +204,7 @@ static void term_str_sequence(uchar);
 
 static void draw_region(int, int, int, int);
 
-static void selnormalize(void);
+static void sel_normalize(void);
 static void selscroll(int, int);
 static void selsnap(int *, int *, int);
 
@@ -428,7 +428,7 @@ selstart(int col, int row, int snap)
 	sel.snap = snap;
 	sel.oe.x = sel.ob.x = col;
 	sel.oe.y = sel.ob.y = row;
-	selnormalize();
+	sel_normalize();
 
 	if (sel.snap != 0)
 		sel.mode = SEL_READY;
@@ -455,7 +455,7 @@ selextend(int col, int row, int type, int done)
 
 	sel.oe.x = col;
 	sel.oe.y = row;
-	selnormalize();
+	sel_normalize();
 	sel.type = type;
 
 	if (oldey != sel.oe.y || oldex != sel.oe.x || oldtype != sel.type || sel.mode == SEL_EMPTY)
@@ -465,7 +465,7 @@ selextend(int col, int row, int type, int done)
 }
 
 void
-selnormalize(void)
+sel_normalize(void)
 {
 	int i;
 
@@ -1109,7 +1109,7 @@ selscroll(int orig, int n)
 		    sel.oe.y < term.top || sel.oe.y > term.bot) {
 			selclear();
 		} else {
-			selnormalize();
+			sel_normalize();
 		}
 	}
 }
