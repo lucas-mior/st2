@@ -164,7 +164,7 @@ static void x_set_urgency(int);
 static int evcol(XEvent *);
 static int evrow(XEvent *);
 
-static void expose(XEvent *);
+static void handler_expose(XEvent *);
 static void visibility(XEvent *);
 static void unmap(XEvent *);
 static void kpress(XEvent *);
@@ -195,7 +195,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
 	[ConfigureNotify] = resize,
 	[VisibilityNotify] = visibility,
 	[UnmapNotify] = unmap,
-	[Expose] = expose,
+	[Expose] = handler_expose,
 	[FocusIn] = focus,
 	[FocusOut] = focus,
 	[MotionNotify] = bmotion,
@@ -1708,7 +1708,7 @@ xximspot(int x, int y)
 }
 
 void
-expose(XEvent *ev)
+handler_expose(XEvent *ev)
 {
 	redraw();
 }
