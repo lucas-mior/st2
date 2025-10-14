@@ -170,7 +170,7 @@ static void string_reset(void);
 
 static void term_printer(char *, size_t);
 static void term_dump_sel(void);
-static void tdumpline(int);
+static void term_dump_line(int);
 static void tdump(void);
 static void tclearregion(int, int, int, int);
 static void tcursor(int);
@@ -1634,7 +1634,7 @@ control_seq_intro_handle(void)
 			tdump();
 			break;
 		case 1:
-			tdumpline(term.c.y);
+			term_dump_line(term.c.y);
 			break;
 		case 2:
 			term_dump_sel();
@@ -2100,7 +2100,7 @@ term_dump_sel(void)
 }
 
 void
-tdumpline(int n)
+term_dump_line(int n)
 {
 	char buf[UTF_SIZ];
 	const Glyph *bp, *end;
@@ -2120,7 +2120,7 @@ tdump(void)
 	int i;
 
 	for (i = 0; i < term.row; ++i)
-		tdumpline(i);
+		term_dump_line(i);
 }
 
 void
