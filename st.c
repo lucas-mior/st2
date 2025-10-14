@@ -192,7 +192,7 @@ static void term_set_char(Rune, const Glyph *, int, int);
 static void term_set_dirt(int, int);
 static void term_set_scroll(int, int);
 static void term_swap_screen(void);
-static void tsetmode(int, int, const int *, int);
+static void term_set_mode(int, int, const int *, int);
 static int twrite(const char *, int, int);
 static void tfulldirt(void);
 static void tcontrolcode(uchar );
@@ -1473,7 +1473,7 @@ term_set_scroll(int t, int b)
 }
 
 void
-tsetmode(int priv, int set, const int *args, int narg)
+term_set_mode(int priv, int set, const int *args, int narg)
 {
 	int alt; const int *lim;
 
@@ -1750,7 +1750,7 @@ control_seq_intro_handle(void)
 		term_insert_blank_line(csiescseq.arg[0]);
 		break;
 	case 'l': /* RM -- Reset Mode */
-		tsetmode(csiescseq.priv, 0, csiescseq.arg, csiescseq.narg);
+		term_set_mode(csiescseq.priv, 0, csiescseq.arg, csiescseq.narg);
 		break;
 	case 'M': /* DL -- Delete <n> lines */
 		DEFAULT(csiescseq.arg[0], 1);
@@ -1774,7 +1774,7 @@ control_seq_intro_handle(void)
 		term_move_abs_to(term.c.x, csiescseq.arg[0]-1);
 		break;
 	case 'h': /* SM -- Set terminal mode */
-		tsetmode(csiescseq.priv, 1, csiescseq.arg, csiescseq.narg);
+		term_set_mode(csiescseq.priv, 1, csiescseq.arg, csiescseq.narg);
 		break;
 	case 'm': /* SGR -- Terminal attribute (color) */
 		term_set_attr(csiescseq.arg, csiescseq.narg);
