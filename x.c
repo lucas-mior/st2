@@ -178,7 +178,7 @@ static void handler_button_press(XEvent *);
 static void handler_button_motion(XEvent *);
 static void propnotify(XEvent *);
 static void handler_sel_notify(XEvent *);
-static void selclear_(XEvent *);
+static void handler_sel_clear(XEvent *);
 static void selrequest(XEvent *);
 static void setsel(char *, Time);
 static void mousesel(XEvent *, int);
@@ -205,7 +205,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
  * Uncomment if you want the selection to disappear when you select something
  * different in another window.
  */
-/*	[SelectionClear] = selclear_, */
+/*	[SelectionClear] = handler_sel_clear, */
 	[SelectionNotify] = handler_sel_notify,
 /*
  * PropertyNotify is only turned on when there is some INCR transfer happening
@@ -611,7 +611,7 @@ xclipcopy(void)
 }
 
 void
-selclear_(XEvent *e)
+handler_sel_clear(XEvent *e)
 {
 	selclear();
 }
