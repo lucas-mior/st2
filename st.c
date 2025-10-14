@@ -50,7 +50,7 @@ enum term_mode {
 	TERM_MODE_CRLF        = 1 << 3,
 	TERM_MODE_ECHO        = 1 << 4,
 	TERM_MODE_PRINT       = 1 << 5,
-	MODE_UTF8        = 1 << 6,
+	TERM_MODE_UTF8        = 1 << 6,
 };
 
 enum cursor_movement {
@@ -1023,7 +1023,7 @@ term_reset(void)
 		term.tabs[i] = 1;
 	term.top = 0;
 	term.bot = term.row - 1;
-	term.mode = TERM_MODE_WRAP|MODE_UTF8;
+	term.mode = TERM_MODE_WRAP|TERM_MODE_UTF8;
 	memset(term.trantbl, CS_USA, sizeof(term.trantbl));
 	term.charset = 0;
 
@@ -2144,9 +2144,9 @@ void
 term_def_utf8(char ascii)
 {
 	if (ascii == 'G')
-		term.mode |= MODE_UTF8;
+		term.mode |= TERM_MODE_UTF8;
 	else if (ascii == '@')
-		term.mode &= ~MODE_UTF8;
+		term.mode &= ~TERM_MODE_UTF8;
 }
 
 void
@@ -2392,7 +2392,7 @@ term_putc(Rune u)
 	Glyph *gp;
 
 	control = ISCONTROL(u);
-	if (u < 127 || !IS_SET(MODE_UTF8)) {
+	if (u < 127 || !IS_SET(TERM_MODE_UTF8)) {
 		c[0] = u;
 		width = len = 1;
 	} else {
@@ -2451,7 +2451,7 @@ check_control_code:
 	 */
 	if (control) {
 		/* in UTF-8 mode ignore handling C1 control characters */
-		if (IS_SET(MODE_UTF8) && ISCONTROLC1(u))
+		if (IS_SET(TERM_MODE_UTF8) && ISCONTROLC1(u))
 			return;
 		term_control_code(u);
 		/*
@@ -2541,7 +2541,7 @@ term_write(const char *buf, int buflen, int show_ctrl)
 	int n;
 
 	for (n = 0; n < buflen; n += charsize) {
-		if (IS_SET(MODE_UTF8)) {
+		if (IS_SET(TERM_MODE_UTF8)) {
 			/* process a complete utf8 char */
 			charsize = utf8_decode(buf + n, &u, buflen - n);
 			if (charsize == 0)
