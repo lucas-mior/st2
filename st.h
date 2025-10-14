@@ -37,7 +37,7 @@ enum glyph_attribute {
 };
 
 enum selection_mode {
-	SEL_IDLE = 0,
+	SELECTION_IDLE = 0,
 	SEL_EMPTY = 1,
 	SEL_READY = 2
 };

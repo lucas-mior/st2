@@ -399,7 +399,7 @@ base64_decode(const char *src)
 void
 sel_init(void)
 {
-	selection.mode = SEL_IDLE;
+	selection.mode = SELECTION_IDLE;
 	selection.snap = 0;
 	selection.ob.x = -1;
 }
@@ -440,7 +440,7 @@ sel_extend(int col, int row, int type, int done)
 {
 	int oldey, oldex, oldsby, oldsey, oldtype;
 
-	if (selection.mode == SEL_IDLE)
+	if (selection.mode == SELECTION_IDLE)
 		return;
 	if (done && selection.mode == SEL_EMPTY) {
 		sel_clear();
@@ -461,7 +461,7 @@ sel_extend(int col, int row, int type, int done)
 	if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type || selection.mode == SEL_EMPTY)
 		term_set_dirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
 
-	selection.mode = done ? SEL_IDLE : SEL_READY;
+	selection.mode = done ? SELECTION_IDLE : SEL_READY;
 }
 
 void
@@ -641,7 +641,7 @@ sel_clear(void)
 {
 	if (selection.ob.x == -1)
 		return;
-	selection.mode = SEL_IDLE;
+	selection.mode = SELECTION_IDLE;
 	selection.ob.x = -1;
 	term_set_dirt(selection.nb.y, selection.ne.y);
 }
