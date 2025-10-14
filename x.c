@@ -54,7 +54,7 @@ typedef struct {
 static void user_clipboard_copy(const Arg *);
 static void user_clipboard_paste(const Arg *);
 static void user_toggle_numlock(const Arg *);
-static void user_sel_paste(const Arg *);
+static void user_selection_paste(const Arg *);
 static void user_zoom(const Arg *);
 static void zoom_abs(const Arg *);
 static void user_zoom_reset(const Arg *);
@@ -177,9 +177,9 @@ static void handler_button_release(XEvent *);
 static void handler_button_press(XEvent *);
 static void handler_button_motion(XEvent *);
 static void handler_prop_notify(XEvent *);
-static void handler_sel_notify(XEvent *);
-static void handler_sel_clear(XEvent *);
-static void handler_sel_request(XEvent *);
+static void handler_selection_notify(XEvent *);
+static void handler_selection_clear(XEvent *);
+static void handler_selection_request(XEvent *);
 static void setsel(char *, Time);
 static void mousesel(XEvent *, int);
 static void mousereport(XEvent *);
@@ -205,14 +205,14 @@ static void (*handler[LASTEvent])(XEvent *) = {
  * Uncomment if you want the selection to disappear when you select something
  * different in another window.
  */
-/*	[SelectionClear] = handler_sel_clear, */
-	[SelectionNotify] = handler_sel_notify,
+/*	[SelectionClear] = handler_selection_clear, */
+	[SelectionNotify] = handler_selection_notify,
 /*
  * PropertyNotify is only turned on when there is some INCR transfer happening
  * for the selection retrieval.
  */
 	[PropertyNotify] = handler_prop_notify,
-	[SelectionRequest] = handler_sel_request,
+	[SelectionRequest] = handler_selection_request,
 };
 
 /* Globals */
@@ -280,7 +280,7 @@ user_clipboard_paste(const Arg *dummy)
 }
 
 void
-user_sel_paste(const Arg *dummy)
+user_selection_paste(const Arg *dummy)
 {
 	XConvertSelection(x_window.dpy, XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
 			x_window.win, CurrentTime);
@@ -356,7 +356,7 @@ mousesel(XEvent *e, int done)
 			break;
 		}
 	}
-	sel_extend(evcol(e), evrow(e), seltype, done);
+	selection_extend(evcol(e), evrow(e), seltype, done);
 	if (done)
 		setsel(get_sel(), e->xbutton.time);
 }
@@ -499,7 +499,7 @@ handler_button_press(XEvent *e)
 		xsel.tclick2 = xsel.tclick1;
 		xsel.tclick1 = now;
 
-		sel_start(evcol(e), evrow(e), snap);
+		selection_start(evcol(e), evrow(e), snap);
 	}
 }
 
@@ -513,12 +513,12 @@ handler_prop_notify(XEvent *e)
 	if (x_property_event->state == PropertyNewValue &&
 			(x_property_event->atom == XA_PRIMARY ||
 			 x_property_event->atom == clipboard)) {
-		handler_sel_notify(e);
+		handler_selection_notify(e);
 	}
 }
 
 void
-handler_sel_notify(XEvent *e)
+handler_selection_notify(XEvent *e)
 {
 	ulong nitems, ofs, rem;
 	int format;
@@ -611,13 +611,13 @@ x_clipboard_copy(void)
 }
 
 void
-handler_sel_clear(XEvent *e)
+handler_selection_clear(XEvent *e)
 {
-	sel_clear();
+	selection_clear();
 }
 
 void
-handler_sel_request(XEvent *e)
+handler_selection_request(XEvent *e)
 {
 	XSelectionRequestEvent *xsre;
 	XSelectionEvent xev;
@@ -685,7 +685,7 @@ setsel(char *str, Time t)
 
 	XSetSelectionOwner(x_window.dpy, XA_PRIMARY, x_window.win, t);
 	if (XGetSelectionOwner(x_window.dpy, XA_PRIMARY) != x_window.win)
-		sel_clear();
+		selection_clear();
 }
 
 void
@@ -2101,7 +2101,7 @@ run:
 	term_new(number_cols, number_rows);
 	x_init(number_cols, number_rows);
 	x_setenv();
-	sel_init();
+	selection_init();
 	run();
 
 	return 0;

@@ -98,10 +98,10 @@ void tty_write(const char *, size_t, int);
 
 void reset_title(void);
 
-void sel_clear(void);
-void sel_init(void);
-void sel_start(int, int, int);
-void sel_extend(int, int, int, int);
+void selection_clear(void);
+void selection_init(void);
+void selection_start(int, int, int);
+void selection_extend(int, int, int, int);
 int selected(int, int);
 char *get_sel(void);
 

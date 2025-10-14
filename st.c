@@ -204,9 +204,9 @@ static void term_str_sequence(uchar);
 
 static void draw_region(int, int, int, int);
 
-static void sel_normalize(void);
-static void sel_scroll(int, int);
-static void sel_snap(int *, int *, int);
+static void selection_normalize(void);
+static void selection_scroll(int, int);
+static void selection_snap(int *, int *, int);
 
 static size_t utf8_decode(const char *, Rune *, size_t);
 static Rune utf8_decode_byte(char, size_t *);
@@ -397,7 +397,7 @@ base64_decode(const char *src)
 }
 
 void
-sel_init(void)
+selection_init(void)
 {
 	selection.mode = SELECTION_IDLE;
 	selection.snap = 0;
@@ -419,16 +419,16 @@ term_line_len(int y)
 }
 
 void
-sel_start(int col, int row, int snap)
+selection_start(int col, int row, int snap)
 {
-	sel_clear();
+	selection_clear();
 	selection.mode = SELECTION_EMPTY;
 	selection.type = SELECTION_REGULAR;
 	selection.alt = IS_SET(TERM_MODE_ALTSCREEN);
 	selection.snap = snap;
 	selection.oe.x = selection.ob.x = col;
 	selection.oe.y = selection.ob.y = row;
-	sel_normalize();
+	selection_normalize();
 
 	if (selection.snap != 0)
 		selection.mode = SELECTION_READY;
@@ -436,14 +436,14 @@ sel_start(int col, int row, int snap)
 }
 
 void
-sel_extend(int col, int row, int type, int done)
+selection_extend(int col, int row, int type, int done)
 {
 	int oldey, oldex, oldsby, oldsey, oldtype;
 
 	if (selection.mode == SELECTION_IDLE)
 		return;
 	if (done && selection.mode == SELECTION_EMPTY) {
-		sel_clear();
+		selection_clear();
 		return;
 	}
 
@@ -455,7 +455,7 @@ sel_extend(int col, int row, int type, int done)
 
 	selection.oe.x = col;
 	selection.oe.y = row;
-	sel_normalize();
+	selection_normalize();
 	selection.type = type;
 
 	if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type || selection.mode == SELECTION_EMPTY)
@@ -465,7 +465,7 @@ sel_extend(int col, int row, int type, int done)
 }
 
 void
-sel_normalize(void)
+selection_normalize(void)
 {
 	int i;
 
@@ -479,8 +479,8 @@ sel_normalize(void)
 	selection.nb.y = MIN(selection.ob.y, selection.oe.y);
 	selection.ne.y = MAX(selection.ob.y, selection.oe.y);
 
-	sel_snap(&selection.nb.x, &selection.nb.y, -1);
-	sel_snap(&selection.ne.x, &selection.ne.y, +1);
+	selection_snap(&selection.nb.x, &selection.nb.y, -1);
+	selection_snap(&selection.ne.x, &selection.ne.y, +1);
 
 	/* expand selection over line breaks */
 	if (selection.type == SELECTION_RECTANGULAR)
@@ -509,7 +509,7 @@ selected(int x, int y)
 }
 
 void
-sel_snap(int *x, int *y, int direction)
+selection_snap(int *x, int *y, int direction)
 {
 	int newx, newy, xt, yt;
 	int delim, prevdelim;
@@ -637,7 +637,7 @@ get_sel(void)
 }
 
 void
-sel_clear(void)
+selection_clear(void)
 {
 	if (selection.ob.x == -1)
 		return;
@@ -1071,7 +1071,7 @@ term_scroll_down(int orig, int n)
 		term.line[i-n] = temp;
 	}
 
-	sel_scroll(orig, n);
+	selection_scroll(orig, n);
 }
 
 void
@@ -1091,25 +1091,25 @@ term_scroll_up(int orig, int n)
 		term.line[i+n] = temp;
 	}
 
-	sel_scroll(orig, -n);
+	selection_scroll(orig, -n);
 }
 
 void
-sel_scroll(int orig, int n)
+selection_scroll(int orig, int n)
 {
 	if (selection.ob.x == -1 || selection.alt != IS_SET(TERM_MODE_ALTSCREEN))
 		return;
 
 	if (BETWEEN(selection.nb.y, orig, term.bot) != BETWEEN(selection.ne.y, orig, term.bot)) {
-		sel_clear();
+		selection_clear();
 	} else if (BETWEEN(selection.nb.y, orig, term.bot)) {
 		selection.ob.y += n;
 		selection.oe.y += n;
 		if (selection.ob.y < term.top || selection.ob.y > term.bot ||
 		    selection.oe.y < term.top || selection.oe.y > term.bot) {
-			sel_clear();
+			selection_clear();
 		} else {
-			sel_normalize();
+			selection_normalize();
 		}
 	}
 }
@@ -1241,7 +1241,7 @@ term_clear_region(int x1, int y1, int x2, int y2)
 		for (x = x1; x <= x2; x++) {
 			gp = &term.line[y][x];
 			if (selected(x, y))
-				sel_clear();
+				selection_clear();
 			gp->fg = term.cursor.attr.fg;
 			gp->bg = term.cursor.attr.bg;
 			gp->mode = 0;
@@ -2490,7 +2490,7 @@ check_control_code:
 		return;
 	}
 	if (selected(term.cursor.x, term.cursor.y))
-		sel_clear();
+		selection_clear();
 
 	gp = &term.line[term.cursor.y][term.cursor.x];
 	if (IS_SET(TERM_MODE_WRAP) && (term.cursor.state & CURSOR_WRAPNEXT)) {
