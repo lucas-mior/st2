@@ -141,7 +141,7 @@ typedef struct {
 } DC;
 
 static inline ushort sixd_to_16bit(int);
-static int xmakeglyphfontspecs(XftGlyphFontSpec *, const Glyph *, int, int, int);
+static int x_make_glyph_font_specs(XftGlyphFontSpec *, const Glyph *, int, int, int);
 static void xdrawglyphfontspecs(const XftGlyphFontSpec *, Glyph, int, int, int);
 static void xdrawglyph(Glyph, int, int);
 static void xclear(int, int, int, int);
@@ -1243,7 +1243,7 @@ xinit(int cols, int rows)
 }
 
 int
-xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x, int y)
+x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x, int y)
 {
 	float winx = borderpx + x * win.cw, winy = borderpx + y * win.ch, xp, yp;
 	ushort mode, prevmode = USHRT_MAX;
@@ -1515,7 +1515,7 @@ xdrawglyph(Glyph g, int x, int y)
 	int numspecs;
 	XftGlyphFontSpec spec;
 
-	numspecs = xmakeglyphfontspecs(&spec, &g, 1, x, y);
+	numspecs = x_make_glyph_font_specs(&spec, &g, 1, x, y);
 	xdrawglyphfontspecs(&spec, g, numspecs, x, y);
 }
 
@@ -1661,7 +1661,7 @@ xdrawline(Line line, int x1, int y1, int x2)
 	Glyph base, new;
 	XftGlyphFontSpec *specs = xw.specbuf;
 
-	numspecs = xmakeglyphfontspecs(specs, &line[x1], x2 - x1, x1, y1);
+	numspecs = x_make_glyph_font_specs(specs, &line[x1], x2 - x1, x1, y1);
 	i = ox = 0;
 	for (x = x1; x < x2 && i < numspecs; x++) {
 		new = line[x];
