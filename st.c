@@ -164,7 +164,7 @@ static void control_seq_intro_reset(void);
 static void osc_color_response(int, int, int);
 static int eschandle(uchar);
 static void string_dump(void);
-static void strhandle(void);
+static void string_handle(void);
 static void strparse(void);
 static void strreset(void);
 
@@ -1882,7 +1882,7 @@ osc_color_response(int num, int index, int is_osc4)
 }
 
 void
-strhandle(void)
+string_handle(void)
 {
 	char *p = NULL, *dec;
 	int j, narg, par;
@@ -2220,7 +2220,7 @@ tcontrolcode(uchar ascii)
 	case '\a':   /* BEL */
 		if (term.esc & ESC_STR_END) {
 			/* backwards compatibility to xterm */
-			strhandle();
+			string_handle();
 		} else {
 			xbell();
 		}
@@ -2373,7 +2373,7 @@ eschandle(uchar ascii)
 		break;
 	case '\\': /* ST -- String Terminator */
 		if (term.esc & ESC_STR_END)
-			strhandle();
+			string_handle();
 		break;
 	default:
 		fprintf(stderr, "erresc: unknown sequence ESC 0x%02X '%c'\n",
@@ -2430,7 +2430,7 @@ tputc(Rune u)
 			 */
 			/*
 			 * term.esc = 0;
-			 * strhandle();
+			 * string_handle();
 			 */
 			if (strescseq.siz > (SIZE_MAX - UTF_SIZ) / 2)
 				return;
