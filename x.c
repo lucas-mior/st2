@@ -168,7 +168,7 @@ static void handler_expose(XEvent *);
 static void handler_visibility(XEvent *);
 static void handler_unmap(XEvent *);
 static void handler_key_press(XEvent *);
-static void cmessage(XEvent *);
+static void handler_client_message(XEvent *);
 static void resize(XEvent *);
 static void focus(XEvent *);
 static uint buttonmask(uint);
@@ -191,7 +191,7 @@ static void usage(void);
 
 static void (*handler[LASTEvent])(XEvent *) = {
 	[KeyPress] = handler_key_press,
-	[ClientMessage] = cmessage,
+	[ClientMessage] = handler_client_message,
 	[ConfigureNotify] = resize,
 	[VisibilityNotify] = handler_visibility,
 	[UnmapNotify] = handler_unmap,
@@ -1892,7 +1892,7 @@ handler_key_press(XEvent *ev)
 }
 
 void
-cmessage(XEvent *e)
+handler_client_message(XEvent *e)
 {
 	/*
 	 * See xembed specs
