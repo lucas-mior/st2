@@ -173,7 +173,7 @@ static void handler_configure_notify(XEvent *);
 static void handler_focus(XEvent *);
 static uint button_mask(uint);
 static int mouse_action(XEvent *, uint);
-static void brelease(XEvent *);
+static void handler_button_release(XEvent *);
 static void bpress(XEvent *);
 static void bmotion(XEvent *);
 static void propnotify(XEvent *);
@@ -200,7 +200,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
 	[FocusOut] = handler_focus,
 	[MotionNotify] = bmotion,
 	[ButtonPress] = bpress,
-	[ButtonRelease] = brelease,
+	[ButtonRelease] = handler_button_release,
 /*
  * Uncomment if you want the selection to disappear when you select something
  * different in another window.
@@ -695,7 +695,7 @@ xsetsel(char *str)
 }
 
 void
-brelease(XEvent *e)
+handler_button_release(XEvent *e)
 {
 	int btn = e->xbutton.button;
 
