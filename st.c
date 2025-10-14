@@ -178,7 +178,7 @@ static void term_delete_char(int);
 static void term_delete_line(int);
 static void term_insert_blank(int);
 static void term_insert_blank_line(int);
-static int tlinelen(int);
+static int term_line_len(int);
 static void tmoveto(int, int);
 static void tmoveato(int, int);
 static void tnewline(int);
@@ -405,7 +405,7 @@ selinit(void)
 }
 
 int
-tlinelen(int y)
+term_line_len(int y)
 {
 	int i = term.col;
 
@@ -485,10 +485,10 @@ selnormalize(void)
 	/* expand selection over line breaks */
 	if (sel.type == SEL_RECTANGULAR)
 		return;
-	i = tlinelen(sel.nb.y);
+	i = term_line_len(sel.nb.y);
 	if (i < sel.nb.x)
 		sel.nb.x = i;
-	if (tlinelen(sel.ne.y) <= sel.ne.x)
+	if (term_line_len(sel.ne.y) <= sel.ne.x)
 		sel.ne.x = term.col - 1;
 }
 
@@ -540,7 +540,7 @@ selsnap(int *x, int *y, int direction)
 					break;
 			}
 
-			if (newx >= tlinelen(newy))
+			if (newx >= term_line_len(newy))
 				break;
 
 			gp = &term.line[newy][newx];
@@ -596,7 +596,7 @@ getsel(void)
 
 	/* append every set & selected glyph to the selection */
 	for (y = sel.nb.y; y <= sel.ne.y; y++) {
-		if ((linelen = tlinelen(y)) == 0) {
+		if ((linelen = term_line_len(y)) == 0) {
 			*ptr++ = '\n';
 			continue;
 		}
@@ -2106,7 +2106,7 @@ term_dump_line(int n)
 	const Glyph *bp, *end;
 
 	bp = &term.line[n][0];
-	end = &bp[MIN(tlinelen(n), term.col) - 1];
+	end = &bp[MIN(term_line_len(n), term.col) - 1];
 	if (bp != end || bp->u != ' ') {
 		for ( ; bp <= end; ++bp)
 			term_printer(buf, utf8encode(bp->u, buf));
