@@ -1542,15 +1542,15 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		g.bg = default_foreground;
 		if (selected(cx, cy)) {
 			drawcol = draw_context.col[default_cursor];
-			g.fg = defaultrcs;
+			g.fg = default_reverse_cursor;
 		} else {
-			drawcol = draw_context.col[defaultrcs];
+			drawcol = draw_context.col[default_reverse_cursor];
 			g.fg = default_cursor;
 		}
 	} else {
 		if (selected(cx, cy)) {
 			g.fg = default_foreground;
-			g.bg = defaultrcs;
+			g.bg = default_reverse_cursor;
 		} else {
 			g.fg = default_background;
 			g.bg = default_cursor;
