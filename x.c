@@ -1744,7 +1744,7 @@ xsetmode(int set, unsigned int flags)
 }
 
 int
-xsetcursor(int cursor)
+x_set_cursor(int cursor)
 {
 	if (!BETWEEN(cursor, 0, 7)) /* 7: st extension */
 		return 1;
@@ -2041,7 +2041,7 @@ main(int argc, char *argv[])
 {
 	x_window.l = x_window.t = 0;
 	x_window.isfixed = False;
-	xsetcursor(cursor_shape);
+	x_set_cursor(cursor_shape);
 
 	ARGBEGIN {
 	case 'a':

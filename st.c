@@ -1816,7 +1816,7 @@ control_seq_intro_handle(void)
 	case ' ':
 		switch (csiescseq.mode[1]) {
 		case 'q': /* DECSCUSR -- Set Cursor Style */
-			if (xsetcursor(csiescseq.arg[0]))
+			if (x_set_cursor(csiescseq.arg[0]))
 				goto unknown;
 			break;
 		default:
