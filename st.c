@@ -172,7 +172,7 @@ static void term_printer(char *, size_t);
 static void term_dump_sel(void);
 static void term_dump_line(int);
 static void term_dump(void);
-static void tclearregion(int, int, int, int);
+static void term_clear_region(int, int, int, int);
 static void tcursor(int);
 static void tdeletechar(int);
 static void tdeleteline(int);
@@ -1030,7 +1030,7 @@ treset(void)
 	for (i = 0; i < 2; i++) {
 		tmoveto(0, 0);
 		tcursor(CURSOR_SAVE);
-		tclearregion(0, 0, term.col-1, term.row-1);
+		term_clear_region(0, 0, term.col-1, term.row-1);
 		tswapscreen();
 	}
 }
@@ -1063,7 +1063,7 @@ tscrolldown(int orig, int n)
 	LIMIT(n, 0, term.bot-orig+1);
 
 	tsetdirt(orig, term.bot-n);
-	tclearregion(0, term.bot-n+1, term.col-1, term.bot);
+	term_clear_region(0, term.bot-n+1, term.col-1, term.bot);
 
 	for (i = term.bot; i >= orig+n; i--) {
 		temp = term.line[i];
@@ -1082,7 +1082,7 @@ tscrollup(int orig, int n)
 
 	LIMIT(n, 0, term.bot-orig+1);
 
-	tclearregion(0, orig, term.col-1, orig+n-1);
+	term_clear_region(0, orig, term.col-1, orig+n-1);
 	tsetdirt(orig+n, term.bot);
 
 	for (i = orig; i <= term.bot-n; i++) {
@@ -1221,7 +1221,7 @@ tsetchar(Rune u, const Glyph *attr, int x, int y)
 }
 
 void
-tclearregion(int x1, int y1, int x2, int y2)
+term_clear_region(int x1, int y1, int x2, int y2)
 {
 	int x, y, temp;
 	Glyph *gp;
@@ -1264,7 +1264,7 @@ tdeletechar(int n)
 	line = term.line[term.c.y];
 
 	memmove(&line[dst], &line[src], size * sizeof(Glyph));
-	tclearregion(term.col-n, term.c.y, term.col-1, term.c.y);
+	term_clear_region(term.col-n, term.c.y, term.col-1, term.c.y);
 }
 
 void
@@ -1281,7 +1281,7 @@ tinsertblank(int n)
 	line = term.line[term.c.y];
 
 	memmove(&line[dst], &line[src], size * sizeof(Glyph));
-	tclearregion(src, term.c.y, dst - 1, term.c.y);
+	term_clear_region(src, term.c.y, dst - 1, term.c.y);
 }
 
 void
@@ -1546,7 +1546,7 @@ tsetmode(int priv, int set, const int *args, int narg)
 					break;
 				alt = IS_SET(MODE_ALTSCREEN);
 				if (alt) {
-					tclearregion(0, 0, term.col-1,
+					term_clear_region(0, 0, term.col-1,
 							term.row-1);
 				}
 				if (set ^ alt) /* set is always 1 or 0 */
@@ -1704,19 +1704,19 @@ control_seq_intro_handle(void)
 	case 'J': /* ED -- Clear screen */
 		switch (csiescseq.arg[0]) {
 		case 0: /* below */
-			tclearregion(term.c.x, term.c.y, term.col-1, term.c.y);
+			term_clear_region(term.c.x, term.c.y, term.col-1, term.c.y);
 			if (term.c.y < term.row-1) {
-				tclearregion(0, term.c.y+1, term.col-1,
+				term_clear_region(0, term.c.y+1, term.col-1,
 						term.row-1);
 			}
 			break;
 		case 1: /* above */
 			if (term.c.y > 0)
-				tclearregion(0, 0, term.col-1, term.c.y-1);
-			tclearregion(0, term.c.y, term.c.x, term.c.y);
+				term_clear_region(0, 0, term.col-1, term.c.y-1);
+			term_clear_region(0, term.c.y, term.c.x, term.c.y);
 			break;
 		case 2: /* all */
-			tclearregion(0, 0, term.col-1, term.row-1);
+			term_clear_region(0, 0, term.col-1, term.row-1);
 			break;
 		default:
 			goto unknown;
@@ -1725,14 +1725,14 @@ control_seq_intro_handle(void)
 	case 'K': /* EL -- Clear line */
 		switch (csiescseq.arg[0]) {
 		case 0: /* right */
-			tclearregion(term.c.x, term.c.y, term.col-1,
+			term_clear_region(term.c.x, term.c.y, term.col-1,
 					term.c.y);
 			break;
 		case 1: /* left */
-			tclearregion(0, term.c.y, term.c.x, term.c.y);
+			term_clear_region(0, term.c.y, term.c.x, term.c.y);
 			break;
 		case 2: /* all */
-			tclearregion(0, term.c.y, term.col-1, term.c.y);
+			term_clear_region(0, term.c.y, term.col-1, term.c.y);
 			break;
 		}
 		break;
@@ -1758,7 +1758,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'X': /* ECH -- Erase <n> char */
 		DEFAULT(csiescseq.arg[0], 1);
-		tclearregion(term.c.x, term.c.y,
+		term_clear_region(term.c.x, term.c.y,
 				term.c.x + csiescseq.arg[0] - 1, term.c.y);
 		break;
 	case 'P': /* DCH -- Delete <n> char */
@@ -2636,10 +2636,10 @@ tresize(int col, int row)
 	c = term.c;
 	for (i = 0; i < 2; i++) {
 		if (mincol < col && 0 < minrow) {
-			tclearregion(mincol, 0, col - 1, minrow - 1);
+			term_clear_region(mincol, 0, col - 1, minrow - 1);
 		}
 		if (0 < col && minrow < row) {
-			tclearregion(0, minrow, col - 1, row - 1);
+			term_clear_region(0, minrow, col - 1, row - 1);
 		}
 		tswapscreen();
 		tcursor(CURSOR_LOAD);
