@@ -421,7 +421,7 @@ term_line_len(int y)
 void
 selstart(int col, int row, int snap)
 {
-	selclear();
+	sel_clear();
 	selection.mode = SEL_EMPTY;
 	selection.type = SEL_REGULAR;
 	selection.alt = IS_SET(TERM_MODE_ALTSCREEN);
@@ -443,7 +443,7 @@ selextend(int col, int row, int type, int done)
 	if (selection.mode == SEL_IDLE)
 		return;
 	if (done && selection.mode == SEL_EMPTY) {
-		selclear();
+		sel_clear();
 		return;
 	}
 
@@ -637,7 +637,7 @@ getsel(void)
 }
 
 void
-selclear(void)
+sel_clear(void)
 {
 	if (selection.ob.x == -1)
 		return;
@@ -1101,13 +1101,13 @@ sel_scroll(int orig, int n)
 		return;
 
 	if (BETWEEN(selection.nb.y, orig, term.bot) != BETWEEN(selection.ne.y, orig, term.bot)) {
-		selclear();
+		sel_clear();
 	} else if (BETWEEN(selection.nb.y, orig, term.bot)) {
 		selection.ob.y += n;
 		selection.oe.y += n;
 		if (selection.ob.y < term.top || selection.ob.y > term.bot ||
 		    selection.oe.y < term.top || selection.oe.y > term.bot) {
-			selclear();
+			sel_clear();
 		} else {
 			sel_normalize();
 		}
@@ -1241,7 +1241,7 @@ term_clear_region(int x1, int y1, int x2, int y2)
 		for (x = x1; x <= x2; x++) {
 			gp = &term.line[y][x];
 			if (selected(x, y))
-				selclear();
+				sel_clear();
 			gp->fg = term.c.attr.fg;
 			gp->bg = term.c.attr.bg;
 			gp->mode = 0;
@@ -2490,7 +2490,7 @@ check_control_code:
 		return;
 	}
 	if (selected(term.c.x, term.c.y))
-		selclear();
+		sel_clear();
 
 	gp = &term.line[term.c.y][term.c.x];
 	if (IS_SET(TERM_MODE_WRAP) && (term.c.state & CURSOR_WRAPNEXT)) {
