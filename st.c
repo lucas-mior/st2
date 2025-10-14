@@ -208,7 +208,7 @@ static void sel_normalize(void);
 static void sel_scroll(int, int);
 static void sel_snap(int *, int *, int);
 
-static size_t utf8decode(const char *, Rune *, size_t);
+static size_t utf8_decode(const char *, Rune *, size_t);
 static Rune utf8decodebyte(char, size_t *);
 static char utf8encodebyte(Rune, size_t);
 static size_t utf8validate(Rune *, size_t);
@@ -281,7 +281,7 @@ xstrdup(const char *s)
 }
 
 size_t
-utf8decode(const char *c, Rune *u, size_t clen)
+utf8_decode(const char *c, Rune *u, size_t clen)
 {
 	size_t i, j, len, type;
 	Rune udecoded;
@@ -1203,7 +1203,7 @@ term_set_char(Rune u, const Glyph *attr, int x, int y)
 	 */
 	if (term.trantbl[term.charset] == CS_GRAPHIC0 &&
 	   BETWEEN(u, 0x41, 0x7e) && vt100_0[u - 0x41])
-		utf8decode(vt100_0[u - 0x41], &u, UTF_SIZ);
+		utf8_decode(vt100_0[u - 0x41], &u, UTF_SIZ);
 
 	if (term.line[y][x].mode & ATTR_WIDE) {
 		if (x+1 < term.col) {
@@ -2543,7 +2543,7 @@ term_write(const char *buf, int buflen, int show_ctrl)
 	for (n = 0; n < buflen; n += charsize) {
 		if (IS_SET(MODE_UTF8)) {
 			/* process a complete utf8 char */
-			charsize = utf8decode(buf + n, &u, buflen - n);
+			charsize = utf8_decode(buf + n, &u, buflen - n);
 			if (charsize == 0)
 				break;
 		} else {
