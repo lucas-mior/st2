@@ -194,7 +194,7 @@ static void term_set_scroll(int, int);
 static void term_swap_screen(void);
 static void term_set_mode(int, int, const int *, int);
 static int term_write(const char *, int, int);
-static void tfulldirt(void);
+static void term_full_dirt(void);
 static void tcontrolcode(uchar );
 static void tdectest(char );
 static void tdefutf8(char);
@@ -988,7 +988,7 @@ tsetdirtattr(int attr)
 }
 
 void
-tfulldirt(void)
+term_full_dirt(void)
 {
 	term_set_dirt(0, term.row-1);
 }
@@ -1051,7 +1051,7 @@ term_swap_screen(void)
 	term.line = term.alt;
 	term.alt = tmp;
 	term.mode ^= MODE_ALTSCREEN;
-	tfulldirt();
+	term_full_dirt();
 }
 
 void
@@ -1939,7 +1939,7 @@ string_handle(void)
 				fprintf(stderr, "erresc: invalid %s color: %s\n",
 				        osc_table[j].str, p);
 			} else {
-				tfulldirt();
+				term_full_dirt();
 			}
 			return;
 		case 4: /* color set */
@@ -1964,7 +1964,7 @@ string_handle(void)
 				 * TODO if defaultbg color is changed, borders
 				 * are dirty
 				 */
-				tfulldirt();
+				term_full_dirt();
 			}
 			return;
 		case 110: /* reset dynamic VT100 text foreground color */
@@ -1977,7 +1977,7 @@ string_handle(void)
 			if (xsetcolorname(osc_table[j].idx, NULL)) {
 				fprintf(stderr, "erresc: %s color not found\n", osc_table[j].str);
 			} else {
-				tfulldirt();
+				term_full_dirt();
 			}
 			return;
 		}
@@ -2696,6 +2696,6 @@ draw(void)
 void
 redraw(void)
 {
-	tfulldirt();
+	term_full_dirt();
 	draw();
 }
