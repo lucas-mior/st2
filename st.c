@@ -184,7 +184,7 @@ static void term_move_abs_to(int, int);
 static void term_new_line(int);
 static void term_put_tab(int);
 static void term_putc(Rune);
-static void treset(void);
+static void term_reset(void);
 static void tscrollup(int, int);
 static void tscrolldown(int, int);
 static void tsetattr(const int *, int);
@@ -1008,7 +1008,7 @@ term_cursor(int mode)
 }
 
 void
-treset(void)
+term_reset(void)
 {
 	uint i;
 
@@ -1040,7 +1040,7 @@ tnew(int col, int row)
 {
 	term = (Term){ .c = { .attr = { .fg = defaultfg, .bg = defaultbg } } };
 	tresize(col, row);
-	treset();
+	term_reset();
 }
 
 void
@@ -2354,7 +2354,7 @@ eschandle(uchar ascii)
 		ttywrite(vtiden, strlen(vtiden), 0);
 		break;
 	case 'c': /* RIS -- Reset to initial state */
-		treset();
+		term_reset();
 		resettitle();
 		xloadcols();
 		xsetmode(0, MODE_HIDE);
