@@ -94,7 +94,7 @@ void tty_hangup(void);
 int tty_new(const char *, char *, const char *, char **);
 size_t tty_read(void);
 void tty_resize(int, int);
-void ttywrite(const char *, size_t, int);
+void tty_write(const char *, size_t, int);
 
 void resettitle(void);
 

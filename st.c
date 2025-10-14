@@ -841,7 +841,7 @@ tty_read(void)
 }
 
 void
-ttywrite(const char *s, size_t n, int may_echo)
+tty_write(const char *s, size_t n, int may_echo)
 {
 	const char *next;
 
@@ -895,7 +895,7 @@ tty_write_raw(const char *s, size_t n)
 		}
 		if (FD_ISSET(cmdfd, &wfd)) {
 			/*
-			 * Only write the bytes written by ttywrite() or the
+			 * Only write the bytes written by tty_write() or the
 			 * default of 256. This seems to be a reasonable value
 			 * for a serial line. Bigger values might clog the I/O.
 			 */
@@ -1649,7 +1649,7 @@ control_seq_intro_handle(void)
 		break;
 	case 'c': /* DA -- Device Attributes */
 		if (csiescseq.arg[0] == 0)
-			ttywrite(vtiden, strlen(vtiden), 0);
+			tty_write(vtiden, strlen(vtiden), 0);
 		break;
 	case 'b': /* REP -- if last char is printable print it <n> more times */
 		LIMIT(csiescseq.arg[0], 1, 65535);
@@ -1782,12 +1782,12 @@ control_seq_intro_handle(void)
 	case 'n': /* DSR -- Device Status Report */
 		switch (csiescseq.arg[0]) {
 		case 5: /* Status Report "OK" `0n` */
-			ttywrite("\033[0n", sizeof("\033[0n") - 1, 0);
+			tty_write("\033[0n", sizeof("\033[0n") - 1, 0);
 			break;
 		case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
 			len = snprintf(buf, sizeof(buf), "\033[%i;%iR",
 			               term.c.y+1, term.c.x+1);
-			ttywrite(buf, len, 0);
+			tty_write(buf, len, 0);
 			break;
 		default:
 			goto unknown;
@@ -1877,7 +1877,7 @@ osc_color_response(int num, int index, int is_osc4)
 		        n < 0 ? "snprintf failed" : "truncation occurred",
 		        is_osc4 ? "osc4" : "osc");
 	} else {
-		ttywrite(buf, n, 1);
+		tty_write(buf, n, 1);
 	}
 }
 
@@ -2279,7 +2279,7 @@ term_control_code(uchar ascii)
 	case 0x99:   /* TODO: SGCI */
 		break;
 	case 0x9a:   /* DECID -- Identify Terminal */
-		ttywrite(vtiden, strlen(vtiden), 0);
+		tty_write(vtiden, strlen(vtiden), 0);
 		break;
 	case 0x9b:   /* TODO: CSI */
 	case 0x9c:   /* TODO: ST */
@@ -2351,7 +2351,7 @@ eschandle(uchar ascii)
 		}
 		break;
 	case 'Z': /* DECID -- Identify Terminal */
-		ttywrite(vtiden, strlen(vtiden), 0);
+		tty_write(vtiden, strlen(vtiden), 0);
 		break;
 	case 'c': /* RIS -- Reset to initial state */
 		term_reset();
