@@ -148,7 +148,7 @@ static void x_clear(int, int, int, int);
 static int x_geom_mask_to_gravity(int);
 static int x_im_open(Display *);
 static void x_im_instantiate(Display *, XPointer, XPointer);
-static void ximdestroy(XIM, XPointer, XPointer);
+static void x_im_destroy(XIM, XPointer, XPointer);
 static int xicdestroy(XIC, XPointer, XPointer);
 static void xinit(int, int);
 static void cresize(int, int);
@@ -1075,7 +1075,7 @@ xunloadfonts(void)
 int
 x_im_open(Display *dpy)
 {
-	XIMCallback imdestroy = { .client_data = NULL, .callback = ximdestroy };
+	XIMCallback imdestroy = { .client_data = NULL, .callback = x_im_destroy };
 	XICCallback icdestroy = { .client_data = NULL, .callback = xicdestroy };
 
 	xw.ime.xim = XOpenIM(xw.dpy, NULL, NULL, NULL);
@@ -1111,7 +1111,7 @@ x_im_instantiate(Display *dpy, XPointer client, XPointer call)
 }
 
 void
-ximdestroy(XIM xim, XPointer client, XPointer call)
+x_im_destroy(XIM xim, XPointer client, XPointer call)
 {
 	xw.ime.xim = NULL;
 	XRegisterIMInstantiateCallback(xw.dpy, NULL, NULL, NULL,
