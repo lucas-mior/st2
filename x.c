@@ -1649,7 +1649,7 @@ x_set_title(char *p)
 }
 
 int
-xstartdraw(void)
+x_start_draw(void)
 {
 	return IS_SET(WIN_MODE_VISIBLE);
 }

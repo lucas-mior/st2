@@ -37,5 +37,5 @@ int x_set_cursor(int);
 void x_set_mode(int, unsigned int);
 void x_set_pointer_motion(int);
 void x_set_sel(char *);
-int xstartdraw(void);
+int x_start_draw(void);
 void xximspot(int, int);

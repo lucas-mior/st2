@@ -2672,7 +2672,7 @@ draw(void)
 {
 	int cx = term.cursor.x, ocx = term.ocx, ocy = term.ocy;
 
-	if (!xstartdraw())
+	if (!x_start_draw())
 		return;
 
 	/* adjust cursor position */
