@@ -356,7 +356,7 @@ mousesel(XEvent *e, int done)
 			break;
 		}
 	}
-	selextend(evcol(e), evrow(e), seltype, done);
+	sel_extend(evcol(e), evrow(e), seltype, done);
 	if (done)
 		setsel(getsel(), e->xbutton.time);
 }

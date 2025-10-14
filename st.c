@@ -436,7 +436,7 @@ sel_start(int col, int row, int snap)
 }
 
 void
-selextend(int col, int row, int type, int done)
+sel_extend(int col, int row, int type, int done)
 {
 	int oldey, oldex, oldsby, oldsey, oldtype;
 
