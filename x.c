@@ -179,7 +179,7 @@ static void handler_button_motion(XEvent *);
 static void handler_prop_notify(XEvent *);
 static void handler_sel_notify(XEvent *);
 static void handler_sel_clear(XEvent *);
-static void selrequest(XEvent *);
+static void handler_sel_request(XEvent *);
 static void setsel(char *, Time);
 static void mousesel(XEvent *, int);
 static void mousereport(XEvent *);
@@ -212,7 +212,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
  * for the selection retrieval.
  */
 	[PropertyNotify] = handler_prop_notify,
-	[SelectionRequest] = selrequest,
+	[SelectionRequest] = handler_sel_request,
 };
 
 /* Globals */
@@ -617,7 +617,7 @@ handler_sel_clear(XEvent *e)
 }
 
 void
-selrequest(XEvent *e)
+handler_sel_request(XEvent *e)
 {
 	XSelectionRequestEvent *xsre;
 	XSelectionEvent xev;
