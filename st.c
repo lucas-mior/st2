@@ -431,7 +431,7 @@ sel_start(int col, int row, int snap)
 	sel_normalize();
 
 	if (selection.snap != 0)
-		selection.mode = SEL_READY;
+		selection.mode = SELECTION_READY;
 	term_set_dirt(selection.nb.y, selection.ne.y);
 }
 
@@ -461,7 +461,7 @@ sel_extend(int col, int row, int type, int done)
 	if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type || selection.mode == SELECTION_EMPTY)
 		term_set_dirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
 
-	selection.mode = done ? SELECTION_IDLE : SEL_READY;
+	selection.mode = done ? SELECTION_IDLE : SELECTION_READY;
 }
 
 void
