@@ -1849,7 +1849,7 @@ handler_key_press(XEvent *ev)
 	Status status;
 	Shortcut *bp;
 
-	if (IS_SET(MODE_KBDLOCK))
+	if (IS_SET(WIN_MODE_KBDLOCK))
 		return;
 
 	if (x_window.ime.xic) {

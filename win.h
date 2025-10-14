@@ -7,7 +7,7 @@ enum win_mode {
 	WIN_MODE_MOUSEBTN    = 1 << 3,
 	WIN_MODE_MOUSEMOTION = 1 << 4,
 	WIN_MODE_REVERSE     = 1 << 5,
-	MODE_KBDLOCK     = 1 << 6,
+	WIN_MODE_KBDLOCK     = 1 << 6,
 	MODE_HIDE        = 1 << 7,
 	MODE_APPCURSOR   = 1 << 8,
 	MODE_MOUSESGR    = 1 << 9,

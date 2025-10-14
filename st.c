@@ -1581,7 +1581,7 @@ term_set_mode(int priv, int set, const int *args, int narg)
 			case 0:  /* Error (IGNORED) */
 				break;
 			case 2:
-				xsetmode(set, MODE_KBDLOCK);
+				xsetmode(set, WIN_MODE_KBDLOCK);
 				break;
 			case 4:  /* IRM -- Insertion-replacement */
 				MODBIT(term.mode, set, TERM_MODE_INSERT);
