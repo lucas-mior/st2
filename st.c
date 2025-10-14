@@ -412,7 +412,7 @@ term_line_len(int y)
 	if (term.line[y][i - 1].mode & ATTR_WRAP)
 		return i;
 
-	while (i > 0 && term.line[y][i - 1].u == ' ')
+	while (i > 0 && term.line[y][i - 1].rune == ' ')
 		--i;
 
 	return i;
@@ -522,7 +522,7 @@ sel_snap(int *x, int *y, int direction)
 		 * beginning of a line.
 		 */
 		prevgp = &term.line[*y][*x];
-		prevdelim = ISDELIM(prevgp->u);
+		prevdelim = ISDELIM(prevgp->rune);
 		for (;;) {
 			newx = *x + direction;
 			newy = *y;
@@ -544,9 +544,9 @@ sel_snap(int *x, int *y, int direction)
 				break;
 
 			gp = &term.line[newy][newx];
-			delim = ISDELIM(gp->u);
+			delim = ISDELIM(gp->rune);
 			if (!(gp->mode & ATTR_WDUMMY) && (delim != prevdelim
-					|| (delim && gp->u != prevgp->u)))
+					|| (delim && gp->rune != prevgp->rune)))
 				break;
 
 			*x = newx;
@@ -609,14 +609,14 @@ get_sel(void)
 			lastx = (selection.ne.y == y) ? selection.ne.x : term.col-1;
 		}
 		last = &term.line[y][MIN(lastx, linelen-1)];
-		while (last >= gp && last->u == ' ')
+		while (last >= gp && last->rune == ' ')
 			--last;
 
 		for ( ; gp <= last; ++gp) {
 			if (gp->mode & ATTR_WDUMMY)
 				continue;
 
-			ptr += utf8_encode(gp->u, ptr);
+			ptr += utf8_encode(gp->rune, ptr);
 		}
 
 		/*
@@ -1207,17 +1207,17 @@ term_set_char(Rune u, const Glyph *attr, int x, int y)
 
 	if (term.line[y][x].mode & ATTR_WIDE) {
 		if (x+1 < term.col) {
-			term.line[y][x+1].u = ' ';
+			term.line[y][x+1].rune = ' ';
 			term.line[y][x+1].mode &= ~ATTR_WDUMMY;
 		}
 	} else if (term.line[y][x].mode & ATTR_WDUMMY) {
-		term.line[y][x-1].u = ' ';
+		term.line[y][x-1].rune = ' ';
 		term.line[y][x-1].mode &= ~ATTR_WIDE;
 	}
 
 	term.dirty[y] = 1;
 	term.line[y][x] = *attr;
-	term.line[y][x].u = u;
+	term.line[y][x].rune = u;
 }
 
 void
@@ -1245,7 +1245,7 @@ term_clear_region(int x1, int y1, int x2, int y2)
 			gp->fg = term.cursor.attr.fg;
 			gp->bg = term.cursor.attr.bg;
 			gp->mode = 0;
-			gp->u = ' ';
+			gp->rune = ' ';
 		}
 	}
 }
@@ -2107,9 +2107,9 @@ term_dump_line(int n)
 
 	bp = &term.line[n][0];
 	end = &bp[MIN(term_line_len(n), term.col) - 1];
-	if (bp != end || bp->u != ' ') {
+	if (bp != end || bp->rune != ' ') {
 		for ( ; bp <= end; ++bp)
-			term_printer(buf, utf8_encode(bp->u, buf));
+			term_printer(buf, utf8_encode(bp->rune, buf));
 	}
 	term_printer("\n", 1);
 }
@@ -2519,10 +2519,10 @@ check_control_code:
 		gp->mode |= ATTR_WIDE;
 		if (term.cursor.x+1 < term.col) {
 			if (gp[1].mode == ATTR_WIDE && term.cursor.x+2 < term.col) {
-				gp[2].u = ' ';
+				gp[2].rune = ' ';
 				gp[2].mode &= ~ATTR_WDUMMY;
 			}
-			gp[1].u = '\0';
+			gp[1].rune = '\0';
 			gp[1].mode = ATTR_WDUMMY;
 		}
 	}

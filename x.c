@@ -1260,7 +1260,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, i
 
 	for (i = 0, xp = winx, yp = winy + font->ascent; i < len; ++i) {
 		/* Fetch rune and mode for current glyph. */
-		rune = glyphs[i].u;
+		rune = glyphs[i].rune;
 		mode = glyphs[i].mode;
 
 		/* Skip dummy wide-character spacing. */
@@ -1562,7 +1562,7 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	if (IS_SET(WIN_MODE_FOCUSED)) {
 		switch (term_window.cursor) {
 		case 7: /* st extension */
-			g.u = 0x2603; /* snowman (U+2603) */
+			g.rune = 0x2603; /* snowman (U+2603) */
 			/* FALLTHROUGH */
 		case 0: /* Blinking Block */
 		case 1: /* Blinking Block (Default) */
