@@ -190,7 +190,7 @@ static void term_scroll_down(int, int);
 static void term_set_attr(const int *, int);
 static void term_set_char(Rune, const Glyph *, int, int);
 static void term_set_dirt(int, int);
-static void tsetscroll(int, int);
+static void term_set_scroll(int, int);
 static void tswapscreen(void);
 static void tsetmode(int, int, const int *, int);
 static int twrite(const char *, int, int);
@@ -1457,7 +1457,7 @@ term_set_attr(const int *attr, int l)
 }
 
 void
-tsetscroll(int t, int b)
+term_set_scroll(int t, int b)
 {
 	int temp;
 
@@ -1799,7 +1799,7 @@ control_seq_intro_handle(void)
 		} else {
 			DEFAULT(csiescseq.arg[0], 1);
 			DEFAULT(csiescseq.arg[1], term.row);
-			tsetscroll(csiescseq.arg[0]-1, csiescseq.arg[1]-1);
+			term_set_scroll(csiescseq.arg[0]-1, csiescseq.arg[1]-1);
 			term_move_abs_to(0, 0);
 		}
 		break;
@@ -2629,7 +2629,7 @@ tresize(int col, int row)
 	term.col = col;
 	term.row = row;
 	/* reset scrolling region */
-	tsetscroll(0, row-1);
+	term_set_scroll(0, row-1);
 	/* make use of the LIMIT in term_move_to */
 	term_move_to(term.c.x, term.c.y);
 	/* Clearing both screens (it makes dirty all lines) */
