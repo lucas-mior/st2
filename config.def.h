@@ -82,7 +82,7 @@ static uint32 BLINK_TIMEOUT = 800;
 /*
  * thickness of underline and bar cursors
  */
-static uint32 cursorthickness = 2;
+static uint32 CONF_CURSOR_THICKNESS = 2;
 
 /*
  * 1: render most of the lines/blocks characters without using the font for

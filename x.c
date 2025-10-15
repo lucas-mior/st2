@@ -1697,13 +1697,14 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
         case 3: /* Blinking Underline */
         case 4: /* Steady Underline */
             XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                        term_window.vborderpx + (cy + 1) * term_window.ch - (int32)cursorthickness,
-                        (uint32)term_window.cw, (uint32)cursorthickness);
+                        term_window.vborderpx + (cy + 1) * term_window.ch -
+                            (int32)CONF_CURSOR_THICKNESS,
+                        (uint32)term_window.cw, (uint32)CONF_CURSOR_THICKNESS);
             break;
         case 5: /* Blinking bar */
         case 6: /* Steady bar */
             XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                        term_window.vborderpx + cy * term_window.ch, cursorthickness,
+                        term_window.vborderpx + cy * term_window.ch, CONF_CURSOR_THICKNESS,
                         (uint32)term_window.ch);
             break;
         default:
