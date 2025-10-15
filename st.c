@@ -3147,7 +3147,7 @@ term_resize_def(int32 ncols, int32 nrows) {
 
         /* handler_configure_notify to new height */
         term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
-        /* allocate any new CONF_NUMBER_ROWS */
+        /* allocate any new rows */
         for (int32 i = term.nrows; i < nrows; i++) {
             term.line[i] = xmalloc((int64)ncols*SIZEOF(Glyph));
             for (int32 j = 0; j < ncols; j++) {
@@ -3201,7 +3201,7 @@ term_resize_alt(int32 col, int32 row) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
-    /* allocate any new CONF_NUMBER_ROWS */
+    /* allocate any new rows */
     for (/*i = MIN(row, term.nrows) */; i < row; i++) {
         term.line[i] = xmalloc((int64)col*SIZEOF(Glyph));
         for (int32 j = 0; j < col; j++) {
