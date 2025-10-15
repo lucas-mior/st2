@@ -165,7 +165,7 @@ extern wchar_t *WORD_DELIMITERS;
 extern int32 ALLOW_ALT_SCREEN;
 extern int32 ALLOW_WINDOW_OPS;
 extern char *TERM_NAME;
-extern int32 tabspaces;
+extern int32 TAB_NSPACES;
 extern int32 default_foreground;
 extern int32 default_background;
 extern int32 default_cursor;

@@ -1189,7 +1189,7 @@ term_reset(void) {
     tresetcursor();
 
     memset(term.tabs, 0, (size_t)term.col * SIZEOF(*term.tabs));
-    for (int32 i = tabspaces; i < term.col; i += tabspaces) {
+    for (int32 i = TAB_NSPACES; i < term.col; i += TAB_NSPACES) {
         term.tabs[i] = 1;
     }
     term.top = 0;
@@ -3095,7 +3095,7 @@ term_resize(int32 col, int32 row) {
         memset(bp, 0, SIZEOF(*term.tabs) * (size_t)(col - term.col));
         while (--bp > term.tabs && !*bp)
             /* nothing */;
-        for (bp += tabspaces; bp < term.tabs + col; bp += tabspaces) {
+        for (bp += TAB_NSPACES; bp < term.tabs + col; bp += TAB_NSPACES) {
             *bp = 1;
         }
     }

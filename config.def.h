@@ -112,7 +112,7 @@ char *TERM_NAME = "st-256color";
  * the st.info and appropriately install the st.info in the environment where
  * you use this st version.
  *
- *	it#$tabspaces,
+ *	it#$TAB_NSPACES,
  *
  * Secondly make sure your kernel is not expanding tabs. When running `stty
  * -a` »tab0« should appear. You can tell the terminal to not expand tabs by
@@ -120,7 +120,7 @@ char *TERM_NAME = "st-256color";
  *
  *	stty tabs
  */
-int32 tabspaces = 4;
+int32 TAB_NSPACES = 4;
 
 /* bg opacity */
 float alpha = 0.85f;
