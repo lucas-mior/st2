@@ -114,7 +114,7 @@ index 2478942..2b86d23 100644
 +static void selmove(int);
 +static void selremove(void);
 +static int regionselected(int, int, int, int);
- static void selsnap(int *, int *, int);
+ static void sel_snap(int *, int *, int);
  
  static size_t utf8decode(const char *, Rune *, size_t);
 @@ -412,17 +446,46 @@ sel_init(void)
@@ -211,10 +211,10 @@ index 2478942..2b86d23 100644
 +    selection.nb.y = MIN(selection.ob.y, selection.oe.y);
 +    selection.ne.y = MAX(selection.ob.y, selection.oe.y);
  
--	selsnap(&selection.nb.x, &selection.nb.y, -1);
--	selsnap(&selection.ne.x, &selection.ne.y, +1);
-+    selsnap(&selection.nb.x, &selection.nb.y, -1);
-+    selsnap(&selection.ne.x, &selection.ne.y, +1);
+-	sel_snap(&selection.nb.x, &selection.nb.y, -1);
+-	sel_snap(&selection.ne.x, &selection.ne.y, +1);
++    sel_snap(&selection.nb.x, &selection.nb.y, -1);
++    sel_snap(&selection.ne.x, &selection.ne.y, +1);
  
 -	/* expand selection over line breaks */
 -	if (selection.type == SELECTION_RECTANGULAR)
@@ -266,7 +266,7 @@ index 2478942..2b86d23 100644
  
 +
  void
- selsnap(int *x, int *y, int direction)
+ sel_snap(int *x, int *y, int direction)
  {
  	int newx, newy, xt, yt;
 +	int rtop = 0, rbot = term.row - 1;
@@ -279,7 +279,7 @@ index 2478942..2b86d23 100644
  	switch (selection.snap) {
  	case SNAP_WORD:
  		/*
-@@ -536,7 +608,7 @@ selsnap(int *x, int *y, int direction)
+@@ -536,7 +608,7 @@ sel_snap(int *x, int *y, int direction)
  			if (!BETWEEN(newx, 0, term.col - 1)) {
  				newy += direction;
  				newx = (newx + term.col) % term.col;
@@ -288,7 +288,7 @@ index 2478942..2b86d23 100644
  					break;
  
  				if (direction > 0)
-@@ -547,13 +619,13 @@ selsnap(int *x, int *y, int direction)
+@@ -547,13 +619,13 @@ sel_snap(int *x, int *y, int direction)
  					break;
  			}
  
@@ -305,7 +305,7 @@ index 2478942..2b86d23 100644
  				break;
  
  			*x = newx;
-@@ -568,20 +640,16 @@ selsnap(int *x, int *y, int direction)
+@@ -568,20 +640,16 @@ sel_snap(int *x, int *y, int direction)
  		 * has set ATTR_WRAP at its end. Then the whole next or
  		 * previous line will be selected.
  		 */

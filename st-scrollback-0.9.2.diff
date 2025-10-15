@@ -67,7 +67,7 @@ index b9f66e7..2478942 100644
  		--i;
  
  	return i;
-@@ -521,7 +528,7 @@ selsnap(int *x, int *y, int direction)
+@@ -521,7 +528,7 @@ sel_snap(int *x, int *y, int direction)
  		 * Snap around if the word wraps around at the end or
  		 * beginning of a line.
  		 */
@@ -76,7 +76,7 @@ index b9f66e7..2478942 100644
  		prevdelim = ISDELIM(prevgp->u);
  		for (;;) {
  			newx = *x + direction;
-@@ -536,14 +543,14 @@ selsnap(int *x, int *y, int direction)
+@@ -536,14 +543,14 @@ sel_snap(int *x, int *y, int direction)
  					yt = *y, xt = *x;
  				else
  					yt = newy, xt = newx;
@@ -93,7 +93,7 @@ index b9f66e7..2478942 100644
  			delim = ISDELIM(gp->u);
  			if (!(gp->mode & ATTR_WDUMMY) && (delim != prevdelim
  					|| (delim && gp->u != prevgp->u)))
-@@ -564,14 +571,14 @@ selsnap(int *x, int *y, int direction)
+@@ -564,14 +571,14 @@ sel_snap(int *x, int *y, int direction)
  		*x = (direction < 0) ? 0 : term.col - 1;
  		if (direction < 0) {
  			for (; *y > 0; *y += direction) {
