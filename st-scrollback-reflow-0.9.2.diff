@@ -63,7 +63,7 @@ index 2478942..2b86d23 100644
  	int *dirty;   /* dirtyness of lines */
  	TCursor c;    /* cursor */
  	int ocx;      /* old cursor col */
-@@ -179,26 +199,37 @@ static void tprinter(char *, size_t);
+@@ -179,26 +199,37 @@ static void term_printer(char *, size_t);
  static void term_dump_sel(void);
  static void term_dump_line(int);
  static void term_dump(void);
@@ -1167,11 +1167,11 @@ index 2478942..2b86d23 100644
 -	end = &bp[MIN(term_line_len(n), term.col) - 1];
 -	if (bp != end || bp->u != ' ') {
 -		for ( ; bp <= end; ++bp)
--			tprinter(buf, utf8encode(bp->u, buf));
+-			term_printer(buf, utf8encode(bp->u, buf));
 -	}
--	tprinter("\n", 1);
+-	term_printer("\n", 1);
 +    char str[(term.col + 1) * UTF_SIZ];
-+    tprinter(str, tgetline(str, &term.line[n][0]));
++    term_printer(str, tgetline(str, &term.line[n][0]));
  }
  
  void
