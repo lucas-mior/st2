@@ -87,11 +87,11 @@ static uint32 CONF_CURSOR_THICKNESS = 2;
 /*
  * 1: render most of the lines/blocks characters without using the font for
  *    perfect alignment between cells (U2500 - U259F except dashes/diagonals).
- *    Bold affects lines thickness if boxdraw_bold is not 0. Italic is ignored.
+ *    Bold affects lines thickness if CONF_BOXDRAW_BOLD is not 0. Italic is ignored.
  * 0: disable (render all U25XX glyphs normally from the font).
  */
 const int32 CONF_BOXDRAW = 1;
-const int32 boxdraw_bold = 1;
+const int32 CONF_BOXDRAW_BOLD = 1;
 
 /* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
 const int32 boxdraw_braille = 0;

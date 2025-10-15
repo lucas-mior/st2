@@ -44,7 +44,7 @@ boxdrawindex(const Glyph *g) {
     if (boxdraw_braille && (g->rune & ~(uint32)0xff) == 0x2800) {
         return BRL | (uint8_t)g->rune;
     }
-    if (boxdraw_bold && (g->mode & ATTR_BOLD)) {
+    if (CONF_BOXDRAW_BOLD && (g->mode & ATTR_BOLD)) {
         return BDB | boxdata[(uint8_t)g->rune];
     }
     return boxdata[(uint8_t)g->rune];

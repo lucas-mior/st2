@@ -169,7 +169,7 @@ extern int32 TAB_NSPACES;
 extern int32 default_foreground;
 extern int32 default_background;
 extern int32 default_cursor;
-extern const int32 CONF_BOXDRAW, boxdraw_bold, boxdraw_braille;
+extern const int32 CONF_BOXDRAW, CONF_BOXDRAW_BOLD, boxdraw_braille;
 extern float alpha;
 
 /* function definitions used in config.def.h */
