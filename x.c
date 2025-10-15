@@ -55,6 +55,7 @@ static void user_clipboard_copy(const Arg *);
 static void user_clipboard_paste(const Arg *);
 static void user_toggle_numlock(const Arg *);
 static void user_selection_paste(const Arg *);
+static void user_change_alpha(const Arg *);
 static void user_zoom(const Arg *);
 static void zoom_abs(const Arg *);
 static void user_zoom_reset(const Arg *);
@@ -247,6 +248,7 @@ static char *usedfont = NULL;
 static double usedfontsize = 0;
 static double defaultfontsize = 0;
 
+static char *opt_alpha = NULL;
 static char *opt_class = NULL;
 static char **opt_cmd  = NULL;
 static char *opt_embed = NULL;
@@ -288,6 +290,20 @@ user_selection_paste(const Arg *dummy)
 {
 	XConvertSelection(x_window.dpy, XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
 			x_window.win, CurrentTime);
+}
+
+void
+user_change_alpha(const Arg *arg)
+{
+	if ((alpha > 0 && arg->f < 0) || (alpha < 1 && arg->f > 0))
+		alpha += arg->f;
+	if (alpha < 0)
+		alpha = 0;
+	if (alpha > 1)
+		alpha = 1;
+
+	x_load_cols();
+	redraw();
 }
 
 void

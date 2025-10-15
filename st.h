@@ -140,3 +140,4 @@ extern unsigned int default_foreground;
 extern unsigned int default_background;
 extern unsigned int default_cursor;
 extern const int boxdraw, boxdraw_bold, boxdraw_braille;
+extern float alpha;
