@@ -79,8 +79,8 @@ static unsigned int cursorthickness = 2;
  *    Bold affects lines thickness if boxdraw_bold is not 0. Italic is ignored.
  * 0: disable (render all U25XX glyphs normally from the font).
  */
-const int boxdraw = 0;
-const int boxdraw_bold = 0;
+const int boxdraw = 1;
+const int boxdraw_bold = 1;
 
 /* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
 const int boxdraw_braille = 0;
@@ -112,46 +112,77 @@ char *termname = "st-256color";
 unsigned int tabspaces = 8;
 
 /* bg opacity */
-float alpha = 0.8;
+float alpha = 0.85;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
-	"black",
-	"red3",
-	"green3",
-	"yellow3",
-	"blue2",
-	"magenta3",
-	"cyan3",
-	"gray90",
+	[0] = "#000000",
+	[1] = "#ff0000",
+	[2] = "#00ff00",
+	[3] = "#ffff00",
+	[4] = "#0088ff",
+	[5] = "#ff00ff",
+	[6] = "#00aaaa",
+	[7] = "#ffffff",
 
 	/* 8 bright colors */
-	"gray50",
-	"red",
-	"green",
-	"yellow",
-	"#5c5cff",
-	"magenta",
-	"cyan",
-	"white",
+	[8]  = "#333333",
+	[9]  = "#ff6600",
+	[10] = "#00cc00",
+	[11] = "#ffbb00",
+	[12] = "#0066ff",
+	[13] = "#c600c6",
+	[14] = "#0066aa",
+	[15] = "#f1f1f1",
 
+	/* 26 transparent colors */
+	[16] = "#000000",
+	[17] = "#3a0000",
+	[18] = "#003a00",
+	[19] = "#3a3a00",
+	[20] = "#00003a",
+	[21] = "#3a003a",
+	[22] = "#003a3a",
+	[23] = "#3a3a3a",
+
+ 	[24] = "#000000",
+	[25] = "#2a0000",
+	[26] = "#002a00",
+	[27] = "#2a2a00",
+	[28] = "#00002a",
+	[29] = "#2a002a",
+	[30] = "#002a2a",
+	[31] = "#2a2a2a",
+
+	[32] = "#881000",
+	[33] = "#882000",
+	[34] = "#883000",
+	[35] = "#884000",
+	[36] = "#885000",
+	[37] = "#886000",
+	[38] = "#887000",
+	[39] = "#887800",
+	[40] = "#888000",
+	[41] = "#888800",
+ 
 	[255] = 0,
 
 	/* more colors can be added after 255 to use with DefaultXX */
-	"#cccccc",
-	"#555555",
-	"gray90", /* default foreground colour */
-	"black", /* default background colour */
+ 	[256] = "#000000",
+	[257] = "#ffff00",
+	[258] = "#0000ff",
+	[259] = "#555555",
 };
 
+const int trans_colors = 26;
 
 /*
  * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor, selection
  */
 unsigned int default_foreground = 258;
-unsigned int default_background = 259;
+unsigned int default_background = 0;
 unsigned int default_cursor = 256;
 static unsigned int default_reverse_cursor = 257;
 unsigned int selectionbg = 257;

@@ -780,7 +780,7 @@ x_load_color(int i, const char *name, Color *ncolor)
 	XRenderColor color = { .alpha = 0xffff };
 
 	if (!name) {
-		if (BETWEEN(i, 16, 255)) { /* 256 color */
+		if (BETWEEN(i, 16 + trans_colors, 255)) { /* 256 color */
 			if (i < 6*6*6+16) { /* same colors as xterm */
 				color.red   = sixd_to_16bit( ((i-16)/36)%6 );
 				color.green = sixd_to_16bit( ((i-16)/6) %6 );
@@ -824,6 +824,12 @@ x_load_cols(void)
 	draw_context.col[default_background].color.alpha = (unsigned short)(0xffff * alpha);
 	draw_context.col[default_background].pixel &= 0x00FFFFFF;
 	draw_context.col[default_background].pixel |= (unsigned char)(0xff * alpha) << 24;
+
+	for (i = 16; i < 16 + trans_colors; i++) {
+		draw_context.col[i].color.alpha = (unsigned short)(0xffff * alpha);
+		draw_context.col[i].pixel &= 0x00FFFFFF;
+		draw_context.col[i].pixel |= (unsigned char)(0xff * alpha) << 24;
+	}
 	loaded = 1;
 }
 
