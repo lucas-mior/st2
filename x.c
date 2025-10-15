@@ -1361,8 +1361,8 @@ x_init(int32 ncols, int32 nrows) {
 
 int32
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len, int32 x, int32 y) {
-    float winx = (float)(term_window.hborderpx + x * term_window.cw);
-    float winy = (float)(term_window.vborderpx + y * term_window.ch);
+    int32 winx = term_window.hborderpx + x * term_window.cw;
+    int32 winy = term_window.vborderpx + y * term_window.ch;
     uint16 mode, prevmode = USHRT_MAX;
     Font *font_local = &draw_context.font;
     int32 frcflags = FRC_NORMAL;
