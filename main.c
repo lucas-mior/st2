@@ -328,9 +328,9 @@ xevent_row(XEvent *e) {
 }
 
 void
-mouse_select(XEvent *e, int32 done) {
+mouse_select(XEvent *xevent, int32 done) {
     int32 type, seltype = SELECTION_REGULAR;
-    uint32 state = e->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
+    uint32 state = xevent->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
 
     for (type = 1; type < LENGTH(CONF_SELECTION_MASKS); ++type) {
         if (match(CONF_SELECTION_MASKS[type], state)) {
@@ -338,9 +338,9 @@ mouse_select(XEvent *e, int32 done) {
             break;
         }
     }
-    selection_extend(xevent_col(e), xevent_row(e), seltype, done);
+    selection_extend(xevent_col(xevent), xevent_row(xevent), seltype, done);
     if (done) {
-        setsel(get_sel(), e->xbutton.time);
+        setsel(get_sel(), xevent->xbutton.time);
     }
     return;
 }
