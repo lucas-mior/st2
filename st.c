@@ -40,7 +40,7 @@
 #define STR_BUF_SIZ ESC_BUF_SIZ
 #define STR_ARG_SIZ ESC_ARG_SIZ
 #define HISTORY_SIZE 2000
-#define RESIZEBUFFER 1000
+#define RESIZE_BUFFER 1000
 
 /* macros */
 #define TERM_MODE_IS_SET(flag) ((term.mode & (flag)) != 0)
@@ -3224,8 +3224,8 @@ term_reflow(int32 col, int32 row) {
         /* each line can take this many lines after reflow */
         int32 j = (term.col + col - 1) / col;
         nlines = j*nlines;
-        if (nlines > HISTORY_SIZE + RESIZEBUFFER + row) {
-            nlines = HISTORY_SIZE + RESIZEBUFFER + row;
+        if (nlines > HISTORY_SIZE + RESIZE_BUFFER + row) {
+            nlines = HISTORY_SIZE + RESIZE_BUFFER + row;
             oy = -(nlines / j - oce - 1);
         }
     }
