@@ -161,7 +161,7 @@ extern char *CONF_UTMP;
 extern char *scroll;
 extern char *CONF_STTY_ARGS;
 extern char *CONF_VTIDEN;
-extern wchar_t *WORD_DELIMITERS;
+extern wchar_t *CONF_WORD_DELIMITERS;
 extern int32 CONF_ALLOW_ALT_SCREEN;
 extern int32 CONF_ALLOW_WINDOW_OPS;
 extern char *CONF_TERM_NAME;

@@ -49,7 +49,7 @@ static float CONF_CHAR_HEIGHT_SCALE = 1.0;
  *
  * More advanced example: L" `'\"()[]{}"
  */
-wchar_t *WORD_DELIMITERS = L" ";
+wchar_t *CONF_WORD_DELIMITERS = L" ";
 
 /* selection timeouts (in milliseconds) */
 static const uint32 DOUBLE_CLICK_TIMEOUT = 300;
