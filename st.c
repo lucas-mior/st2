@@ -1177,10 +1177,11 @@ term_cursor(int32 mode) {
 
 void
 tresetcursor(void) {
-    term.cursor = (TCursor){{.mode = ATTR_NULL, .fg = default_foreground, .bg = default_background},
-                            .x = 0,
-                            .y = 0,
-                            .state = CURSOR_DEFAULT};
+    term.cursor =
+        (TCursor){{.mode = ATTR_NULL, .fg = CONF_COLOR_INDEX_FONT, .bg = default_background},
+                  .x = 0,
+                  .y = 0,
+                  .state = CURSOR_DEFAULT};
     return;
 }
 
@@ -1581,7 +1582,7 @@ term_clear_glyph(Glyph *gp, int32 usecurattr) {
         gp->fg = term.cursor.attr.fg;
         gp->bg = term.cursor.attr.bg;
     } else {
-        gp->fg = default_foreground;
+        gp->fg = CONF_COLOR_INDEX_FONT;
         gp->bg = default_background;
     }
     gp->mode = ATTR_NULL;
@@ -1724,7 +1725,7 @@ term_set_attr(const int32 *attr, int32 l) {
         case 0:
             term.cursor.attr.mode &= ~(ATTR_BOLD | ATTR_FAINT | ATTR_ITALIC | ATTR_UNDERLINE |
                                        ATTR_BLINK | ATTR_REVERSE | ATTR_INVISIBLE | ATTR_STRUCK);
-            term.cursor.attr.fg = default_foreground;
+            term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
             term.cursor.attr.bg = default_background;
             break;
         case 1:
@@ -1780,7 +1781,7 @@ term_set_attr(const int32 *attr, int32 l) {
             }
             break;
         case 39: /* set foreground color to default */
-            term.cursor.attr.fg = default_foreground;
+            term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
             break;
         case 48:
             if ((idx = term_def_color(attr, &i, l)) >= 0) {
@@ -2270,7 +2271,7 @@ string_handle(void) {
     const struct {
         int32 idx;
         char *str;
-    } osc_table[] = {{default_foreground, "foreground"},
+    } osc_table[] = {{CONF_COLOR_INDEX_FONT, "foreground"},
                      {default_background, "background"},
                      {default_cursor, "cursor"}};
 

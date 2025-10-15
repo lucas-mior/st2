@@ -192,7 +192,7 @@ static const int32 trans_colors = 26;
  * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor, selection
  */
-int32 default_foreground = 7;
+int32 CONF_COLOR_INDEX_FONT = 7;
 int32 default_background = 0;
 int32 default_cursor = 256;
 static int32 default_reverse_cursor = 257;

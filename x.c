@@ -843,7 +843,7 @@ x_set_color_name(int32 x, const char *name) {
 void
 x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
     XftDrawRect(x_window.draw,
-                &draw_context.col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? default_foreground
+                &draw_context.col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT
                                                                        : default_background],
                 x1, y1, (uint32)(x2 - x1), (uint32)(y2 - y1));
 }
@@ -1535,7 +1535,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
-        if (fg == &draw_context.col[default_foreground]) {
+        if (fg == &draw_context.col[CONF_COLOR_INDEX_FONT]) {
             fg = &draw_context.col[default_background];
         } else {
             colfg.red = ~fg->color.red;
@@ -1547,7 +1547,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         }
 
         if (bg == &draw_context.col[default_background]) {
-            bg = &draw_context.col[default_foreground];
+            bg = &draw_context.col[CONF_COLOR_INDEX_FONT];
         } else {
             colbg.red = ~bg->color.red;
             colbg.green = ~bg->color.green;
@@ -1675,7 +1675,7 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
     if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
         g.mode |= ATTR_REVERSE;
         g.fg = default_cursor;
-        g.bg = default_foreground;
+        g.bg = CONF_COLOR_INDEX_FONT;
         drawcol = draw_context.col[default_reverse_cursor];
     } else {
         g.fg = default_background;
@@ -1811,7 +1811,7 @@ x_finish_draw(void) {
     XSetForeground(
         x_window.dpy, draw_context.graphics,
         draw_context
-            .col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? default_foreground : default_background]
+            .col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT : default_background]
             .pixel);
 }
 
