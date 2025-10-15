@@ -45,7 +45,7 @@ index b9f66e7..2478942 100644
  	int ocx;      /* old cursor col */
 @@ -185,8 +192,8 @@ static void term_new_line(int);
  static void tputtab(int);
- static void tputc(Rune);
+ static void term_putc(Rune);
  static void treset(void);
 -static void tscrollup(int, int);
 -static void tscrolldown(int, int);
