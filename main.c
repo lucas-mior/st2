@@ -2208,6 +2208,7 @@ kmap(KeySym k, uint32 state) {
                 continue;
             }
         }
+
         if (TERM_WINDOW_IS_SET(WIN_MODE_NUMLOCK) && kp->appkey == 2) {
             continue;
         }
