@@ -9,6 +9,7 @@
 #include <X11/X.h>
 
 typedef unsigned char uchar;
+typedef unsigned long ulong;
 
 typedef int8_t int8;
 typedef int16_t int16;

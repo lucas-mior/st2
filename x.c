@@ -543,7 +543,7 @@ handler_selection_notify(XEvent *e) {
             /*
              * Deleting the property is the transfer start signal.
              */
-            XDeleteProperty(x_window.dpy, x_window.win, (uint64)property);
+            XDeleteProperty(x_window.dpy, x_window.win, (ulong)property);
             continue;
         }
 
@@ -555,7 +555,7 @@ handler_selection_notify(XEvent *e) {
          * FIXME: Fix the computer world.
          */
         repl = data;
-        last = data + nitems * (int64)format / 8;
+        last = data + nitems * (uint64)format / 8;
         while ((repl = memchr(repl, '\n', (size_t)(last - repl)))) {
             *repl++ = '\r';
         }
@@ -563,20 +563,20 @@ handler_selection_notify(XEvent *e) {
         if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && ofs == 0) {
             tty_write("\033[200~", 6, 0);
         }
-        tty_write((char *)data, nitems * (int64)format / 8, 1);
+        tty_write((char *)data, nitems * (uint64)format / 8, 1);
         if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && rem == 0) {
             tty_write("\033[201~", 6, 0);
         }
         XFree(data);
         /* number of 32-bit chunks returned */
-        ofs += nitems * (int64)format / 32;
+        ofs += nitems * (uint64)format / 32;
     } while (rem > 0);
 
     /*
      * Deleting the property again tells the selection owner to send the
      * next data chunk in the property.
      */
-    XDeleteProperty(x_window.dpy, x_window.win, (uint64)property);
+    XDeleteProperty(x_window.dpy, x_window.win, (ulong)property);
 }
 
 void
@@ -1226,7 +1226,7 @@ x_init(int32 number_cols, int32 number_rows) {
     x_window.scr = XDefaultScreen(x_window.dpy);
 
     root = XRootWindow(x_window.dpy, x_window.scr);
-    if (!(opt_embed && (parent = (uint64)strtol(opt_embed, NULL, 0)))) {
+    if (!(opt_embed && (parent = (ulong)strtol(opt_embed, NULL, 0)))) {
         parent = root;
     }
 

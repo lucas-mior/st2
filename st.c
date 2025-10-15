@@ -178,10 +178,10 @@ typedef struct {
 /* STR Escape sequence structs */
 /* ESC type [[ [<priv>] <arg> [;]] <mode>] ESC '\' */
 typedef struct {
-    char type; /* ESC type ... */
-    char *buf; /* allocated raw string */
-    int64 siz; /* allocation size */
-    int64 len; /* raw string length */
+    char type;  /* ESC type ... */
+    char *buf;  /* allocated raw string */
+    uint64 siz; /* allocation size */
+    uint64 len; /* raw string length */
     char *args[STR_ARG_SIZ];
     int32 narg; /* nb of args */
 } STREscape;
@@ -2485,7 +2485,7 @@ string_dump(void) {
     uint32 c;
 
     fprintf(stderr, "ESC%c", strescseq.type);
-    for (int64 i = 0; i < strescseq.len; i++) {
+    for (uint64 i = 0; i < strescseq.len; i++) {
         c = strescseq.buf[i] & 0xff;
         if (c == '\0') {
             putc('\n', stderr);
@@ -2865,7 +2865,7 @@ term_putc(Rune u) {
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_PRINT)) {
-        term_printer(c, (uint64)len);
+        term_printer(c, (int64)len);
     }
 
     /*
@@ -2899,11 +2899,11 @@ term_putc(Rune u) {
                 return;
             }
             strescseq.siz *= 2;
-            strescseq.buf = xrealloc(strescseq.buf, strescseq.siz);
+            strescseq.buf = xrealloc(strescseq.buf, (int64)strescseq.siz);
         }
 
         memmove(&strescseq.buf[strescseq.len], c, (size_t)len);
-        strescseq.len += (int64)len;
+        strescseq.len += (uint64)len;
         return;
     }
 
