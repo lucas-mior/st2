@@ -236,7 +236,7 @@ static void term_set_dirt(int, int);
 static void term_set_scroll(int, int);
 static void term_swap_screen(void);
 static void tloaddefscreen(int, int);
-static void tloadaltscreen(int, int);
+static void term_load_alt_screen(int, int);
 static void term_set_mode(int, int, const int *, int);
 static int term_write(const char *, int, int);
 static void term_full_dirt(void);
@@ -1234,7 +1234,7 @@ tloaddefscreen(int clear, int loadcursor) {
 }
 
 void
-tloadaltscreen(int clear, int savecursor) {
+term_load_alt_screen(int clear, int savecursor) {
     int col, row, def = !TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
     if (savecursor) {
@@ -1837,7 +1837,7 @@ term_set_mode(int priv, int set, const int *args, int narg) {
                     break;
                 }
                 if (set) {
-                    tloadaltscreen(*args == 1049, *args == 1049);
+                    term_load_alt_screen(*args == 1049, *args == 1049);
                 } else {
                     tloaddefscreen(*args == 1047, *args == 1049);
                 }
