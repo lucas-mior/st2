@@ -2131,7 +2131,7 @@ run(void) {
                 trigger = now;
                 drawing = 1;
             }
-            timeout = (maxlatency - (double)TIMEDIFF(now, trigger)) / maxlatency * minlatency;
+            timeout = (maxlatency - (float)TIMEDIFF(now, trigger)) / maxlatency * minlatency;
             if (timeout > 0) {
                 continue; /* we have time, try to find idle */
             }
@@ -2140,15 +2140,15 @@ run(void) {
         /* idle detected or maxlatency exhausted -> draw */
         timeout = -1;
         if (blinktimeout && term_attr_set(ATTR_BLINK)) {
-            timeout = blinktimeout - (double)TIMEDIFF(now, lastblink);
+            timeout = (float)blinktimeout - (float)TIMEDIFF(now, lastblink);
             if (timeout <= 0) {
-                if (-timeout > blinktimeout) { /* start visible */
+                if (-timeout > (float)blinktimeout) { /* start visible */
                     term_window.mode |= WIN_MODE_BLINK;
                 }
                 term_window.mode ^= WIN_MODE_BLINK;
                 term_set_dirt_attr(ATTR_BLINK);
                 lastblink = now;
-                timeout = blinktimeout;
+                timeout = (float)blinktimeout;
             }
         }
 
