@@ -52,7 +52,7 @@
     ((y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTORY_SIZE) % HISTORY_SIZE]   \
                     : term.line[(y) - term.scr])
 
-#define TLINEABS(y)                                                                                \
+#define TERM_LINE_ABS(y)                                                                           \
     ((y) < 0 ? term.hist[(term.histi + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] : term.line[(y)])
 #define TLINE_HIST(y)                                                                              \
     ((y) <= HISTORY_SIZE - term.row + 2 ? term.hist[(y)]                                           \
@@ -3235,7 +3235,7 @@ term_reflow(int32 col, int32 row) {
             buffer[++ny] = xmalloc((int64)col*SIZEOF(Glyph));
         }
         if (!ox) {
-            line = TLINEABS(oy);
+            line = TERM_LINE_ABS(oy);
             len = term_line_len(line);
         }
         if (oy == term.cursor.y) {
