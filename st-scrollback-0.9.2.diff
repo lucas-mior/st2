@@ -312,7 +312,7 @@ index b9f66e7..2478942 100644
 +		}
 +	}
 +
- 	/* resize each row to new width, zero-pad if needed */
+ 	/* handler_configure_notify each row to new width, zero-pad if needed */
  	for (i = 0; i < minrow; i++) {
  		term.line[i] = xrealloc(term.line[i], col * sizeof(Glyph));
 @@ -2637,7 +2707,7 @@ draw_region(int x1, int y1, int x2, int y2)

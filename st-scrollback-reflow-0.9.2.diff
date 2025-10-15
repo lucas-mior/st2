@@ -1290,7 +1290,7 @@ index 2478942..2b86d23 100644
 -		free(term.alt[i]);
 -	}
 -
--	/* resize to new height */
+-	/* handler_configure_notify to new height */
 -	term.line = xrealloc(term.line, row * sizeof(Line));
 -	term.alt  = xrealloc(term.alt,  row * sizeof(Line));
  	term.dirty = xrealloc(term.dirty, row * sizeof(*term.dirty));
@@ -1317,7 +1317,7 @@ index 2478942..2b86d23 100644
 +		tresizedef(col, row);
 +}
  
--	/* resize each row to new width, zero-pad if needed */
+-	/* handler_configure_notify each row to new width, zero-pad if needed */
 -	for (i = 0; i < minrow; i++) {
 -		term.line[i] = xrealloc(term.line[i], col * sizeof(Glyph));
 -		term.alt[i]  = xrealloc(term.alt[i],  col * sizeof(Glyph));
@@ -1358,7 +1358,7 @@ index 2478942..2b86d23 100644
 +		for (i = row; i < term.row; i++)
 +			free(term.line[i]);
 +
-+		/* resize to new height */
++		/* handler_configure_notify to new height */
 +		term.line = xrealloc(term.line, row * sizeof(Line));
 +		/* allocate any new rows */
 +		for (i = term.row; i < row; i++) {
@@ -1419,9 +1419,9 @@ index 2478942..2b86d23 100644
 +    }
 +    for (i += row; i < term.row; i++)
 +        free(term.line[i]);
-+    /* resize to new height */
++    /* handler_configure_notify to new height */
 +    term.line = xrealloc(term.line, row * sizeof(Line));
-+    /* resize to new width */
++    /* handler_configure_notify to new width */
 +    for (i = 0; i < MIN(row, term.row); i++) {
 +        term.line[i] = xrealloc(term.line[i], col * sizeof(Glyph));
 +        for (j = term.col; j < col; j++)
@@ -1522,7 +1522,7 @@ index 2478942..2b86d23 100644
 +    /* free extra lines */
 +    for (i = row; i < term.row; i++)
 +        free(term.line[i]);
-+    /* resize to new height */
++    /* handler_configure_notify to new height */
 +    term.line = xrealloc(term.line, row * sizeof(Line));
 +
 +    bot = MIN(ny, row - 1);
@@ -1560,7 +1560,7 @@ index 2478942..2b86d23 100644
 +    }
 +    term.histf = -i - 1;
 +    term.scr = MIN(term.scr, term.histf);
-+    /* resize rest of the history lines */
++    /* handler_configure_notify rest of the history lines */
 +    for (/*i = -term.histf - 1 */; i >= -HISTSIZE; i--) {
 +        j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
 +        term.hist[j] = xrealloc(term.hist[j], col * sizeof(Glyph));
