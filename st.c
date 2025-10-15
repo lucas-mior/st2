@@ -226,7 +226,7 @@ static void term_reset(void);
 static void term_scroll_up(int32, int32, int32, int32);
 static void term_scroll_down(int32, int32);
 static void term_reflow(int32, int32);
-static void rscrolldown(int32);
+static void reflow_scroll_down(int32);
 static void term_resize_def(int32, int32);
 static void term_resize_alt(int32, int32);
 static void term_set_attr(const int32 *, int32);
@@ -3039,7 +3039,7 @@ term_write(const char *buf, int32 buflen, int32 show_ctrl) {
 }
 
 void
-rscrolldown(int32 n) {
+reflow_scroll_down(int32 n) {
     int32 j;
     Line temp;
 
@@ -3137,7 +3137,7 @@ term_resize_def(int32 col, int32 row) {
             }
         }
         /* scroll down as much as height has increased */
-        rscrolldown(row - term.row);
+        reflow_scroll_down(row - term.row);
     }
     /* update terminal size */
     term.col = col;
