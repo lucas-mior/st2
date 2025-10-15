@@ -216,6 +216,82 @@ static char *opt_title = NULL;
 
 static uint32 buttons; /* bit field of pressed buttons */
 
+int32
+main(int32 argc, char *argv[]) {
+    x_window.l = x_window.t = 0;
+    x_window.isfixed = False;
+    x_set_cursor((int32)CONF_CURSOR_SHAPE);
+
+    ARGBEGIN {
+    case 'a':
+        CONF_ALLOW_ALT_SCREEN = 0;
+        break;
+    case 'A':
+        CONF_ALPHA = strtof(EARGF(usage()), NULL);
+        LIMIT(CONF_ALPHA, 0.0f, 1.0f);
+        break;
+    case 'c':
+        opt_class = EARGF(usage());
+        break;
+    case 'e':
+        if (argc > 0) {
+            --argc;
+            ++argv;
+        }
+        goto run;
+    case 'f':
+        opt_font = EARGF(usage());
+        break;
+    case 'g':
+        x_window.gm = XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t,
+                                     (uint32 *)&CONF_NUMBER_COLS, (uint32 *)&CONF_NUMBER_ROWS);
+        break;
+    case 'i':
+        x_window.isfixed = 1;
+        break;
+    case 'o':
+        opt_io = EARGF(usage());
+        break;
+    case 'l':
+        opt_line = EARGF(usage());
+        break;
+    case 'n':
+        opt_name = EARGF(usage());
+        break;
+    case 't':
+    case 'T':
+        opt_title = EARGF(usage());
+        break;
+    case 'w':
+        opt_embed = EARGF(usage());
+        break;
+    case 'v':
+        die("%s " VERSION "\n", argv0);
+    default:
+        usage();
+    }
+    ARGEND;
+
+run:
+    if (argc > 0) { /* eat all remaining arguments */
+        opt_cmd = argv;
+    }
+
+    if (!opt_title) {
+        opt_title = (opt_line || !opt_cmd) ? "st" : opt_cmd[0];
+    }
+
+    setlocale(LC_CTYPE, "");
+    XSetLocaleModifiers("");
+    CONF_NUMBER_COLS = MAX(CONF_NUMBER_COLS, 1);
+    CONF_NUMBER_ROWS = MAX(CONF_NUMBER_ROWS, 1);
+    term_new(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
+    x_init(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
+    x_setenv();
+    selection_init();
+    run();
+}
+
 void
 user_clipboard_copy(const Arg *arg) {
     Atom clipboard;
@@ -2238,80 +2314,4 @@ usage(void) {
         "          [-T title] [-t title] [-w windowid] -l line"
         " [CONF_STTY_ARGS ...]\n",
         argv0, argv0);
-}
-
-int32
-main(int32 argc, char *argv[]) {
-    x_window.l = x_window.t = 0;
-    x_window.isfixed = False;
-    x_set_cursor((int32)CONF_CURSOR_SHAPE);
-
-    ARGBEGIN {
-    case 'a':
-        CONF_ALLOW_ALT_SCREEN = 0;
-        break;
-    case 'A':
-        CONF_ALPHA = strtof(EARGF(usage()), NULL);
-        LIMIT(CONF_ALPHA, 0.0f, 1.0f);
-        break;
-    case 'c':
-        opt_class = EARGF(usage());
-        break;
-    case 'e':
-        if (argc > 0) {
-            --argc;
-            ++argv;
-        }
-        goto run;
-    case 'f':
-        opt_font = EARGF(usage());
-        break;
-    case 'g':
-        x_window.gm = XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t,
-                                     (uint32 *)&CONF_NUMBER_COLS, (uint32 *)&CONF_NUMBER_ROWS);
-        break;
-    case 'i':
-        x_window.isfixed = 1;
-        break;
-    case 'o':
-        opt_io = EARGF(usage());
-        break;
-    case 'l':
-        opt_line = EARGF(usage());
-        break;
-    case 'n':
-        opt_name = EARGF(usage());
-        break;
-    case 't':
-    case 'T':
-        opt_title = EARGF(usage());
-        break;
-    case 'w':
-        opt_embed = EARGF(usage());
-        break;
-    case 'v':
-        die("%s " VERSION "\n", argv0);
-    default:
-        usage();
-    }
-    ARGEND;
-
-run:
-    if (argc > 0) { /* eat all remaining arguments */
-        opt_cmd = argv;
-    }
-
-    if (!opt_title) {
-        opt_title = (opt_line || !opt_cmd) ? "st" : opt_cmd[0];
-    }
-
-    setlocale(LC_CTYPE, "");
-    XSetLocaleModifiers("");
-    CONF_NUMBER_COLS = MAX(CONF_NUMBER_COLS, 1);
-    CONF_NUMBER_ROWS = MAX(CONF_NUMBER_ROWS, 1);
-    term_new(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
-    x_init(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
-    x_setenv();
-    selection_init();
-    run();
 }
