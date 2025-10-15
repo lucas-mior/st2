@@ -347,5 +347,5 @@ index fd3b0d8..818a6f8 100644
 +void user_scroll_down(const Arg *);
 +void user_scroll_up(const Arg *);
  void user_print_screen(const Arg *);
- void printsel(const Arg *);
+ void user_print_sel(const Arg *);
  void sendbreak(const Arg *);
