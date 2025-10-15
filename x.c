@@ -2116,7 +2116,7 @@ run(void) {
          * To reduce flicker and tearing, when new content or event
          * triggers drawing, we first wait a bit to ensure we got
          * everything, and if nothing new arrives - we draw.
-         * We start with trying to wait minlatency ms. If more content
+         * We start with trying to wait LATENCY_MIN ms. If more content
          * arrives sooner, we retry with shorter and shorter periods,
          * and eventually draw even without idle after maxlatency ms.
          * Typically this results in low latency while interacting,
@@ -2128,7 +2128,7 @@ run(void) {
                 trigger = now;
                 drawing = 1;
             }
-            timeout = (maxlatency - (float)TIMEDIFF(now, trigger)) / maxlatency * minlatency;
+            timeout = (maxlatency - (float)TIMEDIFF(now, trigger)) / maxlatency * LATENCY_MIN;
             if (timeout > 0) {
                 continue; /* we have time, try to find idle */
             }

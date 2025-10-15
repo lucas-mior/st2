@@ -67,10 +67,10 @@ int32 ALLOW_WINDOW_OPS = 0;
 /*
  * draw latency range in ms - from new content/keypress/etc until drawing.
  * within this range, st draws when content stops arriving (idle). mostly it's
- * near minlatency, but it waits longer for slow updates to avoid partial draw.
- * low minlatency will tear/flicker more, as it can "detect" idle too early.
+ * near LATENCY_MIN, but it waits longer for slow updates to avoid partial draw.
+ * low LATENCY_MIN will tear/flicker more, as it can "detect" idle too early.
  */
-static float minlatency = 2;
+static float LATENCY_MIN = 2;
 static float maxlatency = 33;
 
 /*
