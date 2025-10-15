@@ -1364,7 +1364,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
     float winx = (float)(term_window.hborderpx + x * term_window.cw);
     float winy = (float)(term_window.vborderpx + y * term_window.ch);
     uint16 mode, prevmode = USHRT_MAX;
-    Font *font = &draw_context.font;
+    Font *font_local = &draw_context.font;
     int32 frcflags = FRC_NORMAL;
     float runewidth = (float)term_window.cw;
     Rune rune;
@@ -1375,7 +1375,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
     FcCharSet *fccharset;
     int32 f, numspecs = 0;
 
-    for (int32 i = 0, xp = winx, yp = winy + font->ascent; i < len; ++i) {
+    for (int32 i = 0, xp = winx, yp = winy + font_local->ascent; i < len; ++i) {
         /* Fetch rune and mode for current glyph. */
         rune = glyphs[i].rune;
         mode = glyphs[i].mode;
@@ -1388,20 +1388,20 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
         /* Determine font for glyph if different from previous glyph. */
         if (prevmode != mode) {
             prevmode = mode;
-            font = &draw_context.font;
+            font_local = &draw_context.font;
             frcflags = FRC_NORMAL;
             runewidth = term_window.cw * ((mode & ATTR_WIDE) ? 2.0f : 1.0f);
             if ((mode & ATTR_ITALIC) && (mode & ATTR_BOLD)) {
-                font = &draw_context.ibfont;
+                font_local = &draw_context.ibfont;
                 frcflags = FRC_ITALICBOLD;
             } else if (mode & ATTR_ITALIC) {
-                font = &draw_context.ifont;
+                font_local = &draw_context.ifont;
                 frcflags = FRC_ITALIC;
             } else if (mode & ATTR_BOLD) {
-                font = &draw_context.bfont;
+                font_local = &draw_context.bfont;
                 frcflags = FRC_BOLD;
             }
-            yp = winy + font->ascent;
+            yp = winy + font_local->ascent;
         }
 
         if (mode & ATTR_BOXDRAW) {
@@ -1409,10 +1409,10 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
             glyphidx = boxdrawindex(&glyphs[i]);
         } else {
             /* Lookup character index with default font. */
-            glyphidx = XftCharIndex(x_window.dpy, font->match, rune);
+            glyphidx = XftCharIndex(x_window.dpy, font_local->match, rune);
         }
         if (glyphidx) {
-            specs[numspecs].font = font->match;
+            specs[numspecs].font = font_local->match;
             specs[numspecs].glyph = glyphidx;
             specs[numspecs].x = (int16)xp;
             specs[numspecs].y = (int16)yp;
@@ -1436,10 +1436,10 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
 
         /* Nothing was found. Use fontconfig to find matching font. */
         if (f >= frclen) {
-            if (!font->set) {
-                font->set = FcFontSort(0, font->pattern, 1, 0, &fcres);
+            if (!font_local->set) {
+                font_local->set = FcFontSort(0, font_local->pattern, 1, 0, &fcres);
             }
-            fcsets[0] = font->set;
+            fcsets[0] = font_local->set;
 
             /*
              * Nothing was found in the cache. Now use
@@ -1448,7 +1448,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
              *
              * Xft and fontconfig are design failures.
              */
-            fcpattern = FcPatternDuplicate(font->pattern);
+            fcpattern = FcPatternDuplicate(font_local->pattern);
             fccharset = FcCharSetCreate();
 
             FcCharSetAddChar(fccharset, rune);
