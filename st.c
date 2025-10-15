@@ -791,7 +791,7 @@ die(const char *errstr, ...) {
 
 void
 exec_shell(char *cmd, char **args) {
-    char *sh, *program, *arg;
+    char *shell, *program, *arg;
     const struct passwd *pw;
 
     errno = 0;
@@ -803,8 +803,8 @@ exec_shell(char *cmd, char **args) {
         }
     }
 
-    if ((sh = getenv("SHELL")) == NULL) {
-        sh = (pw->pw_shell[0]) ? pw->pw_shell : cmd;
+    if ((shell = getenv("SHELL")) == NULL) {
+        shell = (pw->pw_shell[0]) ? pw->pw_shell : cmd;
     }
 
     if (args) {
@@ -814,7 +814,7 @@ exec_shell(char *cmd, char **args) {
         program = CONF_UTMP;
         arg = NULL;
     } else {
-        program = sh;
+        program = shell;
         arg = NULL;
     }
     DEFAULT(args, ((char *[]){program, arg, NULL}));
@@ -824,7 +824,7 @@ exec_shell(char *cmd, char **args) {
     unsetenv("TERMCAP");
     setenv("LOGNAME", pw->pw_name, 1);
     setenv("USER", pw->pw_name, 1);
-    setenv("SHELL", sh, 1);
+    setenv("SHELL", shell, 1);
     setenv("HOME", pw->pw_dir, 1);
     setenv("TERM", CONF_TERM_NAME, 1);
 
