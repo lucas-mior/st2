@@ -555,28 +555,28 @@ handler_selection_notify(XEvent *e) {
          * FIXME: Fix the computer world.
          */
         repl = data;
-        last = data + nitems * format / 8;
-        while ((repl = memchr(repl, '\n', last - repl))) {
+        last = data + nitems * (size_t)format / 8;
+        while ((repl = memchr(repl, '\n', (size_t)(last - repl)))) {
             *repl++ = '\r';
         }
 
         if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && ofs == 0) {
             tty_write("\033[200~", 6, 0);
         }
-        tty_write((char *)data, nitems * format / 8, 1);
+        tty_write((char *)data, nitems * (size_t)format / 8, 1);
         if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && rem == 0) {
             tty_write("\033[201~", 6, 0);
         }
         XFree(data);
         /* number of 32-bit chunks returned */
-        ofs += nitems * format / 32;
+        ofs += nitems * (size_t)format / 32;
     } while (rem > 0);
 
     /*
      * Deleting the property again tells the selection owner to send the
      * next data chunk in the property.
      */
-    XDeleteProperty(x_window.dpy, x_window.win, (int)property);
+    XDeleteProperty(x_window.dpy, x_window.win, (ulong)property);
 }
 
 void
@@ -632,7 +632,7 @@ handler_selection_request(XEvent *e) {
         }
         if (seltext != NULL) {
             XChangeProperty(xsre->display, xsre->requestor, xsre->property, xsre->target, 8,
-                            PropModeReplace, (uchar *)seltext, strlen(seltext));
+                            PropModeReplace, (uchar *)seltext, (int)strlen(seltext));
             xev.property = xsre->property;
         }
     }
@@ -665,7 +665,7 @@ x_set_sel(char *str) {
 
 void
 handler_button_release(XEvent *e) {
-    int btn = e->xbutton.button;
+    int btn = (int)e->xbutton.button;
 
     if (1 <= btn && btn <= 11) {
         buttons &= ~(1 << (btn - 1));
