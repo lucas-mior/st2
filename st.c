@@ -1053,7 +1053,7 @@ tty_write_raw(const char *s, int64 n) {
             if ((r = write(cmdfd, s, size)) < 0) {
                 goto write_error;
             }
-            if (r < (int64)n) {
+            if (r < n) {
                 /*
                  * We weren't able to write out everything.
                  * This means the buffer is getting full
@@ -1062,8 +1062,8 @@ tty_write_raw(const char *s, int64 n) {
                 if (n < lim) {
                     lim = tty_read();
                 }
-                n -= (int64)r;
-                s += (int64)r;
+                n -= r;
+                s += r;
             } else {
                 /* All bytes have been written. */
                 break;
