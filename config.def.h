@@ -215,7 +215,7 @@ static uint32 CURSOR_SHAPE = 2;
  * Default columns and number_rows numbers
  */
 
-static int32 number_cols = 80;
+static int32 NUMBER_COLS = 80;
 static int32 number_rows = 24;
 
 /*
