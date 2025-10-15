@@ -117,7 +117,7 @@ index 2478942..2b86d23 100644
  static void selsnap(int *, int *, int);
  
  static size_t utf8decode(const char *, Rune *, size_t);
-@@ -412,17 +446,46 @@ selinit(void)
+@@ -412,17 +446,46 @@ sel_init(void)
  }
  
  int
