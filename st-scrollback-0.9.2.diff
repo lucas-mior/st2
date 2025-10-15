@@ -128,7 +128,7 @@ index b9f66e7..2478942 100644
  			--last;
  
 @@ -844,6 +851,9 @@ void
- ttywrite(const char *s, size_t n, int may_echo)
+ tty_write(const char *s, size_t n, int may_echo)
  {
  	const char *next;
 +	Arg arg = (Arg) { .i = term.scr };
