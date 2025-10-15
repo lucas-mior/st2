@@ -330,7 +330,7 @@ xstrdup(const char *s)
 size_t
 utf8_decode(const char *c, Rune *u, size_t clen)
 {
-	size_t i, j, len, type;
+	size_t len, type;
 	Rune udecoded;
 
 	*u = UTF_INVALID;
@@ -339,13 +339,16 @@ utf8_decode(const char *c, Rune *u, size_t clen)
 	udecoded = utf8_decode_byte(c[0], &len);
 	if (!BETWEEN(len, 1, UTF_SIZ))
 		return 1;
-	for (i = 1, j = 1; i < clen && j < len; ++i, ++j) {
-		udecoded = (udecoded << 6) | utf8_decode_byte(c[i], &type);
-		if (type != 0)
-			return j;
+	{
+		size_t j = 1;
+		for (size_t i = 1; i < clen && j < len; ++i, ++j) {
+			udecoded = (udecoded << 6) | utf8_decode_byte(c[i], &type);
+			if (type != 0)
+				return j;
+		}
+		if (j < len)
+			return 0;
 	}
-	if (j < len)
-		return 0;
 	*u = udecoded;
 	utf8_validate(u, len);
 
