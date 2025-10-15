@@ -1,0 +1,11 @@
+- NET ICON
+- anysize
+- selectioncolors
+- bold is not bright
+- delkey
+- externalpipe-eternal
+- externalpipe
+- ~~font2~~
+- ~~alpha~~
+- ~~scrollback~~
+- ~~boxdraw~~
