@@ -850,7 +850,7 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
 
 void
 x_hints(void) {
-    XClassHint class = {opt_name ? opt_name : termname, opt_class ? opt_class : termname};
+    XClassHint class = {opt_name ? opt_name : TERM_NAME, opt_class ? opt_class : TERM_NAME};
     XWMHints wm = {.flags = InputHint, .input = 1};
     XSizeHints *sizeh;
 
