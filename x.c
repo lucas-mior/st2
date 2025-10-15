@@ -126,7 +126,7 @@ static int32 x_load_color(int32, const char *, Color *);
 static int32 x_load_font(Font *, FcPattern *);
 static void x_load_fonts(const char *, float);
 static int32 xloadsparefont(FcPattern *, int32);
-static void xloadsparefonts(void);
+static void x_load_spare_fonts(void);
 static void x_unload_font(Font *);
 static void x_unload_fonts(void);
 static void x_setenv(void);
@@ -285,7 +285,7 @@ void
 zoom_abs(const Arg *arg) {
     x_unload_fonts();
     x_load_fonts(usedfont, arg->f);
-    xloadsparefonts();
+    x_load_spare_fonts();
     cresize(0, 0);
     redraw();
     x_hints();
@@ -1062,7 +1062,7 @@ xloadsparefont(FcPattern *pattern, int32 flags) {
 }
 
 void
-xloadsparefonts(void) {
+x_load_spare_fonts(void) {
     FcPattern *pattern;
     double sizeshift, fontval;
     int32 fc;
@@ -1248,7 +1248,7 @@ x_init(int32 number_cols, int32 number_rows) {
     x_load_fonts(usedfont, 0);
 
     /* spare fonts */
-    xloadsparefonts();
+    x_load_spare_fonts();
 
     /* colors */
     x_window.cmap = XCreateColormap(x_window.dpy, parent, x_window.vis, None);
