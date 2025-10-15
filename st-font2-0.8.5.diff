@@ -19,7 +19,7 @@ diff --git a/x.c b/x.c
 index 8a16faa..220fc4f 100644
 --- a/x.c
 +++ b/x.c
-@@ -157,6 +157,8 @@ static void xhints(void);
+@@ -157,6 +157,8 @@ static void x_hints(void);
  static int xloadcolor(int, const char *, Color *);
  static int xloadfont(Font *, FcPattern *);
  static void xloadfonts(const char *, double);
@@ -35,7 +35,7 @@ index 8a16faa..220fc4f 100644
 +	xloadsparefonts();
  	cresize(0, 0);
  	redraw();
- 	xhints();
+ 	x_hints();
 @@ -1034,6 +1037,101 @@ xloadfonts(const char *fontstr, double fontsize)
  	FcPatternDestroy(pattern);
  }
