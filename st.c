@@ -2842,7 +2842,7 @@ void
 term_putc(Rune u) {
     char c[UTF_SIZ];
     int control;
-    int width;
+    int width = 0;
     int len;
     Glyph *gp;
 
@@ -2851,7 +2851,7 @@ term_putc(Rune u) {
         c[0] = (char)u;
         width = len = 1;
     } else {
-        len = utf8_encode(u, c);
+        len = (int)utf8_encode(u, c);
         if (!control && (width = wcwidth((wchar_t)u)) == -1) {
             width = 1;
         }
@@ -2921,7 +2921,7 @@ check_control_code:
         return;
     } else if (term.esc & ESC_START) {
         if (term.esc & ESC_CSI) {
-            csiescseq.buf[csiescseq.len++] = u;
+            csiescseq.buf[csiescseq.len++] = (char)u;
             if (BETWEEN(u, 0x40, 0x7E) || csiescseq.len >= sizeof(csiescseq.buf) - 1) {
                 term.esc = 0;
                 control_seq_intro_parse();
@@ -2929,13 +2929,13 @@ check_control_code:
             }
             return;
         } else if (term.esc & ESC_UTF8) {
-            term_def_utf8(u);
+            term_def_utf8((char)u);
         } else if (term.esc & ESC_ALTCHARSET) {
-            term_def_tran(u);
+            term_def_tran((char)u);
         } else if (term.esc & ESC_TEST) {
-            term_dec_test(u);
+            term_dec_test((char)u);
         } else {
-            if (!eschandle(u)) {
+            if (!eschandle((uchar)u)) {
                 return;
             }
             /* sequence already finished */
@@ -2961,7 +2961,7 @@ check_control_code:
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_INSERT) && term.cursor.x + width < term.col) {
-        memmove(gp + width, gp, (term.col - term.cursor.x - width) * sizeof(Glyph));
+        memmove(gp + width, gp, (size_t)(term.col - term.cursor.x - width) * sizeof(Glyph));
         gp->mode &= ~ATTR_WIDE;
     }
 
@@ -3006,7 +3006,7 @@ term_write(const char *buf, int buflen, int show_ctrl) {
     for (n = 0; n < buflen; n += charsize) {
         if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
             /* process a complete utf8 char */
-            charsize = utf8_decode(buf + n, &u, buflen - n);
+            charsize = (int)utf8_decode(buf + n, &u, (size_t)(buflen - n));
             if (charsize == 0) {
                 break;
             }
@@ -3076,11 +3076,11 @@ term_resize(int col, int row) {
             return;
     } */
 
-    term.dirty = xrealloc(term.dirty, row * sizeof(*term.dirty));
-    term.tabs = xrealloc(term.tabs, col * sizeof(*term.tabs));
+    term.dirty = xrealloc(term.dirty, (size_t)row * sizeof(*term.dirty));
+    term.tabs = xrealloc(term.tabs, (size_t)col * sizeof(*term.tabs));
     if (col > term.col) {
         bp = term.tabs + term.col;
-        memset(bp, 0, sizeof(*term.tabs) * (col - term.col));
+        memset(bp, 0, sizeof(*term.tabs) * (size_t)(col - term.col));
         while (--bp > term.tabs && !*bp)
             /* nothing */;
         for (bp += tabspaces; bp < term.tabs + col; bp += tabspaces) {
@@ -3119,10 +3119,10 @@ term_resize_def(int col, int row) {
         }
 
         /* handler_configure_notify to new height */
-        term.line = xrealloc(term.line, row * sizeof(Line));
+        term.line = xrealloc(term.line, (size_t)row * sizeof(Line));
         /* allocate any new number_rows */
         for (int i = term.row; i < row; i++) {
-            term.line[i] = xmalloc(col * sizeof(Glyph));
+            term.line[i] = xmalloc((size_t)col * sizeof(Glyph));
             for (int j = 0; j < col; j++) {
                 term_clear_glyph(&term.line[i][j], 0);
             }
@@ -3131,9 +3131,11 @@ term_resize_def(int col, int row) {
         rscrolldown(row - term.row);
     }
     /* update terminal size */
-    term.col = col, term.row = row;
+    term.col = col;
+    term.row = row;
     /* reset scrolling region */
-    term.top = 0, term.bot = row - 1;
+    term.top = 0;
+    term.bot = row - 1;
     /* dirty all lines */
     term_full_dirt();
     return;
@@ -3157,17 +3159,17 @@ term_resize_alt(int col, int row) {
     }
     if (i > 0) {
         /* ensure that both src and dst are not NULL */
-        memmove(term.line, term.line + i, row * sizeof(Line));
+        memmove(term.line, term.line + i, (size_t)row * sizeof(Line));
         term.cursor.y = row - 1;
     }
     for (i += row; i < term.row; i++) {
         free(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    term.line = xrealloc(term.line, row * sizeof(Line));
+    term.line = xrealloc(term.line, (size_t)row * sizeof(Line));
     /* handler_configure_notify to new width */
     for (i = 0; i < MIN(row, term.row); i++) {
-        term.line[i] = xrealloc(term.line[i], col * sizeof(Glyph));
+        term.line[i] = xrealloc(term.line[i], (size_t)col * sizeof(Glyph));
         for (int j = term.col; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
