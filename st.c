@@ -2993,7 +2993,7 @@ tresizedef(int col, int row)
 void
 tresizealt(int col, int row)
 {
-    int i, j;
+    int i;
 
     /* return if dimensions haven't changed */
     if (term.col == col && term.row == row) {
@@ -3017,13 +3017,13 @@ tresizealt(int col, int row)
     /* handler_configure_notify to new width */
     for (i = 0; i < MIN(row, term.row); i++) {
         term.line[i] = xrealloc(term.line[i], col * sizeof(Glyph));
-        for (j = term.col; j < col; j++)
+        for (int j = term.col; j < col; j++)
             tclearglyph(&term.line[i][j], 0);
     }
     /* allocate any new number_rows */
     for (/*i = MIN(row, term.row) */; i < row; i++) {
         term.line[i] = xmalloc(col * sizeof(Glyph));
-        for (j = 0; j < col; j++)
+        for (int j = 0; j < col; j++)
             tclearglyph(&term.line[i][j], 0);
     }
     /* update cursor */
@@ -3048,7 +3048,7 @@ tresizealt(int col, int row)
 void
 treflow(int col, int row)
 {
-    int i, j;
+    int i;
     int oce, nce, bot, scr;
     int ox = 0, oy = -term.histf, nx = 0, ny = -1, len;
     int cy = -1; /* proxy for new y coordinate of cursor */
@@ -3062,7 +3062,7 @@ treflow(int col, int row)
     nlines = term.histf + oce + 1;
     if (col < term.col) {
         /* each line can take this many lines after reflow */
-        j = (term.col + col - 1) / col;
+        int j = (term.col + col - 1) / col;
         nlines = j * nlines;
         if (nlines > HISTSIZE + RESIZEBUFFER + row) {
             nlines = HISTSIZE + RESIZEBUFFER + row;
@@ -3091,7 +3091,7 @@ treflow(int col, int row)
             memcpy(&buf[ny][nx], &line[ox], (len-ox) * sizeof(Glyph));
             nx += len - ox;
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
-                for (j = nx; j < col; j++)
+                for (int j = nx; j < col; j++)
                     tclearglyph(&buf[ny][j], 0);
                 nx = 0;
             } else if (nx > 0) {
@@ -3109,7 +3109,7 @@ treflow(int col, int row)
         }
     } while (oy <= oce);
     if (nx)
-        for (j = nx; j < col; j++)
+        for (int j = nx; j < col; j++)
             tclearglyph(&buf[ny][j], 0);
 
     /* free extra lines */
@@ -3125,7 +3125,8 @@ treflow(int col, int row)
     /* update cursor y coordinate */
     term.cursor.y = nce - (ny - cy);
     if (term.cursor.y < 0) {
-        j = nce, nce = MIN(nce + -term.cursor.y, bot);
+        int j = nce;
+		nce = MIN(nce + -term.cursor.y, bot);
         term.cursor.y += nce - j;
         while (term.cursor.y < 0) {
             free(buf[ny--]);
@@ -3135,7 +3136,7 @@ treflow(int col, int row)
     /* allocate new number_rows */
     for (i = row - 1; i > nce; i--) {
         term.line[i] = xmalloc(col * sizeof(Glyph));
-        for (j = 0; j < col; j++)
+        for (int j = 0; j < col; j++)
             tclearglyph(&term.line[i][j], 0);
     }
     /* fill visible area */
@@ -3147,7 +3148,7 @@ treflow(int col, int row)
     }
     /* fill lines in history buffer and update term.histf */
     for (/*i = -1 */; ny >= 0 && i >= -HISTSIZE; i--, ny--) {
-        j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
+        int j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
         free(term.hist[j]);
         term.hist[j] = buf[ny];
     }
@@ -3155,7 +3156,7 @@ treflow(int col, int row)
     term.scr = MIN(term.scr, term.histf);
     /* handler_configure_notify rest of the history lines */
     for (/*i = -term.histf - 1 */; i >= -HISTSIZE; i--) {
-        j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
+        int j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
         term.hist[j] = xrealloc(term.hist[j], col * sizeof(Glyph));
     }
     free(buf);
