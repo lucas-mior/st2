@@ -964,12 +964,12 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
 int64
 tty_read(void) {
     static char buffer[BUFSIZ];
-    static int32 buflen = 0;
+    static int32 copied = 0;
     int32 ret;
     int32 written;
 
     /* append read bytes to unprocessed bytes */
-    ret = (int32)read(cmdfd, buffer + buflen, (size_t)(LENGTH(buffer) - buflen));
+    ret = (int32)read(cmdfd, buffer + copied, (size_t)(LENGTH(buffer) - copied));
 
     switch (ret) {
     case 0:
@@ -977,12 +977,12 @@ tty_read(void) {
     case -1:
         die("couldn't read from CONF_SHELl: %s\n", strerror(errno));
     default:
-        buflen += ret;
-        written = term_write(buffer, buflen, 0);
-        buflen -= written;
+        copied += ret;
+        written = term_write(buffer, copied, 0);
+        copied -= written;
         /* keep any incomplete UTF-8 byte sequence for the next call */
-        if (buflen > 0) {
-            memmove(buffer, buffer + written, (size_t)buflen);
+        if (copied > 0) {
+            memmove(buffer, buffer + written, (size_t)copied);
         }
         return (int64)ret;
     }
