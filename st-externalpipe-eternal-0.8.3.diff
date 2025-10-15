@@ -52,7 +52,7 @@ index d4c88a2..2716f44 100644
  	newline = 0;
 -	for (n = 0; n < term.row; n++) {
 -		bp = term.line[n];
--		lastpos = MIN(term_line_len(n) + 1, term.col) - 1;
+-		lastpos = MIN(term_line_len(TLINE(n)) + 1, term.col) - 1;
 +	for (n = 0; n <= HISTSIZE + 2; n++) {
 +		bp = TLINE_HIST(n);
 +		lastpos = MIN(tlinehistlen(n) + 1, term.col) - 1;
