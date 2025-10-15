@@ -58,7 +58,7 @@ static const uint32 DOUBLE_CLICK_TIMEOUT = 300;
 static const uint32 TRIPLE_CLICK_TIMEOUT = 600;
 
 /* alt screens */
-int32 allowaltscreen = 1;
+int32 ALLOW_ALT_SCREEN = 1;
 
 /* allow certain non-interactive (insecure) window operations such as:
    setting the clipboard text */

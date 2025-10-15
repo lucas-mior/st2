@@ -162,7 +162,7 @@ extern char *scroll;
 extern char *stty_args;
 extern char *vtiden;
 extern wchar_t *WORD_DELIMITERS;
-extern int32 allowaltscreen;
+extern int32 ALLOW_ALT_SCREEN;
 extern int32 allowwindowops;
 extern char *termname;
 extern int32 tabspaces;
