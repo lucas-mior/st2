@@ -1268,7 +1268,7 @@ user_scroll_up(const Arg* a)
 void
 term_scroll_down(int top, int n)
 {
-    int i, bot = term.bot;
+    int bot = term.bot;
     Line temp;
 
     if (n <= 0)
@@ -1278,7 +1278,7 @@ term_scroll_down(int top, int n)
     term_set_dirt(top, bot-n);
     term_clear_region(0, bot-n+1, term.col-1, bot, 1);
 
-    for (i = bot; i >= top+n; i--) {
+    for (int i = bot; i >= top+n; i--) {
         temp = term.line[i];
         term.line[i] = term.line[i-n];
         term.line[i-n] = temp;
