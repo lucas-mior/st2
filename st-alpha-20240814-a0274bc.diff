@@ -38,20 +38,20 @@ index d73152b..f32fd6c 100644
  				die("could not allocate color %d\n", i);
  		}
 +
-+	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
-+	dc.col[defaultbg].pixel &= 0x00FFFFFF;
-+	dc.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
++	draw_context.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
++	draw_context.col[defaultbg].pixel &= 0x00FFFFFF;
++	draw_context.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
  	loaded = 1;
  }
  
 @@ -842,6 +847,12 @@ xsetcolorname(int x, const char *name)
- 	XftColorFree(xw.dpy, xw.vis, xw.cmap, &dc.col[x]);
- 	dc.col[x] = ncolor;
+ 	XftColorFree(xw.dpy, xw.vis, xw.cmap, &draw_context.col[x]);
+ 	draw_context.col[x] = ncolor;
  
 +	if (x == defaultbg) {
-+		dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
-+		dc.col[defaultbg].pixel &= 0x00FFFFFF;
-+		dc.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
++		draw_context.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
++		draw_context.col[defaultbg].pixel &= 0x00FFFFFF;
++		draw_context.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
 +	}
 +
  	return 0;
@@ -108,13 +108,13 @@ index d73152b..f32fd6c 100644
  			| CWEventMask | CWColormap, &xw.attrs);
  	if (parent != root)
 @@ -1183,7 +1205,7 @@ xinit(int number_cols, int rows)
- 	dc.gc = XCreateGC(xw.dpy, xw.win, GCGraphicsExposures,
+ 	draw_context.gc = XCreateGC(xw.dpy, xw.win, GCGraphicsExposures,
  			&gcvalues);
  	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
 -			DefaultDepth(xw.dpy, xw.scr));
 +			xw.depth);
- 	XSetForeground(xw.dpy, dc.gc, dc.col[defaultbg].pixel);
- 	XFillRectangle(xw.dpy, xw.buf, dc.gc, 0, 0, win.w, win.h);
+ 	XSetForeground(xw.dpy, draw_context.gc, draw_context.col[defaultbg].pixel);
+ 	XFillRectangle(xw.dpy, xw.buf, draw_context.gc, 0, 0, win.w, win.h);
  
 @@ -2047,6 +2069,10 @@ main(int argc, char *argv[])
  	case 'a':
