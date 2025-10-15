@@ -46,7 +46,7 @@
 #define TERM_MODE_IS_SET(flag) ((term.mode & (flag)) != 0)
 #define IS_CONTROL_C0(c) (BETWEEN(c, 0, 0x1f) || (c) == 0x7f)
 #define IS_CONTROL_C1(c) (BETWEEN(c, 0x80, 0x9f))
-#define ISCONTROL(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
+#define IS_CONTROl(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
 #define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
 #define TERM_LINE(y)                                                                               \
     ((y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTORY_SIZE) % HISTORY_SIZE]   \
@@ -2848,7 +2848,7 @@ term_putc(Rune u) {
     int32 len;
     Glyph *gp;
 
-    control = ISCONTROL(u);
+    control = IS_CONTROl(u);
     if (u < 127 || !TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
         c[0] = (char)u;
         width = len = 1;
@@ -3016,7 +3016,7 @@ term_write(const char *buffer, int32 buflen, int32 show_ctrl) {
             u = buffer[n] & 0xFF;
             charsize = 1;
         }
-        if (show_ctrl && ISCONTROL(u)) {
+        if (show_ctrl && IS_CONTROl(u)) {
             if (u & 0x80) {
                 u &= 0x7f;
                 term_putc('^');
