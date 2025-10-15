@@ -368,13 +368,13 @@ utf8_decode_byte(char c, size_t *i)
 size_t
 utf8_encode(Rune u, char *c)
 {
-	size_t len, i;
+	size_t len;
 
 	len = utf8_validate(&u, 0);
 	if (len > UTF_SIZ)
 		return 0;
 
-	for (i = len - 1; i != 0; --i) {
+	for (size_t i = len - 1; i != 0; --i) {
 		c[i] = utf8_encode_byte(u, 0);
 		u >>= 6;
 	}
