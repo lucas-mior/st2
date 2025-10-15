@@ -39,7 +39,7 @@
 #define ESC_ARG_SIZ 16
 #define STR_BUF_SIZ ESC_BUF_SIZ
 #define STR_ARG_SIZ ESC_ARG_SIZ
-#define HISTSIZE 2000
+#define HISTORY_SIZE 2000
 #define RESIZEBUFFER 1000
 
 /* macros */
@@ -49,13 +49,14 @@
 #define ISCONTROL(c) (ISCONTROLC0(c) || ISCONTROLC1(c))
 #define ISDELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
 #define TLINE(y)                                                                                   \
-    ((y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTSIZE) % HISTSIZE]           \
+    ((y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTORY_SIZE) % HISTORY_SIZE]   \
                     : term.line[(y) - term.scr])
 
 #define TLINEABS(y)                                                                                \
-    ((y) < 0 ? term.hist[(term.histi + (y) + 1 + HISTSIZE) % HISTSIZE] : term.line[(y)])
+    ((y) < 0 ? term.hist[(term.histi + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] : term.line[(y)])
 #define TLINE_HIST(y)                                                                              \
-    ((y) <= HISTSIZE - term.row + 2 ? term.hist[(y)] : term.line[(y - HISTSIZE + term.row - 3)])
+    ((y) <= HISTORY_SIZE - term.row + 2 ? term.hist[(y)]                                           \
+                                        : term.line[(y - HISTORY_SIZE + term.row - 3)])
 
 #define UPDATE_WRAP_NEXT(alt, col)                                                                 \
     do {                                                                                           \
@@ -140,25 +141,25 @@ typedef struct {
 
 /* Internal representation of the screen */
 typedef struct {
-    int32 row;           /* nb row */
-    int32 col;           /* nb col */
-    Line *line;          /* screen */
-    Line hist[HISTSIZE]; /* history buffer */
-    int32 histi;         /* history index */
-    int32 histf;         /* nb history available */
-    int32 scr;           /* scroll back */
-    int32 wrapcwidth[2]; /* used in updating WRAPNEXT when resizing */
-    int32 *dirty;        /* dirtyness of lines */
-    TCursor cursor;      /* cursor */
-    int32 ocx;           /* old cursor col */
-    int32 ocy;           /* old cursor row */
-    int32 top;           /* top    scroll limit */
-    int32 bot;           /* bottom scroll limit */
-    int32 mode;          /* terminal mode flags */
-    int32 esc;           /* escape state flags */
-    char trantbl[4];     /* charset table translation */
-    int32 charset;       /* current charset */
-    int32 icharset;      /* selected charset for sequence */
+    int32 row;               /* nb row */
+    int32 col;               /* nb col */
+    Line *line;              /* screen */
+    Line hist[HISTORY_SIZE]; /* history buffer */
+    int32 histi;             /* history index */
+    int32 histf;             /* nb history available */
+    int32 scr;               /* scroll back */
+    int32 wrapcwidth[2];     /* used in updating WRAPNEXT when resizing */
+    int32 *dirty;            /* dirtyness of lines */
+    TCursor cursor;          /* cursor */
+    int32 ocx;               /* old cursor col */
+    int32 ocy;               /* old cursor row */
+    int32 top;               /* top    scroll limit */
+    int32 bot;               /* bottom scroll limit */
+    int32 mode;              /* terminal mode flags */
+    int32 esc;               /* escape state flags */
+    char trantbl[4];         /* charset table translation */
+    int32 charset;           /* current charset */
+    int32 icharset;          /* selected charset for sequence */
     int32 *tabs;
     Rune lastc; /* last printed char outside of sequence, 0 if control */
 } Term;
@@ -1218,7 +1219,7 @@ term_new(int32 col, int32 row) {
     }
     term.dirty = xmalloc((int64)row*SIZEOF(*term.dirty));
     term.tabs = xmalloc((int64)col*SIZEOF(*term.tabs));
-    for (int32 i = 0; i < HISTSIZE; i++) {
+    for (int32 i = 0; i < HISTORY_SIZE; i++) {
         term.hist[i] = xmalloc((int64)col*SIZEOF(Glyph));
     }
     term_reset();
@@ -1381,7 +1382,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
 
     if (savehist) {
         for (int32 i = 0; i < n; i++) {
-            term.histi = (term.histi + 1) % HISTSIZE;
+            term.histi = (term.histi + 1) % HISTORY_SIZE;
             temp = term.hist[term.histi];
             for (int32 j = 0; j < term.col; j++) {
                 term_clear_glyph(&temp[j], 1);
@@ -1389,11 +1390,11 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
             term.hist[term.histi] = term.line[i];
             term.line[i] = temp;
         }
-        term.histf = MIN(term.histf + n, HISTSIZE);
+        term.histf = MIN(term.histf + n, HISTORY_SIZE);
         s = n;
         if (term.scr) {
             int32 j = term.scr;
-            term.scr = MIN(j + n, HISTSIZE);
+            term.scr = MIN(j + n, HISTORY_SIZE);
             s = j + n - term.scr;
         }
         if (mode != SCROLL_RESIZE) {
@@ -2438,7 +2439,7 @@ externalpipe(const Arg *arg) {
     /* ignore sigpipe for now, in case child exists early */
     oldsigpipe = signal(SIGPIPE, SIG_IGN);
     newline = 0;
-    for (int32 n = 0; n <= HISTSIZE + 2; n++) {
+    for (int32 n = 0; n <= HISTORY_SIZE + 2; n++) {
         bp = TLINE_HIST(n);
         lastpos = MIN(tlinehistlen(n) + 1, term.col) - 1;
         if (lastpos < 0) {
@@ -3052,7 +3053,7 @@ reflow_scroll_down(int32 n) {
         temp = term.line[i];
         term.line[i] = term.hist[term.histi];
         term.hist[term.histi] = temp;
-        term.histi = (term.histi - 1 + HISTSIZE) % HISTSIZE;
+        term.histi = (term.histi - 1 + HISTORY_SIZE) % HISTORY_SIZE;
     }
     term.cursor.y += n;
     term.histf -= n;
@@ -3223,8 +3224,8 @@ term_reflow(int32 col, int32 row) {
         /* each line can take this many lines after reflow */
         int32 j = (term.col + col - 1) / col;
         nlines = j*nlines;
-        if (nlines > HISTSIZE + RESIZEBUFFER + row) {
-            nlines = HISTSIZE + RESIZEBUFFER + row;
+        if (nlines > HISTORY_SIZE + RESIZEBUFFER + row) {
+            nlines = HISTORY_SIZE + RESIZEBUFFER + row;
             oy = -(nlines / j - oce - 1);
         }
     }
@@ -3320,8 +3321,8 @@ term_reflow(int32 col, int32 row) {
     /* fill lines in history buffer and update term.histf */
     {
         int32 k;
-        for (k = -1; ny >= 0 && k >= -HISTSIZE; k--, ny--) {
-            int32 j = (term.histi + k + 1 + HISTSIZE) % HISTSIZE;
+        for (k = -1; ny >= 0 && k >= -HISTORY_SIZE; k--, ny--) {
+            int32 j = (term.histi + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
             free(term.hist[j]);
             term.hist[j] = buffer[ny];
         }
@@ -3329,8 +3330,8 @@ term_reflow(int32 col, int32 row) {
     }
     term.scr = MIN(term.scr, term.histf);
     /* handler_configure_notify rest of the history lines */
-    for (int32 k = -term.histf - 1; k >= -HISTSIZE; k--) {
-        int32 j = (term.histi + k + 1 + HISTSIZE) % HISTSIZE;
+    for (int32 k = -term.histf - 1; k >= -HISTORY_SIZE; k--) {
+        int32 j = (term.histi + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
         term.hist[j] = xrealloc(term.hist[j], (int64)col*SIZEOF(Glyph));
     }
     free(buffer);
