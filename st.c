@@ -649,7 +649,8 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
     int32 newy;
     int32 xt;
     int32 yt;
-    int32 rtop = 0, rbot = term.row - 1;
+    int32 rtop = 0;
+    int32 rbot = term.row - 1;
     int32 delim;
     int32 prevdelim;
     const Glyph *gp, *prevgp;
