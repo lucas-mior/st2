@@ -264,7 +264,7 @@ static int64 utf8_validate(Rune *, int64);
 static char *base64_decode(const char *);
 static char base64_decode_getc(const char **);
 
-static ssize_t xwrite(int32, const char *, int64);
+static int64 xwrite(int32, const char *, int64);
 
 /* Globals */
 static Term term;
@@ -280,10 +280,10 @@ static const uchar utfmask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
 static const Rune utfmin[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
 static const Rune utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
-ssize_t
+int64
 xwrite(int32 fd, const char *s, int64 len) {
-    ssize_t r;
-    ssize_t left = (ssize_t)len;
+    int64 r;
+    int64 left = (int64)len;
 
     while (left > 0) {
         r = write(fd, s, len);
@@ -294,7 +294,7 @@ xwrite(int32 fd, const char *s, int64 len) {
         s += r;
     }
 
-    return (ssize_t)len;
+    return (int64)len;
 }
 
 void *
@@ -1035,7 +1035,7 @@ void
 tty_write_raw(const char *s, int64 n) {
     fd_set wfd;
     fd_set rfd;
-    ssize_t r;
+    int64 r;
     int64 lim = 256;
 
     /*
@@ -1066,7 +1066,7 @@ tty_write_raw(const char *s, int64 n) {
             if ((r = write(cmdfd, s, (n < lim) ? n : lim)) < 0) {
                 goto write_error;
             }
-            if (r < (ssize_t)n) {
+            if (r < (int64)n) {
                 /*
                  * We weren't able to write out everything.
                  * This means the buffer is getting full
