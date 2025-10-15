@@ -6,7 +6,7 @@ index 2cd740a..40b7d93 100644
  	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
  	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
  	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
-+	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} },
++	{ ShiftMask,            XK_Page_Up,     user_scroll_up,      {.i = -1} },
 +    { ShiftMask,            XK_Page_Down,   user_scroll_down,    {.i = -1} },
  };
  
@@ -160,7 +160,7 @@ index b9f66e7..2478942 100644
 +}
 +
 +void
-+kscrollup(const Arg* a)
++user_scroll_up(const Arg* a)
 +{
 +	int n = a->i;
 +
@@ -345,7 +345,7 @@ index fd3b0d8..818a6f8 100644
  void draw(void);
  
 +void user_scroll_down(const Arg *);
-+void kscrollup(const Arg *);
++void user_scroll_up(const Arg *);
  void printscreen(const Arg *);
  void printsel(const Arg *);
  void sendbreak(const Arg *);

@@ -589,7 +589,7 @@ index 2478942..2b86d23 100644
 +
 +
  void
--kscrollup(const Arg* a)
+-user_scroll_up(const Arg* a)
 +user_scroll_down(const Arg* a)
  {
 -	int n = a->i;
@@ -623,7 +623,7 @@ index 2478942..2b86d23 100644
 +
  void
 -tscrolldown(int orig, int n, int copyhist)
-+kscrollup(const Arg* a)
++user_scroll_up(const Arg* a)
  {
 -	int i;
 -	Line temp;
