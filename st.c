@@ -1291,7 +1291,7 @@ term_scroll_down(int top, int n)
 void
 term_scroll_up(int top, int bot, int n, int mode)
 {
-    int i, j, s;
+    int s;
     int alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
     int savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
     Line temp;
@@ -1301,10 +1301,10 @@ term_scroll_up(int top, int bot, int n, int mode)
     n = MIN(n, bot-top+1);
 
     if (savehist) {
-        for (i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             term.histi = (term.histi + 1) % HISTSIZE;
             temp = term.hist[term.histi];
-            for (j = 0; j < term.col; j++)
+            for (int j = 0; j < term.col; j++)
                 tclearglyph(&temp[j], 1);
             term.hist[term.histi] = term.line[i];
             term.line[i] = temp;
@@ -1312,7 +1312,7 @@ term_scroll_up(int top, int bot, int n, int mode)
         term.histf = MIN(term.histf + n, HISTSIZE);
         s = n;
         if (term.scr) {
-            j = term.scr;
+            int j = term.scr;
             term.scr = MIN(j + n, HISTSIZE);
             s = j + n - term.scr;
         }
@@ -1323,7 +1323,7 @@ term_scroll_up(int top, int bot, int n, int mode)
         term_set_dirt(top+n, bot);
     }
 
-    for (i = top; i <= bot-n; i++) {
+    for (int i = top; i <= bot-n; i++) {
         temp = term.line[i];
         term.line[i] = term.line[i+n];
         term.line[i+n] = temp;
