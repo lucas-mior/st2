@@ -136,7 +136,7 @@ index b9f66e7..2478942 100644
 +	user_scroll_down(&arg);
  
  	if (may_echo && IS_SET(TERM_MODE_ECHO))
- 		twrite(s, n, 1);
+ 		term_write(s, n, 1);
 @@ -1055,13 +1065,53 @@ term_swap_screen(void)
  }
  
@@ -291,7 +291,7 @@ index b9f66e7..2478942 100644
  		} else {
  			term_move_to(term.c.x, term.c.y-1);
  		}
-@@ -2542,7 +2604,7 @@ twrite(const char *buf, int buflen, int show_ctrl)
+@@ -2542,7 +2604,7 @@ term_write(const char *buf, int buflen, int show_ctrl)
  void
  term_resize(int col, int row)
  {

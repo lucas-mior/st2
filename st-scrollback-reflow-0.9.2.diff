@@ -103,7 +103,7 @@ index 2478942..2b86d23 100644
 +static void tloaddefscreen(int, int);
 +static void tloadaltscreen(int, int);
  static void term_set_mode(int, int, const int *, int);
- static int twrite(const char *, int, int);
+ static int term_write(const char *, int, int);
  static void term_full_dirt(void);
 @@ -212,7 +243,10 @@ static void term_str_sequence(uchar);
  static void draw_region(int, int, int, int);
@@ -425,7 +425,7 @@ index 2478942..2b86d23 100644
 +    user_scroll_down(&((Arg){ .i = term.scr }));
  
  	if (may_echo && IS_SET(TERM_MODE_ECHO))
- 		twrite(s, n, 1);
+ 		term_write(s, n, 1);
 @@ -990,7 +1058,7 @@ term_set_dirt_attr(int attr)
  	for (i = 0; i < term.row-1; i++) {
  		for (j = 0; j < term.col-1; j++) {
@@ -1212,7 +1212,7 @@ index 2478942..2b86d23 100644
  		term.c.state |= CURSOR_WRAPNEXT;
  	}
  }
-@@ -2601,94 +2781,285 @@ twrite(const char *buf, int buflen, int show_ctrl)
+@@ -2601,94 +2781,285 @@ term_write(const char *buf, int buflen, int show_ctrl)
  	return n;
  }
  
