@@ -1834,7 +1834,7 @@ term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
     for (const int32 *lim = args + narg; args < lim; ++args) {
         if (priv) {
             switch (*args) {
-            case 1: /* DECCKM -- Cursor key */
+            case 1: /* DECCKM -- Cursor CONF_KEYS */
                 x_set_mode(set, WIN_MODE_APPCURSOR);
                 break;
             case 5: /* DECSCNM -- Reverse video */

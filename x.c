@@ -398,7 +398,8 @@ mousereport(XEvent *e) {
     }
 
     if (!TERM_WINDOW_IS_SET(WIN_MODE_MOUSEX10)) {
-        code += ((state & ShiftMask) ? 4 : 0) + ((state & Mod1Mask) ? 8 : 0) /* meta key: alt */
+        code += ((state & ShiftMask) ? 4 : 0) +
+                ((state & Mod1Mask) ? 8 : 0) /* meta CONF_KEYS: alt */
                 + ((state & ControlMask) ? 16 : 0);
     }
 
@@ -1943,7 +1944,7 @@ kmap(KeySym k, uint32 state) {
         }
     }
 
-    for (kp = key; kp < key + LENGTH(key); kp++) {
+    for (kp = CONF_KEYS; kp < CONF_KEYS + LENGTH(CONF_KEYS); kp++) {
         if (kp->k != k) {
             continue;
         }
@@ -2067,7 +2068,7 @@ run(void) {
         XNextEvent(x_window.dpy, &ev);
         /*
          * This XFilterEvent call is required because of XOpenIM. It
-         * does filter out the key event and some client message for
+         * does filter out the CONF_KEYS event and some client message for
          * the input method too.
          */
         if (XFilterEvent(&ev, None)) {
@@ -2128,7 +2129,7 @@ run(void) {
          * and eventually draw even without idle after CONF_LATENCY_MAX ms.
          * Typically this results in low latency while interacting,
          * maximum latency intervals during `cat huge.txt`, and perfect
-         * sync with periodic updates from animations/key-repeats/etc.
+         * sync with periodic updates from animations/CONF_KEYS-repeats/etc.
          */
         if (FD_ISSET(ttyfd, &rfd) || xev) {
             if (!drawing) {

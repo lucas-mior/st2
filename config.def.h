@@ -278,8 +278,8 @@ static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
  * Special keys (change & recompile st.info accordingly)
  *
  * Mask value:
- * * Use XK_ANY_MOD to match the key no matter modifiers state
- * * Use XK_NO_MOD to match the key alone (no modifiers)
+ * * Use XK_ANY_MOD to match the CONF_KEYS no matter modifiers state
+ * * Use XK_NO_MOD to match the CONF_KEYS alone (no modifiers)
  * appkey value:
  * * 0: no value
  * * > 0: keypad application mode enabled
@@ -292,7 +292,7 @@ static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
  *
  * Be careful with the order of the definitions because st searches in
  * this table sequentially, so any XK_ANY_MOD must be in the last
- * position for a key.
+ * position for a CONF_KEYS.
  */
 
 /*
@@ -302,16 +302,16 @@ static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
 static KeySym CONF_MAPPED_KEYS[] = { (KeySym)-1 };
 
 /*
- * State bits to ignore when matching key or button events.  By default,
+ * State bits to ignore when matching CONF_KEYS or button events.  By default,
  * user_toggle_numlock (Mod2Mask) and keyboard layout (XK_SWITCH_MOD) are ignored.
  */
 static uint32 CONF_IGNORE_MOD = Mod2Mask|XK_SWITCH_MOD;
 
 /*
- * This is the huge key array which defines all compatibility to the Linux
+ * This is the huge CONF_KEYS array which defines all compatibility to the Linux
  * world. Please decide about changes wisely.
  */
-static Key key[] = {
+static Key CONF_KEYS[] = {
 	/* keysym           mask            string      appkey appcursor */
 	{ XK_KP_Home,       ShiftMask,      "\033[2J",       0,   -1},
 	{ XK_KP_Home,       ShiftMask,      "\033[1;2H",     0,   +1},
