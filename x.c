@@ -1836,7 +1836,7 @@ x_set_pointer_motion(int set) {
 }
 
 void
-x_set_mode(int set, unsigned int flags) {
+x_set_mode(int set, uint flags) {
     int mode = term_window.mode;
     MODBIT(term_window.mode, set, flags);
     if ((term_window.mode & WIN_MODE_REVERSE) != (mode & WIN_MODE_REVERSE)) {

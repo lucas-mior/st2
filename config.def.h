@@ -54,8 +54,8 @@ static float char_height_scale = 1.0;
 wchar_t *worddelimiters = L" ";
 
 /* selection timeouts (in milliseconds) */
-static unsigned int doubleclicktimeout = 300;
-static unsigned int tripleclicktimeout = 600;
+static uint doubleclicktimeout = 300;
+static uint tripleclicktimeout = 600;
 
 /* alt screens */
 int allowaltscreen = 1;
@@ -77,12 +77,12 @@ static double maxlatency = 33;
  * blinking timeout (set to 0 to disable blinking) for the terminal blinking
  * attribute.
  */
-static unsigned int blinktimeout = 800;
+static uint blinktimeout = 800;
 
 /*
  * thickness of underline and bar cursors
  */
-static unsigned int cursorthickness = 2;
+static uint cursorthickness = 2;
 
 /*
  * 1: render most of the lines/blocks characters without using the font for
@@ -209,7 +209,7 @@ static int ignoreselfg = 1;
  * 6: Bar ("|")
  * 7: Snowman ("☃")
  */
-static unsigned int cursor_shape = 2;
+static uint cursor_shape = 2;
 
 /*
  * Default columns and number_rows numbers
@@ -229,7 +229,7 @@ static int mouse_background = 0;
  * Color used to display font attributes when fontconfig selected a font which
  * doesn't match the ones requested.
  */
-static unsigned int default_attr = 11;
+static uint default_attr = 11;
 
 /*
  * Force mouse select/shortcuts while mask is active (when WIN_MODE_MOUSE is set).
