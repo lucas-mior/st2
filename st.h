@@ -138,7 +138,7 @@ void reset_title(void);
 void selection_clear(void);
 void selection_start(int32, int32, int32);
 void selection_extend(int32, int32, int32, int32);
-int32 selected(int32, int32);
+int32 selection_is_selected(int32, int32);
 char *selection_get(void);
 
 int64 utf8_encode(Rune, char *);

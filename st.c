@@ -159,7 +159,7 @@ typedef struct {
     int32 esc;               /* escape state flags */
     char trantbl[4];         /* charset table translation */
     int32 charset;           /* current charset */
-    int32 icharset;          /* selected charset for sequence */
+    int32 icharset;          /* selection_is_selected charset for sequence */
     int32 *tabs;
     Rune lastc; /* last printed char outside of sequence, 0 if control */
 } Term;
@@ -625,7 +625,7 @@ selection_is_selected4(int32 x1, int32 y1, int32 x2, int32 y2) {
 }
 
 int32
-selected(int32 x, int32 y) {
+selection_is_selected(int32 x, int32 y) {
     return selection_is_selected4(x, y, x, y);
 }
 
@@ -696,7 +696,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
         /*
          * Snap around if the the previous line or the current one
          * has set ATTR_WRAP at its end. Then the whole next or
-         * previous line will be selected.
+         * previous line will be selection_is_selected.
          */
         *x = (direction < 0) ? 0 : term.col - 1;
         if (direction < 0) {
@@ -734,7 +734,7 @@ selection_get(void) {
     str = xmalloc((int64)((term.col + 1)*(selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
     ptr = str;
 
-    /* append every set & selected glyph to the selection */
+    /* append every set & selection_is_selected glyph to the selection */
     for (int32 y = selection.nb.y; y <= selection.ne.y; y++) {
         Line line = TERM_LINE(y);
 
@@ -2953,8 +2953,8 @@ check_control_code:
         return;
     }
 
-    /* selected() takes relative coordinates */
-    if (selected(term.cursor.x + term.scr, term.cursor.y + term.scr)) {
+    /* selection_is_selected() takes relative coordinates */
+    if (selection_is_selected(term.cursor.x + term.scr, term.cursor.y + term.scr)) {
         selection_clear();
     }
 

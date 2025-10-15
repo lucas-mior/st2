@@ -1921,7 +1921,7 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
     Color drawcol;
 
     /* remove the old cursor */
-    if (selected(ox, oy)) {
+    if (selection_is_selected(ox, oy)) {
         og.mode |= ATTR_SELECTED;
     }
     x_draw_glyph(og, ox, oy);
@@ -2042,7 +2042,7 @@ x_draw_line(Line line, int32 x1, int32 y1, int32 x2) {
         if (new.mode == ATTR_WDUMMY) {
             continue;
         }
-        if (selected(x, y1)) {
+        if (selection_is_selected(x, y1)) {
             new.mode |= ATTR_SELECTED;
         }
         if (i > 0 && ATTRCMP(base, new)) {

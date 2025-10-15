@@ -224,7 +224,7 @@ static int32 CONF_MOUSE_COLOR_FG = 7;
 static int32 CONF_MOUSE_COLOR_BG = 0;
 
 /*
- * Color used to display font attributes when fontconfig selected a font which
+ * Color used to display font attributes when fontconfig selection_is_selected a font which
  * doesn't match the ones requested.
  */
 static uint32 CONF_DEFAULT_ATTR = 11;
