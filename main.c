@@ -2177,7 +2177,7 @@ void
 handler_key_press(XEvent *xevent) {
     XKeyEvent *e = &xevent->xkey;
     KeySym ksym = NoSymbol;
-    char buffer[64], *customkey = NULL;
+    char buffer[64], *custom_key = NULL;
     int32 len;
     Rune c;
     Status status;
@@ -2252,14 +2252,14 @@ handler_key_press(XEvent *xevent) {
                     continue;
                 }
             }
-            customkey = kp->s;
+            custom_key = kp->s;
             goto tried_custom_keys;
         }
-        customkey = NULL;
+        custom_key = NULL;
     }
 tried_custom_keys:
-    if (customkey) {
-        tty_write(customkey, (int64)strlen(customkey), 1);
+    if (custom_key) {
+        tty_write(custom_key, (int64)strlen(custom_key), 1);
         return;
     }
 
