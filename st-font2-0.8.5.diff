@@ -51,7 +51,7 @@ index 8a16faa..220fc4f 100644
 +		return 1;
 +	}
 +
-+	if (!(frc[frclen].font = XftFontOpenPattern(xw.dpy, match))) {
++	if (!(frc[frclen].font = XftFontOpenPattern(x_window.dpy, match))) {
 +		FcPatternDestroy(match);
 +		return 1;
 +	}
@@ -111,7 +111,7 @@ index 8a16faa..220fc4f 100644
 +		FcPatternAddBool(pattern, FC_SCALABLE, 1);
 +
 +		FcConfigSubstitute(NULL, pattern, FcMatchPattern);
-+		XftDefaultSubstitute(xw.dpy, xw.scr, pattern);
++		XftDefaultSubstitute(x_window.dpy, x_window.scr, pattern);
 +
 +		if (xloadsparefont(pattern, FRC_NORMAL))
 +			die("can't open spare font %s\n", *fp);
@@ -146,7 +146,7 @@ index 8a16faa..220fc4f 100644
 +	xloadsparefonts();
 +
  	/* colors */
- 	xw.cmap = XDefaultColormap(xw.dpy, xw.scr);
+ 	x_window.cmap = XDefaultColormap(x_window.dpy, x_window.scr);
  	x_load_cols();
 --
 2.37.1
