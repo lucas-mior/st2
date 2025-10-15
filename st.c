@@ -250,7 +250,7 @@ static void draw_region(int, int, int, int);
 
 static void selection_normalize(void);
 static void selection_scroll(int, int, int);
-static void selmove(int);
+static void selection_move(int);
 static void selremove(void);
 static int regionselected(int, int, int, int);
 static void selection_snap(int *, int *, int);
@@ -1260,7 +1260,7 @@ user_scroll_down(const Arg *a) {
         term.scr = 0;
     }
     if (selection.ob.x != -1 && !selection.alt) {
-        selmove(-n); /* negate change in term.scr */
+        selection_move(-n); /* negate change in term.scr */
     }
     term_full_dirt();
 }
@@ -1285,7 +1285,7 @@ user_scroll_up(const Arg *a) {
     }
 
     if (selection.ob.x != -1 && !selection.alt) {
-        selmove(n); /* negate change in term.scr */
+        selection_move(n); /* negate change in term.scr */
     }
     term_full_dirt();
 }
@@ -1361,7 +1361,7 @@ term_scroll_up(int top, int bot, int n, int mode) {
         if (!savehist) {
             selection_scroll(top, bot, -n);
         } else if (s > 0) {
-            selmove(-s);
+            selection_move(-s);
             if (-term.scr + selection.nb.y < -term.histf) {
                 selremove();
             }
@@ -1370,7 +1370,7 @@ term_scroll_up(int top, int bot, int n, int mode) {
 }
 
 void
-selmove(int n) {
+selection_move(int n) {
     selection.ob.y += n, selection.nb.y += n;
     selection.oe.y += n, selection.ne.y += n;
 }
@@ -1383,7 +1383,7 @@ selection_scroll(int top, int bot, int n) {
     if (BETWEEN(selection.nb.y, top, bot) != BETWEEN(selection.ne.y, top, bot)) {
         selection_clear();
     } else if (BETWEEN(selection.nb.y, top, bot)) {
-        selmove(n);
+        selection_move(n);
         if (selection.nb.y < top || selection.ne.y > bot) {
             selection_clear();
         }
@@ -2929,7 +2929,7 @@ rscrolldown(int n) {
     } else {
         term.scr = 0;
         if (selection.ob.x != -1 && !selection.alt) {
-            selmove(-j);
+            selection_move(-j);
         }
     }
 }
