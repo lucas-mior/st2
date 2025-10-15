@@ -2196,7 +2196,7 @@ main(int32 argc, char *argv[]) {
         break;
     case 'g':
         x_window.gm = XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t,
-                                     (uint32 *)&NUMBER_COLS, (uint32 *)&NUMBER_ROWS);
+                                     (uint32 *)&CONF_NUMBER_COLS, (uint32 *)&NUMBER_ROWS);
         break;
     case 'i':
         x_window.isfixed = 1;
@@ -2235,10 +2235,10 @@ run:
 
     setlocale(LC_CTYPE, "");
     XSetLocaleModifiers("");
-    NUMBER_COLS = MAX(NUMBER_COLS, 1);
+    CONF_NUMBER_COLS = MAX(CONF_NUMBER_COLS, 1);
     NUMBER_ROWS = MAX(NUMBER_ROWS, 1);
-    term_new(NUMBER_COLS, NUMBER_ROWS);
-    x_init(NUMBER_COLS, NUMBER_ROWS);
+    term_new(CONF_NUMBER_COLS, NUMBER_ROWS);
+    x_init(CONF_NUMBER_COLS, NUMBER_ROWS);
     x_setenv();
     selection_init();
     run();
