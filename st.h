@@ -181,7 +181,7 @@ void user_change_alpha(const Arg *);
 void user_zoom(const Arg *);
 void zoom_abs(const Arg *);
 void user_zoom_reset(const Arg *);
-void tty_send(const Arg *);
+void user_tty_send(const Arg *);
 
 typedef struct {
     uint32 mod;
