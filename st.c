@@ -1466,7 +1466,7 @@ term_new_line(int first_col) {
 void
 control_seq_intro_parse(void) {
     char *p = csiescseq.buf, *np;
-    long int v;
+    long v;
     int sep = ';'; /* colon or semi-colon, but not both */
 
     csiescseq.narg = 0;
