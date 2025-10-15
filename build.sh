@@ -3,8 +3,15 @@
 # shellcheck disable=SC2086
 
 target="${1:-build}"
+CC=${CC:-cc}
+CC=clang
 
 VERSION="0.9.3"
+
+if [ "$CC" = "clang" ]; then
+    CFLAGS="$CFLAGS -Weverything"
+    CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage "
+fi
 
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
@@ -26,9 +33,6 @@ LIBS="-L$X11LIB -lm -lrt -lX11 -lutil -lXft \
 STCPPFLAGS="-DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
 STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
 STLDFLAGS="$LIBS $LDFLAGS"
-
-CC=${CC:-cc}
-CC=clang
 
 echo "target=$target"
 
