@@ -457,6 +457,7 @@ selection_init(void) {
     selection.mode = SELECTION_IDLE;
     selection.snap = 0;
     selection.ob.x = -1;
+    return;
 }
 
 int
@@ -532,6 +533,7 @@ selection_start(int col, int row, int snap) {
         selection.mode = SELECTION_READY;
     }
     term_set_dirt(selection.nb.y, selection.ne.y);
+    return;
 }
 
 void
@@ -567,6 +569,7 @@ selection_extend(int col, int row, int type, int done) {
     }
 
     selection.mode = done ? SELECTION_IDLE : SELECTION_READY;
+    return;
 }
 
 void
@@ -598,6 +601,7 @@ selection_normalize(void) {
     if (selection.ne.x >= term_line_len(TLINE(selection.ne.y))) {
         selection.ne.x = term.col - 1;
     }
+    return;
 }
 
 int
@@ -701,6 +705,7 @@ selection_snap(int *x, int *y, int direction) {
         }
         break;
     }
+    return;
 }
 
 char *
@@ -762,12 +767,14 @@ selection_clear(void) {
     }
     selection_remove();
     term_set_dirt(selection.nb.y, selection.ne.y);
+    return;
 }
 
 void
 selection_remove(void) {
     selection.mode = SELECTION_IDLE;
     selection.ob.x = -1;
+    return;
 }
 
 void
@@ -831,6 +838,7 @@ exec_shell(char *cmd, char **args) {
 
     execvp(program, args);
     _exit(1);
+    return;
 }
 
 void
@@ -858,6 +866,7 @@ handler_sigchld(int a) {
         die("child terminated due to signal %d\n", WTERMSIG(stat));
     }
     _exit(0);
+    return;
 }
 
 void
@@ -885,6 +894,7 @@ stty(char **args) {
     if (system(cmd) != 0) {
         perror("Couldn't call stty");
     }
+    return;
 }
 
 int
@@ -1007,6 +1017,7 @@ tty_write(const char *s, size_t n, int may_echo) {
         n -= next - s;
         s = next;
     }
+    return;
 }
 
 void
@@ -1068,6 +1079,7 @@ tty_write_raw(const char *s, size_t n) {
 
 write_error:
     die("write error on tty: %s\n", strerror(errno));
+    return;
 }
 
 void
@@ -1081,12 +1093,14 @@ tty_resize(int tty_width, int tty_height) {
     if (ioctl(cmdfd, TIOCSWINSZ, &winsize) < 0) {
         fprintf(stderr, "Couldn't set window size: %s\n", strerror(errno));
     }
+    return;
 }
 
 void
 tty_hangup(void) {
     /* Send SIGHUP to shell */
     kill(pid, SIGHUP);
+    return;
 }
 
 int
@@ -1110,6 +1124,7 @@ term_set_dirt(int top, int bot) {
     for (int i = top; i <= bot; i++) {
         term.dirty[i] = 1;
     }
+    return;
 }
 
 void
@@ -1122,6 +1137,7 @@ term_set_dirt_attr(int attr) {
             }
         }
     }
+    return;
 }
 
 void
@@ -1129,6 +1145,7 @@ term_full_dirt(void) {
     for (int i = 0; i < term.row; i++) {
         term.dirty[i] = 1;
     }
+    return;
 }
 
 void
@@ -1142,6 +1159,7 @@ term_cursor(int mode) {
         term.cursor = c[alt];
         term_move_to(c[alt].x, c[alt].y);
     }
+    return;
 }
 
 void
@@ -1150,6 +1168,7 @@ tresetcursor(void) {
                             .x = 0,
                             .y = 0,
                             .state = CURSOR_DEFAULT};
+    return;
 }
 
 void
@@ -1179,6 +1198,7 @@ term_reset(void) {
         term_swap_screen();
     }
     term_full_dirt();
+    return;
 }
 
 void
@@ -1197,6 +1217,7 @@ term_new(int col, int row) {
         term.hist[i] = xmalloc(col * sizeof(Glyph));
     }
     term_reset();
+    return;
 }
 
 /* handle it with care */
@@ -1212,6 +1233,7 @@ term_swap_screen(void) {
     altline = tmpline;
     altcol = tmpcol, altrow = tmprow;
     term.mode ^= TERM_MODE_ALTSCREEN;
+    return;
 }
 
 void
@@ -1231,6 +1253,7 @@ term_load_def_screen(int clear, int loadcursor) {
     if (alt) {
         term_resize_def(col, row);
     }
+    return;
 }
 
 void
@@ -1249,6 +1272,7 @@ term_load_alt_screen(int clear, int savecursor) {
     if (clear) {
         term_clear_region(0, 0, term.col - 1, term.row - 1, 1);
     }
+    return;
 }
 
 int
@@ -1278,6 +1302,7 @@ user_scroll_down(const Arg *a) {
         selection_move(-n); /* negate change in term.scr */
     }
     term_full_dirt();
+    return;
 }
 
 void
@@ -1303,6 +1328,7 @@ user_scroll_up(const Arg *a) {
         selection_move(n); /* negate change in term.scr */
     }
     term_full_dirt();
+    return;
 }
 
 void
@@ -1327,6 +1353,7 @@ term_scroll_down(int top, int n) {
     if (selection.ob.x != -1 && selection.alt == TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         selection_scroll(top, bot, n);
     }
+    return;
 }
 
 void
@@ -1382,12 +1409,14 @@ term_scroll_up(int top, int bot, int n, int mode) {
             }
         }
     }
+    return;
 }
 
 void
 selection_move(int n) {
     selection.ob.y += n, selection.nb.y += n;
     selection.oe.y += n, selection.ne.y += n;
+    return;
 }
 
 void
@@ -1403,6 +1432,7 @@ selection_scroll(int top, int bot, int n) {
             selection_clear();
         }
     }
+    return;
 }
 
 void
@@ -1415,6 +1445,7 @@ term_new_line(int first_col) {
         y++;
     }
     term_move_to(first_col ? 0 : term.cursor.x, y);
+    return;
 }
 
 void
@@ -1451,12 +1482,14 @@ control_seq_intro_parse(void) {
     }
     csiescseq.mode[0] = *p++;
     csiescseq.mode[1] = (p < csiescseq.buf + csiescseq.len) ? *p : '\0';
+    return;
 }
 
 /* for absolute user moves, when decom is set */
 void
 term_move_abs_to(int x, int y) {
     term_move_to(x, y + ((term.cursor.state & CURSOR_ORIGIN) ? term.top : 0));
+    return;
 }
 
 void
@@ -1474,6 +1507,7 @@ term_move_to(int x, int y) {
     term.cursor.state &= ~CURSOR_WRAPNEXT;
     term.cursor.x = LIMIT(x, 0, term.col - 1);
     term.cursor.y = LIMIT(y, miny, maxy);
+    return;
 }
 
 void
@@ -1515,6 +1549,7 @@ term_set_char(Rune u, const Glyph *attr, int x, int y) {
     if (isboxdraw(u)) {
         term.line[y][x].mode |= ATTR_BOXDRAW;
     }
+    return;
 }
 
 void
@@ -1528,6 +1563,7 @@ term_clear_glyph(Glyph *gp, int usecurattr) {
     }
     gp->mode = ATTR_NULL;
     gp->rune = ' ';
+    return;
 }
 
 void
@@ -1543,6 +1579,7 @@ term_clear_region(int x1, int y1, int x2, int y2, int usecurattr) {
             term_clear_glyph(&term.line[y][x], usecurattr);
         }
     }
+    return;
 }
 
 void
@@ -1568,6 +1605,7 @@ term_delete_char(int n) {
         memmove(&line[dst], &line[src], size * sizeof(Glyph));
     }
     term_clear_region(dst + size, term.cursor.y, term.col - 1, term.cursor.y, 1);
+    return;
 }
 
 void
@@ -1588,6 +1626,7 @@ term_insert_blank(int n) {
         memmove(&line[dst], &line[src], size * sizeof(Glyph));
     }
     term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, 1);
+    return;
 }
 
 void
@@ -1595,6 +1634,7 @@ term_insert_blank_line(int n) {
     if (BETWEEN(term.cursor.y, term.top, term.bot)) {
         term_scroll_down(term.cursor.y, n);
     }
+    return;
 }
 
 void
@@ -1602,6 +1642,7 @@ term_delete_line(int n) {
     if (BETWEEN(term.cursor.y, term.top, term.bot)) {
         term_scroll_up(term.cursor.y, term.bot, n, SCROLL_NOSAVEHIST);
     }
+    return;
 }
 
 int32_t
@@ -1748,6 +1789,7 @@ term_set_attr(const int *attr, int l) {
             break;
         }
     }
+    return;
 }
 
 void
@@ -1763,6 +1805,7 @@ term_set_scroll(int t, int b) {
     }
     term.top = t;
     term.bot = b;
+    return;
 }
 
 void
@@ -1888,6 +1931,7 @@ term_set_mode(int priv, int set, const int *args, int narg) {
             }
         }
     }
+    return;
 }
 
 void
@@ -2133,6 +2177,7 @@ control_seq_intro_handle(void) {
         }
         break;
     }
+    return;
 }
 
 void
@@ -2155,11 +2200,13 @@ control_seq_intro_dump(void) {
         }
     }
     putc('\n', stderr);
+    return;
 }
 
 void
 control_seq_intro_reset(void) {
     memset(&csiescseq, 0, sizeof(csiescseq));
+    return;
 }
 
 void
@@ -2182,6 +2229,7 @@ osc_color_response(int num, int index, int is_osc4) {
     } else {
         tty_write(buf, n, 1);
     }
+    return;
 }
 
 void
@@ -2303,6 +2351,7 @@ string_handle(void) {
 
     fprintf(stderr, "erresc: unknown str ");
     string_dump();
+    return;
 }
 
 void
@@ -2327,6 +2376,7 @@ string_parse(void) {
         }
         *p++ = '\0';
     }
+    return;
 }
 
 void
@@ -2390,6 +2440,7 @@ externalpipe(const Arg *arg) {
     close(to[1]);
     /* restore */
     signal(SIGPIPE, oldsigpipe);
+    return;
 }
 
 void
@@ -2415,6 +2466,7 @@ string_dump(void) {
         }
     }
     fprintf(stderr, "ESC\\\n");
+    return;
 }
 
 void
@@ -2423,6 +2475,7 @@ string_reset(void) {
         .buf = xrealloc(strescseq.buf, STR_BUF_SIZ),
         .siz = STR_BUF_SIZ,
     };
+    return;
 }
 
 void
@@ -2430,6 +2483,7 @@ user_send_break(const Arg *arg) {
     if (tcsendbreak(cmdfd, 0)) {
         perror("Error sending break");
     }
+    return;
 }
 
 void
@@ -2439,21 +2493,25 @@ term_printer(char *s, size_t len) {
         close(iofd);
         iofd = -1;
     }
+    return;
 }
 
 void
 user_toggle_printer(const Arg *arg) {
     term.mode ^= TERM_MODE_PRINT;
+    return;
 }
 
 void
 user_print_screen(const Arg *arg) {
     term_dump();
+    return;
 }
 
 void
 user_print_sel(const Arg *arg) {
     term_dump_sel();
+    return;
 }
 
 void
@@ -2464,12 +2522,14 @@ term_dump_sel(void) {
         term_printer(ptr, strlen(ptr));
         free(ptr);
     }
+    return;
 }
 
 void
 term_dump_line(int n) {
     char str[(term.col + 1) * UTF_SIZ];
     term_printer(str, tgetline(str, &term.line[n][0]));
+    return;
 }
 
 void
@@ -2477,6 +2537,7 @@ term_dump(void) {
     for (int i = 0; i < term.row; ++i) {
         term_dump_line(i);
     }
+    return;
 }
 
 void
@@ -2495,6 +2556,7 @@ term_put_tab(int n) {
         }
     }
     term.cursor.x = LIMIT(x, 0, term.col - 1);
+    return;
 }
 
 void
@@ -2504,6 +2566,7 @@ term_def_utf8(char ascii) {
     } else if (ascii == '@') {
         term.mode &= ~TERM_MODE_UTF8;
     }
+    return;
 }
 
 void
@@ -2517,6 +2580,7 @@ term_def_tran(char ascii) {
     } else {
         term.trantbl[term.icharset] = vcs[p - cs];
     }
+    return;
 }
 
 void
@@ -2528,6 +2592,7 @@ term_dec_test(char c) {
             }
         }
     }
+    return;
 }
 
 void
@@ -2549,6 +2614,7 @@ term_str_sequence(uchar c) {
     string_reset();
     strescseq.type = c;
     term.esc |= ESC_STR;
+    return;
 }
 
 void
@@ -2645,6 +2711,7 @@ term_control_code(uchar ascii) {
     }
     /* only CAN, SUB, \a and C1 chars interrupt a sequence */
     term.esc &= ~(ESC_STR_END | ESC_STR);
+    return;
 }
 
 /*
@@ -2891,6 +2958,7 @@ check_control_code:
         term.wrapcwidth[TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)] = width;
         term.cursor.state |= CURSOR_WRAPNEXT;
     }
+    return;
 }
 
 int
@@ -2959,6 +3027,7 @@ rscrolldown(int n) {
             selection_move(-j);
         }
     }
+    return;
 }
 
 void
@@ -2988,6 +3057,7 @@ term_resize(int col, int row) {
     } else {
         term_resize_def(col, row);
     }
+    return;
 }
 
 void
@@ -3030,6 +3100,7 @@ term_resize_def(int col, int row) {
     term.top = 0, term.bot = row - 1;
     /* dirty all lines */
     term_full_dirt();
+    return;
 }
 
 void
@@ -3085,6 +3156,7 @@ term_resize_alt(int col, int row) {
     term.top = 0, term.bot = row - 1;
     /* dirty all lines */
     term_full_dirt();
+    return;
 }
 
 void
@@ -3215,6 +3287,7 @@ term_reflow(int col, int row) {
         term.hist[j] = xrealloc(term.hist[j], col * sizeof(Glyph));
     }
     free(buf);
+    return;
 }
 
 void
