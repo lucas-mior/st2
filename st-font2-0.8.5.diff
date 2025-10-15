@@ -28,7 +28,7 @@ index 8a16faa..220fc4f 100644
  static void x_unload_font(Font *);
  static void x_unload_fonts(void);
  static void x_setenv(void);
-@@ -306,6 +308,7 @@ zoomabs(const Arg *arg)
+@@ -306,6 +308,7 @@ zoom_abs(const Arg *arg)
  {
  	x_unload_fonts();
  	x_load_fonts(usedfont, arg->f);
