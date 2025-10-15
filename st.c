@@ -683,7 +683,7 @@ char *
 get_sel(void)
 {
 	char *str, *ptr;
-	int y, lastx, linelen;
+	int lastx, linelen;
 	const Glyph *gp, *lgp;
 
 	if (selection.ob.x == -1 || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
@@ -693,7 +693,7 @@ get_sel(void)
 	ptr = str;
 
 	/* append every set & selected glyph to the selection */
-	for (y = selection.nb.y; y <= selection.ne.y; y++) {
+	for (int y = selection.nb.y; y <= selection.ne.y; y++) {
 		Line line = TLINE(y);
 
 		if ((linelen = term_line_len(line)) == 0) {
