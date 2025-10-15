@@ -1,7 +1,7 @@
 - NET ICON
 - anysize
 - selectioncolors
-- bold is not bright
+- ~~bold is not bright~~
 - ~~delkey~~
 - ~~externalpipe-eternal~~
 - ~~externalpipe~~
