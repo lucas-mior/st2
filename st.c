@@ -3222,7 +3222,7 @@ term_reflow(int32 col, int32 row) {
         /* each line can take this many lines after reflow */
         int32 j = (term.col + col - 1) / col;
         nlines = j*nlines;
-        if (nlines > HISTORY_SIZE + RESIZE_BUFFER + row) {
+        if (nlines > (HISTORY_SIZE + RESIZE_BUFFER + row)) {
             nlines = HISTORY_SIZE + RESIZE_BUFFER + row;
             oy = -(nlines / j - oce - 1);
         }
