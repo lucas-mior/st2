@@ -3206,10 +3206,12 @@ term_reflow(int col, int row) {
     int nce;
     int bot;
     int scr;
-    int ox = 0, oy = -term.histf, nx = 0, ny = -1, len;
+    int ox = 0, oy = -term.histf, nx = 0, ny = -1;
+    int len = 0;
     int cy = -1; /* proxy for new y coordinate of cursor */
     int nlines;
-    Line *buf, line;
+    Line *buf;
+    Line line = 0;
 
     /* y coordinate of cursor line end */
     for (oce = term.cursor.y; oce < term.row - 1 && tiswrapped(term.line[oce]); oce++)
@@ -3225,10 +3227,10 @@ term_reflow(int col, int row) {
             oy = -(nlines / j - oce - 1);
         }
     }
-    buf = xmalloc(nlines * sizeof(Line));
+    buf = xmalloc((size_t)nlines * sizeof(Line));
     do {
         if (!nx) {
-            buf[++ny] = xmalloc(col * sizeof(Glyph));
+            buf[++ny] = xmalloc((size_t)col * sizeof(Glyph));
         }
         if (!ox) {
             line = TLINEABS(oy);
@@ -3240,13 +3242,14 @@ term_reflow(int col, int row) {
             }
             /* update cursor */
             if (cy < 0 && term.cursor.x - ox < col - nx) {
-                term.cursor.x = nx + term.cursor.x - ox, cy = ny;
+                term.cursor.x = nx + term.cursor.x - ox;
+                cy = ny;
                 UPDATEWRAPNEXT(0, col);
             }
         }
         /* get reflowed lines in buf */
         if (col - nx > len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (len - ox) * sizeof(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (size_t)(len - ox) * sizeof(Glyph));
             nx += len - ox;
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
                 for (int j = nx; j < col; j++) {
@@ -3256,12 +3259,15 @@ term_reflow(int col, int row) {
             } else if (nx > 0) {
                 buf[ny][nx - 1].mode &= ~ATTR_WRAP;
             }
-            ox = 0, oy++;
+            ox = 0;
+            oy++;
         } else if (col - nx == len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (col - nx) * sizeof(Glyph));
-            ox = 0, oy++, nx = 0;
+            memcpy(&buf[ny][nx], &line[ox], (size_t)(col - nx) * sizeof(Glyph));
+            ox = 0;
+            oy++;
+            nx = 0;
         } else /* if (col - nx < len - ox) */ {
-            memcpy(&buf[ny][nx], &line[ox], (col - nx) * sizeof(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (size_t)(col - nx) * sizeof(Glyph));
             ox += col - nx;
             buf[ny][col - 1].mode |= ATTR_WRAP;
             nx = 0;
@@ -3278,7 +3284,7 @@ term_reflow(int col, int row) {
         free(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    term.line = xrealloc(term.line, row * sizeof(Line));
+    term.line = xrealloc(term.line, (size_t)row * sizeof(Line));
 
     bot = MIN(ny, row - 1);
     scr = MAX(row - term.row, 0);
@@ -3297,7 +3303,7 @@ term_reflow(int col, int row) {
     }
     /* allocate new number_rows */
     for (i = row - 1; i > nce; i--) {
-        term.line[i] = xmalloc(col * sizeof(Glyph));
+        term.line[i] = xmalloc((size_t)col * sizeof(Glyph));
         for (int j = 0; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
@@ -3324,7 +3330,7 @@ term_reflow(int col, int row) {
     /* handler_configure_notify rest of the history lines */
     for (int i = -term.histf - 1; i >= -HISTSIZE; i--) {
         int j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
-        term.hist[j] = xrealloc(term.hist[j], col * sizeof(Glyph));
+        term.hist[j] = xrealloc(term.hist[j], (size_t)col * sizeof(Glyph));
     }
     free(buf);
     return;
