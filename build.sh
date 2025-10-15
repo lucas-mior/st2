@@ -4,7 +4,7 @@
 
 target="${1:-build}"
 CC=${CC:-cc}
-CC=clang
+CC=gcc
 
 VERSION="0.9.3"
 
@@ -20,18 +20,12 @@ PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
 MANPREFIX="${MANPREFIX:-$PREFIX/share/man}"
 
-X11INC="/usr/X11R6/include"
-X11LIB="/usr/X11R6/lib"
-
 PKG_CONFIG=${PKG_CONFIG:-pkg-config}
 
-INCS="-I$X11INC \
-  $($PKG_CONFIG --cflags fontconfig) \
+INCS="$($PKG_CONFIG --cflags fontconfig) \
   $($PKG_CONFIG --cflags freetype2)"
 
-LIBS="-L$X11LIB -lm -lrt -lX11 -lutil -lXft \
-  $($PKG_CONFIG --libs fontconfig) \
-  $($PKG_CONFIG --libs freetype2)"
+LIBS="-lm -lrt -lX11 -lutil -lXft $($PKG_CONFIG --libs fontconfig) $($PKG_CONFIG --libs freetype2)"
 
 STCPPFLAGS="-DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
 STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
