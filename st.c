@@ -1493,14 +1493,13 @@ tclearglyph(Glyph *gp, int usecurattr)
 void
 term_clear_region(int x1, int y1, int x2, int y2, int usecurattr)
 {
-	int x, y;
 	/* regionselected() takes relative coordinates */
 	if (regionselected(x1+term.scr, y1+term.scr, x2+term.scr, y2+term.scr))
 		selremove();
 
-    for (y = y1; y <= y2; y++) {
+    for (int y = y1; y <= y2; y++) {
 		term.dirty[y] = 1;
-		for (x = x1; x <= x2; x++)
+		for (int x = x1; x <= x2; x++)
 			tclearglyph(&term.line[y][x], usecurattr);
 	}
 }
