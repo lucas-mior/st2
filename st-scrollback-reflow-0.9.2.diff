@@ -1618,7 +1618,7 @@ index 818a6f8..514ec08 100644
  
 @@ -90,6 +92,7 @@ void toggleprinter(const Arg *);
  
- int tattrset(int);
+ int term_attr_set(int);
  void tnew(int, int);
 +int tisaltscreen(void);
  void tresize(int, int);
