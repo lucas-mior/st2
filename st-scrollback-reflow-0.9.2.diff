@@ -452,7 +452,7 @@ index 2478942..2b86d23 100644
 +void
 +tresetcursor(void)
 +{
-+	term.c = (TCursor){ { .mode = ATTR_NULL, .fg = defaultfg, .bg = defaultbg },
++	term.c = (TCursor){ { .mode = ATTR_NULL, .fg = defaultfg, .bg = default_background },
 +	                    .x = 0, .y = 0, .state = CURSOR_DEFAULT };
 +}
 +
@@ -465,7 +465,7 @@ index 2478942..2b86d23 100644
 -	term.c = (TCursor){{
 -		.mode = ATTR_NULL,
 -		.fg = defaultfg,
--		.bg = defaultbg
+-		.bg = default_background
 -	}, .x = 0, .y = 0, .state = CURSOR_DEFAULT};
 +	tresetcursor();
  
@@ -498,7 +498,7 @@ index 2478942..2b86d23 100644
  void
  tnew(int col, int row)
  {
--	term = (Term){ .c = { .attr = { .fg = defaultfg, .bg = defaultbg } } };
+-	term = (Term){ .c = { .attr = { .fg = defaultfg, .bg = default_background } } };
 -	tresize(col, row);
 -	treset();
 +    int i, j;
@@ -885,7 +885,7 @@ index 2478942..2b86d23 100644
 +		gp->bg = term.c.attr.bg;
 +	} else {
 +		gp->fg = defaultfg;
-+		gp->bg = defaultbg;
++		gp->bg = default_background;
 +	}
 +	gp->mode = ATTR_NULL;
 +	gp->u = ' ';
