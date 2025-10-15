@@ -2007,7 +2007,7 @@ handler_client_message(XEvent *e) {
         } else if (e->xclient.data.l[1] == XEMBED_FOCUS_OUT) {
             term_window.mode &= ~WIN_MODE_FOCUSED;
         }
-    } else if (e->xclient.data.l[0] == x_window.wmdeletewin) {
+    } else if (e->xclient.data.l[0] == (long)x_window.wmdeletewin) {
         tty_hangup();
         exit(0);
     }
