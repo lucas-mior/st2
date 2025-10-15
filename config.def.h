@@ -52,7 +52,7 @@ static float CONF_CHAR_HEIGHT_SCALE = 1.0;
 wchar_t *CONF_WORD_DELIMITERS = L" ";
 
 /* selection timeouts (in milliseconds) */
-static const uint32 DOUBLE_CLICK_TIMEOUT = 300;
+static const uint32 CONF_DOUBLE_CLICK_TIMEOUT = 300;
 static const uint32 TRIPLE_CLICK_TIMEOUT = 600;
 
 /* alt screens */
