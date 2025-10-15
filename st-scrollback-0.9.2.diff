@@ -137,7 +137,7 @@ index b9f66e7..2478942 100644
  
  	if (may_echo && IS_SET(TERM_MODE_ECHO))
  		twrite(s, n, 1);
-@@ -1055,13 +1065,53 @@ tswapscreen(void)
+@@ -1055,13 +1065,53 @@ term_swap_screen(void)
  }
  
  void

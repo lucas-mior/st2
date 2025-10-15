@@ -99,7 +99,7 @@ index 2478942..2b86d23 100644
  static void term_set_char(Rune, const Glyph *, int, int);
  static void term_set_dirt(int, int);
  static void term_set_scroll(int, int);
- static void tswapscreen(void);
+ static void term_swap_screen(void);
 +static void tloaddefscreen(int, int);
 +static void tloadaltscreen(int, int);
  static void term_set_mode(int, int, const int *, int);
@@ -485,12 +485,12 @@ index 2478942..2b86d23 100644
 -		term_move_to(0, 0);
 -		term_cursor(CURSOR_SAVE);
 -		term_clear_region(0, 0, term.col-1, term.row-1);
--		tswapscreen();
+-		term_swap_screen();
 +        term_cursor(CURSOR_SAVE); /* reset saved cursor */
 +        for (y = 0; y < term.row; y++)
 +            for (x = 0; x < term.col; x++)
 +                tclearglyph(&term.line[y][x], 0);
-+        tswapscreen();
++        term_swap_screen();
  	}
 +    term_full_dirt();
  }
@@ -508,7 +508,7 @@ index 2478942..2b86d23 100644
 +        for (j = 0; j < row; j++)
 +            term.line[j] = xmalloc(col * sizeof(Glyph));
 +        term.col = col, term.row = row;
-+        tswapscreen();
++        term_swap_screen();
 +    }
 +    term.dirty = xmalloc(row * sizeof(*term.dirty));
 +    term.tabs = xmalloc(col * sizeof(*term.tabs));
@@ -519,7 +519,7 @@ index 2478942..2b86d23 100644
  
 +/* handle it with care */
  void
- tswapscreen(void)
+ term_swap_screen(void)
  {
 -	Line *tmp = term.line;
 +	static Line *altline;
@@ -550,7 +550,7 @@ index 2478942..2b86d23 100644
 +		if (clear)
 +			term_clear_region(0, 0, term.col-1, term.row-1, 1);
 +		col = term.col, row = term.row;
-+		tswapscreen();
++		term_swap_screen();
 +	}
 +	if (loadcursor)
 +		term_cursor(CURSOR_LOAD);
@@ -573,7 +573,7 @@ index 2478942..2b86d23 100644
 +		term_cursor(CURSOR_SAVE);
 +	if (def) {
 +		col = term.col, row = term.row;
-+		tswapscreen();
++		term_swap_screen();
 +		term.scr = 0;
 +		tresizealt(col, row);
  	}
@@ -1033,7 +1033,7 @@ index 2478942..2b86d23 100644
 -							term.row-1);
 -				}
 -				if (set ^ alt) /* set is always 1 or 0 */
--					tswapscreen();
+-					term_swap_screen();
 -				if (*args != 1049)
 -					break;
 +				if (set)
@@ -1386,7 +1386,7 @@ index 2478942..2b86d23 100644
 -		if (0 < col && minrow < row) {
 -			term_clear_region(0, minrow, col - 1, row - 1);
 -		}
--		tswapscreen();
+-		term_swap_screen();
 -		term_cursor(CURSOR_LOAD);
 -	}
 -	term.c = c;
