@@ -86,6 +86,7 @@ void draw(void);
 
 void user_scroll_down(const Arg *);
 void user_scroll_up(const Arg *);
+void externalpipe(const Arg *);
 void user_print_screen(const Arg *);
 void user_print_sel(const Arg *);
 void user_send_break(const Arg *);
