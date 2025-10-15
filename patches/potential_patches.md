@@ -1,5 +1,5 @@
 - NET ICON
-- anysize
+- ~~anysize~~
 - ~~selectioncolors~~
 - ~~bold is not bright~~
 - ~~delkey~~
