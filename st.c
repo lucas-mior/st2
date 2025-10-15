@@ -213,7 +213,7 @@ static void term_delete_line(int32);
 static void term_insert_blank(int32);
 static void term_insert_blank_line(int32);
 static int32 term_line_len(Line len);
-static int32 tiswrapped(Line line);
+static int32 term_is_wrapped(Line line);
 static char *term_get_glyphs(char *, const Glyph *, const Glyph *);
 static int64 tgetline(char *, const Glyph *);
 static void term_move_to(int32, int32);
@@ -497,7 +497,7 @@ term_line_len(Line line) {
 }
 
 int32
-tiswrapped(Line line) {
+term_is_wrapped(Line line) {
     int32 len = term_line_len(line);
 
     return len > 0 && (line[len - 1].mode & ATTR_WRAP);
@@ -742,13 +742,13 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
         *x = (direction < 0) ? 0 : term.col - 1;
         if (direction < 0) {
             for (; *y > rtop; *y -= 1) {
-                if (!tiswrapped(TERM_LINE(*y - 1))) {
+                if (!term_is_wrapped(TERM_LINE(*y - 1))) {
                     break;
                 }
             }
         } else if (direction > 0) {
             for (; *y < rbot; *y += 1) {
-                if (!tiswrapped(TERM_LINE(*y))) {
+                if (!term_is_wrapped(TERM_LINE(*y))) {
                     break;
                 }
             }
@@ -3244,7 +3244,7 @@ term_reflow(int32 col, int32 row) {
 
     /* y coordinate of cursor line end */
     oce = term.cursor.y;
-    while (oce < term.row - 1 && tiswrapped(term.line[oce])) {
+    while (oce < term.row - 1 && term_is_wrapped(term.line[oce])) {
         oce += 1;
     }
 
