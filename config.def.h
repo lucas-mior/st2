@@ -123,7 +123,7 @@ char *termname = "st-256color";
 unsigned int tabspaces = 4;
 
 /* bg opacity */
-float alpha = 0.85;
+float alpha = 0.85f;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
@@ -186,7 +186,7 @@ static const char *colorname[] = {
 	[259] = "#555555",
 };
 
-const int trans_colors = 26;
+static const int trans_colors = 26;
 
 /*
  * Default colors (colorname index)
@@ -215,15 +215,15 @@ static unsigned int cursor_shape = 2;
  * Default columns and number_rows numbers
  */
 
-static unsigned int number_cols = 80;
-static unsigned int number_rows = 24;
+static int number_cols = 80;
+static int number_rows = 24;
 
 /*
  * Default colour and shape of the mouse cursor
  */
-static unsigned int mouse_shape = XC_xterm;
-static unsigned int mouse_foreground = 7;
-static unsigned int mouse_background = 0;
+static int mouse_shape = XC_xterm;
+static int mouse_foreground = 7;
+static int mouse_background = 0;
 
 /*
  * Color used to display font attributes when fontconfig selected a font which

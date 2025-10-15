@@ -6,22 +6,22 @@
 #ifndef ARG_H__
 #define ARG_H__
 
-extern char *argv0;
+static char *argv0;
 
 /* use main(int argc, char *argv[]) */
-#define ARGBEGIN	for (argv0 = *argv, argv++, argc--;\
+#define ARGBEGIN	do { for (argv0 = *argv, argv++, argc--;\
 					argv[0] && argv[0][0] == '-'\
 					&& argv[0][1];\
 					argc--, argv++) {\
 				char argc_;\
 				char **argv_;\
 				int brk_;\
+				int i_;\
 				if (argv[0][1] == '-' && argv[0][2] == '\0') {\
 					argv++;\
 					argc--;\
 					break;\
 				}\
-				int i_;\
 				for (i_ = 1, brk_ = 0, argv_ = argv;\
 						argv[0][i_] && !brk_;\
 						i_++) {\
@@ -31,7 +31,7 @@ extern char *argv0;
 					switch (argc_)
 
 #define ARGEND			}\
-			}
+			} } while (0)
 
 #define ARGC()		argc_
 

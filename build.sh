@@ -10,6 +10,7 @@ VERSION="0.9.3"
 
 CFLAGS="$CFLAGS -Wall -Wextra "  #-Werror -fmax-errors=1"
 CFLAGS="$CFLAGS -Wno-unused-parameter -fsanitize=undefined -g"
+CFLAGS="$CFLAGS -Wno-unused-variable -Wno-unused-macros"
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage "

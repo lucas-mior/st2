@@ -18,7 +18,6 @@
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
 
-char *argv0;
 #include "arg.h"
 #include "st.h"
 #include "win.h"
@@ -2195,7 +2194,6 @@ main(int argc, char *argv[]) {
         break;
     case 'v':
         die("%s " VERSION "\n", argv0);
-        break;
     default:
         usage();
     }
