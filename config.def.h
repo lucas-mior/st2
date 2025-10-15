@@ -236,7 +236,7 @@ static uint32 CONF_DEFAULT_ATTR = 11;
  * Note that if you want to use ShiftMask with selmasks, set this to an other
  * modifier, set to 0 to not use it.
  */
-static uint32 force_mouse_mod = ShiftMask;
+static uint32 CONF_FORCE_MOUSE_MOD = ShiftMask;
 
 /*
  * Internal mouse shortcuts.

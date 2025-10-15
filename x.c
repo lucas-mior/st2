@@ -325,7 +325,7 @@ evrow(XEvent *e) {
 void
 mousesel(XEvent *e, int32 done) {
     int32 type, seltype = SELECTION_REGULAR;
-    uint32 state = e->xbutton.state & ~(Button1Mask | force_mouse_mod);
+    uint32 state = e->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
 
     for (type = 1; type < LENGTH(selmasks); ++type) {
         if (match(selmasks[type], state)) {
@@ -435,7 +435,7 @@ mouse_action(XEvent *e, uint32 release) {
          mouse_shortcut++) {
         if (mouse_shortcut->release == release && mouse_shortcut->button == e->xbutton.button &&
             (match(mouse_shortcut->mod, state) || /* exact or forced */
-             match(mouse_shortcut->mod, state & ~force_mouse_mod))) {
+             match(mouse_shortcut->mod, state & ~CONF_FORCE_MOUSE_MOD))) {
             mouse_shortcut->func(&(mouse_shortcut->arg));
             return 1;
         }
@@ -454,7 +454,7 @@ handler_button_press(XEvent *e) {
         buttons |= 1 << (btn - 1);
     }
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
+    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
         mousereport(e);
         return;
     }
@@ -674,7 +674,7 @@ handler_button_release(XEvent *e) {
         buttons &= ~(1 << (btn - 1));
     }
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
+    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
         mousereport(e);
         return;
     }
@@ -689,7 +689,7 @@ handler_button_release(XEvent *e) {
 
 void
 handler_button_motion(XEvent *e) {
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
+    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
         mousereport(e);
         return;
     }
