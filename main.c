@@ -2199,15 +2199,27 @@ kmap(KeySym k, uint32 state) {
             continue;
         }
 
-        if (TERM_WINDOW_IS_SET(WIN_MODE_APPKEYPAD) ? kp->appkey < 0 : kp->appkey > 0) {
-            continue;
+        if (TERM_WINDOW_IS_SET(WIN_MODE_APPKEYPAD)) {
+            if (kp->appkey < 0) {
+                continue;
+            }
+        } else {
+            if (kp->appkey > 0) {
+                continue;
+            }
         }
         if (TERM_WINDOW_IS_SET(WIN_MODE_NUMLOCK) && kp->appkey == 2) {
             continue;
         }
 
-        if (TERM_WINDOW_IS_SET(WIN_MODE_APPCURSOR) ? kp->appcursor < 0 : kp->appcursor > 0) {
-            continue;
+        if (TERM_WINDOW_IS_SET(WIN_MODE_APPCURSOR)) {
+            if (kp->appcursor < 0) {
+                continue;
+            }
+        } else {
+            if (kp->appcursor > 0) {
+                continue;
+            }
         }
 
         return kp->s;
