@@ -71,7 +71,7 @@ int32 ALLOW_WINDOW_OPS = 0;
  * low LATENCY_MIN will tear/flicker more, as it can "detect" idle too early.
  */
 static float LATENCY_MIN = 2;
-static float maxlatency = 33;
+static float LATENCY_MAX = 33;
 
 /*
  * blinking timeout (set to 0 to disable blinking) for the terminal blinking
