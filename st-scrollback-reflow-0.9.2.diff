@@ -81,7 +81,7 @@ index 2478942..2b86d23 100644
 +static int tiswrapped(Line line);
 +static char *tgetglyphs(char *, const Glyph *, const Glyph *);
 +static size_t tgetline(char *, const Glyph *);
- static void tmoveto(int, int);
+ static void term_move_to(int, int);
  static void term_move_abs_to(int, int);
  static void tnewline(int);
  static void tputtab(int);
@@ -482,7 +482,7 @@ index 2478942..2b86d23 100644
  
 +    selremove();
  	for (i = 0; i < 2; i++) {
--		tmoveto(0, 0);
+-		term_move_to(0, 0);
 -		term_cursor(CURSOR_SAVE);
 -		term_clear_region(0, 0, term.col-1, term.row-1);
 -		tswapscreen();
@@ -805,7 +805,7 @@ index 2478942..2b86d23 100644
  	} else {
  		y++;
  	}
-@@ -1246,115 +1414,126 @@ tmoveto(int x, int y)
+@@ -1246,115 +1414,126 @@ term_move_to(int x, int y)
  void
  tsetchar(Rune u, const Glyph *attr, int x, int y)
  {
@@ -1182,7 +1182,7 @@ index 2478942..2b86d23 100644
 -			tscrollup(term.top, 1, 1);
 +			tscrollup(term.top, term.bot, 1, SCROLL_SAVEHIST);
  		} else {
- 			tmoveto(term.c.x, term.c.y+1);
+ 			term_move_to(term.c.x, term.c.y+1);
  		}
 @@ -2381,7 +2558,7 @@ eschandle(uchar ascii)
  		break;
@@ -1191,7 +1191,7 @@ index 2478942..2b86d23 100644
 -			tscrolldown(term.top, 1, 1);
 +			tscrolldown(term.top, 1);
  		} else {
- 			tmoveto(term.c.x, term.c.y-1);
+ 			term_move_to(term.c.x, term.c.y-1);
  		}
 @@ -2525,7 +2702,9 @@ check_control_code:
  		 */
@@ -1206,7 +1206,7 @@ index 2478942..2b86d23 100644
  	gp = &term.line[term.c.y][term.c.x];
 @@ -2565,6 +2744,7 @@ check_control_code:
  	if (term.c.x+width < term.col) {
- 		tmoveto(term.c.x+width, term.c.y);
+ 		term_move_to(term.c.x+width, term.c.y);
  	} else {
 +		term.wrapcwidth[IS_SET(TERM_MODE_ALTSCREEN)] = width;
  		term.c.state |= CURSOR_WRAPNEXT;
@@ -1375,8 +1375,8 @@ index 2478942..2b86d23 100644
 +	term.col = col, term.row = row;
  	/* reset scrolling region */
 -	tsetscroll(0, row-1);
--	/* make use of the LIMIT in tmoveto */
--	tmoveto(term.c.x, term.c.y);
+-	/* make use of the LIMIT in term_move_to */
+-	term_move_to(term.c.x, term.c.y);
 -	/* Clearing both screens (it makes dirty all lines) */
 -	c = term.c;
 -	for (i = 0; i < 2; i++) {

@@ -280,7 +280,7 @@ index b9f66e7..2478942 100644
 -			tscrollup(term.top, 1);
 +			tscrollup(term.top, 1, 1);
  		} else {
- 			tmoveto(term.c.x, term.c.y+1);
+ 			term_move_to(term.c.x, term.c.y+1);
  		}
 @@ -2319,7 +2381,7 @@ eschandle(uchar ascii)
  		break;
@@ -289,7 +289,7 @@ index b9f66e7..2478942 100644
 -			tscrolldown(term.top, 1);
 +			tscrolldown(term.top, 1, 1);
  		} else {
- 			tmoveto(term.c.x, term.c.y-1);
+ 			term_move_to(term.c.x, term.c.y-1);
  		}
 @@ -2542,7 +2604,7 @@ twrite(const char *buf, int buflen, int show_ctrl)
  void
