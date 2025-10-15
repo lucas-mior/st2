@@ -2156,22 +2156,23 @@ main(int argc, char *argv[]) {
         break;
     case 'A':
         alpha = strtof(EARGF(usage()), NULL);
-        LIMIT(alpha, 0.0, 1.0);
+        LIMIT(alpha, 0.0f, 1.0f);
         break;
     case 'c':
         opt_class = EARGF(usage());
         break;
     case 'e':
         if (argc > 0) {
-            --argc, ++argv;
+            --argc;
+            ++argv;
         }
         goto run;
     case 'f':
         opt_font = EARGF(usage());
         break;
     case 'g':
-        x_window.gm =
-            XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t, &number_cols, &number_rows);
+        x_window.gm = XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t, (uint *)&number_cols,
+                                     (uint *)&number_rows);
         break;
     case 'i':
         x_window.isfixed = 1;
