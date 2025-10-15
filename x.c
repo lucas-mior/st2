@@ -105,6 +105,7 @@ typedef struct {
 	XSetWindowAttributes attrs;
 	int scr;
 	int isfixed; /* is fixed geometry? */
+	int depth; /* bit depth */
 	int l, t; /* left and top offset */
 	int gm; /* geometry mask */
 } XWindow;
@@ -752,7 +753,7 @@ x_resize(int col, int row)
 
 	XFreePixmap(x_window.dpy, x_window.buf);
 	x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, term_window.w, term_window.h,
-			DefaultDepth(x_window.dpy, x_window.scr));
+			x_window.depth);
 	XftDrawChange(x_window.draw, x_window.buf);
 	x_clear(0, 0, term_window.w, term_window.h);
 
@@ -812,6 +813,10 @@ x_load_cols(void)
 			else
 				die("could not allocate color %d\n", i);
 		}
+
+	draw_context.col[default_background].color.alpha = (unsigned short)(0xffff * alpha);
+	draw_context.col[default_background].pixel &= 0x00FFFFFF;
+	draw_context.col[default_background].pixel |= (unsigned char)(0xff * alpha) << 24;
 	loaded = 1;
 }
 
@@ -841,6 +846,12 @@ x_set_color_name(int x, const char *name)
 
 	XftColorFree(x_window.dpy, x_window.vis, x_window.cmap, &draw_context.col[x]);
 	draw_context.col[x] = ncolor;
+
+	if (x == default_background) {
+		draw_context.col[default_background].color.alpha = (unsigned short)(0xffff * alpha);
+		draw_context.col[default_background].pixel &= 0x00FFFFFF;
+		draw_context.col[default_background].pixel |= (unsigned char)(0xff * alpha) << 24;
+	}
 
 	return 0;
 }
@@ -1134,11 +1145,25 @@ x_init(int number_cols, int number_rows)
 	Window parent, root;
 	pid_t thispid = getpid();
 	XColor xmousefg, xmousebg;
+	XWindowAttributes attr;
+	XVisualInfo vis;
 
 	if (!(x_window.dpy = XOpenDisplay(NULL)))
 		die("can't open display\n");
 	x_window.scr = XDefaultScreen(x_window.dpy);
-	x_window.vis = XDefaultVisual(x_window.dpy, x_window.scr);
+
+	root = XRootWindow(x_window.dpy, x_window.scr);
+	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0))))
+		parent = root;
+
+	if (XMatchVisualInfo(x_window.dpy, x_window.scr, 32, TrueColor, &vis) != 0) {
+		x_window.vis = vis.visual;
+		x_window.depth = vis.depth;
+	} else {
+		XGetWindowAttributes(x_window.dpy, parent, &attr);
+		x_window.vis = attr.visual;
+		x_window.depth = attr.depth;
+	}
 
 	/* font */
 	if (!FcInit())
@@ -1148,7 +1173,7 @@ x_init(int number_cols, int number_rows)
 	x_load_fonts(usedfont, 0);
 
 	/* colors */
-	x_window.cmap = XDefaultColormap(x_window.dpy, x_window.scr);
+	x_window.cmap = XCreateColormap(x_window.dpy, parent, x_window.vis, None);
 	x_load_cols();
 
 	/* adjust fixed window geometry */
@@ -1168,11 +1193,8 @@ x_init(int number_cols, int number_rows)
 		| ButtonMotionMask | ButtonPressMask | ButtonReleaseMask;
 	x_window.attrs.colormap = x_window.cmap;
 
-	root = XRootWindow(x_window.dpy, x_window.scr);
-	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0))))
-		parent = root;
-	x_window.win = XCreateWindow(x_window.dpy, root, x_window.l, x_window.t,
-			term_window.w, term_window.h, 0, XDefaultDepth(x_window.dpy, x_window.scr), InputOutput,
+	x_window.win = XCreateWindow(x_window.dpy, parent, x_window.l, x_window.t,
+			term_window.w, term_window.h, 0, x_window.depth, InputOutput,
 			x_window.vis, CWBackPixel | CWBorderPixel | CWBitGravity
 			| CWEventMask | CWColormap, &x_window.attrs);
 	if (parent != root)
@@ -1183,7 +1205,7 @@ x_init(int number_cols, int number_rows)
 	draw_context.graphics = XCreateGC(x_window.dpy, x_window.win, GCGraphicsExposures,
 			&gcvalues);
 	x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, term_window.w, term_window.h,
-			DefaultDepth(x_window.dpy, x_window.scr));
+			x_window.depth);
 	XSetForeground(x_window.dpy, draw_context.graphics, draw_context.col[default_background].pixel);
 	XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, term_window.w, term_window.h);
 
@@ -2057,6 +2079,10 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'a':
 		allowaltscreen = 0;
+		break;
+	case 'A':
+		alpha = strtof(EARGF(usage()), NULL);
+		LIMIT(alpha, 0.0, 1.0);
 		break;
 	case 'c':
 		opt_class = EARGF(usage());
