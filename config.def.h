@@ -229,7 +229,7 @@ static int32 CONF_MOUSE_COLOR_BG = 0;
  * Color used to display font attributes when fontconfig selected a font which
  * doesn't match the ones requested.
  */
-static uint32 default_attr = 11;
+static uint32 CONF_DEFAULT_ATTR = 11;
 
 /*
  * Force mouse select/shortcuts while mask is active (when WIN_MODE_MOUSE is set).
