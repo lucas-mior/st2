@@ -245,19 +245,24 @@ static MouseShortcut mshortcuts[] = {
 #define TERMMOD (ControlMask|ShiftMask)
 
 static Shortcut shortcuts[] = {
-	/* mask                 keysym          function        argument */
-	{ XK_ANY_MOD,           XK_Break,       user_send_break,      {.i =  0} },
-	{ ControlMask,          XK_Print,       user_toggle_printer,  {.i =  0} },
-	{ ShiftMask,            XK_Print,       user_print_screen,    {.i =  0} },
-	{ XK_ANY_MOD,           XK_Print,       user_print_sel,       {.i =  0} },
-	{ TERMMOD,              XK_Prior,       user_zoom,           {.f = +1} },
-	{ TERMMOD,              XK_Next,        user_zoom,           {.f = -1} },
-	{ TERMMOD,              XK_Home,        user_zoom_reset,      {.f =  0} },
-	{ TERMMOD,              XK_C,           user_clipboard_copy,       {.i =  0} },
-	{ TERMMOD,              XK_V,           user_clipboard_paste,      {.i =  0} },
-	{ TERMMOD,              XK_Y,           user_selection_paste,       {.i =  0} },
-	{ ShiftMask,            XK_Insert,      user_selection_paste,       {.i =  0} },
-	{ TERMMOD,              XK_Num_Lock,    user_toggle_numlock,        {.i =  0} },
+	/* mask                  keysym         function        argument */
+	{ XK_ANY_MOD,            XK_Break,      user_send_break,      {.i =  0} },
+	{ ControlMask,           XK_Print,      user_toggle_printer,  {.i =  0} },
+	{ ShiftMask,             XK_Print,      user_print_screen,    {.i =  0} },
+	{ XK_ANY_MOD,            XK_Print,      user_print_sel,       {.i =  0} },
+	{ ControlMask|ShiftMask, XK_plus,       user_zoom,            {.f = +1} },
+	{ ControlMask|ShiftMask, XK_underscore, user_zoom,            {.f = -1} },
+	{ ControlMask|ShiftMask, XK_parenright, user_zoom_reset,      {.f =  0} },
+	{ ControlMask|ShiftMask, XK_c,          user_clipboard_copy,  {.i =  0} },
+	{ ControlMask|ShiftMask, XK_V,          user_clipboard_paste, {.i =  0} },
+	{ ShiftMask,             XK_Insert,     user_selection_paste, {.i =  0} },
+	{ Mod1Mask,              XK_Num_Lock,   user_toggle_numlock,  {.i =  0} },
+	{ ControlMask|ShiftMask, XK_F,          user_scroll_up,       {.i = -1} },
+	{ ControlMask|ShiftMask, XK_B,          user_scroll_down,     {.i = -1} },
+	{ ControlMask|ShiftMask, XK_L,          user_scroll_up,       {.i = +1} },
+	{ ControlMask|ShiftMask, XK_K,          user_scroll_down,     {.i = +1} },
+	{ ControlMask|ShiftMask, XK_N,          user_change_alpha,    {.f = -0.02} },
+	{ ControlMask|ShiftMask, XK_M,          user_change_alpha,    {.f = +0.02} },
 };
 
 /*
