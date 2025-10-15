@@ -3224,7 +3224,7 @@ term_reflow(int32 col, int32 row) {
     /* y coordinate of cursor line end */
     oce = term.cursor.y;
     while (oce < term.row - 1 && tiswrapped(term.line[oce])) {
-        oce++;
+        oce += 1;
     }
 
     nlines = term.histf + oce + 1;
@@ -3262,7 +3262,7 @@ term_reflow(int32 col, int32 row) {
             memcpy(&buffer[ny][nx], &line[ox], (size_t)(len - ox)*SIZEOF(Glyph));
             nx += len - ox;
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
-                for (int32 j = nx; j < col; j++) {
+                for (int32 j = nx; j < col; j += 1) {
                     term_clear_glyph(&buffer[ny][j], 0);
                 }
                 nx = 0;
@@ -3270,11 +3270,11 @@ term_reflow(int32 col, int32 row) {
                 buffer[ny][nx - 1].mode &= ~ATTR_WRAP;
             }
             ox = 0;
-            oy++;
+            oy += 1;
         } else if (col - nx == len - ox) {
             memcpy(&buffer[ny][nx], &line[ox], (size_t)(col - nx)*SIZEOF(Glyph));
             ox = 0;
-            oy++;
+            oy += 1;
             nx = 0;
         } else /* if (col - nx < len - ox) */ {
             memcpy(&buffer[ny][nx], &line[ox], (size_t)(col - nx)*SIZEOF(Glyph));
@@ -3284,13 +3284,13 @@ term_reflow(int32 col, int32 row) {
         }
     } while (oy <= oce);
     if (nx) {
-        for (int32 j = nx; j < col; j++) {
+        for (int32 j = nx; j < col; j += 1) {
             term_clear_glyph(&buffer[ny][j], 0);
         }
     }
 
     /* free extra lines */
-    for (i = row; i < term.row; i++) {
+    for (i = row; i < term.row; i += 1) {
         free(term.line[i]);
     }
     /* handler_configure_notify to new height */
@@ -3308,13 +3308,13 @@ term_reflow(int32 col, int32 row) {
         term.cursor.y += nce - j;
         while (term.cursor.y < 0) {
             free(buffer[ny--]);
-            term.cursor.y++;
+            term.cursor.y += 1;
         }
     }
     /* allocate new CONF_NUMBER_ROWS */
     for (i = row - 1; i > nce; i--) {
         term.line[i] = xmalloc((int64)col*SIZEOF(Glyph));
-        for (int32 j = 0; j < col; j++) {
+        for (int32 j = 0; j < col; j += 1) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
