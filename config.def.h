@@ -23,7 +23,7 @@ static char *font2[] = {
 	"LiterationMono Nerd Font Mono:pixelsize=18:style=Regular",
 };
 
-static int border_pixels = 2;
+static int32 border_pixels = 2;
 
 /*
  * What program is execed by st depends of these precedence rules:
@@ -58,11 +58,11 @@ static uint32 doubleclicktimeout = 300;
 static uint32 tripleclicktimeout = 600;
 
 /* alt screens */
-int allowaltscreen = 1;
+int32 allowaltscreen = 1;
 
 /* allow certain non-interactive (insecure) window operations such as:
    setting the clipboard text */
-int allowwindowops = 0;
+int32 allowwindowops = 0;
 
 /*
  * draw latency range in ms - from new content/keypress/etc until drawing.
@@ -90,17 +90,17 @@ static uint32 cursorthickness = 2;
  *    Bold affects lines thickness if boxdraw_bold is not 0. Italic is ignored.
  * 0: disable (render all U25XX glyphs normally from the font).
  */
-const int boxdraw = 1;
-const int boxdraw_bold = 1;
+const int32 boxdraw = 1;
+const int32 boxdraw_bold = 1;
 
 /* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
-const int boxdraw_braille = 0;
+const int32 boxdraw_braille = 0;
 
 /*
  * bell volume. It must be a value between -100 and 100. Use 0 for disabling
  * it
  */
-static int bellvolume = 0;
+static int32 bellvolume = 0;
 
 /* default TERM value */
 char *termname = "st-256color";
@@ -120,7 +120,7 @@ char *termname = "st-256color";
  *
  *	stty tabs
  */
-int tabspaces = 4;
+int32 tabspaces = 4;
 
 /* bg opacity */
 float alpha = 0.85f;
@@ -186,21 +186,21 @@ static const char *colorname[] = {
 	[259] = "#555555",
 };
 
-static const int trans_colors = 26;
+static const int32 trans_colors = 26;
 
 /*
  * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor, selection
  */
-int default_foreground = 7;
-int default_background = 0;
-int default_cursor = 256;
-static int default_reverse_cursor = 257;
-static int selectionbg = 259;
-static int selectionfg = 7;
+int32 default_foreground = 7;
+int32 default_background = 0;
+int32 default_cursor = 256;
+static int32 default_reverse_cursor = 257;
+static int32 selectionbg = 259;
+static int32 selectionfg = 7;
 /* If 0 use selectionfg as foreground in order to have a uniform foreground-color */
 /* Else if 1 keep original foreground-color of each cell => more colors :) */
-static int ignoreselfg = 1;
+static int32 ignoreselfg = 1;
 
 /*
  * Default shape of cursor
@@ -215,15 +215,15 @@ static uint32 cursor_shape = 2;
  * Default columns and number_rows numbers
  */
 
-static int number_cols = 80;
-static int number_rows = 24;
+static int32 number_cols = 80;
+static int32 number_rows = 24;
 
 /*
  * Default colour and shape of the mouse cursor
  */
-static int mouse_shape = XC_xterm;
-static int mouse_foreground = 7;
-static int mouse_background = 0;
+static int32 mouse_shape = XC_xterm;
+static int32 mouse_foreground = 7;
+static int32 mouse_background = 0;
 
 /*
  * Color used to display font attributes when fontconfig selected a font which

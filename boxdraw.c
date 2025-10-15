@@ -18,8 +18,8 @@ static Colormap xcmap;
 static XftDraw *xd;
 static Visual *xvis;
 
-static void drawbox(int, int, int, int, XftColor *, XftColor *, uint16);
-static void drawboxlines(int, int, int, int, XftColor *, uint16);
+static void drawbox(int32, int32, int32, int32, XftColor *, XftColor *, uint16);
+static void drawboxlines(int32, int32, int32, int32, XftColor *, uint16);
 
 /* public API */
 
@@ -31,7 +31,7 @@ boxdraw_xinit(Display *dpy, Colormap cmap, XftDraw *draw, Visual *vis) {
     xvis = vis;
 }
 
-int
+int32
 isboxdraw(Rune u) {
     Rune block = u & ~(uint32)0xff;
     return (boxdraw && block == 0x2500 && boxdata[(uint8_t)u]) ||
@@ -51,8 +51,8 @@ boxdrawindex(const Glyph *g) {
 }
 
 void
-drawboxes(int x, int y, int cw, int ch, XftColor *fg, XftColor *bg, const XftGlyphFontSpec *specs,
-          int len) {
+drawboxes(int32 x, int32 y, int32 cw, int32 ch, XftColor *fg, XftColor *bg,
+          const XftGlyphFontSpec *specs, int32 len) {
     for (; len-- > 0; x += cw, specs++) {
         drawbox(x, y, cw, ch, fg, bg, (uint16)specs->glyph);
     }
@@ -61,7 +61,7 @@ drawboxes(int x, int y, int cw, int ch, XftColor *fg, XftColor *bg, const XftGly
 /* implementation */
 
 void
-drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, uint16 bd) {
+drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg, uint16 bd) {
     uint16 cat = bd & ~(BDB | 0xff); /* mask out bold and data */
     if (bd & (BDL | BDA)) {
         /* lines (light/double/heavy/arcs) */
@@ -69,7 +69,7 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, uint16 bd) {
 
     } else if (cat == BBD) {
         /* lower (8-X)/8 block */
-        int d = DIV((uint8_t)bd * h, 8);
+        int32 d = DIV((uint8_t)bd * h, 8);
         XftDrawRect(xd, fg, x, y + d, (uint32)w, (uint32)(h - d));
 
     } else if (cat == BBU) {
@@ -82,12 +82,12 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, uint16 bd) {
 
     } else if (cat == BBR) {
         /* right (8-X)/8 block */
-        int d = DIV((uint8_t)bd * w, 8);
+        int32 d = DIV((uint8_t)bd * w, 8);
         XftDrawRect(xd, fg, x + d, y, (uint32)(w - d), (uint32)h);
 
     } else if (cat == BBQ) {
         /* Quadrants */
-        int w2 = DIV(w, 2), h2 = DIV(h, 2);
+        int32 w2 = DIV(w, 2), h2 = DIV(h, 2);
         if (bd & TL) {
             XftDrawRect(xd, fg, x, y, (uint32)w2, (uint32)h2);
         }
@@ -103,7 +103,7 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, uint16 bd) {
 
     } else if (bd & BBS) {
         /* Shades - data is 1/2/3 for 25%/50%/75% alpha, respectively */
-        int d = (uint8_t)bd;
+        int32 d = (uint8_t)bd;
         XftColor xfc;
         XRenderColor xrc = {.alpha = 0xffff};
 
@@ -117,8 +117,8 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, uint16 bd) {
 
     } else if (cat == BRL) {
         /* braille, each data bit corresponds to one dot at 2x4 grid */
-        int w1 = DIV(w, 2);
-        int h1 = DIV(h, 4), h2 = DIV(h, 2), h3 = DIV(3 * h, 4);
+        int32 w1 = DIV(w, 2);
+        int32 h1 = DIV(h, 4), h2 = DIV(h, 2), h3 = DIV(3 * h, 4);
 
         if (bd & 1) {
             XftDrawRect(xd, fg, x, y, (uint32)w1, (uint32)h1);
@@ -148,29 +148,29 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, uint16 bd) {
 }
 
 void
-drawboxlines(int x, int y, int w, int h, XftColor *fg, uint16 bd) {
+drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
     /* s: stem thickness. width/8 roughly matches underscore thickness. */
     /* We draw bold as 1.5 * normal-stem and at least 1px thicker.      */
     /* doubles draw at least 3px, even when w or h < 3. bold needs 6px. */
-    int mwh = MIN(w, h);
-    int base_s = MAX(1, DIV(mwh, 8));
-    int bold = (bd & BDB) && mwh >= 6; /* possibly ignore boldness */
-    int s = bold ? MAX(base_s + 1, DIV(3 * base_s, 2)) : base_s;
-    int w2 = DIV(w - s, 2), h2 = DIV(h - s, 2);
+    int32 mwh = MIN(w, h);
+    int32 base_s = MAX(1, DIV(mwh, 8));
+    int32 bold = (bd & BDB) && mwh >= 6; /* possibly ignore boldness */
+    int32 s = bold ? MAX(base_s + 1, DIV(3 * base_s, 2)) : base_s;
+    int32 w2 = DIV(w - s, 2), h2 = DIV(h - s, 2);
     /* the s-by-s square (x + w2, y + h2, s, s) is the center texel.    */
     /* The base length (per direction till edge) includes this square.  */
 
-    int light = bd & (LL | LU | LR | LD);
-    int double_ = bd & (DL | DU | DR | DD);
+    int32 light = bd & (LL | LU | LR | LD);
+    int32 double_ = bd & (DL | DU | DR | DD);
 
     if (light) {
         /* d: additional (negative) length to not-draw the center   */
         /* texel - at arcs and avoid drawing inside (some) doubles  */
-        int arc = bd & BDA;
-        int multi_light = light & (light - 1);
-        int multi_double = double_ & (double_ - 1);
+        int32 arc = bd & BDA;
+        int32 multi_light = light & (light - 1);
+        int32 multi_double = double_ & (double_ - 1);
         /* light crosses double only at DH+LV, DV+LH (ref. shapes)  */
-        int d = arc || (multi_double && !multi_light) ? -s : 0;
+        int32 d = arc || (multi_double && !multi_light) ? -s : 0;
 
         if (bd & LL) {
             XftDrawRect(xd, fg, x, y + h2, (uint32)(w2 + s + d), (uint32)s);
@@ -195,24 +195,24 @@ drawboxlines(int x, int y, int w, int h, XftColor *fg, uint16 bd) {
          * which consider other doubles - shorter to avoid intersections
          * (p, n), or longer to draw the far-corner texel (n).
          */
-        int dl = bd & DL, du = bd & DU, dr = bd & DR, dd = bd & DD;
+        int32 dl = bd & DL, du = bd & DU, dr = bd & DR, dd = bd & DD;
         if (dl) {
-            int p = dd ? -s : 0, n = du ? -s : dd ? s : 0;
+            int32 p = dd ? -s : 0, n = du ? -s : dd ? s : 0;
             XftDrawRect(xd, fg, x, y + h2 + s, (uint32)(w2 + s + p), (uint32)s);
             XftDrawRect(xd, fg, x, y + h2 - s, (uint32)(w2 + s + n), (uint32)s);
         }
         if (du) {
-            int p = dl ? -s : 0, n = dr ? -s : dl ? s : 0;
+            int32 p = dl ? -s : 0, n = dr ? -s : dl ? s : 0;
             XftDrawRect(xd, fg, x + w2 - s, y, (uint32)s, (uint32)(h2 + s + p));
             XftDrawRect(xd, fg, x + w2 + s, y, (uint32)s, (uint32)(h2 + s + n));
         }
         if (dr) {
-            int p = du ? -s : 0, n = dd ? -s : du ? s : 0;
+            int32 p = du ? -s : 0, n = dd ? -s : du ? s : 0;
             XftDrawRect(xd, fg, x + w2 - p, y + h2 - s, (uint32)(w - w2 + p), (uint32)s);
             XftDrawRect(xd, fg, x + w2 - n, y + h2 + s, (uint32)(w - w2 + n), (uint32)s);
         }
         if (dd) {
-            int p = dr ? -s : 0, n = dl ? -s : dr ? s : 0;
+            int32 p = dr ? -s : 0, n = dl ? -s : dr ? s : 0;
             XftDrawRect(xd, fg, x + w2 + s, y + h2 - p, (uint32)s, (uint32)(h - h2 + p));
             XftDrawRect(xd, fg, x + w2 - s, y + h2 - n, (uint32)s, (uint32)(h - h2 + n));
         }

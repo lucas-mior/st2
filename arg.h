@@ -8,15 +8,15 @@
 
 static char *argv0;
 
-/* use main(int argc, char *argv[]) */
+/* use main(int32 argc, char *argv[]) */
 #define ARGBEGIN	do { for (argv0 = *argv, argv++, argc--;\
 					argv[0] && argv[0][0] == '-'\
 					&& argv[0][1];\
 					argc--, argv++) {\
 				char argc_;\
 				char **argv_;\
-				int brk_;\
-				int i_;\
+				int32 brk_;\
+				int32 i_;\
 				if (argv[0][1] == '-' && argv[0][2] == '\0') {\
 					argv++;\
 					argc--;\

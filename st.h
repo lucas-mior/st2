@@ -26,7 +26,7 @@ typedef uint_least32_t Rune;
 /* macros */
 #define MIN(a, b)		((a) < (b) ? (a) : (b))
 #define MAX(a, b)		((a) < (b) ? (b) : (a))
-#define LEN(a)			(int)(sizeof(a) / sizeof(a)[0])
+#define LEN(a)			(int32)(sizeof(a) / sizeof(a)[0])
 #define BETWEEN(x, a, b)	((a) <= (x) && (x) <= (b))
 #define DIVCEIL(n, d)		(((n) + ((d) - 1)) / (d))
 #define DEFAULT(a, b)		(a) = (a) ? (a) : (b)
@@ -85,14 +85,14 @@ typedef struct {
 	Rune rune;           /* character code */
 	uint16 mode;      /* attribute flags */
 	uint16 padding;
-	int fg;      /* foreground  */
-	int bg;      /* background  */
+	int32 fg;      /* foreground  */
+	int32 bg;      /* background  */
 } Glyph;
 
 typedef Glyph *Line;
 
 typedef union {
-	int i;
+	int32 i;
 	uint32 ui;
 	float f;
 	const void *v;
@@ -119,24 +119,24 @@ void user_print_sel(const Arg *);
 void user_send_break(const Arg *);
 void user_toggle_printer(const Arg *);
 
-int term_attr_set(int);
-void term_new(int, int);
-int tisaltscreen(void);
-void term_resize(int, int);
-void term_set_dirt_attr(int);
+int32 term_attr_set(int32);
+void term_new(int32, int32);
+int32 tisaltscreen(void);
+void term_resize(int32, int32);
+void term_set_dirt_attr(int32);
 void tty_hangup(void);
-int tty_new(const char *, char *, const char *, char **);
+int32 tty_new(const char *, char *, const char *, char **);
 size_t tty_read(void);
-void tty_resize(int, int);
-void tty_write(const char *, size_t, int);
+void tty_resize(int32, int32);
+void tty_write(const char *, size_t, int32);
 
 void reset_title(void);
 
 void selection_clear(void);
 void selection_init(void);
-void selection_start(int, int, int);
-void selection_extend(int, int, int, int);
-int selected(int, int);
+void selection_start(int32, int32, int32);
+void selection_extend(int32, int32, int32, int32);
+int32 selected(int32, int32);
 char *get_sel(void);
 
 size_t utf8_encode(Rune, char *);
@@ -145,12 +145,12 @@ void *xmalloc(size_t);
 void *xrealloc(void *, size_t);
 char *xstrdup(const char *);
 
-int isboxdraw(Rune);
+int32 isboxdraw(Rune);
 uint16 boxdrawindex(const Glyph *);
 #ifdef XFT_VERSION
 /* only exposed to x.c, otherwise we'll need Xft.h for the types */
 void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
-void drawboxes(int, int, int, int, XftColor *, XftColor *, const XftGlyphFontSpec *, int);
+void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, const XftGlyphFontSpec *, int32);
 #endif
 
 /* config.def.h globals */
@@ -159,14 +159,14 @@ extern char *scroll;
 extern char *stty_args;
 extern char *vtiden;
 extern wchar_t *worddelimiters;
-extern int allowaltscreen;
-extern int allowwindowops;
+extern int32 allowaltscreen;
+extern int32 allowwindowops;
 extern char *termname;
-extern int tabspaces;
-extern int default_foreground;
-extern int default_background;
-extern int default_cursor;
-extern const int boxdraw, boxdraw_bold, boxdraw_braille;
+extern int32 tabspaces;
+extern int32 default_foreground;
+extern int32 default_background;
+extern int32 default_cursor;
+extern const int32 boxdraw, boxdraw_bold, boxdraw_braille;
 extern float alpha;
 
 /* function definitions used in config.def.h */

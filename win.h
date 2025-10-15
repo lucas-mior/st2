@@ -28,19 +28,19 @@ enum win_mode {
 
 void x_bell(void);
 void x_clipboard_copy(void);
-void x_draw_cursor(int, int, Glyph, int, int, Glyph);
-void x_draw_line(Line, int, int, int);
+void x_draw_cursor(int32, int32, Glyph, int32, int32, Glyph);
+void x_draw_line(Line, int32, int32, int32);
 void x_finish_draw(void);
 void x_load_cols(void);
-int x_set_color_name(int, const char *);
-int x_get_color(int, uchar *, uchar *, uchar *);
+int32 x_set_color_name(int32, const char *);
+int32 x_get_color(int32, uchar *, uchar *, uchar *);
 void x_set_icon_title(char *);
 void x_set_title(char *);
-int x_set_cursor(int);
-void x_set_mode(int, uint32);
-void x_set_pointer_motion(int);
+int32 x_set_cursor(int32);
+void x_set_mode(int32, uint32);
+void x_set_pointer_motion(int32);
 void x_set_sel(char *);
-int x_start_draw(void);
-void x_xim_spot(int, int);
+int32 x_start_draw(void);
+void x_xim_spot(int32, int32);
 
 #endif /* WIN_H */

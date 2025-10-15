@@ -115,15 +115,15 @@ enum escape_state {
 
 typedef struct {
     Glyph attr; /* current char attributes */
-    int x;
-    int y;
+    int32 x;
+    int32 y;
     char state;
 } TCursor;
 
 typedef struct {
-    int mode;
-    int type;
-    int snap;
+    int32 mode;
+    int32 type;
+    int32 snap;
     /*
      * Selection variables:
      * nb – normalized coordinates of the beginning of the selection
@@ -132,35 +132,35 @@ typedef struct {
      * oe – original coordinates of the end of the selection
      */
     struct {
-        int x;
-        int y;
+        int32 x;
+        int32 y;
     } nb, ne, ob, oe;
 
-    int alt;
+    int32 alt;
 } Selection;
 
 /* Internal representation of the screen */
 typedef struct {
-    int row;             /* nb row */
-    int col;             /* nb col */
+    int32 row;           /* nb row */
+    int32 col;           /* nb col */
     Line *line;          /* screen */
     Line hist[HISTSIZE]; /* history buffer */
-    int histi;           /* history index */
-    int histf;           /* nb history available */
-    int scr;             /* scroll back */
-    int wrapcwidth[2];   /* used in updating WRAPNEXT when resizing */
-    int *dirty;          /* dirtyness of lines */
+    int32 histi;         /* history index */
+    int32 histf;         /* nb history available */
+    int32 scr;           /* scroll back */
+    int32 wrapcwidth[2]; /* used in updating WRAPNEXT when resizing */
+    int32 *dirty;        /* dirtyness of lines */
     TCursor cursor;      /* cursor */
-    int ocx;             /* old cursor col */
-    int ocy;             /* old cursor row */
-    int top;             /* top    scroll limit */
-    int bot;             /* bottom scroll limit */
-    int mode;            /* terminal mode flags */
-    int esc;             /* escape state flags */
+    int32 ocx;           /* old cursor col */
+    int32 ocy;           /* old cursor row */
+    int32 top;           /* top    scroll limit */
+    int32 bot;           /* bottom scroll limit */
+    int32 mode;          /* terminal mode flags */
+    int32 esc;           /* escape state flags */
     char trantbl[4];     /* charset table translation */
-    int charset;         /* current charset */
-    int icharset;        /* selected charset for sequence */
-    int *tabs;
+    int32 charset;       /* current charset */
+    int32 icharset;      /* selected charset for sequence */
+    int32 *tabs;
     Rune lastc; /* last printed char outside of sequence, 0 if control */
 } Term;
 
@@ -170,8 +170,8 @@ typedef struct {
     char buf[ESC_BUF_SIZ]; /* raw string */
     size_t len;            /* raw string length */
     char priv;
-    int arg[ESC_ARG_SIZ];
-    int narg; /* nb of args */
+    int32 arg[ESC_ARG_SIZ];
+    int32 narg; /* nb of args */
     char mode[2];
 } CSIEscape;
 
@@ -183,20 +183,20 @@ typedef struct {
     size_t siz; /* allocation size */
     size_t len; /* raw string length */
     char *args[STR_ARG_SIZ];
-    int narg; /* nb of args */
+    int32 narg; /* nb of args */
 } STREscape;
 
 static void exec_shell(char *, char **) __attribute__((noreturn));
 static void stty(char **);
-static void handler_sigchld(int);
+static void handler_sigchld(int32);
 static void tty_write_raw(const char *, size_t);
 
 static void control_seq_intro_dump(void);
 static void control_seq_intro_handle(void);
 static void control_seq_intro_parse(void);
 static void control_seq_intro_reset(void);
-static void osc_color_response(int, int, int);
-static int eschandle(uchar);
+static void osc_color_response(int32, int32, int32);
+static int32 eschandle(uchar);
 static void string_dump(void);
 static void string_handle(void);
 static void string_parse(void);
@@ -204,57 +204,57 @@ static void string_reset(void);
 
 static void term_printer(char *, size_t);
 static void term_dump_sel(void);
-static void term_dump_line(int);
+static void term_dump_line(int32);
 static void term_dump(void);
-static void term_clear_region(int, int, int, int, int);
-static void term_cursor(int);
-static void term_clear_glyph(Glyph *, int);
+static void term_clear_region(int32, int32, int32, int32, int32);
+static void term_cursor(int32);
+static void term_clear_glyph(Glyph *, int32);
 static void tresetcursor(void);
-static void term_delete_char(int);
-static void term_delete_line(int);
-static void term_insert_blank(int);
-static void term_insert_blank_line(int);
-static int term_line_len(Line len);
-static int tiswrapped(Line line);
+static void term_delete_char(int32);
+static void term_delete_line(int32);
+static void term_insert_blank(int32);
+static void term_insert_blank_line(int32);
+static int32 term_line_len(Line len);
+static int32 tiswrapped(Line line);
 static char *tgetglyphs(char *, const Glyph *, const Glyph *);
 static size_t tgetline(char *, const Glyph *);
-static void term_move_to(int, int);
-static void term_move_abs_to(int, int);
-static void term_new_line(int);
-static void term_put_tab(int);
+static void term_move_to(int32, int32);
+static void term_move_abs_to(int32, int32);
+static void term_new_line(int32);
+static void term_put_tab(int32);
 static void term_putc(Rune);
 static void term_reset(void);
-static void term_scroll_up(int, int, int, int);
-static void term_scroll_down(int, int);
-static void term_reflow(int, int);
-static void rscrolldown(int);
-static void term_resize_def(int, int);
-static void term_resize_alt(int, int);
-static void term_set_attr(const int *, int);
-static void term_set_char(Rune, const Glyph *, int, int);
-static void term_set_dirt(int, int);
-static void term_set_scroll(int, int);
+static void term_scroll_up(int32, int32, int32, int32);
+static void term_scroll_down(int32, int32);
+static void term_reflow(int32, int32);
+static void rscrolldown(int32);
+static void term_resize_def(int32, int32);
+static void term_resize_alt(int32, int32);
+static void term_set_attr(const int32 *, int32);
+static void term_set_char(Rune, const Glyph *, int32, int32);
+static void term_set_dirt(int32, int32);
+static void term_set_scroll(int32, int32);
 static void term_swap_screen(void);
-static void term_load_def_screen(int, int);
-static void term_load_alt_screen(int, int);
-static void term_set_mode(int, int, const int *, int);
-static int term_write(const char *, int, int);
+static void term_load_def_screen(int32, int32);
+static void term_load_alt_screen(int32, int32);
+static void term_set_mode(int32, int32, const int32 *, int32);
+static int32 term_write(const char *, int32, int32);
 static void term_full_dirt(void);
 static void term_control_code(uchar);
 static void term_dec_test(char);
 static void term_def_utf8(char);
-static int32_t term_def_color(const int *, int *, int);
+static int32_t term_def_color(const int32 *, int32 *, int32);
 static void term_def_tran(char);
 static void term_str_sequence(uchar);
 
-static void draw_region(int, int, int, int);
+static void draw_region(int32, int32, int32, int32);
 
 static void selection_normalize(void);
-static void selection_scroll(int, int, int);
-static void selection_move(int);
+static void selection_scroll(int32, int32, int32);
+static void selection_move(int32);
 static void selection_remove(void);
-static int regionselected(int, int, int, int);
-static void selection_snap(int *, int *, int);
+static int32 regionselected(int32, int32, int32, int32);
+static void selection_snap(int32 *, int32 *, int32);
 
 static size_t utf8_decode(const char *, Rune *, size_t);
 static Rune utf8_decode_byte(char, size_t *);
@@ -264,15 +264,15 @@ static size_t utf8_validate(Rune *, size_t);
 static char *base64_decode(const char *);
 static char base64_decode_getc(const char **);
 
-static ssize_t xwrite(int, const char *, size_t);
+static ssize_t xwrite(int32, const char *, size_t);
 
 /* Globals */
 static Term term;
 static Selection selection;
 static CSIEscape csiescseq;
 static STREscape strescseq;
-static int iofd = 1;
-static int cmdfd;
+static int32 iofd = 1;
+static int32 cmdfd;
 static pid_t pid;
 
 static const uchar utfbyte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
@@ -281,7 +281,7 @@ static const Rune utfmin[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
 static const Rune utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
 ssize_t
-xwrite(int fd, const char *s, size_t len) {
+xwrite(int32 fd, const char *s, size_t len) {
     ssize_t r;
     ssize_t left = (ssize_t)len;
 
@@ -428,10 +428,10 @@ base64_decode(const char *src) {
     }
     result = dst = xmalloc(in_len / 4 * 3 + 1);
     while (*src) {
-        int a = base64_digits[(uchar)base64_decode_getc(&src)];
-        int b = base64_digits[(uchar)base64_decode_getc(&src)];
-        int c = base64_digits[(uchar)base64_decode_getc(&src)];
-        int d = base64_digits[(uchar)base64_decode_getc(&src)];
+        int32 a = base64_digits[(uchar)base64_decode_getc(&src)];
+        int32 b = base64_digits[(uchar)base64_decode_getc(&src)];
+        int32 c = base64_digits[(uchar)base64_decode_getc(&src)];
+        int32 d = base64_digits[(uchar)base64_decode_getc(&src)];
 
         /* invalid input. 'a' can be -1, e.g. if src is "\n" (c-str) */
         if (a == -1 || b == -1) {
@@ -460,18 +460,18 @@ selection_init(void) {
     return;
 }
 
-int
+int32
 term_line_len(Line line) {
-    int i = term.col - 1;
+    int32 i = term.col - 1;
 
     for (; i >= 0 && !(line[i].mode & (ATTR_SET | ATTR_WRAP)); i--)
         ;
     return i + 1;
 }
 
-int
+int32
 tiswrapped(Line line) {
-    int len = term_line_len(line);
+    int32 len = term_line_len(line);
 
     return len > 0 && (line[len - 1].mode & ATTR_WRAP);
 }
@@ -503,9 +503,9 @@ tgetline(char *buf, const Glyph *fgp) {
     return (size_t)(ptr - buf);
 }
 
-static int
-tlinehistlen(int y) {
-    int i = term.col;
+static int32
+tlinehistlen(int32 y) {
+    int32 i = term.col;
 
     if (TLINE_HIST(y)[i - 1].mode & ATTR_WRAP) {
         return i;
@@ -519,7 +519,7 @@ tlinehistlen(int y) {
 }
 
 void
-selection_start(int col, int row, int snap) {
+selection_start(int32 col, int32 row, int32 snap) {
     selection_clear();
     selection.mode = SELECTION_EMPTY;
     selection.type = SELECTION_REGULAR;
@@ -537,12 +537,12 @@ selection_start(int col, int row, int snap) {
 }
 
 void
-selection_extend(int col, int row, int type, int done) {
-    int oldey;
-    int oldex;
-    int oldsby;
-    int oldsey;
-    int oldtype;
+selection_extend(int32 col, int32 row, int32 type, int32 done) {
+    int32 oldey;
+    int32 oldex;
+    int32 oldsby;
+    int32 oldsey;
+    int32 oldtype;
 
     if (selection.mode == SELECTION_IDLE) {
         return;
@@ -574,7 +574,7 @@ selection_extend(int col, int row, int type, int done) {
 
 void
 selection_normalize(void) {
-    int i;
+    int32 i;
 
     if (selection.type == SELECTION_REGULAR && selection.ob.y != selection.oe.y) {
         selection.nb.x = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
@@ -604,8 +604,8 @@ selection_normalize(void) {
     return;
 }
 
-int
-regionselected(int x1, int y1, int x2, int y2) {
+int32
+regionselected(int32 x1, int32 y1, int32 x2, int32 y2) {
     if (selection.ob.x == -1 || selection.mode == SELECTION_EMPTY ||
         selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) || selection.nb.y > y2 ||
         selection.ne.y < y1) {
@@ -618,20 +618,20 @@ regionselected(int x1, int y1, int x2, int y2) {
                      (selection.ne.y != y1 || selection.ne.x >= x1);
 }
 
-int
-selected(int x, int y) {
+int32
+selected(int32 x, int32 y) {
     return regionselected(x, y, x, y);
 }
 
 void
-selection_snap(int *x, int *y, int direction) {
-    int newx;
-    int newy;
-    int xt;
-    int yt;
-    int rtop = 0, rbot = term.row - 1;
-    int delim;
-    int prevdelim;
+selection_snap(int32 *x, int32 *y, int32 direction) {
+    int32 newx;
+    int32 newy;
+    int32 xt;
+    int32 yt;
+    int32 rtop = 0, rbot = term.row - 1;
+    int32 delim;
+    int32 prevdelim;
     const Glyph *gp, *prevgp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -717,8 +717,8 @@ selection_snap(int *x, int *y, int direction) {
 char *
 get_sel(void) {
     char *str, *ptr;
-    int lastx;
-    int linelen;
+    int32 lastx;
+    int32 linelen;
     const Glyph *gp, *lgp;
 
     if (selection.ob.x == -1 || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -729,7 +729,7 @@ get_sel(void) {
     ptr = str;
 
     /* append every set & selected glyph to the selection */
-    for (int y = selection.nb.y; y <= selection.ne.y; y++) {
+    for (int32 y = selection.nb.y; y <= selection.ne.y; y++) {
         Line line = TLINE(y);
 
         if ((linelen = term_line_len(line)) == 0) {
@@ -847,8 +847,8 @@ exec_shell(char *cmd, char **args) {
 }
 
 void
-handler_sigchld(int a) {
-    int stat;
+handler_sigchld(int32 a) {
+    int32 stat;
     pid_t p;
 
     if ((p = waitpid(pid, &stat, WNOHANG)) < 0) {
@@ -902,10 +902,10 @@ stty(char **args) {
     return;
 }
 
-int
+int32
 tty_new(const char *line, char *cmd, const char *out, char **args) {
-    int m;
-    int s;
+    int32 m;
+    int32 s;
 
     if (out) {
         term.mode |= TERM_MODE_PRINT;
@@ -970,12 +970,12 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
 size_t
 tty_read(void) {
     static char buf[BUFSIZ];
-    static int buflen = 0;
-    int ret;
-    int written;
+    static int32 buflen = 0;
+    int32 ret;
+    int32 written;
 
     /* append read bytes to unprocessed bytes */
-    ret = (int)read(cmdfd, buf + buflen, (size_t)(LEN(buf) - buflen));
+    ret = (int32)read(cmdfd, buf + buflen, (size_t)(LEN(buf) - buflen));
 
     switch (ret) {
     case 0:
@@ -995,13 +995,13 @@ tty_read(void) {
 }
 
 void
-tty_write(const char *s, size_t n, int may_echo) {
+tty_write(const char *s, size_t n, int32 may_echo) {
     const char *next;
 
     user_scroll_down(&((Arg){.i = term.scr}));
 
     if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHO)) {
-        term_write(s, (int)n, 1);
+        term_write(s, (int32)n, 1);
     }
 
     if (!TERM_MODE_IS_SET(TERM_MODE_CRLF)) {
@@ -1088,7 +1088,7 @@ write_error:
 }
 
 void
-tty_resize(int tty_width, int tty_height) {
+tty_resize(int32 tty_width, int32 tty_height) {
     struct winsize winsize;
 
     winsize.ws_row = (uint16)term.row;
@@ -1108,10 +1108,10 @@ tty_hangup(void) {
     return;
 }
 
-int
-term_attr_set(int attr) {
-    for (int i = 0; i < term.row - 1; i++) {
-        for (int j = 0; j < term.col - 1; j++) {
+int32
+term_attr_set(int32 attr) {
+    for (int32 i = 0; i < term.row - 1; i++) {
+        for (int32 j = 0; j < term.col - 1; j++) {
             if (term.line[i][j].mode & attr) {
                 return 1;
             }
@@ -1122,20 +1122,20 @@ term_attr_set(int attr) {
 }
 
 void
-term_set_dirt(int top, int bot) {
+term_set_dirt(int32 top, int32 bot) {
     LIMIT(top, 0, term.row - 1);
     LIMIT(bot, 0, term.row - 1);
 
-    for (int i = top; i <= bot; i++) {
+    for (int32 i = top; i <= bot; i++) {
         term.dirty[i] = 1;
     }
     return;
 }
 
 void
-term_set_dirt_attr(int attr) {
-    for (int i = 0; i < term.row - 1; i++) {
-        for (int j = 0; j < term.col - 1; j++) {
+term_set_dirt_attr(int32 attr) {
+    for (int32 i = 0; i < term.row - 1; i++) {
+        for (int32 j = 0; j < term.col - 1; j++) {
             if (term.line[i][j].mode & attr) {
                 term.dirty[i] = 1;
                 break;
@@ -1147,16 +1147,16 @@ term_set_dirt_attr(int attr) {
 
 void
 term_full_dirt(void) {
-    for (int i = 0; i < term.row; i++) {
+    for (int32 i = 0; i < term.row; i++) {
         term.dirty[i] = 1;
     }
     return;
 }
 
 void
-term_cursor(int mode) {
+term_cursor(int32 mode) {
     static TCursor c[2];
-    int alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
     if (mode == CURSOR_SAVE) {
         c[alt] = term.cursor;
@@ -1181,7 +1181,7 @@ term_reset(void) {
     tresetcursor();
 
     memset(term.tabs, 0, (size_t)term.col * sizeof(*term.tabs));
-    for (int i = tabspaces; i < term.col; i += tabspaces) {
+    for (int32 i = tabspaces; i < term.col; i += tabspaces) {
         term.tabs[i] = 1;
     }
     term.top = 0;
@@ -1195,8 +1195,8 @@ term_reset(void) {
     selection_remove();
     for (uint32 i = 0; i < 2; i++) {
         term_cursor(CURSOR_SAVE); /* reset saved cursor */
-        for (int y = 0; y < term.row; y++) {
-            for (int x = 0; x < term.col; x++) {
+        for (int32 y = 0; y < term.row; y++) {
+            for (int32 x = 0; x < term.col; x++) {
                 term_clear_glyph(&term.line[y][x], 0);
             }
         }
@@ -1207,10 +1207,10 @@ term_reset(void) {
 }
 
 void
-term_new(int col, int row) {
-    for (int i = 0; i < 2; i++) {
+term_new(int32 col, int32 row) {
+    for (int32 i = 0; i < 2; i++) {
         term.line = xmalloc((size_t)row * sizeof(Line));
-        for (int j = 0; j < row; j++) {
+        for (int32 j = 0; j < row; j++) {
             term.line[j] = xmalloc((size_t)col * sizeof(Glyph));
         }
         term.col = col;
@@ -1219,7 +1219,7 @@ term_new(int col, int row) {
     }
     term.dirty = xmalloc((size_t)row * sizeof(*term.dirty));
     term.tabs = xmalloc((size_t)col * sizeof(*term.tabs));
-    for (int i = 0; i < HISTSIZE; i++) {
+    for (int32 i = 0; i < HISTSIZE; i++) {
         term.hist[i] = xmalloc((size_t)col * sizeof(Glyph));
     }
     term_reset();
@@ -1230,9 +1230,9 @@ term_new(int col, int row) {
 void
 term_swap_screen(void) {
     static Line *altline;
-    static int altcol, altrow;
+    static int32 altcol, altrow;
     Line *tmpline = term.line;
-    int tmpcol = term.col, tmprow = term.row;
+    int32 tmpcol = term.col, tmprow = term.row;
 
     term.line = altline;
     term.col = altcol;
@@ -1245,10 +1245,10 @@ term_swap_screen(void) {
 }
 
 void
-term_load_def_screen(int clear, int loadcursor) {
-    int col = 0;
-    int row = 0;
-    int alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+term_load_def_screen(int32 clear, int32 loadcursor) {
+    int32 col = 0;
+    int32 row = 0;
+    int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
     if (alt) {
         if (clear) {
@@ -1268,8 +1268,8 @@ term_load_def_screen(int clear, int loadcursor) {
 }
 
 void
-term_load_alt_screen(int clear, int savecursor) {
-    int col, row, def = !TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+term_load_alt_screen(int32 clear, int32 savecursor) {
+    int32 col, row, def = !TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
     if (savecursor) {
         term_cursor(CURSOR_SAVE);
@@ -1287,14 +1287,14 @@ term_load_alt_screen(int clear, int savecursor) {
     return;
 }
 
-int
+int32
 tisaltscreen(void) {
     return TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 }
 
 void
 user_scroll_down(const Arg *a) {
-    int n = a->i;
+    int32 n = a->i;
 
     if (!term.scr || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         return;
@@ -1319,7 +1319,7 @@ user_scroll_down(const Arg *a) {
 
 void
 user_scroll_up(const Arg *a) {
-    int n = a->i;
+    int32 n = a->i;
 
     if (!term.histf || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         return;
@@ -1344,8 +1344,8 @@ user_scroll_up(const Arg *a) {
 }
 
 void
-term_scroll_down(int top, int n) {
-    int bot = term.bot;
+term_scroll_down(int32 top, int32 n) {
+    int32 bot = term.bot;
     Line temp;
 
     if (n <= 0) {
@@ -1356,7 +1356,7 @@ term_scroll_down(int top, int n) {
     term_set_dirt(top, bot - n);
     term_clear_region(0, bot - n + 1, term.col - 1, bot, 1);
 
-    for (int i = bot; i >= top + n; i--) {
+    for (int32 i = bot; i >= top + n; i--) {
         temp = term.line[i];
         term.line[i] = term.line[i - n];
         term.line[i - n] = temp;
@@ -1369,10 +1369,10 @@ term_scroll_down(int top, int n) {
 }
 
 void
-term_scroll_up(int top, int bot, int n, int mode) {
-    int s = 0;
-    int alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
-    int savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
+term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
+    int32 s = 0;
+    int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    int32 savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
     Line temp;
 
     if (n <= 0) {
@@ -1381,10 +1381,10 @@ term_scroll_up(int top, int bot, int n, int mode) {
     n = MIN(n, bot - top + 1);
 
     if (savehist) {
-        for (int i = 0; i < n; i++) {
+        for (int32 i = 0; i < n; i++) {
             term.histi = (term.histi + 1) % HISTSIZE;
             temp = term.hist[term.histi];
-            for (int j = 0; j < term.col; j++) {
+            for (int32 j = 0; j < term.col; j++) {
                 term_clear_glyph(&temp[j], 1);
             }
             term.hist[term.histi] = term.line[i];
@@ -1393,7 +1393,7 @@ term_scroll_up(int top, int bot, int n, int mode) {
         term.histf = MIN(term.histf + n, HISTSIZE);
         s = n;
         if (term.scr) {
-            int j = term.scr;
+            int32 j = term.scr;
             term.scr = MIN(j + n, HISTSIZE);
             s = j + n - term.scr;
         }
@@ -1405,7 +1405,7 @@ term_scroll_up(int top, int bot, int n, int mode) {
         term_set_dirt(top + n, bot);
     }
 
-    for (int i = top; i <= bot - n; i++) {
+    for (int32 i = top; i <= bot - n; i++) {
         temp = term.line[i];
         term.line[i] = term.line[i + n];
         term.line[i + n] = temp;
@@ -1425,7 +1425,7 @@ term_scroll_up(int top, int bot, int n, int mode) {
 }
 
 void
-selection_move(int n) {
+selection_move(int32 n) {
     selection.ob.y += n;
     selection.nb.y += n;
     selection.oe.y += n;
@@ -1434,7 +1434,7 @@ selection_move(int n) {
 }
 
 void
-selection_scroll(int top, int bot, int n) {
+selection_scroll(int32 top, int32 bot, int32 n) {
     /* turn absolute coordinates into relative */
     top += term.scr;
     bot += term.scr;
@@ -1451,8 +1451,8 @@ selection_scroll(int top, int bot, int n) {
 }
 
 void
-term_new_line(int first_col) {
-    int y = term.cursor.y;
+term_new_line(int32 first_col) {
+    int32 y = term.cursor.y;
 
     if (y == term.bot) {
         term_scroll_up(term.top, term.bot, 1, SCROLL_SAVEHIST);
@@ -1467,7 +1467,7 @@ void
 control_seq_intro_parse(void) {
     char *p = csiescseq.buf, *np;
     long v;
-    int sep = ';'; /* colon or semi-colon, but not both */
+    int32 sep = ';'; /* colon or semi-colon, but not both */
 
     csiescseq.narg = 0;
     if (*p == '?') {
@@ -1485,7 +1485,7 @@ control_seq_intro_parse(void) {
         if (v == LONG_MAX || v == LONG_MIN) {
             v = -1;
         }
-        csiescseq.arg[csiescseq.narg++] = (int)v;
+        csiescseq.arg[csiescseq.narg++] = (int32)v;
         p = np;
         if (sep == ';' && *p == ':') {
             sep = ':'; /* allow override to colon once */
@@ -1502,15 +1502,15 @@ control_seq_intro_parse(void) {
 
 /* for absolute user moves, when decom is set */
 void
-term_move_abs_to(int x, int y) {
+term_move_abs_to(int32 x, int32 y) {
     term_move_to(x, y + ((term.cursor.state & CURSOR_ORIGIN) ? term.top : 0));
     return;
 }
 
 void
-term_move_to(int x, int y) {
-    int miny;
-    int maxy;
+term_move_to(int32 x, int32 y) {
+    int32 miny;
+    int32 maxy;
 
     if (term.cursor.state & CURSOR_ORIGIN) {
         miny = term.top;
@@ -1526,7 +1526,7 @@ term_move_to(int x, int y) {
 }
 
 void
-term_set_char(Rune u, const Glyph *attr, int x, int y) {
+term_set_char(Rune u, const Glyph *attr, int32 x, int32 y) {
     static const char *vt100_0[62] = {
         /* 0x41 - 0x7e */
         "↑", "↓", "→", "←", "█", "▚", "☃",      /* A - G */
@@ -1568,7 +1568,7 @@ term_set_char(Rune u, const Glyph *attr, int x, int y) {
 }
 
 void
-term_clear_glyph(Glyph *gp, int usecurattr) {
+term_clear_glyph(Glyph *gp, int32 usecurattr) {
     if (usecurattr) {
         gp->fg = term.cursor.attr.fg;
         gp->bg = term.cursor.attr.bg;
@@ -1582,15 +1582,15 @@ term_clear_glyph(Glyph *gp, int usecurattr) {
 }
 
 void
-term_clear_region(int x1, int y1, int x2, int y2, int usecurattr) {
+term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, int32 usecurattr) {
     /* regionselected() takes relative coordinates */
     if (regionselected(x1 + term.scr, y1 + term.scr, x2 + term.scr, y2 + term.scr)) {
         selection_remove();
     }
 
-    for (int y = y1; y <= y2; y++) {
+    for (int32 y = y1; y <= y2; y++) {
         term.dirty[y] = 1;
-        for (int x = x1; x <= x2; x++) {
+        for (int32 x = x1; x <= x2; x++) {
             term_clear_glyph(&term.line[y][x], usecurattr);
         }
     }
@@ -1598,10 +1598,10 @@ term_clear_region(int x1, int y1, int x2, int y2, int usecurattr) {
 }
 
 void
-term_delete_char(int n) {
-    int src;
-    int dst;
-    int size;
+term_delete_char(int32 n) {
+    int32 src;
+    int32 dst;
+    int32 size;
     Line line;
 
     if (n <= 0) {
@@ -1624,10 +1624,10 @@ term_delete_char(int n) {
 }
 
 void
-term_insert_blank(int n) {
-    int src;
-    int dst;
-    int size;
+term_insert_blank(int32 n) {
+    int32 src;
+    int32 dst;
+    int32 size;
     Line line;
 
     if (n <= 0) {
@@ -1645,7 +1645,7 @@ term_insert_blank(int n) {
 }
 
 void
-term_insert_blank_line(int n) {
+term_insert_blank_line(int32 n) {
     if (BETWEEN(term.cursor.y, term.top, term.bot)) {
         term_scroll_down(term.cursor.y, n);
     }
@@ -1653,7 +1653,7 @@ term_insert_blank_line(int n) {
 }
 
 void
-term_delete_line(int n) {
+term_delete_line(int32 n) {
     if (BETWEEN(term.cursor.y, term.top, term.bot)) {
         term_scroll_up(term.cursor.y, term.bot, n, SCROLL_NOSAVEHIST);
     }
@@ -1661,7 +1661,7 @@ term_delete_line(int n) {
 }
 
 int32_t
-term_def_color(const int *attr, int *npar, int l) {
+term_def_color(const int32 *attr, int32 *npar, int32 l) {
     int32_t idx = -1;
     uint32 r;
     uint32 g;
@@ -1680,7 +1680,7 @@ term_def_color(const int *attr, int *npar, int l) {
         if (!BETWEEN(r, 0, 255) || !BETWEEN(g, 0, 255) || !BETWEEN(b, 0, 255)) {
             fprintf(stderr, "erresc: bad rgb color (%u,%u,%u)\n", r, g, b);
         } else {
-            idx = (int)TRUECOLOR(r, g, b);
+            idx = (int32)TRUECOLOR(r, g, b);
         }
         break;
     case 5: /* indexed color */
@@ -1708,10 +1708,10 @@ term_def_color(const int *attr, int *npar, int l) {
 }
 
 void
-term_set_attr(const int *attr, int l) {
+term_set_attr(const int32 *attr, int32 l) {
     int32_t idx;
 
-    for (int i = 0; i < l; i++) {
+    for (int32 i = 0; i < l; i++) {
         switch (attr[i]) {
         case 0:
             term.cursor.attr.mode &= ~(ATTR_BOLD | ATTR_FAINT | ATTR_ITALIC | ATTR_UNDERLINE |
@@ -1808,8 +1808,8 @@ term_set_attr(const int *attr, int l) {
 }
 
 void
-term_set_scroll(int t, int b) {
-    int temp;
+term_set_scroll(int32 t, int32 b) {
+    int32 temp;
 
     LIMIT(t, 0, term.row - 1);
     LIMIT(b, 0, term.row - 1);
@@ -1824,8 +1824,8 @@ term_set_scroll(int t, int b) {
 }
 
 void
-term_set_mode(int priv, int set, const int *args, int narg) {
-    for (const int *lim = args + narg; args < lim; ++args) {
+term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
+    for (const int32 *lim = args + narg; args < lim; ++args) {
         if (priv) {
             switch (*args) {
             case 1: /* DECCKM -- Cursor key */
@@ -1952,8 +1952,8 @@ term_set_mode(int priv, int set, const int *args, int narg) {
 void
 control_seq_intro_handle(void) {
     char buf[40];
-    int n;
-    int x;
+    int32 n;
+    int32 x;
 
     switch (csiescseq.mode[0]) {
     default:
@@ -2209,7 +2209,7 @@ control_seq_intro_dump(void) {
     for (size_t i = 0; i < csiescseq.len; i++) {
         c = csiescseq.buf[i] & 0xff;
         if (isprint(c)) {
-            putc((int)c, stderr);
+            putc((int32)c, stderr);
         } else if (c == '\n') {
             fprintf(stderr, "(\\n)");
         } else if (c == '\r') {
@@ -2231,8 +2231,8 @@ control_seq_intro_reset(void) {
 }
 
 void
-osc_color_response(int num, int index, int is_osc4) {
-    int n;
+osc_color_response(int32 num, int32 index, int32 is_osc4) {
+    int32 n;
     char buf[32];
     uchar r, g, b;
 
@@ -2244,7 +2244,7 @@ osc_color_response(int num, int index, int is_osc4) {
 
     n = snprintf(buf, sizeof buf, "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
-    if (n < 0 || n >= (int)sizeof(buf)) {
+    if (n < 0 || n >= (int32)sizeof(buf)) {
         fprintf(stderr, "error: %s while printing %s response\n",
                 n < 0 ? "snprintf failed" : "truncation occurred", is_osc4 ? "osc4" : "osc");
     } else {
@@ -2256,11 +2256,11 @@ osc_color_response(int num, int index, int is_osc4) {
 void
 string_handle(void) {
     char *p = NULL, *dec;
-    int j;
-    int narg;
-    int par;
+    int32 j;
+    int32 narg;
+    int32 par;
     const struct {
-        int idx;
+        int32 idx;
         char *str;
     } osc_table[] = {{default_foreground, "foreground"},
                      {default_background, "background"},
@@ -2383,7 +2383,7 @@ string_handle(void) {
 
 void
 string_parse(void) {
-    int c;
+    int32 c;
     char *p = strescseq.buf;
 
     strescseq.narg = 0;
@@ -2408,12 +2408,12 @@ string_parse(void) {
 
 void
 externalpipe(const Arg *arg) {
-    int to[2];
+    int32 to[2];
     char buf[UTF_SIZ];
-    void (*oldsigpipe)(int);
+    void (*oldsigpipe)(int32);
     Glyph *bp, *end;
-    int lastpos;
-    int newline;
+    int32 lastpos;
+    int32 newline;
     char *const *argv = arg->v;
 
     if (pipe(to) == -1) {
@@ -2441,7 +2441,7 @@ externalpipe(const Arg *arg) {
     /* ignore sigpipe for now, in case child exists early */
     oldsigpipe = signal(SIGPIPE, SIG_IGN);
     newline = 0;
-    for (int n = 0; n <= HISTSIZE + 2; n++) {
+    for (int32 n = 0; n <= HISTSIZE + 2; n++) {
         bp = TLINE_HIST(n);
         lastpos = MIN(tlinehistlen(n) + 1, term.col) - 1;
         if (lastpos < 0) {
@@ -2484,7 +2484,7 @@ string_dump(void) {
             putc('\n', stderr);
             return;
         } else if (isprint(c)) {
-            putc((int)c, stderr);
+            putc((int32)c, stderr);
         } else if (c == '\n') {
             fprintf(stderr, "(\\n)");
         } else if (c == '\r') {
@@ -2556,7 +2556,7 @@ term_dump_sel(void) {
 }
 
 void
-term_dump_line(int n) {
+term_dump_line(int32 n) {
     char *str = xmalloc((size_t)((term.col + 1) * UTF_SIZ) * sizeof(*str));
     term_printer(str, tgetline(str, &term.line[n][0]));
     return;
@@ -2564,15 +2564,15 @@ term_dump_line(int n) {
 
 void
 term_dump(void) {
-    for (int i = 0; i < term.row; ++i) {
+    for (int32 i = 0; i < term.row; ++i) {
         term_dump_line(i);
     }
     return;
 }
 
 void
-term_put_tab(int n) {
-    int x = term.cursor.x;
+term_put_tab(int32 n) {
+    int32 x = term.cursor.x;
 
     if (n > 0) {
         while (x < term.col && n--) {
@@ -2602,7 +2602,7 @@ term_def_utf8(char ascii) {
 void
 term_def_tran(char ascii) {
     static char cs[] = "0B";
-    static int vcs[] = {CS_GRAPHIC0, CS_USA};
+    static int32 vcs[] = {CS_GRAPHIC0, CS_USA};
     char *p;
 
     if ((p = strchr(cs, ascii)) == NULL) {
@@ -2616,8 +2616,8 @@ term_def_tran(char ascii) {
 void
 term_dec_test(char c) {
     if (c == '8') { /* DEC screen alignment test. */
-        for (int x = 0; x < term.col; ++x) {
-            for (int y = 0; y < term.row; ++y) {
+        for (int32 x = 0; x < term.col; ++x) {
+            for (int32 y = 0; y < term.row; ++y) {
                 term_set_char('E', &term.cursor.attr, x, y);
             }
         }
@@ -2754,7 +2754,7 @@ term_control_code(uchar ascii) {
  * returns 1 when the sequence is finished and it hasn't to read
  * more characters for this sequence, otherwise 0
  */
-int
+int32
 eschandle(uchar ascii) {
     switch (ascii) {
     case '[':
@@ -2841,9 +2841,9 @@ eschandle(uchar ascii) {
 void
 term_putc(Rune u) {
     char c[UTF_SIZ];
-    int control;
-    int width = 0;
-    int len;
+    int32 control;
+    int32 width = 0;
+    int32 len;
     Glyph *gp;
 
     control = ISCONTROL(u);
@@ -2851,7 +2851,7 @@ term_putc(Rune u) {
         c[0] = (char)u;
         width = len = 1;
     } else {
-        len = (int)utf8_encode(u, c);
+        len = (int32)utf8_encode(u, c);
         if (!control && (width = wcwidth((wchar_t)u)) == -1) {
             width = 1;
         }
@@ -2997,16 +2997,16 @@ check_control_code:
     return;
 }
 
-int
-term_write(const char *buf, int buflen, int show_ctrl) {
-    int charsize;
+int32
+term_write(const char *buf, int32 buflen, int32 show_ctrl) {
+    int32 charsize;
     Rune u;
-    int n;
+    int32 n;
 
     for (n = 0; n < buflen; n += charsize) {
         if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
             /* process a complete utf8 char */
-            charsize = (int)utf8_decode(buf + n, &u, (size_t)(buflen - n));
+            charsize = (int32)utf8_decode(buf + n, &u, (size_t)(buflen - n));
             if (charsize == 0) {
                 break;
             }
@@ -3030,8 +3030,8 @@ term_write(const char *buf, int buflen, int show_ctrl) {
 }
 
 void
-rscrolldown(int n) {
-    int j;
+rscrolldown(int32 n) {
+    int32 j;
     Line temp;
 
     /* can never be true as of now
@@ -3042,12 +3042,12 @@ rscrolldown(int n) {
         return;
     }
 
-    for (int i = term.cursor.y + n; i >= n; i--) {
+    for (int32 i = term.cursor.y + n; i >= n; i--) {
         temp = term.line[i];
         term.line[i] = term.line[i - n];
         term.line[i - n] = temp;
     }
-    for (int i = n - 1; i >= 0; i--) {
+    for (int32 i = n - 1; i >= 0; i--) {
         temp = term.line[i];
         term.line[i] = term.hist[term.histi];
         term.hist[term.histi] = temp;
@@ -3067,8 +3067,8 @@ rscrolldown(int n) {
 }
 
 void
-term_resize(int col, int row) {
-    int *bp;
+term_resize(int32 col, int32 row) {
+    int32 *bp;
 
     /* col and row are always MAX(_, 1)
     if (col < 1 || row < 1) {
@@ -3097,7 +3097,7 @@ term_resize(int col, int row) {
 }
 
 void
-term_resize_def(int col, int row) {
+term_resize_def(int32 col, int32 row) {
     /* return if dimensions haven't changed */
     if (term.col == col && term.row == row) {
         term_full_dirt();
@@ -3114,16 +3114,16 @@ term_resize_def(int col, int row) {
             term_scroll_up(0, term.row - 1, term.cursor.y - row + 1, SCROLL_RESIZE);
             term.cursor.y = row - 1;
         }
-        for (int i = row; i < term.row; i++) {
+        for (int32 i = row; i < term.row; i++) {
             free(term.line[i]);
         }
 
         /* handler_configure_notify to new height */
         term.line = xrealloc(term.line, (size_t)row * sizeof(Line));
         /* allocate any new number_rows */
-        for (int i = term.row; i < row; i++) {
+        for (int32 i = term.row; i < row; i++) {
             term.line[i] = xmalloc((size_t)col * sizeof(Glyph));
-            for (int j = 0; j < col; j++) {
+            for (int32 j = 0; j < col; j++) {
                 term_clear_glyph(&term.line[i][j], 0);
             }
         }
@@ -3142,8 +3142,8 @@ term_resize_def(int col, int row) {
 }
 
 void
-term_resize_alt(int col, int row) {
-    int i;
+term_resize_alt(int32 col, int32 row) {
+    int32 i;
 
     /* return if dimensions haven't changed */
     if (term.col == col && term.row == row) {
@@ -3170,14 +3170,14 @@ term_resize_alt(int col, int row) {
     /* handler_configure_notify to new width */
     for (i = 0; i < MIN(row, term.row); i++) {
         term.line[i] = xrealloc(term.line[i], (size_t)col * sizeof(Glyph));
-        for (int j = term.col; j < col; j++) {
+        for (int32 j = term.col; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* allocate any new number_rows */
     for (/*i = MIN(row, term.row) */; i < row; i++) {
         term.line[i] = xmalloc((size_t)col * sizeof(Glyph));
-        for (int j = 0; j < col; j++) {
+        for (int32 j = 0; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
@@ -3200,16 +3200,16 @@ term_resize_alt(int col, int row) {
 }
 
 void
-term_reflow(int col, int row) {
-    int i;
-    int oce;
-    int nce;
-    int bot;
-    int scr;
-    int ox = 0, oy = -term.histf, nx = 0, ny = -1;
-    int len = 0;
-    int cy = -1; /* proxy for new y coordinate of cursor */
-    int nlines;
+term_reflow(int32 col, int32 row) {
+    int32 i;
+    int32 oce;
+    int32 nce;
+    int32 bot;
+    int32 scr;
+    int32 ox = 0, oy = -term.histf, nx = 0, ny = -1;
+    int32 len = 0;
+    int32 cy = -1; /* proxy for new y coordinate of cursor */
+    int32 nlines;
     Line *buf;
     Line line = 0;
 
@@ -3220,7 +3220,7 @@ term_reflow(int col, int row) {
     nlines = term.histf + oce + 1;
     if (col < term.col) {
         /* each line can take this many lines after reflow */
-        int j = (term.col + col - 1) / col;
+        int32 j = (term.col + col - 1) / col;
         nlines = j * nlines;
         if (nlines > HISTSIZE + RESIZEBUFFER + row) {
             nlines = HISTSIZE + RESIZEBUFFER + row;
@@ -3252,7 +3252,7 @@ term_reflow(int col, int row) {
             memcpy(&buf[ny][nx], &line[ox], (size_t)(len - ox) * sizeof(Glyph));
             nx += len - ox;
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
-                for (int j = nx; j < col; j++) {
+                for (int32 j = nx; j < col; j++) {
                     term_clear_glyph(&buf[ny][j], 0);
                 }
                 nx = 0;
@@ -3274,7 +3274,7 @@ term_reflow(int col, int row) {
         }
     } while (oy <= oce);
     if (nx) {
-        for (int j = nx; j < col; j++) {
+        for (int32 j = nx; j < col; j++) {
             term_clear_glyph(&buf[ny][j], 0);
         }
     }
@@ -3293,7 +3293,7 @@ term_reflow(int col, int row) {
     /* update cursor y coordinate */
     term.cursor.y = nce - (ny - cy);
     if (term.cursor.y < 0) {
-        int j = nce;
+        int32 j = nce;
         nce = MIN(nce + -term.cursor.y, bot);
         term.cursor.y += nce - j;
         while (term.cursor.y < 0) {
@@ -3304,7 +3304,7 @@ term_reflow(int col, int row) {
     /* allocate new number_rows */
     for (i = row - 1; i > nce; i--) {
         term.line[i] = xmalloc((size_t)col * sizeof(Glyph));
-        for (int j = 0; j < col; j++) {
+        for (int32 j = 0; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
@@ -3318,9 +3318,9 @@ term_reflow(int col, int row) {
     }
     /* fill lines in history buffer and update term.histf */
     {
-        int k;
+        int32 k;
         for (k = -1; ny >= 0 && k >= -HISTSIZE; k--, ny--) {
-            int j = (term.histi + k + 1 + HISTSIZE) % HISTSIZE;
+            int32 j = (term.histi + k + 1 + HISTSIZE) % HISTSIZE;
             free(term.hist[j]);
             term.hist[j] = buf[ny];
         }
@@ -3328,8 +3328,8 @@ term_reflow(int col, int row) {
     }
     term.scr = MIN(term.scr, term.histf);
     /* handler_configure_notify rest of the history lines */
-    for (int i = -term.histf - 1; i >= -HISTSIZE; i--) {
-        int j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
+    for (int32 i = -term.histf - 1; i >= -HISTSIZE; i--) {
+        int32 j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
         term.hist[j] = xrealloc(term.hist[j], (size_t)col * sizeof(Glyph));
     }
     free(buf);
@@ -3342,8 +3342,8 @@ reset_title(void) {
 }
 
 void
-draw_region(int x1, int y1, int x2, int y2) {
-    for (int y = y1; y < y2; y++) {
+draw_region(int32 x1, int32 y1, int32 x2, int32 y2) {
+    for (int32 y = y1; y < y2; y++) {
         if (!term.dirty[y]) {
             continue;
         }
@@ -3355,7 +3355,7 @@ draw_region(int x1, int y1, int x2, int y2) {
 
 void
 draw(void) {
-    int cx = term.cursor.x, ocx = term.ocx, ocy = term.ocy;
+    int32 cx = term.cursor.x, ocx = term.ocx, ocy = term.ocy;
 
     if (!x_start_draw()) {
         return;
