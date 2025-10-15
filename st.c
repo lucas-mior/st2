@@ -1370,7 +1370,7 @@ term_scroll_down(int top, int n) {
 
 void
 term_scroll_up(int top, int bot, int n, int mode) {
-    int s;
+    int s = 0;
     int alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
     int savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
     Line temp;
@@ -1426,15 +1426,18 @@ term_scroll_up(int top, int bot, int n, int mode) {
 
 void
 selection_move(int n) {
-    selection.ob.y += n, selection.nb.y += n;
-    selection.oe.y += n, selection.ne.y += n;
+    selection.ob.y += n;
+    selection.nb.y += n;
+    selection.oe.y += n;
+    selection.ne.y += n;
     return;
 }
 
 void
 selection_scroll(int top, int bot, int n) {
     /* turn absolute coordinates into relative */
-    top += term.scr, bot += term.scr;
+    top += term.scr;
+    bot += term.scr;
 
     if (BETWEEN(selection.nb.y, top, bot) != BETWEEN(selection.ne.y, top, bot)) {
         selection_clear();
@@ -1482,7 +1485,7 @@ control_seq_intro_parse(void) {
         if (v == LONG_MAX || v == LONG_MIN) {
             v = -1;
         }
-        csiescseq.arg[csiescseq.narg++] = v;
+        csiescseq.arg[csiescseq.narg++] = (int)v;
         p = np;
         if (sep == ';' && *p == ':') {
             sep = ':'; /* allow override to colon once */
@@ -1614,7 +1617,7 @@ term_delete_char(int n) {
          * https://stackoverflow.com/questions/29844298
          */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], size * sizeof(Glyph));
+        memmove(&line[dst], &line[src], (size_t)size * sizeof(Glyph));
     }
     term_clear_region(dst + size, term.cursor.y, term.col - 1, term.cursor.y, 1);
     return;
@@ -1635,7 +1638,7 @@ term_insert_blank(int n) {
     size = term.col - dst;
     if (size > 0) { /* otherwise dst would point beyond the array */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], size * sizeof(Glyph));
+        memmove(&line[dst], &line[src], (size_t)size * sizeof(Glyph));
     }
     term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, 1);
     return;
@@ -1670,14 +1673,14 @@ term_def_color(const int *attr, int *npar, int l) {
             fprintf(stderr, "erresc(38): Incorrect number of parameters (%d)\n", *npar);
             break;
         }
-        r = attr[*npar + 2];
-        g = attr[*npar + 3];
-        b = attr[*npar + 4];
+        r = (uint)attr[*npar + 2];
+        g = (uint)attr[*npar + 3];
+        b = (uint)attr[*npar + 4];
         *npar += 4;
         if (!BETWEEN(r, 0, 255) || !BETWEEN(g, 0, 255) || !BETWEEN(b, 0, 255)) {
             fprintf(stderr, "erresc: bad rgb color (%u,%u,%u)\n", r, g, b);
         } else {
-            idx = TRUECOLOR(r, g, b);
+            idx = (int)TRUECOLOR(r, g, b);
         }
         break;
     case 5: /* indexed color */
