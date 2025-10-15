@@ -3,6 +3,8 @@
 #ifndef WIN_H
 #define WIN_H
 
+#include "st.h"
+
 enum win_mode {
 	WIN_MODE_VISIBLE     = 1 << 0,
 	WIN_MODE_FOCUSED     = 1 << 1,
