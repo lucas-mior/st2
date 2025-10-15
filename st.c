@@ -2100,11 +2100,10 @@ control_seq_intro_handle(void)
 void
 control_seq_intro_dump(void)
 {
-	size_t i;
 	uint c;
 
 	fprintf(stderr, "ESC[");
-	for (i = 0; i < csiescseq.len; i++) {
+	for (size_t i = 0; i < csiescseq.len; i++) {
 		c = csiescseq.buf[i] & 0xff;
 		if (isprint(c)) {
 			putc(c, stderr);
