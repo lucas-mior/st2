@@ -708,8 +708,8 @@ cresize(int32 width, int32 height) {
         term_window.h = height;
     }
 
-    col = (term_window.w - 2 * BORDER_PIXELS) / term_window.cw;
-    row = (term_window.h - 2 * BORDER_PIXELS) / term_window.ch;
+    col = (term_window.w - 2 * CONF_BORDER_PIXELS) / term_window.cw;
+    row = (term_window.h - 2 * CONF_BORDER_PIXELS) / term_window.ch;
     col = MAX(1, col);
     row = MAX(1, row);
 
@@ -861,10 +861,10 @@ x_hints(void) {
     sizeh->width = term_window.w;
     sizeh->height_inc = 1;
     sizeh->width_inc = 1;
-    sizeh->base_height = 2 * BORDER_PIXELS;
-    sizeh->base_width = 2 * BORDER_PIXELS;
-    sizeh->min_height = term_window.ch + 2 * BORDER_PIXELS;
-    sizeh->min_width = term_window.cw + 2 * BORDER_PIXELS;
+    sizeh->base_height = 2 * CONF_BORDER_PIXELS;
+    sizeh->base_width = 2 * CONF_BORDER_PIXELS;
+    sizeh->min_height = term_window.ch + 2 * CONF_BORDER_PIXELS;
+    sizeh->min_width = term_window.cw + 2 * CONF_BORDER_PIXELS;
     if (x_window.isfixed) {
         sizeh->flags |= PMaxSize;
         sizeh->min_width = sizeh->max_width = term_window.w;
@@ -1264,8 +1264,8 @@ x_init(int32 ncols, int32 nrows) {
     x_load_cols();
 
     /* adjust fixed window geometry */
-    term_window.w = 2 * term_window.hborderpx + 2 * BORDER_PIXELS + ncols * term_window.cw;
-    term_window.h = 2 * term_window.vborderpx + 2 * BORDER_PIXELS + nrows * term_window.ch;
+    term_window.w = 2 * term_window.hborderpx + 2 * CONF_BORDER_PIXELS + ncols * term_window.cw;
+    term_window.h = 2 * term_window.vborderpx + 2 * CONF_BORDER_PIXELS + nrows * term_window.ch;
     if (x_window.gm & XNegative) {
         x_window.l += DisplayWidth(x_window.dpy, x_window.scr) - term_window.w - 2;
     }
@@ -1819,8 +1819,8 @@ x_xim_spot(int32 x, int32 y) {
         return;
     }
 
-    x_window.ime.spot.x = (int16)(BORDER_PIXELS + x * term_window.cw);
-    x_window.ime.spot.y = (int16)(BORDER_PIXELS + (y + 1) * term_window.ch);
+    x_window.ime.spot.x = (int16)(CONF_BORDER_PIXELS + x * term_window.cw);
+    x_window.ime.spot.y = (int16)(CONF_BORDER_PIXELS + (y + 1) * term_window.ch);
 
     XSetICValues(x_window.ime.xic, XNPreeditAttributes, x_window.ime.spotlist, NULL);
 }
