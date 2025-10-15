@@ -3,8 +3,8 @@ index 2cd740a..40b7d93 100644
 --- a/config.def.h
 +++ b/config.def.h
 @@ -201,6 +201,8 @@ static Shortcut shortcuts[] = {
- 	{ TERMMOD,              XK_Y,           user_sel_paste,       {.i =  0} },
- 	{ ShiftMask,            XK_Insert,      user_sel_paste,       {.i =  0} },
+ 	{ TERMMOD,              XK_Y,           user_selection_paste,       {.i =  0} },
+ 	{ ShiftMask,            XK_Insert,      user_selection_paste,       {.i =  0} },
  	{ TERMMOD,              XK_Num_Lock,    user_toggle_numlock,        {.i =  0} },
 +	{ ShiftMask,            XK_Page_Up,     user_scroll_up,      {.i = -1} },
 +    { ShiftMask,            XK_Page_Down,   user_scroll_down,    {.i = -1} },
@@ -67,7 +67,7 @@ index b9f66e7..2478942 100644
  		--i;
  
  	return i;
-@@ -521,7 +528,7 @@ sel_snap(int *x, int *y, int direction)
+@@ -521,7 +528,7 @@ selection_snap(int *x, int *y, int direction)
  		 * Snap around if the word wraps around at the end or
  		 * beginning of a line.
  		 */
@@ -76,7 +76,7 @@ index b9f66e7..2478942 100644
  		prevdelim = ISDELIM(prevgp->rune);
  		for (;;) {
  			newx = *x + direction;
-@@ -536,14 +543,14 @@ sel_snap(int *x, int *y, int direction)
+@@ -536,14 +543,14 @@ selection_snap(int *x, int *y, int direction)
  					yt = *y, xt = *x;
  				else
  					yt = newy, xt = newx;
@@ -93,7 +93,7 @@ index b9f66e7..2478942 100644
  			delim = ISDELIM(gp->rune);
  			if (!(gp->mode & ATTR_WDUMMY) && (delim != prevdelim
  					|| (delim && gp->rune != prevgp->rune)))
-@@ -564,14 +571,14 @@ sel_snap(int *x, int *y, int direction)
+@@ -564,14 +571,14 @@ selection_snap(int *x, int *y, int direction)
  		*x = (direction < 0) ? 0 : term.col - 1;
  		if (direction < 0) {
  			for (; *y > 0; *y += direction) {
@@ -154,7 +154,7 @@ index b9f66e7..2478942 100644
 +
 +	if (term.scr > 0) {
 +		term.scr -= n;
-+		sel_scroll(0, -n);
++		selection_scroll(0, -n);
 +		term_full_dirt();
 +	}
 +}
@@ -169,7 +169,7 @@ index b9f66e7..2478942 100644
 +
 +	if (term.scr <= HISTSIZE-n) {
 +		term.scr += n;
-+		sel_scroll(0, n);
++		selection_scroll(0, n);
 +		term_full_dirt();
 +	}
 +}
@@ -196,9 +196,9 @@ index b9f66e7..2478942 100644
  		term.line[i-n] = temp;
  	}
  
--	sel_scroll(orig, n);
+-	selection_scroll(orig, n);
 +	if (term.scr == 0)
-+		sel_scroll(orig, n);
++		selection_scroll(orig, n);
  }
  
  void
@@ -227,9 +227,9 @@ index b9f66e7..2478942 100644
  		term.line[i+n] = temp;
  	}
  
--	sel_scroll(orig, -n);
+-	selection_scroll(orig, -n);
 +	if (term.scr == 0)
-+		sel_scroll(orig, -n);
++		selection_scroll(orig, -n);
  }
  
  void
