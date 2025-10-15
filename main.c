@@ -2177,7 +2177,8 @@ void
 handler_key_press(XEvent *xevent) {
     XKeyEvent *e = &xevent->xkey;
     KeySym ksym = NoSymbol;
-    char buffer[64], *custom_key = NULL;
+    char buffer[64];
+    char *custom_key = NULL;
     int32 len;
     Rune c;
     Status status;
