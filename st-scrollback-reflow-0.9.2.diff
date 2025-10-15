@@ -217,7 +217,7 @@ index 2478942..2b86d23 100644
 +    selsnap(&sel.ne.x, &sel.ne.y, +1);
  
 -	/* expand selection over line breaks */
--	if (sel.type == SEL_RECTANGULAR)
+-	if (sel.type == SELECTION_RECTANGULAR)
 -		return;
 -	i = tlinelen(sel.nb.y);
 -	if (i < sel.nb.x)
@@ -225,7 +225,7 @@ index 2478942..2b86d23 100644
 -	if (tlinelen(sel.ne.y) <= sel.ne.x)
 -		sel.ne.x = term.col - 1;
 +    /* expand selection over line breaks */
-+    if (sel.type == SEL_RECTANGULAR)
++    if (sel.type == SELECTION_RECTANGULAR)
 +        return;
 +
 +    i = tlinelen(TLINE(sel.nb.y));
@@ -247,10 +247,10 @@ index 2478942..2b86d23 100644
 +            sel.alt != IS_SET(TERM_MODE_ALTSCREEN) || sel.nb.y > y2 || sel.ne.y < y1)
 +        return 0;
  
--	if (sel.type == SEL_RECTANGULAR)
+-	if (sel.type == SELECTION_RECTANGULAR)
 -		return BETWEEN(y, sel.nb.y, sel.ne.y)
 -		    && BETWEEN(x, sel.nb.x, sel.ne.x);
-+    return (sel.type == SEL_RECTANGULAR) ? sel.nb.x <= x2 && sel.ne.x >= x1
++    return (sel.type == SELECTION_RECTANGULAR) ? sel.nb.x <= x2 && sel.ne.x >= x1
 +        : (sel.nb.y != y2 || sel.nb.x <= x2) &&
 +        (sel.ne.y != y1 || sel.ne.x >= x1);
 +}
@@ -361,7 +361,7 @@ index 2478942..2b86d23 100644
  			continue;
  		}
  
- 		if (sel.type == SEL_RECTANGULAR) {
+ 		if (sel.type == SELECTION_RECTANGULAR) {
 -			gp = &TLINE(y)[sel.nb.x];
 +			gp = &line[sel.nb.x];
  			lastx = sel.ne.x;
@@ -389,8 +389,8 @@ index 2478942..2b86d23 100644
  		 * FIXME: Fix the computer world.
  		 */
  		if ((y < sel.ne.y || lastx >= linelen) &&
--		    (!(last->mode & ATTR_WRAP) || sel.type == SEL_RECTANGULAR))
-+		    (!(lgp->mode & ATTR_WRAP) || sel.type == SEL_RECTANGULAR))
+-		    (!(last->mode & ATTR_WRAP) || sel.type == SELECTION_RECTANGULAR))
++		    (!(lgp->mode & ATTR_WRAP) || sel.type == SELECTION_RECTANGULAR))
  			*ptr++ = '\n';
  	}
 -	*ptr = 0;
