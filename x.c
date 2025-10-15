@@ -35,9 +35,9 @@
 
 /* macros */
 #define TERM_WINDOW_IS_SET(flag) ((term_window.mode & (flag)) != 0)
-#define TRUERED(x) (ushort)(((x) & 0xff0000) >> 8)
-#define TRUEGREEN(x) (ushort)(((x) & 0xff00))
-#define TRUEBLUE(x) (ushort)(((x) & 0xff) << 8)
+#define TRUERED(x) (uint16)(((x) & 0xff0000) >> 8)
+#define TRUEGREEN(x) (uint16)(((x) & 0xff00))
+#define TRUEBLUE(x) (uint16)(((x) & 0xff) << 8)
 
 typedef XftDraw *Draw;
 typedef XftColor Color;
@@ -108,7 +108,7 @@ typedef struct {
     GC graphics;
 } DrawingContext;
 
-static inline ushort sixd_to_16bit(int);
+static inline uint16 sixd_to_16bit(int);
 static int x_make_glyph_font_specs(XftGlyphFontSpec *, const Glyph *, int, int, int);
 static void x_draw_glyph_font_specs(const XftGlyphFontSpec *, Glyph, int, int, int);
 static void x_draw_glyph(Glyph, int, int);
@@ -733,9 +733,9 @@ x_resize(int col, int row) {
     x_window.specbuf = xrealloc(x_window.specbuf, (size_t)col * sizeof(GlyphFontSpec));
 }
 
-ushort
+uint16
 sixd_to_16bit(int x) {
-    return (ushort)(x == 0 ? 0 : 0x3737 + 0x2828 * x);
+    return (uint16)(x == 0 ? 0 : 0x3737 + 0x2828 * x);
 }
 
 int
@@ -749,7 +749,7 @@ x_load_color(int i, const char *name, Color *ncolor) {
                 color.green = sixd_to_16bit(((i - 16) / 6) % 6);
                 color.blue = sixd_to_16bit(((i - 16) / 1) % 6);
             } else { /* greyscale */
-                color.red = (ushort)(0x0808 + 0x0a0a * (i - (6 * 6 * 6 + 16)));
+                color.red = (uint16)(0x0808 + 0x0a0a * (i - (6 * 6 * 6 + 16)));
                 color.green = color.blue = color.red;
             }
             return XftColorAllocValue(x_window.dpy, x_window.vis, x_window.cmap, &color, ncolor);
@@ -772,7 +772,7 @@ x_load_cols(void) {
         }
     } else {
         draw_context.collen = MAX(LEN(colorname), 256);
-        draw_context.col = xmalloc((ushort)draw_context.collen * sizeof(Color));
+        draw_context.col = xmalloc((uint16)draw_context.collen * sizeof(Color));
     }
 
     for (int i = 0; i < draw_context.collen; i++) {
@@ -785,12 +785,12 @@ x_load_cols(void) {
         }
     }
 
-    draw_context.col[default_background].color.alpha = (ushort)(0xffff * alpha);
+    draw_context.col[default_background].color.alpha = (uint16)(0xffff * alpha);
     draw_context.col[default_background].pixel &= 0x00FFFFFF;
     draw_context.col[default_background].pixel |= ((uint)(0xFF * alpha) & 0xFF) << 24;
 
     for (int i = 16; i < 16 + trans_colors; i++) {
-        draw_context.col[i].color.alpha = (ushort)(0xffff * alpha);
+        draw_context.col[i].color.alpha = (uint16)(0xffff * alpha);
         draw_context.col[i].pixel &= 0x00FFFFFF;
         draw_context.col[i].pixel |= ((uint)(0xff * alpha) & 0xff) << 24;
     }
@@ -826,7 +826,7 @@ x_set_color_name(int x, const char *name) {
     draw_context.col[x] = ncolor;
 
     if (x == default_background) {
-        draw_context.col[default_background].color.alpha = (ushort)(0xffff * alpha);
+        draw_context.col[default_background].color.alpha = (uint16)(0xffff * alpha);
         draw_context.col[default_background].pixel &= 0x00FFFFFF;
         draw_context.col[default_background].pixel |= ((uint)(0xff * alpha) & 0xff) << 24;
     }
@@ -1353,7 +1353,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, i
     float winy = (float)(term_window.vborderpx + y * term_window.ch);
     float xp;
     float yp;
-    ushort mode, prevmode = USHRT_MAX;
+    uint16 mode, prevmode = USHRT_MAX;
     Font *font = &draw_context.font;
     int frcflags = FRC_NORMAL;
     float runewidth = (float)term_window.cw;
@@ -1395,7 +1395,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, i
         }
 
         if (mode & ATTR_BOXDRAW) {
-            /* minor shoehorning: boxdraw uses only this ushort */
+            /* minor shoehorning: boxdraw uses only this uint16 */
             glyphidx = boxdrawindex(&glyphs[i]);
         } else {
             /* Lookup character index with default font. */
@@ -1605,8 +1605,8 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
     /* Set the clip region because Xft is sometimes dirty. */
     r.x = 0;
     r.y = 0;
-    r.height = (ushort)term_window.ch;
-    r.width = (ushort)width;
+    r.height = (uint16)term_window.ch;
+    r.width = (uint16)width;
     XftDrawSetClipRectangles(x_window.draw, winx, winy, &r, 1);
 
     if (base.mode & ATTR_BOXDRAW) {

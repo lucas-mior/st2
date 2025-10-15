@@ -1091,10 +1091,10 @@ void
 tty_resize(int tty_width, int tty_height) {
     struct winsize winsize;
 
-    winsize.ws_row = (ushort)term.row;
-    winsize.ws_col = (ushort)term.col;
-    winsize.ws_xpixel = (ushort)tty_width;
-    winsize.ws_ypixel = (ushort)tty_height;
+    winsize.ws_row = (uint16)term.row;
+    winsize.ws_col = (uint16)term.col;
+    winsize.ws_xpixel = (uint16)tty_width;
+    winsize.ws_ypixel = (uint16)tty_height;
     if (ioctl(cmdfd, TIOCSWINSZ, &winsize) < 0) {
         fprintf(stderr, "Couldn't set window size: %s\n", strerror(errno));
     }

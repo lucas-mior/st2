@@ -18,8 +18,8 @@ static Colormap xcmap;
 static XftDraw *xd;
 static Visual *xvis;
 
-static void drawbox(int, int, int, int, XftColor *, XftColor *, ushort);
-static void drawboxlines(int, int, int, int, XftColor *, ushort);
+static void drawbox(int, int, int, int, XftColor *, XftColor *, uint16);
+static void drawboxlines(int, int, int, int, XftColor *, uint16);
 
 /* public API */
 
@@ -38,8 +38,8 @@ isboxdraw(Rune u) {
            (boxdraw_braille && block == 0x2800);
 }
 
-/* the "index" is actually the entire shape data encoded as ushort */
-ushort
+/* the "index" is actually the entire shape data encoded as uint16 */
+uint16
 boxdrawindex(const Glyph *g) {
     if (boxdraw_braille && (g->rune & ~(uint)0xff) == 0x2800) {
         return BRL | (uint8_t)g->rune;
@@ -54,15 +54,15 @@ void
 drawboxes(int x, int y, int cw, int ch, XftColor *fg, XftColor *bg, const XftGlyphFontSpec *specs,
           int len) {
     for (; len-- > 0; x += cw, specs++) {
-        drawbox(x, y, cw, ch, fg, bg, (ushort)specs->glyph);
+        drawbox(x, y, cw, ch, fg, bg, (uint16)specs->glyph);
     }
 }
 
 /* implementation */
 
 void
-drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, ushort bd) {
-    ushort cat = bd & ~(BDB | 0xff); /* mask out bold and data */
+drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, uint16 bd) {
+    uint16 cat = bd & ~(BDB | 0xff); /* mask out bold and data */
     if (bd & (BDL | BDA)) {
         /* lines (light/double/heavy/arcs) */
         drawboxlines(x, y, w, h, fg, bd);
@@ -107,9 +107,9 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, ushort bd) {
         XftColor xfc;
         XRenderColor xrc = {.alpha = 0xffff};
 
-        xrc.red = (ushort)DIV(fg->color.red * d + bg->color.red * (4 - d), 4);
-        xrc.green = (ushort)DIV(fg->color.green * d + bg->color.green * (4 - d), 4);
-        xrc.blue = (ushort)DIV(fg->color.blue * d + bg->color.blue * (4 - d), 4);
+        xrc.red = (uint16)DIV(fg->color.red * d + bg->color.red * (4 - d), 4);
+        xrc.green = (uint16)DIV(fg->color.green * d + bg->color.green * (4 - d), 4);
+        xrc.blue = (uint16)DIV(fg->color.blue * d + bg->color.blue * (4 - d), 4);
 
         XftColorAllocValue(xdpy, xvis, xcmap, &xrc, &xfc);
         XftDrawRect(xd, &xfc, x, y, (uint)w, (uint)h);
@@ -148,7 +148,7 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, ushort bd) {
 }
 
 void
-drawboxlines(int x, int y, int w, int h, XftColor *fg, ushort bd) {
+drawboxlines(int x, int y, int w, int h, XftColor *fg, uint16 bd) {
     /* s: stem thickness. width/8 roughly matches underscore thickness. */
     /* We draw bold as 1.5 * normal-stem and at least 1px thicker.      */
     /* doubles draw at least 3px, even when w or h < 3. bold needs 6px. */
