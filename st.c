@@ -570,7 +570,7 @@ selection_extend(int32 col, int32 row, int32 type, int32 done) {
 
 void
 selection_normalize(void) {
-    int32 i;
+    int32 len;
 
     if (selection.type == SELECTION_REGULAR && selection.ob.y != selection.oe.y) {
         selection.nb.x = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
@@ -590,9 +590,9 @@ selection_normalize(void) {
         return;
     }
 
-    i = term_line_len(TLINE(selection.nb.y));
-    if (selection.nb.x > i) {
-        selection.nb.x = i;
+    len = term_line_len(TLINE(selection.nb.y));
+    if (selection.nb.x > len) {
+        selection.nb.x = len;
     }
     if (selection.ne.x >= term_line_len(TLINE(selection.ne.y))) {
         selection.ne.x = term.col - 1;
