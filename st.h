@@ -151,7 +151,7 @@ char *xstrdup(const char *);
 int32 isboxdraw(Rune);
 uint16 boxdrawindex(const Glyph *);
 #ifdef XFT_VERSION
-/* only exposed to x.c, otherwise we'll need Xft.h for the types */
+/* only exposed to main.c, otherwise we'll need Xft.h for the types */
 void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
 void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, const XftGlyphFontSpec *, int32);
 #endif

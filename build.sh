@@ -43,7 +43,7 @@ case "$target" in
 
     build|all)
         set -x
-        $CC -o st x.c $STCFLAGS $STLDFLAGS
+        $CC -o st main.c $STCFLAGS $STLDFLAGS
         ;;
 
     install)
