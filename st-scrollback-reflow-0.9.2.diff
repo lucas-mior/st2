@@ -82,7 +82,7 @@ index 2478942..2b86d23 100644
 +static char *tgetglyphs(char *, const Glyph *, const Glyph *);
 +static size_t tgetline(char *, const Glyph *);
  static void tmoveto(int, int);
- static void tmoveato(int, int);
+ static void term_move_abs_to(int, int);
  static void tnewline(int);
  static void tputtab(int);
  static void tputc(Rune);
