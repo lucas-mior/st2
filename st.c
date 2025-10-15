@@ -274,7 +274,7 @@ static int32 cmdfd;
 static pid_t pid;
 
 static const uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
-static const uchar utfmask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
+static const uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
 static const Rune utfmin[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
 static const Rune utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
@@ -366,9 +366,9 @@ utf8_decode(const char *c, Rune *u, int64 clen) {
 
 Rune
 utf8_decode_byte(char c, int64 *i) {
-    for (*i = 0; *i < LENGTH(utfmask); ++(*i)) {
-        if (((uchar)c & utfmask[*i]) == utf8_byte[*i]) {
-            return (uchar)c & ~utfmask[*i];
+    for (*i = 0; *i < LENGTH(utf8_mask); ++(*i)) {
+        if (((uchar)c & utf8_mask[*i]) == utf8_byte[*i]) {
+            return (uchar)c & ~utf8_mask[*i];
         }
     }
 
@@ -395,7 +395,7 @@ utf8_encode(Rune u, char *c) {
 
 char
 utf8_encode_byte(Rune u, int64 i) {
-    return (char)(utf8_byte[i] | (u & ~utfmask[i]));
+    return (char)(utf8_byte[i] | (u & ~utf8_mask[i]));
 }
 
 int64
