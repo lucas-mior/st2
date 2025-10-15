@@ -196,7 +196,7 @@ int32 CONF_COLOR_INDEX_FONT = 7;
 int32 CONF_COLOR_INDEX_BACK = 0;
 int32 CONF_COLOR_INDEX_CURSOR = 256;
 static int32 CONF_COLOR_INDEX_REVCURSOR = 257;
-static int32 selectionbg = 259;
+static int32 CONF_COLOR_INDEX_SELECTION_BACK = 259;
 static int32 selectionfg = 7;
 /* If 0 use selectionfg as foreground in order to have a uniform foreground-color */
 /* Else if 1 keep original foreground-color of each cell => more colors :) */
