@@ -125,7 +125,6 @@ static int32 xloadsparefont(FcPattern *, int32);
 static void x_load_spare_fonts(void);
 static void x_unload_font(Font *);
 static void x_unload_fonts(void);
-static void x_setenv(void);
 static void x_set_urgency(int32);
 static int32 xevent_col(XEvent *);
 static int32 xevent_row(XEvent *);
@@ -286,7 +285,13 @@ run:
     CONF_NUMBER_ROWS = MAX(CONF_NUMBER_ROWS, 1);
     term_new(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
     x_init(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
-    x_setenv();
+
+    {
+        char buf[SIZEOF(int64) * 8 + 1];
+
+        snprintf(buf, SIZEOF(buf), "%lu", x_window.win);
+        setenv("WINDOWID", buf, 1);
+    }
     selection_init();
 
     {
@@ -1960,15 +1965,6 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
                     term_window.vborderpx + (cy + 1) * term_window.ch - 1, (uint32)term_window.cw,
                     1);
     }
-    return;
-}
-
-void
-x_setenv(void) {
-    char buf[SIZEOF(int64) * 8 + 1];
-
-    snprintf(buf, SIZEOF(buf), "%lu", x_window.win);
-    setenv("WINDOWID", buf, 1);
     return;
 }
 
