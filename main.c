@@ -964,7 +964,9 @@ void
 handler_selection_request(XEvent *xevent) {
     XSelectionRequestEvent *xselection_request_event;
     XSelectionEvent xselection_event;
-    Atom xa_targets, string, clipboard;
+    Atom xa_targets;
+    Atom string;
+    Atom clipboard;
     char *seltext;
 
     xselection_request_event = (XSelectionRequestEvent *)xevent;
