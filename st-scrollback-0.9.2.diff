@@ -319,8 +319,8 @@ index b9f66e7..2478942 100644
  			continue;
  
  		term.dirty[y] = 0;
--		xdrawline(term.line[y], x1, y, x2);
-+		xdrawline(TLINE(y), x1, y, x2);
+-		x_draw_line(term.line[y], x1, y, x2);
++		x_draw_line(TLINE(y), x1, y, x2);
  	}
  }
  
