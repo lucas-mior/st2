@@ -1321,7 +1321,7 @@ x_init(int32 ncols, int32 nrows) {
         xmousefg.blue = 0xffff;
     }
 
-    if (XParseColor(x_window.dpy, x_window.cmap, colorname[mouse_background], &xmousebg) == 0) {
+    if (XParseColor(x_window.dpy, x_window.cmap, colorname[CONF_MOUSE_COLOR_BG], &xmousebg) == 0) {
         xmousebg.red = 0x0000;
         xmousebg.green = 0x0000;
         xmousebg.blue = 0x0000;

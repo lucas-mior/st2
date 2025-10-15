@@ -223,7 +223,7 @@ static int32 CONF_NUMBER_ROWS = 24;
  */
 static int32 CONF_MOUSE_SHAPE = XC_xterm;
 static int32 CONF_MOUSE_COLOR_FG = 7;
-static int32 mouse_background = 0;
+static int32 CONF_MOUSE_COLOR_BG = 0;
 
 /*
  * Color used to display font attributes when fontconfig selected a font which
