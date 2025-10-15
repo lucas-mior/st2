@@ -514,7 +514,7 @@ handler_selection_notify(XEvent *e) {
     }
 
     do {
-        if (XGetWindowProperty(x_window.dpy, x_window.win, property, (long)ofs, BUFSIZ / 4, False,
+        if (XGetWindowProperty(x_window.dpy, x_window.win, property, (int64)ofs, BUFSIZ / 4, False,
                                AnyPropertyType, &type, &format, &nitems, &rem, &data)) {
             fprintf(stderr, "Clipboard allocation failed\n");
             return;
@@ -1712,7 +1712,7 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
 
 void
 x_setenv(void) {
-    char buf[sizeof(long) * 8 + 1];
+    char buf[sizeof(int64) * 8 + 1];
 
     snprintf(buf, sizeof(buf), "%lu", x_window.win);
     setenv("WINDOWID", buf, 1);
@@ -2017,7 +2017,7 @@ handler_client_message(XEvent *e) {
         } else if (e->xclient.data.l[1] == XEMBED_FOCUS_OUT) {
             term_window.mode &= ~WIN_MODE_FOCUSED;
         }
-    } else if (e->xclient.data.l[0] == (long)x_window.wmdeletewin) {
+    } else if (e->xclient.data.l[0] == (int64)x_window.wmdeletewin) {
         tty_hangup();
         exit(0);
     }

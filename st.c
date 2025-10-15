@@ -888,7 +888,7 @@ stty(char **args) {
     siz = sizeof(cmd) - n;
     for (char **p = args; p && (s = *p); ++p) {
         if ((n = strlen(s)) > siz - 1) {
-            die("stty parameter length too long\n");
+            die("stty parameter length too int64\n");
         }
         *q++ = ' ';
         memcpy(q, s, n);
@@ -1466,7 +1466,7 @@ term_new_line(int32 first_col) {
 void
 control_seq_intro_parse(void) {
     char *p = csiescseq.buf, *np;
-    long v;
+    int64 v;
     int32 sep = ';'; /* colon or semi-colon, but not both */
 
     csiescseq.narg = 0;
