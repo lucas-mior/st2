@@ -862,7 +862,9 @@ void
 handler_selection_notify(XEvent *xevent) {
     uint64 nitems, ofs, rem;
     int32 format;
-    uchar *data, *last, *repl;
+    uchar *data;
+    uchar *last;
+    uchar *repl;
     Atom type, incratom, property = None;
 
     incratom = XInternAtom(x_window.display, "INCR", 0);
