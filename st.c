@@ -353,7 +353,7 @@ utf8_decode(const char *c, Rune *u, int64 clen) {
     }
     {
         int64 j = 1;
-        for (int64 i = 1; i < clen && j < len; ++i, ++j) {
+        for (int64 i = 1; i < clen && j < len; i += 1, j += 1) {
             udecoded = (udecoded << 6) | utf8_decode_byte(c[i], &type);
             if (type != 0) {
                 return j;
