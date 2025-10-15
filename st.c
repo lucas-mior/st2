@@ -3171,9 +3171,7 @@ reset_title(void)
 void
 draw_region(int x1, int y1, int x2, int y2)
 {
-	int y;
-
-	for (y = y1; y < y2; y++) {
+	for (int y = y1; y < y2; y++) {
 		if (!term.dirty[y])
 			continue;
 
