@@ -24,7 +24,7 @@ index d4c88a2..2716f44 100644
 +#define TLINE_HIST(y)           ((y) <= HISTSIZE-term.row+2 ? term.hist[(y)] : term.line[(y-HISTSIZE+term.row-3)])
  
  enum term_mode {
- 	MODE_WRAP        = 1 << 0,
+ 	TERM_MODE_WRAP        = 1 << 0,
 @@ -431,6 +432,20 @@ tlinelen(int y)
  	return i;
  }
