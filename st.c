@@ -55,8 +55,8 @@
 #define TERM_LINE_ABS(y)                                                                           \
     ((y) < 0 ? term.hist[(term.histi + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] : term.line[(y)])
 #define TERM_LINE_HIST(y)                                                                          \
-    ((y) <= HISTORY_SIZE - term.row + 2 ? term.hist[(y)]                                           \
-                                        : term.line[(y - HISTORY_SIZE + term.row - 3)])
+    ((y) <= HISTORY_SIZE - term.nrows + 2 ? term.hist[(y)]                                         \
+                                          : term.line[(y - HISTORY_SIZE + term.nrows - 3)])
 
 #define UPDATE_WRAP_NEXT(alt, col)                                                                 \
     do {                                                                                           \
@@ -141,8 +141,8 @@ typedef struct {
 
 /* Internal representation of the screen */
 typedef struct {
-    int32 row;               /* nb row */
-    int32 col;               /* nb col */
+    int32 nrows;             /* nb row */
+    int32 ncols;             /* nb col */
     Line *line;              /* screen */
     Line hist[HISTORY_SIZE]; /* history buffer */
     int32 histi;             /* history index */
@@ -489,7 +489,7 @@ base64_decode(const char *src) {
 
 int32
 term_line_len(Line line) {
-    int32 i = term.col - 1;
+    int32 i = term.ncols - 1;
 
     for (; i >= 0 && !(line[i].mode & (ATTR_SET | ATTR_WRAP)); i--)
         ;
@@ -518,7 +518,7 @@ term_get_glyphs(char *buffer, const Glyph *gp, const Glyph *lgp) {
 int64
 tgetline(char *buffer, const Glyph *fgp) {
     char *ptr;
-    const Glyph *lgp = &fgp[term.col - 1];
+    const Glyph *lgp = &fgp[term.ncols - 1];
 
     while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
         lgp--;
@@ -532,7 +532,7 @@ tgetline(char *buffer, const Glyph *fgp) {
 
 static int32
 tlinehistlen(int32 y) {
-    int32 i = term.col;
+    int32 i = term.ncols;
 
     if (TERM_LINE_HIST(y)[i - 1].mode & ATTR_WRAP) {
         return i;
@@ -630,7 +630,7 @@ selection_normalize(void) {
         selection.nb.x = len;
     }
     if (selection.ne.x >= term_line_len(TERM_LINE(selection.ne.y))) {
-        selection.ne.x = term.col - 1;
+        selection.ne.x = term.ncols - 1;
     }
     return;
 }
@@ -676,7 +676,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
     int32 xt;
     int32 yt;
     int32 rtop = 0;
-    int32 rbot = term.row - 1;
+    int32 rbot = term.nrows - 1;
     int32 delim;
     int32 prevdelim;
     const Glyph *gp, *prevgp;
@@ -697,9 +697,9 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
         while (1) {
             newx = *x + direction;
             newy = *y;
-            if (!BETWEEN(newx, 0, term.col - 1)) {
+            if (!BETWEEN(newx, 0, term.ncols - 1)) {
                 newy += direction;
-                newx = (newx + term.col) % term.col;
+                newx = (newx + term.ncols) % term.ncols;
                 if (!BETWEEN(newy, rtop, rbot)) {
                     break;
                 }
@@ -739,7 +739,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
          * has set ATTR_WRAP at its end. Then the whole next or
          * previous line will be selection_is_selected.
          */
-        *x = (direction < 0) ? 0 : term.col - 1;
+        *x = (direction < 0) ? 0 : term.ncols - 1;
         if (direction < 0) {
             for (; *y > rtop; *y -= 1) {
                 if (!term_is_wrapped(TERM_LINE(*y - 1))) {
@@ -772,7 +772,7 @@ selection_get(void) {
         return NULL;
     }
 
-    string = xmalloc((int64)((term.col + 1)*(selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
+    string = xmalloc((int64)((term.ncols + 1)*(selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
     ptr = string;
 
     /* append every set & selection_is_selected glyph to the selection */
@@ -789,7 +789,7 @@ selection_get(void) {
             lastx = selection.ne.x;
         } else {
             gp = &line[selection.nb.y == y ? selection.nb.x : 0];
-            lastx = (selection.ne.y == y) ? selection.ne.x : term.col - 1;
+            lastx = (selection.ne.y == y) ? selection.ne.x : term.ncols - 1;
         }
         lgp = &line[MIN(lastx, line_len - 1)];
 
@@ -1135,8 +1135,8 @@ void
 tty_resize(int32 tty_width, int32 tty_height) {
     struct winsize winsize;
 
-    winsize.ws_row = (uint16)term.row;
-    winsize.ws_col = (uint16)term.col;
+    winsize.ws_row = (uint16)term.nrows;
+    winsize.ws_col = (uint16)term.ncols;
     winsize.ws_xpixel = (uint16)tty_width;
     winsize.ws_ypixel = (uint16)tty_height;
     if (ioctl(cmdfd, TIOCSWINSZ, &winsize) < 0) {
@@ -1154,8 +1154,8 @@ tty_hangup(void) {
 
 int32
 term_attr_set(int32 attr) {
-    for (int32 i = 0; i < term.row - 1; i++) {
-        for (int32 j = 0; j < term.col - 1; j++) {
+    for (int32 i = 0; i < term.nrows - 1; i++) {
+        for (int32 j = 0; j < term.ncols - 1; j++) {
             if (term.line[i][j].mode & attr) {
                 return 1;
             }
@@ -1167,8 +1167,8 @@ term_attr_set(int32 attr) {
 
 void
 term_set_dirt(int32 top, int32 bot) {
-    LIMIT(top, 0, term.row - 1);
-    LIMIT(bot, 0, term.row - 1);
+    LIMIT(top, 0, term.nrows - 1);
+    LIMIT(bot, 0, term.nrows - 1);
 
     for (int32 i = top; i <= bot; i++) {
         term.dirty[i] = 1;
@@ -1178,8 +1178,8 @@ term_set_dirt(int32 top, int32 bot) {
 
 void
 term_set_dirt_attr(int32 attr) {
-    for (int32 i = 0; i < term.row - 1; i++) {
-        for (int32 j = 0; j < term.col - 1; j++) {
+    for (int32 i = 0; i < term.nrows - 1; i++) {
+        for (int32 j = 0; j < term.ncols - 1; j++) {
             if (term.line[i][j].mode & attr) {
                 term.dirty[i] = 1;
                 break;
@@ -1191,7 +1191,7 @@ term_set_dirt_attr(int32 attr) {
 
 void
 term_full_dirt(void) {
-    for (int32 i = 0; i < term.row; i++) {
+    for (int32 i = 0; i < term.nrows; i++) {
         term.dirty[i] = 1;
     }
     return;
@@ -1230,14 +1230,14 @@ void
 term_reset(void) {
     term_reset_cursor();
 
-    memset(term.tabs, 0, (size_t)term.col*SIZEOF(*term.tabs));
-    for (int32 i = CONF_TAB_NSPACES; i < term.col; i += CONF_TAB_NSPACES) {
+    memset(term.tabs, 0, (size_t)term.ncols*SIZEOF(*term.tabs));
+    for (int32 i = CONF_TAB_NSPACES; i < term.ncols; i += CONF_TAB_NSPACES) {
         term.tabs[i] = 1;
     }
     term.top = 0;
     term.histf = 0;
     term.scr = 0;
-    term.bot = term.row - 1;
+    term.bot = term.nrows - 1;
     term.mode = TERM_MODE_WRAP | TERM_MODE_UTF8;
     memset(term.trantbl, CS_USA, SIZEOF(term.trantbl));
     term.charset = 0;
@@ -1245,8 +1245,8 @@ term_reset(void) {
     selection_remove();
     for (uint32 i = 0; i < 2; i++) {
         term_cursor(CURSOR_SAVE); /* reset saved cursor */
-        for (int32 y = 0; y < term.row; y++) {
-            for (int32 x = 0; x < term.col; x++) {
+        for (int32 y = 0; y < term.nrows; y++) {
+            for (int32 x = 0; x < term.ncols; x++) {
                 term_clear_glyph(&term.line[y][x], 0);
             }
         }
@@ -1262,11 +1262,11 @@ term_swap_screen(void) {
     static Line *altline;
     static int32 altcol, altrow;
     Line *tmpline = term.line;
-    int32 tmpcol = term.col, tmprow = term.row;
+    int32 tmpcol = term.ncols, tmprow = term.nrows;
 
     term.line = altline;
-    term.col = altcol;
-    term.row = altrow;
+    term.ncols = altcol;
+    term.nrows = altrow;
     altline = tmpline;
     altcol = tmpcol;
     altrow = tmprow;
@@ -1282,10 +1282,10 @@ term_load_def_screen(int32 clear, int32 loadcursor) {
 
     if (alt) {
         if (clear) {
-            term_clear_region(0, 0, term.col - 1, term.row - 1, 1);
+            term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, 1);
         }
-        col = term.col;
-        row = term.row;
+        col = term.ncols;
+        row = term.nrows;
         term_swap_screen();
     }
     if (loadcursor) {
@@ -1305,14 +1305,14 @@ term_load_alt_screen(int32 clear, int32 savecursor) {
         term_cursor(CURSOR_SAVE);
     }
     if (def) {
-        col = term.col;
-        row = term.row;
+        col = term.ncols;
+        row = term.nrows;
         term_swap_screen();
         term.scr = 0;
         term_resize_alt(col, row);
     }
     if (clear) {
-        term_clear_region(0, 0, term.col - 1, term.row - 1, 1);
+        term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, 1);
     }
     return;
 }
@@ -1331,7 +1331,7 @@ user_scroll_down(const Arg *a) {
     }
 
     if (n < 0) {
-        n = MAX(term.row / -n, 1);
+        n = MAX(term.nrows / -n, 1);
     }
 
     if (n <= term.scr) {
@@ -1356,7 +1356,7 @@ user_scroll_up(const Arg *a) {
     }
 
     if (n < 0) {
-        n = MAX(term.row / -n, 1);
+        n = MAX(term.nrows / -n, 1);
     }
 
     if (term.scr + n <= term.histf) {
@@ -1384,7 +1384,7 @@ term_scroll_down(int32 top, int32 n) {
     n = MIN(n, bot - top + 1);
 
     term_set_dirt(top, bot - n);
-    term_clear_region(0, bot - n + 1, term.col - 1, bot, 1);
+    term_clear_region(0, bot - n + 1, term.ncols - 1, bot, 1);
 
     for (int32 i = bot; i >= top + n; i--) {
         temp = term.line[i];
@@ -1414,7 +1414,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
         for (int32 i = 0; i < n; i++) {
             term.histi = (term.histi + 1) % HISTORY_SIZE;
             temp = term.hist[term.histi];
-            for (int32 j = 0; j < term.col; j++) {
+            for (int32 j = 0; j < term.ncols; j++) {
                 term_clear_glyph(&temp[j], 1);
             }
             term.hist[term.histi] = term.line[i];
@@ -1431,7 +1431,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
             term_full_dirt();
         }
     } else {
-        term_clear_region(0, top, term.col - 1, top + n - 1, 1);
+        term_clear_region(0, top, term.ncols - 1, top + n - 1, 1);
         term_set_dirt(top + n, bot);
     }
 
@@ -1547,10 +1547,10 @@ term_move_to(int32 x, int32 y) {
         maxy = term.bot;
     } else {
         miny = 0;
-        maxy = term.row - 1;
+        maxy = term.nrows - 1;
     }
     term.cursor.state &= ~CURSOR_WRAPNEXT;
-    term.cursor.x = LIMIT(x, 0, term.col - 1);
+    term.cursor.x = LIMIT(x, 0, term.ncols - 1);
     term.cursor.y = LIMIT(y, miny, maxy);
     return;
 }
@@ -1577,7 +1577,7 @@ term_set_char(Rune u, const Glyph *attr, int32 x, int32 y) {
     }
 
     if (term.line[y][x].mode & ATTR_WIDE) {
-        if (x + 1 < term.col) {
+        if (x + 1 < term.ncols) {
             term.line[y][x + 1].rune = ' ';
             term.line[y][x + 1].mode &= ~ATTR_WDUMMY;
         }
@@ -1639,8 +1639,8 @@ term_delete_char(int32 n) {
     }
 
     dst = term.cursor.x;
-    src = MIN(term.cursor.x + n, term.col);
-    size = term.col - src;
+    src = MIN(term.cursor.x + n, term.ncols);
+    size = term.ncols - src;
     if (size > 0) {
         /*
          * otherwise src would point beyond the array
@@ -1649,7 +1649,7 @@ term_delete_char(int32 n) {
         line = term.line[term.cursor.y];
         memmove(&line[dst], &line[src], (size_t)size*SIZEOF(Glyph));
     }
-    term_clear_region(dst + size, term.cursor.y, term.col - 1, term.cursor.y, 1);
+    term_clear_region(dst + size, term.cursor.y, term.ncols - 1, term.cursor.y, 1);
     return;
 }
 
@@ -1663,9 +1663,9 @@ term_insert_blank(int32 n) {
     if (n <= 0) {
         return;
     }
-    dst = MIN(term.cursor.x + n, term.col);
+    dst = MIN(term.cursor.x + n, term.ncols);
     src = term.cursor.x;
-    size = term.col - dst;
+    size = term.ncols - dst;
     if (size > 0) { /* otherwise dst would point beyond the array */
         line = term.line[term.cursor.y];
         memmove(&line[dst], &line[src], (size_t)size*SIZEOF(Glyph));
@@ -1841,8 +1841,8 @@ void
 term_set_scroll(int32 t, int32 b) {
     int32 temp;
 
-    LIMIT(t, 0, term.row - 1);
-    LIMIT(b, 0, term.row - 1);
+    LIMIT(t, 0, term.nrows - 1);
+    LIMIT(b, 0, term.nrows - 1);
     if (t > b) {
         temp = t;
         t = b;
@@ -2063,7 +2063,7 @@ control_seq_intro_handle(void) {
             term.tabs[term.cursor.x] = 0;
             break;
         case 3: /* clear all the tabs */
-            memset(term.tabs, 0, (size_t)term.col*SIZEOF(*term.tabs));
+            memset(term.tabs, 0, (size_t)term.ncols*SIZEOF(*term.tabs));
             break;
         default:
             goto unknown;
@@ -2087,32 +2087,32 @@ control_seq_intro_handle(void) {
     case 'J': /* ED -- Clear screen */
         switch (csi_escape_seq.arg[0]) {
         case 0: /* below */
-            term_clear_region(term.cursor.x, term.cursor.y, term.col - 1, term.cursor.y, 1);
-            if (term.cursor.y < term.row - 1) {
-                term_clear_region(0, term.cursor.y + 1, term.col - 1, term.row - 1, 1);
+            term_clear_region(term.cursor.x, term.cursor.y, term.ncols - 1, term.cursor.y, 1);
+            if (term.cursor.y < term.nrows - 1) {
+                term_clear_region(0, term.cursor.y + 1, term.ncols - 1, term.nrows - 1, 1);
             }
             break;
         case 1: /* above */
             if (term.cursor.y >= 1) {
-                term_clear_region(0, 0, term.col - 1, term.cursor.y - 1, 1);
+                term_clear_region(0, 0, term.ncols - 1, term.cursor.y - 1, 1);
             }
             term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y, 1);
             break;
         case 2: /* all */
             if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-                term_clear_region(0, 0, term.col - 1, term.row - 1, 1);
+                term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, 1);
                 break;
             }
             /* vte does this:
-               term_scroll_up(0, term.row-1, term.row, SCROLL_SAVEHIST); */
+               term_scroll_up(0, term.nrows-1, term.nrows, SCROLL_SAVEHIST); */
 
             /* alacritty does this: */
-            for (n = term.row - 1; n >= 0 && term_line_len(term.line[n]) == 0; n--)
+            for (n = term.nrows - 1; n >= 0 && term_line_len(term.line[n]) == 0; n--)
                 ;
             if (n >= 0) {
-                term_scroll_up(0, term.row - 1, n + 1, SCROLL_SAVEHIST);
+                term_scroll_up(0, term.nrows - 1, n + 1, SCROLL_SAVEHIST);
             }
-            term_scroll_up(0, term.row - 1, term.row - n - 1, SCROLL_NOSAVEHIST);
+            term_scroll_up(0, term.nrows - 1, term.nrows - n - 1, SCROLL_NOSAVEHIST);
             break;
         default:
             goto unknown;
@@ -2121,13 +2121,13 @@ control_seq_intro_handle(void) {
     case 'K': /* EL -- Clear line */
         switch (csi_escape_seq.arg[0]) {
         case 0: /* right */
-            term_clear_region(term.cursor.x, term.cursor.y, term.col - 1, term.cursor.y, 1);
+            term_clear_region(term.cursor.x, term.cursor.y, term.ncols - 1, term.cursor.y, 1);
             break;
         case 1: /* left */
             term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y, 1);
             break;
         case 2: /* all */
-            term_clear_region(0, term.cursor.y, term.col - 1, term.cursor.y, 1);
+            term_clear_region(0, term.cursor.y, term.ncols - 1, term.cursor.y, 1);
             break;
         default:
             fprintf(stderr, "control_seq_intro_handle: Unhandled switch case.\n");
@@ -2162,7 +2162,7 @@ control_seq_intro_handle(void) {
             return;
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
-        x = MIN(term.cursor.x + csi_escape_seq.arg[0], term.col) - 1;
+        x = MIN(term.cursor.x + csi_escape_seq.arg[0], term.ncols) - 1;
         term_clear_region(term.cursor.x, term.cursor.y, x, term.cursor.y, 1);
         break;
     case 'P': /* DCH -- Delete <n> char */
@@ -2202,7 +2202,7 @@ control_seq_intro_handle(void) {
             goto unknown;
         } else {
             DEFAULT(csi_escape_seq.arg[0], 1);
-            DEFAULT(csi_escape_seq.arg[1], term.row);
+            DEFAULT(csi_escape_seq.arg[1], term.nrows);
             term_set_scroll(csi_escape_seq.arg[0] - 1, csi_escape_seq.arg[1] - 1);
             term_move_abs_to(0, 0);
         }
@@ -2471,7 +2471,7 @@ externalpipe(const Arg *arg) {
     newline = 0;
     for (int32 n = 0; n <= HISTORY_SIZE + 2; n++) {
         bp = TERM_LINE_HIST(n);
-        lastpos = MIN(tlinehistlen(n) + 1, term.col) - 1;
+        lastpos = MIN(tlinehistlen(n) + 1, term.ncols) - 1;
         if (lastpos < 0) {
             break;
         }
@@ -2580,14 +2580,14 @@ term_dump_sel(void) {
 
 void
 term_dump_line(int32 n) {
-    char *string = xmalloc((int64)((term.col + 1)*UTF_SIZ) * SIZEOF(*string));
+    char *string = xmalloc((int64)((term.ncols + 1)*UTF_SIZ) * SIZEOF(*string));
     term_printer(string, tgetline(string, &term.line[n][0]));
     return;
 }
 
 void
 term_dump(void) {
-    for (int32 i = 0; i < term.row; ++i) {
+    for (int32 i = 0; i < term.nrows; ++i) {
         term_dump_line(i);
     }
     return;
@@ -2598,8 +2598,8 @@ term_put_tab(int32 n) {
     int32 x = term.cursor.x;
 
     if (n > 0) {
-        while (x < term.col && n--) {
-            for (++x; x < term.col && !term.tabs[x]; ++x)
+        while (x < term.ncols && n--) {
+            for (++x; x < term.ncols && !term.tabs[x]; ++x)
                 /* nothing */;
         }
     } else if (n < 0) {
@@ -2608,7 +2608,7 @@ term_put_tab(int32 n) {
                 /* nothing */;
         }
     }
-    term.cursor.x = LIMIT(x, 0, term.col - 1);
+    term.cursor.x = LIMIT(x, 0, term.ncols - 1);
     return;
 }
 
@@ -2639,8 +2639,8 @@ term_def_tran(char ascii) {
 void
 term_dec_test(char c) {
     if (c == '8') { /* DEC screen alignment test. */
-        for (int32 x = 0; x < term.col; ++x) {
-            for (int32 y = 0; y < term.row; ++y) {
+        for (int32 x = 0; x < term.ncols; ++x) {
+            for (int32 y = 0; y < term.nrows; ++y) {
                 term_set_char('E', &term.cursor.attr, x, y);
             }
         }
@@ -2986,16 +2986,16 @@ check_control_code:
         gp = &term.line[term.cursor.y][term.cursor.x];
     }
 
-    if (TERM_MODE_IS_SET(TERM_MODE_INSERT) && term.cursor.x + width < term.col) {
-        memmove(gp + width, gp, (size_t)(term.col - term.cursor.x - width)*SIZEOF(Glyph));
+    if (TERM_MODE_IS_SET(TERM_MODE_INSERT) && term.cursor.x + width < term.ncols) {
+        memmove(gp + width, gp, (size_t)(term.ncols - term.cursor.x - width)*SIZEOF(Glyph));
         gp->mode &= ~ATTR_WIDE;
     }
 
-    if (term.cursor.x + width > term.col) {
+    if (term.cursor.x + width > term.ncols) {
         if (TERM_MODE_IS_SET(TERM_MODE_WRAP)) {
             term_new_line(1);
         } else {
-            term_move_to(term.col - width, term.cursor.y);
+            term_move_to(term.ncols - width, term.cursor.y);
         }
         gp = &term.line[term.cursor.y][term.cursor.x];
     }
@@ -3005,8 +3005,8 @@ check_control_code:
 
     if (width == 2) {
         gp->mode |= ATTR_WIDE;
-        if (term.cursor.x + 1 < term.col) {
-            if (gp[1].mode == ATTR_WIDE && term.cursor.x + 2 < term.col) {
+        if (term.cursor.x + 1 < term.ncols) {
+            if (gp[1].mode == ATTR_WIDE && term.cursor.x + 2 < term.ncols) {
                 gp[2].rune = ' ';
                 gp[2].mode &= ~ATTR_WDUMMY;
             }
@@ -3014,7 +3014,7 @@ check_control_code:
             gp[1].mode = ATTR_WDUMMY;
         }
     }
-    if (term.cursor.x + width < term.col) {
+    if (term.cursor.x + width < term.ncols) {
         term_move_to(term.cursor.x + width, term.cursor.y);
     } else {
         term.wrapcwidth[TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)] = width;
@@ -3104,9 +3104,9 @@ term_resize(int32 col, int32 row) {
 
     term.dirty = xrealloc(term.dirty, (int64)row*SIZEOF(*(term.dirty)));
     term.tabs = xrealloc(term.tabs, (int64)col*SIZEOF(*(term.tabs)));
-    if (col > term.col) {
-        bp = term.tabs + term.col;
-        memset(bp, 0, SIZEOF(*term.tabs)*(size_t)(col - term.col));
+    if (col > term.ncols) {
+        bp = term.tabs + term.ncols;
+        memset(bp, 0, SIZEOF(*term.tabs)*(size_t)(col - term.ncols));
         while (--bp > term.tabs && !*bp)
             /* nothing */;
         for (bp += CONF_TAB_NSPACES; bp < term.tabs + col; bp += CONF_TAB_NSPACES) {
@@ -3125,11 +3125,11 @@ term_resize(int32 col, int32 row) {
 void
 term_resize_def(int32 col, int32 row) {
     /* return if dimensions haven't changed */
-    if (term.col == col && term.row == row) {
+    if (term.ncols == col && term.nrows == row) {
         term_full_dirt();
         return;
     }
-    if (col != term.col) {
+    if (col != term.ncols) {
         if (!selection.alt) {
             selection_remove();
         }
@@ -3137,28 +3137,28 @@ term_resize_def(int32 col, int32 row) {
     } else {
         /* slide screen up if otherwise cursor would get out of the screen */
         if (term.cursor.y >= row) {
-            term_scroll_up(0, term.row - 1, term.cursor.y - row + 1, SCROLL_RESIZE);
+            term_scroll_up(0, term.nrows - 1, term.cursor.y - row + 1, SCROLL_RESIZE);
             term.cursor.y = row - 1;
         }
-        for (int32 i = row; i < term.row; i++) {
+        for (int32 i = row; i < term.nrows; i++) {
             xfree(term.line[i]);
         }
 
         /* handler_configure_notify to new height */
         term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
         /* allocate any new CONF_NUMBER_ROWS */
-        for (int32 i = term.row; i < row; i++) {
+        for (int32 i = term.nrows; i < row; i++) {
             term.line[i] = xmalloc((int64)col*SIZEOF(Glyph));
             for (int32 j = 0; j < col; j++) {
                 term_clear_glyph(&term.line[i][j], 0);
             }
         }
         /* scroll down as much as height has increased */
-        reflow_scroll_down(row - term.row);
+        reflow_scroll_down(row - term.nrows);
     }
     /* update terminal size */
-    term.col = col;
-    term.row = row;
+    term.ncols = col;
+    term.nrows = row;
     /* reset scrolling region */
     term.top = 0;
     term.bot = row - 1;
@@ -3172,7 +3172,7 @@ term_resize_alt(int32 col, int32 row) {
     int32 i;
 
     /* return if dimensions haven't changed */
-    if (term.col == col && term.row == row) {
+    if (term.ncols == col && term.nrows == row) {
         term_full_dirt();
         return;
     }
@@ -3188,20 +3188,20 @@ term_resize_alt(int32 col, int32 row) {
         memmove(term.line, term.line + i, (size_t)row*SIZEOF(*(term.line)));
         term.cursor.y = row - 1;
     }
-    for (i += row; i < term.row; i++) {
+    for (i += row; i < term.nrows; i++) {
         xfree(term.line[i]);
     }
     /* handler_configure_notify to new height */
     term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
     /* handler_configure_notify to new width */
-    for (i = 0; i < MIN(row, term.row); i++) {
+    for (i = 0; i < MIN(row, term.nrows); i++) {
         term.line[i] = xrealloc(term.line[i], (int64)col*SIZEOF(*(term.line[i])));
-        for (int32 j = term.col; j < col; j++) {
+        for (int32 j = term.ncols; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* allocate any new CONF_NUMBER_ROWS */
-    for (/*i = MIN(row, term.row) */; i < row; i++) {
+    for (/*i = MIN(row, term.nrows) */; i < row; i++) {
         term.line[i] = xmalloc((int64)col*SIZEOF(Glyph));
         for (int32 j = 0; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
@@ -3215,8 +3215,8 @@ term_resize_alt(int32 col, int32 row) {
         UPDATE_WRAP_NEXT(1, col);
     }
     /* update terminal size */
-    term.col = col;
-    term.row = row;
+    term.ncols = col;
+    term.nrows = row;
     /* reset scrolling region */
     term.top = 0;
     term.bot = row - 1;
@@ -3244,14 +3244,14 @@ term_reflow(int32 col, int32 row) {
 
     /* y coordinate of cursor line end */
     oce = term.cursor.y;
-    while (oce < term.row - 1 && term_is_wrapped(term.line[oce])) {
+    while (oce < term.nrows - 1 && term_is_wrapped(term.line[oce])) {
         oce += 1;
     }
 
     nlines = term.histf + oce + 1;
-    if (col < term.col) {
+    if (col < term.ncols) {
         /* each line can take this many lines after reflow */
-        int32 j = (term.col + col - 1) / col;
+        int32 j = (term.ncols + col - 1) / col;
         nlines = j*nlines;
         if (nlines > (HISTORY_SIZE + RESIZE_BUFFER + row)) {
             nlines = HISTORY_SIZE + RESIZE_BUFFER + row;
@@ -3312,14 +3312,14 @@ term_reflow(int32 col, int32 row) {
     }
 
     /* xfree extra lines */
-    for (i = row; i < term.row; i += 1) {
+    for (i = row; i < term.nrows; i += 1) {
         xfree(term.line[i]);
     }
     /* handler_configure_notify to new height */
     term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
 
     bot = MIN(ny, row - 1);
-    scr = MAX(row - term.row, 0);
+    scr = MAX(row - term.nrows, 0);
     /* update y coordinate of cursor line end */
     nce = MIN(oce + scr, bot);
     /* update cursor y coordinate */
@@ -3341,10 +3341,10 @@ term_reflow(int32 col, int32 row) {
         }
     }
     /* fill visible area */
-    for (/*i = nce */; i >= term.row; i--, ny--) {
+    for (/*i = nce */; i >= term.nrows; i--, ny--) {
         term.line[i] = buffer[ny];
     }
-    for (/*i = term.row - 1 */; i >= 0; i--, ny--) {
+    for (/*i = term.nrows - 1 */; i >= 0; i--, ny--) {
         xfree(term.line[i]);
         term.line[i] = buffer[ny];
     }
@@ -3396,8 +3396,8 @@ draw(void) {
     }
 
     /* adjust cursor position */
-    LIMIT(term.ocx, 0, term.col - 1);
-    LIMIT(term.ocy, 0, term.row - 1);
+    LIMIT(term.ocx, 0, term.ncols - 1);
+    LIMIT(term.ocy, 0, term.nrows - 1);
     if (term.line[term.ocy][term.ocx].mode & ATTR_WDUMMY) {
         term.ocx--;
     }
@@ -3405,7 +3405,7 @@ draw(void) {
         cx--;
     }
 
-    draw_region(0, 0, term.col, term.row);
+    draw_region(0, 0, term.ncols, term.nrows);
     x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx], term.ocx, term.ocy,
                   term.line[term.ocy][term.ocx]);
     term.ocx = cx;

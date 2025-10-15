@@ -290,8 +290,8 @@ run:
         for (int32 j = 0; j < CONF_NUMBER_ROWS; j++) {
             term.line[j] = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(*(term.line[j])));
         }
-        term.col = CONF_NUMBER_COLS;
-        term.row = CONF_NUMBER_ROWS;
+        term.ncols = CONF_NUMBER_COLS;
+        term.nrows = CONF_NUMBER_ROWS;
         term_swap_screen();
     }
     term.dirty = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*term.dirty));
