@@ -212,11 +212,11 @@ static int32 ignoreselfg = 1;
 static uint32 CURSOR_SHAPE = 2;
 
 /*
- * Default columns and number_rows numbers
+ * Default columns and NUMBER_ROWS numbers
  */
 
 static int32 NUMBER_COLS = 80;
-static int32 number_rows = 24;
+static int32 NUMBER_ROWS = 24;
 
 /*
  * Default colour and shape of the mouse cursor
