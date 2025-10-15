@@ -67,8 +67,8 @@ index 2478942..2b86d23 100644
  static void tdumpsel(void);
  static void tdumpline(int);
  static void tdump(void);
--static void tclearregion(int, int, int, int);
-+static void tclearregion(int, int, int, int, int);
+-static void term_clear_region(int, int, int, int);
++static void term_clear_region(int, int, int, int, int);
  static void tcursor(int);
 +static void tclearglyph(Glyph *, int);
 +static void tresetcursor(void);
@@ -484,7 +484,7 @@ index 2478942..2b86d23 100644
  	for (i = 0; i < 2; i++) {
 -		tmoveto(0, 0);
 -		tcursor(CURSOR_SAVE);
--		tclearregion(0, 0, term.col-1, term.row-1);
+-		term_clear_region(0, 0, term.col-1, term.row-1);
 -		tswapscreen();
 +        tcursor(CURSOR_SAVE); /* reset saved cursor */
 +        for (y = 0; y < term.row; y++)
@@ -548,7 +548,7 @@ index 2478942..2b86d23 100644
 -		n = term.row + n;
 +	if (alt) {
 +		if (clear)
-+			tclearregion(0, 0, term.col-1, term.row-1, 1);
++			term_clear_region(0, 0, term.col-1, term.row-1, 1);
 +		col = term.col, row = term.row;
 +		tswapscreen();
 +	}
@@ -578,7 +578,7 @@ index 2478942..2b86d23 100644
 +		tresizealt(col, row);
  	}
 +	if (clear)
-+		tclearregion(0, 0, term.col-1, term.row-1, 1);
++		term_clear_region(0, 0, term.col-1, term.row-1, 1);
  }
  
 +int
@@ -643,7 +643,7 @@ index 2478942..2b86d23 100644
 +        n = MAX(term.row / -n, 1);
  
 -	tsetdirt(orig, term.bot-n);
--	tclearregion(0, term.bot-n+1, term.col-1, term.bot);
+-	term_clear_region(0, term.bot-n+1, term.col-1, term.bot);
 +    if (term.scr + n <= term.histf) {
 +        term.scr += n;
 +    } else {
@@ -685,7 +685,7 @@ index 2478942..2b86d23 100644
 -		term.line[orig] = temp;
 -	}
 +    tsetdirt(top, bot-n);
-+    tclearregion(0, bot-n+1, term.col-1, bot, 1);
++    term_clear_region(0, bot-n+1, term.col-1, bot, 1);
  
 -	if (term.scr > 0 && term.scr < HISTSIZE)
 -		term.scr = MIN(term.scr + n, HISTSIZE-1);
@@ -695,7 +695,7 @@ index 2478942..2b86d23 100644
 +        term.line[i-n] = temp;
 +    }
  
--	tclearregion(0, orig, term.col-1, orig+n-1);
+-	term_clear_region(0, orig, term.col-1, orig+n-1);
 -	tsetdirt(orig+n, term.bot);
 +    if (selection.ob.x != -1 && selection.alt == IS_SET(TERM_MODE_ALTSCREEN))
 +        sel_scroll(top, bot, n);
@@ -739,7 +739,7 @@ index 2478942..2b86d23 100644
 +        if (mode != SCROLL_RESIZE)
 +            tfulldirt();
 +    } else {
-+        tclearregion(0, top, term.col-1, top+n-1, 1);
++        term_clear_region(0, top, term.col-1, top+n-1, 1);
 +        tsetdirt(top+n, bot);
 +    }
 +
@@ -875,7 +875,7 @@ index 2478942..2b86d23 100644
 +
 +
  void
--tclearregion(int x1, int y1, int x2, int y2)
+-term_clear_region(int x1, int y1, int x2, int y2)
 +tclearglyph(Glyph *gp, int usecurattr)
  {
 -	int x, y, temp;
@@ -903,7 +903,7 @@ index 2478942..2b86d23 100644
  
 -	for (y = y1; y <= y2; y++) {
 +void
-+tclearregion(int x1, int y1, int x2, int y2, int usecurattr)
++term_clear_region(int x1, int y1, int x2, int y2, int usecurattr)
 +{
 +	int x, y;
 +	/* regionselected() takes relative coordinates */
@@ -944,7 +944,7 @@ index 2478942..2b86d23 100644
 +        return;
  
 -	memmove(&line[dst], &line[src], size * sizeof(Glyph));
--	tclearregion(term.col-n, term.c.y, term.col-1, term.c.y);
+-	term_clear_region(term.col-n, term.c.y, term.col-1, term.c.y);
 +    dst = term.c.x;
 +    src = MIN(term.c.x + n, term.col);
 +    size = term.col - src;
@@ -956,7 +956,7 @@ index 2478942..2b86d23 100644
 +        line = term.line[term.c.y];
 +        memmove(&line[dst], &line[src], size * sizeof(Glyph));
 +    }
-+    tclearregion(dst + size, term.c.y, term.col - 1, term.c.y, 1);
++    term_clear_region(dst + size, term.c.y, term.col - 1, term.c.y, 1);
  }
  
  void
@@ -975,7 +975,7 @@ index 2478942..2b86d23 100644
 +    Line line;
  
 -	memmove(&line[dst], &line[src], size * sizeof(Glyph));
--	tclearregion(src, term.c.y, dst - 1, term.c.y);
+-	term_clear_region(src, term.c.y, dst - 1, term.c.y);
 +    if (n <= 0)
 +        return;
 +    dst = MIN(term.c.x + n, term.col);
@@ -985,7 +985,7 @@ index 2478942..2b86d23 100644
 +        line = term.line[term.c.y];
 +        memmove(&line[dst], &line[src], size * sizeof(Glyph));
 +    }
-+    tclearregion(src, term.c.y, dst - 1, term.c.y, 1);
++    term_clear_region(src, term.c.y, dst - 1, term.c.y, 1);
  }
  
  void
@@ -1029,7 +1029,7 @@ index 2478942..2b86d23 100644
  					break;
 -				alt = IS_SET(TERM_MODE_ALTSCREEN);
 -				if (alt) {
--					tclearregion(0, 0, term.col-1,
+-					term_clear_region(0, 0, term.col-1,
 -							term.row-1);
 -				}
 -				if (set ^ alt) /* set is always 1 or 0 */
@@ -1064,27 +1064,27 @@ index 2478942..2b86d23 100644
  	case 'J': /* ED -- Clear screen */
  		switch (csiescseq.arg[0]) {
  		case 0: /* below */
--			tclearregion(term.c.x, term.c.y, term.col-1, term.c.y);
-+			tclearregion(term.c.x, term.c.y, term.col-1, term.c.y, 1);
+-			term_clear_region(term.c.x, term.c.y, term.col-1, term.c.y);
++			term_clear_region(term.c.x, term.c.y, term.col-1, term.c.y, 1);
  			if (term.c.y < term.row-1) {
--				tclearregion(0, term.c.y+1, term.col-1,
+-				term_clear_region(0, term.c.y+1, term.col-1,
 -						term.row-1);
-+				tclearregion(0, term.c.y+1, term.col-1, term.row-1, 1);
++				term_clear_region(0, term.c.y+1, term.col-1, term.row-1, 1);
  			}
  			break;
  		case 1: /* above */
 -			if (term.c.y > 1)
--				tclearregion(0, 0, term.col-1, term.c.y-1);
--			tclearregion(0, term.c.y, term.c.x, term.c.y);
+-				term_clear_region(0, 0, term.col-1, term.c.y-1);
+-			term_clear_region(0, term.c.y, term.c.x, term.c.y);
 +			if (term.c.y >= 1)
-+				tclearregion(0, 0, term.col-1, term.c.y-1, 1);
-+			tclearregion(0, term.c.y, term.c.x, term.c.y, 1);
++				term_clear_region(0, 0, term.col-1, term.c.y-1, 1);
++			term_clear_region(0, term.c.y, term.c.x, term.c.y, 1);
  			break;
 -		case 2: /* all */
--			tclearregion(0, 0, term.col-1, term.row-1);
+-			term_clear_region(0, 0, term.col-1, term.row-1);
 +        case 2: /* all */
 +            if (IS_SET(TERM_MODE_ALTSCREEN)) {
-+                tclearregion(0, 0, term.col-1, term.row-1, 1);
++                term_clear_region(0, 0, term.col-1, term.row-1, 1);
 +                break;
 +            }
 +            /* vte does this:
@@ -1102,17 +1102,17 @@ index 2478942..2b86d23 100644
  	case 'K': /* EL -- Clear line */
  		switch (csiescseq.arg[0]) {
  		case 0: /* right */
--			tclearregion(term.c.x, term.c.y, term.col-1,
+-			term_clear_region(term.c.x, term.c.y, term.col-1,
 -					term.c.y);
-+			tclearregion(term.c.x, term.c.y, term.col-1, term.c.y, 1);
++			term_clear_region(term.c.x, term.c.y, term.col-1, term.c.y, 1);
  			break;
  		case 1: /* left */
--			tclearregion(0, term.c.y, term.c.x, term.c.y);
-+			tclearregion(0, term.c.y, term.c.x, term.c.y, 1);
+-			term_clear_region(0, term.c.y, term.c.x, term.c.y);
++			term_clear_region(0, term.c.y, term.c.x, term.c.y, 1);
  			break;
  		case 2: /* all */
--			tclearregion(0, term.c.y, term.col-1, term.c.y);
-+			tclearregion(0, term.c.y, term.col-1, term.c.y, 1);
+-			term_clear_region(0, term.c.y, term.col-1, term.c.y);
++			term_clear_region(0, term.c.y, term.col-1, term.c.y, 1);
  			break;
  		}
  		break;
@@ -1137,10 +1137,10 @@ index 2478942..2b86d23 100644
 +		if (csiescseq.arg[0] < 0)
 +			return;
  		DEFAULT(csiescseq.arg[0], 1);
--		tclearregion(term.c.x, term.c.y,
+-		term_clear_region(term.c.x, term.c.y,
 -				term.c.x + csiescseq.arg[0] - 1, term.c.y);
 +		x = MIN(term.c.x + csiescseq.arg[0], term.col) - 1;
-+		tclearregion(term.c.x, term.c.y, x, term.c.y, 1);
++		term_clear_region(term.c.x, term.c.y, x, term.c.y, 1);
  		break;
  	case 'P': /* DCH -- Delete <n> char */
  		DEFAULT(csiescseq.arg[0], 1);
@@ -1381,10 +1381,10 @@ index 2478942..2b86d23 100644
 -	c = term.c;
 -	for (i = 0; i < 2; i++) {
 -		if (mincol < col && 0 < minrow) {
--			tclearregion(mincol, 0, col - 1, minrow - 1);
+-			term_clear_region(mincol, 0, col - 1, minrow - 1);
 -		}
 -		if (0 < col && minrow < row) {
--			tclearregion(0, minrow, col - 1, row - 1);
+-			term_clear_region(0, minrow, col - 1, row - 1);
 -		}
 -		tswapscreen();
 -		tcursor(CURSOR_LOAD);
