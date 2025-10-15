@@ -1374,8 +1374,10 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
     FcFontSet *fcsets[] = {NULL};
     FcCharSet *fccharset;
     int32 f, numspecs = 0;
+    int32 xp = winx;
+    int32 yp = winy + font_local->ascent;
 
-    for (int32 i = 0, xp = winx, yp = winy + font_local->ascent; i < len; ++i) {
+    for (int32 i = 0; i < len; ++i) {
         /* Fetch rune and mode for current glyph. */
         rune = glyphs[i].rune;
         mode = glyphs[i].mode;
