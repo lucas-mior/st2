@@ -1735,9 +1735,7 @@ term_set_scroll(int t, int b)
 void
 term_set_mode(int priv, int set, const int *args, int narg)
 {
-	const int *lim;
-
-	for (lim = args + narg; args < lim; ++args) {
+	for (const int *lim = args + narg; args < lim; ++args) {
 		if (priv) {
 			switch (*args) {
 			case 1: /* DECCKM -- Cursor key */
@@ -2293,7 +2291,7 @@ externalpipe(const Arg *arg)
 	char buf[UTF_SIZ];
 	void (*oldsigpipe)(int);
 	Glyph *bp, *end;
-	int lastpos, n, newline;
+	int lastpos, newline;
 
 	if (pipe(to) == -1)
 		return;
@@ -2317,7 +2315,7 @@ externalpipe(const Arg *arg)
 	/* ignore sigpipe for now, in case child exists early */
 	oldsigpipe = signal(SIGPIPE, SIG_IGN);
 	newline = 0;
-	for (n = 0; n <= HISTSIZE + 2; n++) {
+	for (int n = 0; n <= HISTSIZE + 2; n++) {
 		bp = TLINE_HIST(n);
 		lastpos = MIN(tlinehistlen(n) + 1, term.col) - 1;
 		if (lastpos < 0)
