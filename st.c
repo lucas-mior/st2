@@ -1193,7 +1193,7 @@ term_reset(void) {
     term.charset = 0;
 
     selection_remove();
-    for (uint i = 0; i < 2; i++) {
+    for (uint32 i = 0; i < 2; i++) {
         term_cursor(CURSOR_SAVE); /* reset saved cursor */
         for (int y = 0; y < term.row; y++) {
             for (int x = 0; x < term.col; x++) {
@@ -1663,9 +1663,9 @@ term_delete_line(int n) {
 int32_t
 term_def_color(const int *attr, int *npar, int l) {
     int32_t idx = -1;
-    uint r;
-    uint g;
-    uint b;
+    uint32 r;
+    uint32 g;
+    uint32 b;
 
     switch (attr[*npar + 1]) {
     case 2: /* direct color in RGB space */
@@ -1673,9 +1673,9 @@ term_def_color(const int *attr, int *npar, int l) {
             fprintf(stderr, "erresc(38): Incorrect number of parameters (%d)\n", *npar);
             break;
         }
-        r = (uint)attr[*npar + 2];
-        g = (uint)attr[*npar + 3];
-        b = (uint)attr[*npar + 4];
+        r = (uint32)attr[*npar + 2];
+        g = (uint32)attr[*npar + 3];
+        b = (uint32)attr[*npar + 4];
         *npar += 4;
         if (!BETWEEN(r, 0, 255) || !BETWEEN(g, 0, 255) || !BETWEEN(b, 0, 255)) {
             fprintf(stderr, "erresc: bad rgb color (%u,%u,%u)\n", r, g, b);
@@ -2203,7 +2203,7 @@ control_seq_intro_handle(void) {
 
 void
 control_seq_intro_dump(void) {
-    uint c;
+    uint32 c;
 
     fprintf(stderr, "ESC[");
     for (size_t i = 0; i < csiescseq.len; i++) {
@@ -2475,7 +2475,7 @@ externalpipe(const Arg *arg) {
 
 void
 string_dump(void) {
-    uint c;
+    uint32 c;
 
     fprintf(stderr, "ESC%c", strescseq.type);
     for (size_t i = 0; i < strescseq.len; i++) {

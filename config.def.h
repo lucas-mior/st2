@@ -54,8 +54,8 @@ static float char_height_scale = 1.0;
 wchar_t *worddelimiters = L" ";
 
 /* selection timeouts (in milliseconds) */
-static uint doubleclicktimeout = 300;
-static uint tripleclicktimeout = 600;
+static uint32 doubleclicktimeout = 300;
+static uint32 tripleclicktimeout = 600;
 
 /* alt screens */
 int allowaltscreen = 1;
@@ -77,12 +77,12 @@ static double maxlatency = 33;
  * blinking timeout (set to 0 to disable blinking) for the terminal blinking
  * attribute.
  */
-static uint blinktimeout = 800;
+static uint32 blinktimeout = 800;
 
 /*
  * thickness of underline and bar cursors
  */
-static uint cursorthickness = 2;
+static uint32 cursorthickness = 2;
 
 /*
  * 1: render most of the lines/blocks characters without using the font for
@@ -209,7 +209,7 @@ static int ignoreselfg = 1;
  * 6: Bar ("|")
  * 7: Snowman ("☃")
  */
-static uint cursor_shape = 2;
+static uint32 cursor_shape = 2;
 
 /*
  * Default columns and number_rows numbers
@@ -229,14 +229,14 @@ static int mouse_background = 0;
  * Color used to display font attributes when fontconfig selected a font which
  * doesn't match the ones requested.
  */
-static uint default_attr = 11;
+static uint32 default_attr = 11;
 
 /*
  * Force mouse select/shortcuts while mask is active (when WIN_MODE_MOUSE is set).
  * Note that if you want to use ShiftMask with selmasks, set this to an other
  * modifier, set to 0 to not use it.
  */
-static uint force_mouse_mod = ShiftMask;
+static uint32 force_mouse_mod = ShiftMask;
 
 /*
  * Internal mouse shortcuts.
@@ -307,7 +307,7 @@ static KeySym mappedkeys[] = { (KeySym)-1 };
  * State bits to ignore when matching key or button events.  By default,
  * user_toggle_numlock (Mod2Mask) and keyboard layout (XK_SWITCH_MOD) are ignored.
  */
-static uint ignoremod = Mod2Mask|XK_SWITCH_MOD;
+static uint32 ignoremod = Mod2Mask|XK_SWITCH_MOD;
 
 /*
  * This is the huge key array which defines all compatibility to the Linux
@@ -533,7 +533,7 @@ static Key key[] = {
  * ButtonRelease and MotionNotify.
  * If no match is found, regular selection is used.
  */
-static uint selmasks[] = {
+static uint32 selmasks[] = {
 	[SELECTION_RECTANGULAR] = Mod1Mask,
 };
 

@@ -37,7 +37,7 @@ int x_get_color(int, uchar *, uchar *, uchar *);
 void x_set_icon_title(char *);
 void x_set_title(char *);
 int x_set_cursor(int);
-void x_set_mode(int, uint);
+void x_set_mode(int, uint32);
 void x_set_pointer_motion(int);
 void x_set_sel(char *);
 int x_start_draw(void);

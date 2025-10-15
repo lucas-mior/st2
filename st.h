@@ -97,18 +97,18 @@ typedef Glyph *Line;
 
 typedef union {
 	int i;
-	uint ui;
+	uint32 ui;
 	float f;
 	const void *v;
 	const char *s;
 } Arg;
 
 typedef struct {
-    uint mod;
-    uint button;
+    uint32 mod;
+    uint32 button;
     void (*func)(const Arg *);
     const Arg arg;
-    uint release;
+    uint32 release;
 } MouseShortcut;
 
 void die(const char *, ...) __attribute__((noreturn));
@@ -185,7 +185,7 @@ static void user_zoom_reset(const Arg *);
 static void tty_send(const Arg *);
 
 typedef struct {
-    uint mod;
+    uint32 mod;
     KeySym keysym;
     void (*func)(const Arg *);
     const Arg arg;
@@ -193,7 +193,7 @@ typedef struct {
 
 typedef struct {
     KeySym k;
-    uint mask;
+    uint32 mask;
     char *s;
     /* three-valued logic variables: 0 indifferent, 1 on, -1 off */
     char appkey;    /* application keypad */

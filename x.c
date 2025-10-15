@@ -141,8 +141,8 @@ static void handler_key_press(XEvent *);
 static void handler_client_message(XEvent *);
 static void handler_configure_notify(XEvent *);
 static void handler_focus(XEvent *);
-static uint button_mask(uint);
-static int mouse_action(XEvent *, uint);
+static uint32 button_mask(uint32);
+static int mouse_action(XEvent *, uint32);
 static void handler_button_release(XEvent *);
 static void handler_button_press(XEvent *);
 static void handler_button_motion(XEvent *);
@@ -153,8 +153,8 @@ static void handler_selection_request(XEvent *);
 static void setsel(char *, Time);
 static void mousesel(XEvent *, int);
 static void mousereport(XEvent *);
-static char *kmap(KeySym, uint);
-static int match(uint, uint);
+static char *kmap(KeySym, uint32);
+static int match(uint32, uint32);
 
 static void run(void) __attribute__((noreturn));
 static void usage(void) __attribute__((noreturn));
@@ -222,7 +222,7 @@ static char *opt_line = NULL;
 static char *opt_name = NULL;
 static char *opt_title = NULL;
 
-static uint buttons; /* bit field of pressed buttons */
+static uint32 buttons; /* bit field of pressed buttons */
 
 void
 user_clipboard_copy(const Arg *dummy) {
@@ -323,7 +323,7 @@ evrow(XEvent *e) {
 void
 mousesel(XEvent *e, int done) {
     int type, seltype = SELECTION_REGULAR;
-    uint state = e->xbutton.state & ~(Button1Mask | force_mouse_mod);
+    uint32 state = e->xbutton.state & ~(Button1Mask | force_mouse_mod);
 
     for (type = 1; type < LEN(selmasks); ++type) {
         if (match(selmasks[type], state)) {
@@ -412,8 +412,8 @@ mousereport(XEvent *e) {
     tty_write(buf, (size_t)len, 0);
 }
 
-uint
-button_mask(uint button) {
+uint32
+button_mask(uint32 button) {
     return button == Button1   ? Button1Mask
            : button == Button2 ? Button2Mask
            : button == Button3 ? Button3Mask
@@ -423,11 +423,11 @@ button_mask(uint button) {
 }
 
 int
-mouse_action(XEvent *e, uint release) {
+mouse_action(XEvent *e, uint32 release) {
     MouseShortcut *mouse_shortcut;
 
     /* ignore Button<N>mask for Button<N> - it's set on release */
-    uint state = e->xbutton.state & ~button_mask(e->xbutton.button);
+    uint32 state = e->xbutton.state & ~button_mask(e->xbutton.button);
 
     for (mouse_shortcut = mshortcuts; mouse_shortcut < mshortcuts + LEN(mshortcuts);
          mouse_shortcut++) {
@@ -724,8 +724,8 @@ x_resize(int col, int row) {
     term_window.tty_height = row * term_window.ch;
 
     XFreePixmap(x_window.dpy, x_window.buf);
-    x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, (uint)term_window.w,
-                                 (uint)term_window.h, (uint)x_window.depth);
+    x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, (uint32)term_window.w,
+                                 (uint32)term_window.h, (uint32)x_window.depth);
     XftDrawChange(x_window.draw, x_window.buf);
     x_clear(0, 0, term_window.w, term_window.h);
 
@@ -787,12 +787,12 @@ x_load_cols(void) {
 
     draw_context.col[default_background].color.alpha = (uint16)(0xffff * alpha);
     draw_context.col[default_background].pixel &= 0x00FFFFFF;
-    draw_context.col[default_background].pixel |= ((uint)(0xFF * alpha) & 0xFF) << 24;
+    draw_context.col[default_background].pixel |= ((uint32)(0xFF * alpha) & 0xFF) << 24;
 
     for (int i = 16; i < 16 + trans_colors; i++) {
         draw_context.col[i].color.alpha = (uint16)(0xffff * alpha);
         draw_context.col[i].pixel &= 0x00FFFFFF;
-        draw_context.col[i].pixel |= ((uint)(0xff * alpha) & 0xff) << 24;
+        draw_context.col[i].pixel |= ((uint32)(0xff * alpha) & 0xff) << 24;
     }
     loaded = 1;
 }
@@ -828,7 +828,7 @@ x_set_color_name(int x, const char *name) {
     if (x == default_background) {
         draw_context.col[default_background].color.alpha = (uint16)(0xffff * alpha);
         draw_context.col[default_background].pixel &= 0x00FFFFFF;
-        draw_context.col[default_background].pixel |= ((uint)(0xff * alpha) & 0xff) << 24;
+        draw_context.col[default_background].pixel |= ((uint32)(0xff * alpha) & 0xff) << 24;
     }
 
     return 0;
@@ -842,7 +842,7 @@ x_clear(int x1, int y1, int x2, int y2) {
     XftDrawRect(x_window.draw,
                 &draw_context.col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? default_foreground
                                                                        : default_background],
-                x1, y1, (uint)(x2 - x1), (uint)(y2 - y1));
+                x1, y1, (uint32)(x2 - x1), (uint32)(y2 - y1));
 }
 
 void
@@ -1274,8 +1274,8 @@ x_init(int number_cols, int number_rows) {
     x_window.attrs.colormap = x_window.cmap;
 
     x_window.win = XCreateWindow(
-        x_window.dpy, parent, x_window.l, x_window.t, (uint)term_window.w, (uint)term_window.h, 0,
-        x_window.depth, InputOutput, x_window.vis,
+        x_window.dpy, parent, x_window.l, x_window.t, (uint32)term_window.w, (uint32)term_window.h,
+        0, x_window.depth, InputOutput, x_window.vis,
         CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap, &x_window.attrs);
     if (parent != root) {
         XReparentWindow(x_window.dpy, x_window.win, parent, x_window.l, x_window.t);
@@ -1284,11 +1284,11 @@ x_init(int number_cols, int number_rows) {
     memset(&gcvalues, 0, sizeof(gcvalues));
     gcvalues.graphics_exposures = False;
     draw_context.graphics = XCreateGC(x_window.dpy, x_window.win, GCGraphicsExposures, &gcvalues);
-    x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, (uint)term_window.w,
-                                 (uint)term_window.h, (uint)x_window.depth);
+    x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, (uint32)term_window.w,
+                                 (uint32)term_window.h, (uint32)x_window.depth);
     XSetForeground(x_window.dpy, draw_context.graphics, draw_context.col[default_background].pixel);
-    XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, (uint)term_window.w,
-                   (uint)term_window.h);
+    XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, (uint32)term_window.w,
+                   (uint32)term_window.h);
 
     /* font spec buffer */
     x_window.specbuf = xmalloc((size_t)number_cols * sizeof(GlyphFontSpec));
@@ -1302,7 +1302,7 @@ x_init(int number_cols, int number_rows) {
     }
 
     /* white cursor, black outline */
-    cursor = XCreateFontCursor(x_window.dpy, (uint)mouse_shape);
+    cursor = XCreateFontCursor(x_window.dpy, (uint32)mouse_shape);
     XDefineCursor(x_window.dpy, x_window.win, cursor);
 
     if (XParseColor(x_window.dpy, x_window.cmap, colorname[mouse_foreground], &xmousefg) == 0) {
@@ -1600,7 +1600,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
     }
 
     /* Clean up the region we want to draw to. */
-    XftDrawRect(x_window.draw, bg, winx, winy, (uint)width, (uint)term_window.ch);
+    XftDrawRect(x_window.draw, bg, winx, winy, (uint32)width, (uint32)term_window.ch);
 
     /* Set the clip region because Xft is sometimes dirty. */
     r.x = 0;
@@ -1619,12 +1619,12 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
     /* Render underline and strikethrough. */
     if (base.mode & ATTR_UNDERLINE) {
         XftDrawRect(x_window.draw, fg, winx,
-                    winy + draw_context.font.ascent * char_height_scale + 1, (uint)width, 1);
+                    winy + draw_context.font.ascent * char_height_scale + 1, (uint32)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
         XftDrawRect(x_window.draw, fg, winx,
-                    winy + 2 * draw_context.font.ascent * char_height_scale / 3, (uint)width, 1);
+                    winy + 2 * draw_context.font.ascent * char_height_scale / 3, (uint32)width, 1);
     }
 
     /* Reset clip to none. */
@@ -1685,13 +1685,13 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og) {
         case 4: /* Steady Underline */
             XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
                         term_window.vborderpx + (cy + 1) * term_window.ch - (int)cursorthickness,
-                        (uint)term_window.cw, (uint)cursorthickness);
+                        (uint32)term_window.cw, (uint32)cursorthickness);
             break;
         case 5: /* Blinking bar */
         case 6: /* Steady bar */
             XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
                         term_window.vborderpx + cy * term_window.ch, cursorthickness,
-                        (uint)term_window.ch);
+                        (uint32)term_window.ch);
             break;
         default:
             fprintf(stderr, "x_draw_cursor: Unhandled switch case.\n");
@@ -1699,13 +1699,14 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og) {
         }
     } else {
         XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                    term_window.vborderpx + cy * term_window.ch, (uint)(term_window.cw - 1), 1);
+                    term_window.vborderpx + cy * term_window.ch, (uint32)(term_window.cw - 1), 1);
         XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                    term_window.vborderpx + cy * term_window.ch, 1, (uint)(term_window.ch - 1));
+                    term_window.vborderpx + cy * term_window.ch, 1, (uint32)(term_window.ch - 1));
         XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + (cx + 1) * term_window.cw - 1,
-                    term_window.vborderpx + cy * term_window.ch, 1, (uint)(term_window.ch - 1));
+                    term_window.vborderpx + cy * term_window.ch, 1, (uint32)(term_window.ch - 1));
         XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                    term_window.vborderpx + (cy + 1) * term_window.ch - 1, (uint)term_window.cw, 1);
+                    term_window.vborderpx + (cy + 1) * term_window.ch - 1, (uint32)term_window.cw,
+                    1);
     }
 }
 
@@ -1792,7 +1793,7 @@ x_draw_line(Line line, int x1, int y1, int x2) {
 void
 x_finish_draw(void) {
     XCopyArea(x_window.dpy, x_window.buf, x_window.win, draw_context.graphics, 0, 0,
-              (uint)term_window.w, (uint)term_window.h, 0, 0);
+              (uint32)term_window.w, (uint32)term_window.h, 0, 0);
     XSetForeground(
         x_window.dpy, draw_context.graphics,
         draw_context
@@ -1836,7 +1837,7 @@ x_set_pointer_motion(int set) {
 }
 
 void
-x_set_mode(int set, uint flags) {
+x_set_mode(int set, uint32 flags) {
     int mode = term_window.mode;
     MODBIT(term_window.mode, set, flags);
     if ((term_window.mode & WIN_MODE_REVERSE) != (mode & WIN_MODE_REVERSE)) {
@@ -1901,12 +1902,12 @@ handler_focus(XEvent *ev) {
 }
 
 int
-match(uint mask, uint state) {
+match(uint32 mask, uint32 state) {
     return mask == XK_ANY_MOD || mask == (state & ~ignoremod);
 }
 
 char *
-kmap(KeySym k, uint state) {
+kmap(KeySym k, uint32 state) {
     Key *kp;
     int i;
 
@@ -2180,8 +2181,8 @@ main(int argc, char *argv[]) {
         opt_font = EARGF(usage());
         break;
     case 'g':
-        x_window.gm = XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t, (uint *)&number_cols,
-                                     (uint *)&number_rows);
+        x_window.gm = XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t,
+                                     (uint32 *)&number_cols, (uint32 *)&number_rows);
         break;
     case 'i':
         x_window.isfixed = 1;
