@@ -1178,7 +1178,7 @@ term_cursor(int32 mode) {
 void
 tresetcursor(void) {
     term.cursor =
-        (TCursor){{.mode = ATTR_NULL, .fg = CONF_COLOR_INDEX_FONT, .bg = default_background},
+        (TCursor){{.mode = ATTR_NULL, .fg = CONF_COLOR_INDEX_FONT, .bg = CONF_COLOR_INDEX_BACK},
                   .x = 0,
                   .y = 0,
                   .state = CURSOR_DEFAULT};
@@ -1583,7 +1583,7 @@ term_clear_glyph(Glyph *gp, int32 usecurattr) {
         gp->bg = term.cursor.attr.bg;
     } else {
         gp->fg = CONF_COLOR_INDEX_FONT;
-        gp->bg = default_background;
+        gp->bg = CONF_COLOR_INDEX_BACK;
     }
     gp->mode = ATTR_NULL;
     gp->rune = ' ';
@@ -1726,7 +1726,7 @@ term_set_attr(const int32 *attr, int32 l) {
             term.cursor.attr.mode &= ~(ATTR_BOLD | ATTR_FAINT | ATTR_ITALIC | ATTR_UNDERLINE |
                                        ATTR_BLINK | ATTR_REVERSE | ATTR_INVISIBLE | ATTR_STRUCK);
             term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
-            term.cursor.attr.bg = default_background;
+            term.cursor.attr.bg = CONF_COLOR_INDEX_BACK;
             break;
         case 1:
             term.cursor.attr.mode |= ATTR_BOLD;
@@ -1789,7 +1789,7 @@ term_set_attr(const int32 *attr, int32 l) {
             }
             break;
         case 49: /* set background color to default */
-            term.cursor.attr.bg = default_background;
+            term.cursor.attr.bg = CONF_COLOR_INDEX_BACK;
             break;
         case 58:
             /* This starts a sequence to change the color of
@@ -2272,7 +2272,7 @@ string_handle(void) {
         int32 idx;
         char *str;
     } osc_table[] = {{CONF_COLOR_INDEX_FONT, "foreground"},
-                     {default_background, "background"},
+                     {CONF_COLOR_INDEX_BACK, "background"},
                      {default_cursor, "cursor"}};
 
     term.esc &= ~(ESC_STR_END | ESC_STR);
@@ -2347,7 +2347,7 @@ string_handle(void) {
                 fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j, p ? p : "(null)");
             } else {
                 /*
-                 * TODO if default_background color is changed, borders
+                 * TODO if CONF_COLOR_INDEX_BACK color is changed, borders
                  * are dirty
                  */
                 term_full_dirt();

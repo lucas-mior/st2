@@ -788,9 +788,9 @@ x_load_cols(void) {
         }
     }
 
-    draw_context.col[default_background].color.alpha = (uint16)(0xffff * CONF_ALPHA);
-    draw_context.col[default_background].pixel &= 0x00FFFFFF;
-    draw_context.col[default_background].pixel |= ((uint32)(0xFF * CONF_ALPHA) & 0xFF) << 24;
+    draw_context.col[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff * CONF_ALPHA);
+    draw_context.col[CONF_COLOR_INDEX_BACK].pixel &= 0x00FFFFFF;
+    draw_context.col[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xFF * CONF_ALPHA) & 0xFF) << 24;
 
     for (int32 i = 16; i < 16 + trans_colors; i++) {
         draw_context.col[i].color.alpha = (uint16)(0xffff * CONF_ALPHA);
@@ -828,10 +828,10 @@ x_set_color_name(int32 x, const char *name) {
     XftColorFree(x_window.dpy, x_window.vis, x_window.cmap, &draw_context.col[x]);
     draw_context.col[x] = ncolor;
 
-    if (x == default_background) {
-        draw_context.col[default_background].color.alpha = (uint16)(0xffff * CONF_ALPHA);
-        draw_context.col[default_background].pixel &= 0x00FFFFFF;
-        draw_context.col[default_background].pixel |= ((uint32)(0xff * CONF_ALPHA) & 0xff) << 24;
+    if (x == CONF_COLOR_INDEX_BACK) {
+        draw_context.col[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff * CONF_ALPHA);
+        draw_context.col[CONF_COLOR_INDEX_BACK].pixel &= 0x00FFFFFF;
+        draw_context.col[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xff * CONF_ALPHA) & 0xff) << 24;
     }
 
     return 0;
@@ -844,7 +844,7 @@ void
 x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
     XftDrawRect(x_window.draw,
                 &draw_context.col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT
-                                                                       : default_background],
+                                                                       : CONF_COLOR_INDEX_BACK],
                 x1, y1, (uint32)(x2 - x1), (uint32)(y2 - y1));
 }
 
@@ -1274,8 +1274,8 @@ x_init(int32 ncols, int32 nrows) {
     }
 
     /* Events */
-    x_window.attrs.background_pixel = draw_context.col[default_background].pixel;
-    x_window.attrs.border_pixel = draw_context.col[default_background].pixel;
+    x_window.attrs.background_pixel = draw_context.col[CONF_COLOR_INDEX_BACK].pixel;
+    x_window.attrs.border_pixel = draw_context.col[CONF_COLOR_INDEX_BACK].pixel;
     x_window.attrs.bit_gravity = NorthWestGravity;
     x_window.attrs.event_mask = FocusChangeMask | KeyPressMask | KeyReleaseMask | ExposureMask |
                                 VisibilityChangeMask | StructureNotifyMask | ButtonMotionMask |
@@ -1295,7 +1295,8 @@ x_init(int32 ncols, int32 nrows) {
     draw_context.graphics = XCreateGC(x_window.dpy, x_window.win, GCGraphicsExposures, &gcvalues);
     x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, (uint32)term_window.w,
                                  (uint32)term_window.h, (uint32)x_window.depth);
-    XSetForeground(x_window.dpy, draw_context.graphics, draw_context.col[default_background].pixel);
+    XSetForeground(x_window.dpy, draw_context.graphics,
+                   draw_context.col[CONF_COLOR_INDEX_BACK].pixel);
     XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, (uint32)term_window.w,
                    (uint32)term_window.h);
 
@@ -1536,7 +1537,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
         if (fg == &draw_context.col[CONF_COLOR_INDEX_FONT]) {
-            fg = &draw_context.col[default_background];
+            fg = &draw_context.col[CONF_COLOR_INDEX_BACK];
         } else {
             colfg.red = ~fg->color.red;
             colfg.green = ~fg->color.green;
@@ -1546,7 +1547,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
             fg = &revfg;
         }
 
-        if (bg == &draw_context.col[default_background]) {
+        if (bg == &draw_context.col[CONF_COLOR_INDEX_BACK]) {
             bg = &draw_context.col[CONF_COLOR_INDEX_FONT];
         } else {
             colbg.red = ~bg->color.red;
@@ -1678,7 +1679,7 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
         g.bg = CONF_COLOR_INDEX_FONT;
         drawcol = draw_context.col[default_reverse_cursor];
     } else {
-        g.fg = default_background;
+        g.fg = CONF_COLOR_INDEX_BACK;
         g.bg = default_cursor;
         drawcol = draw_context.col[default_cursor];
     }
@@ -1808,11 +1809,11 @@ void
 x_finish_draw(void) {
     XCopyArea(x_window.dpy, x_window.buf, x_window.win, draw_context.graphics, 0, 0,
               (uint32)term_window.w, (uint32)term_window.h, 0, 0);
-    XSetForeground(
-        x_window.dpy, draw_context.graphics,
-        draw_context
-            .col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT : default_background]
-            .pixel);
+    XSetForeground(x_window.dpy, draw_context.graphics,
+                   draw_context
+                       .col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT
+                                                                 : CONF_COLOR_INDEX_BACK]
+                       .pixel);
 }
 
 void
