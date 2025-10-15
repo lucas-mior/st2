@@ -739,7 +739,7 @@ char *
 selection_get(void) {
     char *str, *ptr;
     int32 lastx;
-    int32 linelen;
+    int32 line_len;
     const Glyph *gp, *lgp;
 
     if (selection.ob.x == -1 || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -753,7 +753,7 @@ selection_get(void) {
     for (int32 y = selection.nb.y; y <= selection.ne.y; y++) {
         Line line = TERM_LINE(y);
 
-        if ((linelen = term_line_len(line)) == 0) {
+        if ((line_len = term_line_len(line)) == 0) {
             *ptr++ = '\n';
             continue;
         }
@@ -765,7 +765,7 @@ selection_get(void) {
             gp = &line[selection.nb.y == y ? selection.nb.x : 0];
             lastx = (selection.ne.y == y) ? selection.ne.x : term.col - 1;
         }
-        lgp = &line[MIN(lastx, linelen - 1)];
+        lgp = &line[MIN(lastx, line_len - 1)];
 
         ptr = term_get_glyphs(ptr, gp, lgp);
 
@@ -778,7 +778,7 @@ selection_get(void) {
          * st.
          * FIXME: Fix the computer world.
          */
-        if ((y < selection.ne.y || lastx >= linelen)
+        if ((y < selection.ne.y || lastx >= line_len)
             && (!(lgp->mode & ATTR_WRAP) || selection.type == SELECTION_RECTANGULAR)) {
             *ptr++ = '\n';
         }
