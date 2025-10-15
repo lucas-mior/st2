@@ -758,8 +758,13 @@ mouse_report(XEvent *xevent) {
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR)) {
-        len = snprintf(buffer, SIZEOF(buffer), "\033[<%d;%d;%d%c", code, x + 1, y + 1,
-                       xevent->type == ButtonRelease ? 'm' : 'M');
+        char c;
+        if (xevent->type == ButtonRelease) {
+            c = 'm';
+        } else {
+            c = 'M';
+        }
+        len = snprintf(buffer, SIZEOF(buffer), "\033[<%d;%d;%d%c", code, x + 1, y + 1, c);
     } else if (x < 223 && y < 223) {
         len = snprintf(buffer, SIZEOF(buffer), "\033[M%c%c%c", 32 + code, 32 + x + 1, 32 + y + 1);
     } else {
