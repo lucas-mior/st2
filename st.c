@@ -186,7 +186,7 @@ typedef struct {
     int narg; /* nb of args */
 } STREscape;
 
-static void exec_shell(char *, char **);
+static void exec_shell(char *, char **) __attribute__((noreturn));
 static void stty(char **);
 static void handler_sigchld(int);
 static void tty_write_raw(const char *, size_t);
@@ -725,7 +725,7 @@ get_sel(void) {
         return NULL;
     }
 
-    str = xmalloc((term.col + 1) * (selection.ne.y - selection.nb.y + 1) * UTF_SIZ);
+    str = xmalloc((size_t)((term.col + 1) * (selection.ne.y - selection.nb.y + 1) * UTF_SIZ));
     ptr = str;
 
     /* append every set & selected glyph to the selection */
@@ -844,7 +844,6 @@ exec_shell(char *cmd, char **args) {
 
     execvp(program, args);
     _exit(1);
-    return;
 }
 
 void
@@ -976,7 +975,7 @@ tty_read(void) {
     int written;
 
     /* append read bytes to unprocessed bytes */
-    ret = read(cmdfd, buf + buflen, LEN(buf) - buflen);
+    ret = read(cmdfd, buf + buflen, (size_t)(LEN(buf) - buflen));
 
     switch (ret) {
     case 0:
@@ -989,9 +988,9 @@ tty_read(void) {
         buflen -= written;
         /* keep any incomplete UTF-8 byte sequence for the next call */
         if (buflen > 0) {
-            memmove(buf, buf + written, buflen);
+            memmove(buf, buf + written, (size_t)buflen);
         }
-        return ret;
+        return (size_t)ret;
     }
 }
 

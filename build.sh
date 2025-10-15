@@ -12,6 +12,7 @@ CFLAGS="$CFLAGS -Wall -Wextra " #-Werror -ferror-limit=1"
 CFLAGS="$CFLAGS -Wno-unused-parameter -fsanitize=undefined -g"
 CFLAGS="$CFLAGS -Wno-unused-variable -Wno-unused-macros -Wno-type-limits"
 CFLAGS="$CFLAGS -Wno-missing-field-initializers -Wno-unused-function"
+CFLAGS="$CFLAGS -Wno-format-nonliteral"
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage -Wno-padded"
