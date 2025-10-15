@@ -251,7 +251,7 @@ index b9f66e7..2478942 100644
  }
  
  void
- tdeleteline(int n)
+ term_delete_line(int n)
  {
  	if (BETWEEN(term.c.y, term.top, term.bot))
 -		tscrollup(term.c.y, n);

@@ -73,7 +73,7 @@ index 2478942..2b86d23 100644
 +static void tclearglyph(Glyph *, int);
 +static void tresetcursor(void);
  static void term_delete_char(int);
- static void tdeleteline(int);
+ static void term_delete_line(int);
  static void tinsertblank(int);
  static void tinsertblankline(int);
 -static int tlinelen(int);
@@ -997,7 +997,7 @@ index 2478942..2b86d23 100644
  }
  
  void
- tdeleteline(int n)
+ term_delete_line(int n)
  {
  	if (BETWEEN(term.c.y, term.top, term.bot))
 -		tscrollup(term.c.y, n, 0);
@@ -1131,7 +1131,7 @@ index 2478942..2b86d23 100644
  	case 'L': /* IL -- Insert <n> blank lines */
  		DEFAULT(csiescseq.arg[0], 1);
 @@ -1810,9 +1993,11 @@ control_seq_intro_handle(void)
- 		tdeleteline(csiescseq.arg[0]);
+ 		term_delete_line(csiescseq.arg[0]);
  		break;
  	case 'X': /* ECH -- Erase <n> char */
 +		if (csiescseq.arg[0] < 0)
