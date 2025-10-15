@@ -302,13 +302,13 @@ void
 xfree(void *pointer) {
     free_count += 1;
     free(pointer);
-    if (free_count < malloc_count) {
-        fprintf(stderr, "free=%ld < %ld=malloc\n", free_count, malloc_count);
-    } else if (free_count == malloc_count) {
-        fprintf(stderr, "free=%ld == %ld=malloc\n", free_count, malloc_count);
-    } else {
-        fprintf(stderr, "free=%ld > %ld=malloc\n", free_count, malloc_count);
-    }
+    /* if (free_count < malloc_count) { */
+    /*     fprintf(stderr, "free=%ld < %ld=malloc\n", free_count, malloc_count); */
+    /* } else if (free_count == malloc_count) { */
+    /*     fprintf(stderr, "free=%ld == %ld=malloc\n", free_count, malloc_count); */
+    /* } else { */
+    /*     fprintf(stderr, "free=%ld > %ld=malloc\n", free_count, malloc_count); */
+    /* } */
 }
 
 void *
@@ -324,13 +324,13 @@ xmalloc(int64 len) {
         die("malloc: %s\n", strerror(errno));
     }
 
-    if (free_count < malloc_count) {
-        fprintf(stderr, "free=%ld < %ld=malloc\n", free_count, malloc_count);
-    } else if (free_count == malloc_count) {
-        fprintf(stderr, "free=%ld == %ld=malloc\n", free_count, malloc_count);
-    } else {
-        fprintf(stderr, "free=%ld > %ld=malloc\n", free_count, malloc_count);
-    }
+    /* if (free_count < malloc_count) { */
+    /*     fprintf(stderr, "free=%ld < %ld=malloc\n", free_count, malloc_count); */
+    /* } else if (free_count == malloc_count) { */
+    /*     fprintf(stderr, "free=%ld == %ld=malloc\n", free_count, malloc_count); */
+    /* } else { */
+    /*     fprintf(stderr, "free=%ld > %ld=malloc\n", free_count, malloc_count); */
+    /* } */
 
     return p;
 }
@@ -3246,7 +3246,7 @@ term_reflow(int32 col, int32 row) {
 
     /* y coordinate of cursor line end */
     oce = term.cursor.y;
-    while (oce < term.nrows - 1 && term_is_wrapped(term.line[oce])) {
+    while ((oce < (term.nrows - 1)) && term_is_wrapped(term.line[oce])) {
         oce += 1;
     }
 
