@@ -27,11 +27,11 @@ index d73152b..f32fd6c 100644
 @@ -752,7 +753,7 @@ x_resize(int col, int row)
  
  	XFreePixmap(x_window.dpy, x_window.buf);
- 	x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, win.w, win.h,
+ 	x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, term_window.w, term_window.h,
 -			DefaultDepth(x_window.dpy, x_window.scr));
 +			x_window.depth);
  	XftDrawChange(x_window.draw, x_window.buf);
- 	x_clear(0, 0, win.w, win.h);
+ 	x_clear(0, 0, term_window.w, term_window.h);
  
 @@ -812,6 +813,10 @@ x_load_cols(void)
  			else
@@ -101,20 +101,20 @@ index d73152b..f32fd6c 100644
 -	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0))))
 -		parent = root;
 -	x_window.win = XCreateWindow(x_window.dpy, root, x_window.l, x_window.t,
--			win.w, win.h, 0, XDefaultDepth(x_window.dpy, x_window.scr), InputOutput,
+-			term_window.w, term_window.h, 0, XDefaultDepth(x_window.dpy, x_window.scr), InputOutput,
 +	x_window.win = XCreateWindow(x_window.dpy, parent, x_window.l, x_window.t,
-+			win.w, win.h, 0, x_window.depth, InputOutput,
++			term_window.w, term_window.h, 0, x_window.depth, InputOutput,
  			x_window.vis, CWBackPixel | CWBorderPixel | CWBitGravity
  			| CWEventMask | CWColormap, &x_window.attrs);
  	if (parent != root)
 @@ -1183,7 +1205,7 @@ x_init(int number_cols, int number_rows)
  	draw_context.graphics = XCreateGC(x_window.dpy, x_window.win, GCGraphicsExposures,
  			&gcvalues);
- 	x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, win.w, win.h,
+ 	x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, term_window.w, term_window.h,
 -			DefaultDepth(x_window.dpy, x_window.scr));
 +			x_window.depth);
  	XSetForeground(x_window.dpy, draw_context.graphics, draw_context.col[default_background].pixel);
- 	XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, win.w, win.h);
+ 	XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, term_window.w, term_window.h);
  
 @@ -2047,6 +2069,10 @@ main(int argc, char *argv[])
  	case 'a':
