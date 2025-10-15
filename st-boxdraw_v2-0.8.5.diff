@@ -544,7 +544,7 @@ index 2a3bd38..bf6bbf9 100644
 -	/* Render the glyphs. */
 -	XftDrawGlyphFontSpec(x_window.draw, fg, specs, len);
 +	if (base.mode & ATTR_BOXDRAW) {
-+		drawboxes(winx, winy, width / len, win.ch, fg, bg, specs, len);
++		drawboxes(winx, winy, width / len, term_window.ch, fg, bg, specs, len);
 +	} else {
 +		/* Render the glyphs. */
 +		XftDrawGlyphFontSpec(x_window.draw, fg, specs, len);
