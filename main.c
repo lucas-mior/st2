@@ -152,7 +152,6 @@ static void mouse_report(XEvent *);
 static char *kmap(KeySym, uint32);
 static int32 match_mask_state(uint32, uint32);
 
-static void run(void) __attribute__((noreturn));
 static void usage(void) __attribute__((noreturn));
 
 static void (*handler[LASTEvent])(XEvent *) = {
@@ -289,7 +288,116 @@ run:
     x_init(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
     x_setenv();
     selection_init();
-    run();
+
+    {
+        XEvent xevent;
+        int32 w = term_window.w;
+        int32 h = term_window.h;
+        fd_set rfd;
+        int32 xfd = XConnectionNumber(x_window.display), ttyfd, xev, drawing;
+        struct timespec seltv, *tv, now, lastblink, trigger;
+        float timeout;
+
+        /* Waiting for window mapping */
+        do {
+            XNextEvent(x_window.display, &xevent);
+            /*
+             * This XFilterEvent call is required because of XOpenIM. It
+             * does filter out the CONF_KEYS event and some client message for
+             * the input method too.
+             */
+            if (XFilterEvent(&xevent, None)) {
+                continue;
+            }
+            if (xevent.type == ConfigureNotify) {
+                w = xevent.xconfigure.width;
+                h = xevent.xconfigure.height;
+            }
+        } while (xevent.type != MapNotify);
+
+        ttyfd = tty_new(opt_line, CONF_SHELl, opt_io, opt_cmd);
+        cresize(w, h);
+
+        for (timeout = -1, drawing = 0, lastblink = (struct timespec){0};;) {
+            FD_ZERO(&rfd);
+            FD_SET(ttyfd, &rfd);
+            FD_SET(xfd, &rfd);
+
+            if (XPending(x_window.display)) {
+                timeout = 0; /* existing events might not set xfd */
+            }
+
+            seltv.tv_sec = timeout / 1E3f;
+            seltv.tv_nsec = 1E6f * (timeout - 1E3f * (float)seltv.tv_sec);
+            tv = timeout >= 0 ? &seltv : NULL;
+
+            if (pselect(MAX(xfd, ttyfd) + 1, &rfd, NULL, NULL, tv, NULL) < 0) {
+                if (errno == EINTR) {
+                    continue;
+                }
+                die("select failed: %s\n", strerror(errno));
+            }
+            clock_gettime(CLOCK_MONOTONIC, &now);
+
+            if (FD_ISSET(ttyfd, &rfd)) {
+                tty_read();
+            }
+
+            xev = 0;
+            while (XPending(x_window.display)) {
+                xev = 1;
+                XNextEvent(x_window.display, &xevent);
+                if (XFilterEvent(&xevent, None)) {
+                    continue;
+                }
+                if (handler[xevent.type]) {
+                    (handler[xevent.type])(&xevent);
+                }
+            }
+
+            /*
+             * To reduce flicker and tearing, when new content or event
+             * triggers drawing, we first wait a bit to ensure we got
+             * everything, and if nothing new arrives - we draw.
+             * We start with trying to wait CONF_LATENCY_MIN ms. If more content
+             * arrives sooner, we retry with shorter and shorter periods,
+             * and eventually draw even without idle after CONF_LATENCY_MAX ms.
+             * Typically this results in low latency while interacting,
+             * maximum latency intervals during `cat huge.txt`, and perfect
+             * sync with periodic updates from animations/CONF_KEYS-repeats/etc.
+             */
+            if (FD_ISSET(ttyfd, &rfd) || xev) {
+                if (!drawing) {
+                    trigger = now;
+                    drawing = 1;
+                }
+                timeout = (CONF_LATENCY_MAX - (float)TIMEDIFF(now, trigger)) / CONF_LATENCY_MAX *
+                          CONF_LATENCY_MIN;
+                if (timeout > 0) {
+                    continue; /* we have time, try to find idle */
+                }
+            }
+
+            /* idle detected or CONF_LATENCY_MAX exhausted -> draw */
+            timeout = -1;
+            if (CONF_BLINK_TIMEOUT && term_attr_set(ATTR_BLINK)) {
+                timeout = (float)CONF_BLINK_TIMEOUT - (float)TIMEDIFF(now, lastblink);
+                if (timeout <= 0) {
+                    if (-timeout > (float)CONF_BLINK_TIMEOUT) { /* start visible */
+                        term_window.mode |= WIN_MODE_BLINK;
+                    }
+                    term_window.mode ^= WIN_MODE_BLINK;
+                    term_set_dirt_attr(ATTR_BLINK);
+                    lastblink = now;
+                    timeout = (float)CONF_BLINK_TIMEOUT;
+                }
+            }
+
+            draw();
+            XFlush(x_window.display);
+            drawing = 0;
+        }
+    }
 }
 
 void
@@ -2190,117 +2298,6 @@ handler_configure_notify(XEvent *xevent) {
     }
 
     cresize(xevent->xconfigure.width, xevent->xconfigure.height);
-}
-
-void
-run(void) {
-    XEvent xevent;
-    int32 w = term_window.w;
-    int32 h = term_window.h;
-    fd_set rfd;
-    int32 xfd = XConnectionNumber(x_window.display), ttyfd, xev, drawing;
-    struct timespec seltv, *tv, now, lastblink, trigger;
-    float timeout;
-
-    /* Waiting for window mapping */
-    do {
-        XNextEvent(x_window.display, &xevent);
-        /*
-         * This XFilterEvent call is required because of XOpenIM. It
-         * does filter out the CONF_KEYS event and some client message for
-         * the input method too.
-         */
-        if (XFilterEvent(&xevent, None)) {
-            continue;
-        }
-        if (xevent.type == ConfigureNotify) {
-            w = xevent.xconfigure.width;
-            h = xevent.xconfigure.height;
-        }
-    } while (xevent.type != MapNotify);
-
-    ttyfd = tty_new(opt_line, CONF_SHELl, opt_io, opt_cmd);
-    cresize(w, h);
-
-    for (timeout = -1, drawing = 0, lastblink = (struct timespec){0};;) {
-        FD_ZERO(&rfd);
-        FD_SET(ttyfd, &rfd);
-        FD_SET(xfd, &rfd);
-
-        if (XPending(x_window.display)) {
-            timeout = 0; /* existing events might not set xfd */
-        }
-
-        seltv.tv_sec = timeout / 1E3f;
-        seltv.tv_nsec = 1E6f * (timeout - 1E3f * (float)seltv.tv_sec);
-        tv = timeout >= 0 ? &seltv : NULL;
-
-        if (pselect(MAX(xfd, ttyfd) + 1, &rfd, NULL, NULL, tv, NULL) < 0) {
-            if (errno == EINTR) {
-                continue;
-            }
-            die("select failed: %s\n", strerror(errno));
-        }
-        clock_gettime(CLOCK_MONOTONIC, &now);
-
-        if (FD_ISSET(ttyfd, &rfd)) {
-            tty_read();
-        }
-
-        xev = 0;
-        while (XPending(x_window.display)) {
-            xev = 1;
-            XNextEvent(x_window.display, &xevent);
-            if (XFilterEvent(&xevent, None)) {
-                continue;
-            }
-            if (handler[xevent.type]) {
-                (handler[xevent.type])(&xevent);
-            }
-        }
-
-        /*
-         * To reduce flicker and tearing, when new content or event
-         * triggers drawing, we first wait a bit to ensure we got
-         * everything, and if nothing new arrives - we draw.
-         * We start with trying to wait CONF_LATENCY_MIN ms. If more content
-         * arrives sooner, we retry with shorter and shorter periods,
-         * and eventually draw even without idle after CONF_LATENCY_MAX ms.
-         * Typically this results in low latency while interacting,
-         * maximum latency intervals during `cat huge.txt`, and perfect
-         * sync with periodic updates from animations/CONF_KEYS-repeats/etc.
-         */
-        if (FD_ISSET(ttyfd, &rfd) || xev) {
-            if (!drawing) {
-                trigger = now;
-                drawing = 1;
-            }
-            timeout = (CONF_LATENCY_MAX - (float)TIMEDIFF(now, trigger)) / CONF_LATENCY_MAX *
-                      CONF_LATENCY_MIN;
-            if (timeout > 0) {
-                continue; /* we have time, try to find idle */
-            }
-        }
-
-        /* idle detected or CONF_LATENCY_MAX exhausted -> draw */
-        timeout = -1;
-        if (CONF_BLINK_TIMEOUT && term_attr_set(ATTR_BLINK)) {
-            timeout = (float)CONF_BLINK_TIMEOUT - (float)TIMEDIFF(now, lastblink);
-            if (timeout <= 0) {
-                if (-timeout > (float)CONF_BLINK_TIMEOUT) { /* start visible */
-                    term_window.mode |= WIN_MODE_BLINK;
-                }
-                term_window.mode ^= WIN_MODE_BLINK;
-                term_set_dirt_attr(ATTR_BLINK);
-                lastblink = now;
-                timeout = (float)CONF_BLINK_TIMEOUT;
-            }
-        }
-
-        draw();
-        XFlush(x_window.display);
-        drawing = 0;
-    }
 }
 
 void
