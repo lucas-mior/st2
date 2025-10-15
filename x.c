@@ -2181,7 +2181,7 @@ main(int32 argc, char *argv[]) {
 
     ARGBEGIN {
     case 'a':
-        ALLOW_ALT_SCREEN = 0;
+        CONF_ALLOW_ALT_SCREEN = 0;
         break;
     case 'A':
         CONF_ALPHA = strtof(EARGF(usage()), NULL);

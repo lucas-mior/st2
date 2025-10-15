@@ -1890,14 +1890,14 @@ term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
                 x_set_mode(set, WIN_MODE_8BIT);
                 break;
             case 1049: /* swap screen & set/restore cursor as xterm */
-                if (!ALLOW_ALT_SCREEN) {
+                if (!CONF_ALLOW_ALT_SCREEN) {
                     break;
                 }
                 term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
                 /* FALLTHROUGH */
             case 47:   /* swap screen */
             case 1047: /*swap screen, clearing alternate screen */
-                if (!ALLOW_ALT_SCREEN) {
+                if (!CONF_ALLOW_ALT_SCREEN) {
                     break;
                 }
                 if (set) {
@@ -1908,7 +1908,7 @@ term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
                 break;
                 /* FALLTHROUGH */
             case 1048: /* save/restore cursor (like DECSC/DECRC) */
-                if (!ALLOW_ALT_SCREEN) {
+                if (!CONF_ALLOW_ALT_SCREEN) {
                     break;
                 }
                 term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
