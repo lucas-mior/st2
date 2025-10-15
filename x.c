@@ -757,7 +757,7 @@ x_load_color(int32 i, const char *name, Color *ncolor) {
             }
             return XftColorAllocValue(x_window.dpy, x_window.vis, x_window.cmap, &color, ncolor);
         } else {
-            name = colorname[i];
+            name = CONF_COLORS[i];
         }
     }
 
@@ -774,14 +774,14 @@ x_load_cols(void) {
             XftColorFree(x_window.dpy, x_window.vis, x_window.cmap, cp);
         }
     } else {
-        draw_context.collen = MAX(LENGTH(colorname), 256);
+        draw_context.collen = MAX(LENGTH(CONF_COLORS), 256);
         draw_context.col = xmalloc((uint16)draw_context.collen * SIZEOF(Color));
     }
 
     for (int32 i = 0; i < draw_context.collen; i++) {
         if (!x_load_color(i, NULL, &draw_context.col[i])) {
-            if (colorname[i]) {
-                die("could not allocate color '%s'\n", colorname[i]);
+            if (CONF_COLORS[i]) {
+                die("could not allocate color '%s'\n", CONF_COLORS[i]);
             } else {
                 die("could not allocate color %d\n", i);
             }
@@ -1316,13 +1316,15 @@ x_init(int32 ncols, int32 nrows) {
     cursor = XCreateFontCursor(x_window.dpy, (uint32)CONF_MOUSE_SHAPE);
     XDefineCursor(x_window.dpy, x_window.win, cursor);
 
-    if (XParseColor(x_window.dpy, x_window.cmap, colorname[CONF_MOUSE_COLOR_FG], &xmousefg) == 0) {
+    if (XParseColor(x_window.dpy, x_window.cmap, CONF_COLORS[CONF_MOUSE_COLOR_FG], &xmousefg) ==
+        0) {
         xmousefg.red = 0xffff;
         xmousefg.green = 0xffff;
         xmousefg.blue = 0xffff;
     }
 
-    if (XParseColor(x_window.dpy, x_window.cmap, colorname[CONF_MOUSE_COLOR_BG], &xmousebg) == 0) {
+    if (XParseColor(x_window.dpy, x_window.cmap, CONF_COLORS[CONF_MOUSE_COLOR_BG], &xmousebg) ==
+        0) {
         xmousebg.red = 0x0000;
         xmousebg.green = 0x0000;
         xmousebg.blue = 0x0000;

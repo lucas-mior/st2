@@ -124,7 +124,7 @@ int32 CONF_TAB_NSPACES = 4;
 float CONF_ALPHA = 0.85f;
 
 /* Terminal colors (16 first used in escape sequence) */
-static const char *colorname[] = {
+static const char *CONF_COLORS[] = {
 	/* 8 normal colors */
 	[0] = "#000000",
 	[1] = "#ff0000",
@@ -187,7 +187,7 @@ static const char *colorname[] = {
 static const int32 trans_colors = 26;
 
 /*
- * Default colors (colorname index)
+ * Default colors (CONF_COLORS index)
  * foreground, background, cursor, reverse cursor, selection
  */
 int32 CONF_COLOR_INDEX_FONT = 7;
