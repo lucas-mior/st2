@@ -69,7 +69,7 @@ index 2478942..2b86d23 100644
  static void tdump(void);
 -static void term_clear_region(int, int, int, int);
 +static void term_clear_region(int, int, int, int, int);
- static void tcursor(int);
+ static void term_cursor(int);
 +static void tclearglyph(Glyph *, int);
 +static void tresetcursor(void);
  static void tdeletechar(int);
@@ -445,7 +445,7 @@ index 2478942..2b86d23 100644
  }
  
  void
-@@ -1017,162 +1086,261 @@ tcursor(int mode)
+@@ -1017,162 +1086,261 @@ term_cursor(int mode)
  	}
  }
  
@@ -483,10 +483,10 @@ index 2478942..2b86d23 100644
 +    selremove();
  	for (i = 0; i < 2; i++) {
 -		tmoveto(0, 0);
--		tcursor(CURSOR_SAVE);
+-		term_cursor(CURSOR_SAVE);
 -		term_clear_region(0, 0, term.col-1, term.row-1);
 -		tswapscreen();
-+        tcursor(CURSOR_SAVE); /* reset saved cursor */
++        term_cursor(CURSOR_SAVE); /* reset saved cursor */
 +        for (y = 0; y < term.row; y++)
 +            for (x = 0; x < term.col; x++)
 +                tclearglyph(&term.line[y][x], 0);
@@ -553,7 +553,7 @@ index 2478942..2b86d23 100644
 +		tswapscreen();
 +	}
 +	if (loadcursor)
-+		tcursor(CURSOR_LOAD);
++		term_cursor(CURSOR_LOAD);
 +	if (alt)
 +		tresizedef(col, row);
 +}
@@ -570,7 +570,7 @@ index 2478942..2b86d23 100644
 -		sel_scroll(0, -n);
 -		tfulldirt();
 +	if (savecursor)
-+		tcursor(CURSOR_SAVE);
++		term_cursor(CURSOR_SAVE);
 +	if (def) {
 +		col = term.col, row = term.row;
 +		tswapscreen();
@@ -1020,7 +1020,7 @@ index 2478942..2b86d23 100644
  			case 1049: /* swap screen & set/restore cursor as xterm */
 -				if (!allowaltscreen)
 -					break;
--				tcursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
+-				term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
 -				/* FALLTHROUGH */
  			case 47: /* swap screen */
 -			case 1047:
@@ -1043,11 +1043,11 @@ index 2478942..2b86d23 100644
 +				break;
  				/* FALLTHROUGH */
 -			case 1048:
--				tcursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
+-				term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
 +            case 1048:
 +                if (!allowaltscreen)
 +                    break;
-+                tcursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
++                term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
  				break;
  			case 2004: /* 2004: bracketed paste mode */
  				xsetmode(set, WIN_MODE_BRCKTPASTE);
@@ -1387,7 +1387,7 @@ index 2478942..2b86d23 100644
 -			term_clear_region(0, minrow, col - 1, row - 1);
 -		}
 -		tswapscreen();
--		tcursor(CURSOR_LOAD);
+-		term_cursor(CURSOR_LOAD);
 -	}
 -	term.c = c;
 +	term.top = 0, term.bot = row - 1;
