@@ -85,7 +85,7 @@ index d73152b..f32fd6c 100644
  	/* font */
  	if (!FcInit())
 @@ -1148,7 +1173,7 @@ x_init(int number_cols, int number_rows)
- 	xloadfonts(usedfont, 0);
+ 	x_load_fonts(usedfont, 0);
  
  	/* colors */
 -	xw.cmap = XDefaultColormap(xw.dpy, xw.scr);
