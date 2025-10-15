@@ -467,9 +467,9 @@ handler_button_press(XEvent *e) {
          * snapping behaviour is exposed.
          */
         clock_gettime(CLOCK_MONOTONIC, &now);
-        if (TIMEDIFF(now, xsel.tclick2) <= tripleclicktimeout) {
+        if (TIMEDIFF(now, xsel.tclick2) <= (float)tripleclicktimeout) {
             snap = SELECTION_SNAP_LINE;
-        } else if (TIMEDIFF(now, xsel.tclick1) <= doubleclicktimeout) {
+        } else if (TIMEDIFF(now, xsel.tclick1) <= (float)doubleclicktimeout) {
             snap = SELECTION_SNAP_WORD;
         } else {
             snap = 0;
@@ -514,7 +514,7 @@ handler_selection_notify(XEvent *e) {
     }
 
     do {
-        if (XGetWindowProperty(x_window.dpy, x_window.win, property, ofs, BUFSIZ / 4, False,
+        if (XGetWindowProperty(x_window.dpy, x_window.win, property, (long)ofs, BUFSIZ / 4, False,
                                AnyPropertyType, &type, &format, &nitems, &rem, &data)) {
             fprintf(stderr, "Clipboard allocation failed\n");
             return;
@@ -543,7 +543,7 @@ handler_selection_notify(XEvent *e) {
             /*
              * Deleting the property is the transfer start signal.
              */
-            XDeleteProperty(x_window.dpy, x_window.win, (int)property);
+            XDeleteProperty(x_window.dpy, x_window.win, (ulong)property);
             continue;
         }
 
