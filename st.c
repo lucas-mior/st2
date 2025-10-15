@@ -2433,9 +2433,7 @@ term_dump_line(int n)
 void
 term_dump(void)
 {
-	int i;
-
-	for (i = 0; i < term.row; ++i)
+	for (int i = 0; i < term.row; ++i)
 		term_dump_line(i);
 }
 
