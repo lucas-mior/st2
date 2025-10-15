@@ -27,7 +27,7 @@ index 8a16faa..220fc4f 100644
 +static void xloadsparefonts(void);
  static void xunloadfont(Font *);
  static void xunloadfonts(void);
- static void xsetenv(void);
+ static void x_setenv(void);
 @@ -306,6 +308,7 @@ zoomabs(const Arg *arg)
  {
  	xunloadfonts();
