@@ -2336,7 +2336,8 @@ handler_client_message(XEvent *xevent) {
 
 void
 handler_configure_notify(XEvent *xevent) {
-    if (xevent->xconfigure.width == term_window.w && xevent->xconfigure.height == term_window.h) {
+    if ((xevent->xconfigure.width == term_window.w)
+        && (xevent->xconfigure.height == term_window.h)) {
         return;
     }
 
