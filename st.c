@@ -235,7 +235,7 @@ static void term_set_char(Rune, const Glyph *, int, int);
 static void term_set_dirt(int, int);
 static void term_set_scroll(int, int);
 static void term_swap_screen(void);
-static void tloaddefscreen(int, int);
+static void term_load_def_screen(int, int);
 static void term_load_alt_screen(int, int);
 static void term_set_mode(int, int, const int *, int);
 static int term_write(const char *, int, int);
@@ -1215,7 +1215,7 @@ term_swap_screen(void) {
 }
 
 void
-tloaddefscreen(int clear, int loadcursor) {
+term_load_def_screen(int clear, int loadcursor) {
     int col, row, alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
     if (alt) {
@@ -1839,7 +1839,7 @@ term_set_mode(int priv, int set, const int *args, int narg) {
                 if (set) {
                     term_load_alt_screen(*args == 1049, *args == 1049);
                 } else {
-                    tloaddefscreen(*args == 1047, *args == 1049);
+                    term_load_def_screen(*args == 1047, *args == 1049);
                 }
                 break;
                 /* FALLTHROUGH */
