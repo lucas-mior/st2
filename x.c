@@ -1832,21 +1832,21 @@ x_xim_spot(int32 x, int32 y) {
 }
 
 void
-handler_expose(XEvent *ev) {
-    (void)ev;
+handler_expose(XEvent *xevent) {
+    (void)xevent;
     redraw();
 }
 
 void
-handler_visibility(XEvent *ev) {
-    XVisibilityEvent *e = &ev->xvisibility;
+handler_visibility(XEvent *xevent) {
+    XVisibilityEvent *e = &xevent->xvisibility;
 
     MODBIT(term_window.mode, e->state != VisibilityFullyObscured, WIN_MODE_VISIBLE);
 }
 
 void
-handler_unmap(XEvent *ev) {
-    (void)ev;
+handler_unmap(XEvent *xevent) {
+    (void)xevent;
     term_window.mode &= ~WIN_MODE_VISIBLE;
 }
 
@@ -1894,14 +1894,14 @@ x_bell(void) {
 }
 
 void
-handler_focus(XEvent *ev) {
-    XFocusChangeEvent *e = &ev->xfocus;
+handler_focus(XEvent *xevent) {
+    XFocusChangeEvent *e = &xevent->xfocus;
 
     if (e->mode == NotifyGrab) {
         return;
     }
 
-    if (ev->type == FocusIn) {
+    if (xevent->type == FocusIn) {
         if (x_window.ime.xic) {
             XSetICFocus(x_window.ime.xic);
         }
@@ -1970,8 +1970,8 @@ kmap(KeySym k, uint32 state) {
 }
 
 void
-handler_key_press(XEvent *ev) {
-    XKeyEvent *e = &ev->xkey;
+handler_key_press(XEvent *xevent) {
+    XKeyEvent *e = &xevent->xkey;
     KeySym ksym = NoSymbol;
     char buf[64], *customkey;
     int32 len;
@@ -2055,7 +2055,7 @@ handler_configure_notify(XEvent *e) {
 
 void
 run(void) {
-    XEvent ev;
+    XEvent xevent;
     int32 w = term_window.w, h = term_window.h;
     fd_set rfd;
     int32 xfd = XConnectionNumber(x_window.dpy), ttyfd, xev, drawing;
@@ -2064,20 +2064,20 @@ run(void) {
 
     /* Waiting for window mapping */
     do {
-        XNextEvent(x_window.dpy, &ev);
+        XNextEvent(x_window.dpy, &xevent);
         /*
          * This XFilterEvent call is required because of XOpenIM. It
          * does filter out the CONF_KEYS event and some client message for
          * the input method too.
          */
-        if (XFilterEvent(&ev, None)) {
+        if (XFilterEvent(&xevent, None)) {
             continue;
         }
-        if (ev.type == ConfigureNotify) {
-            w = ev.xconfigure.width;
-            h = ev.xconfigure.height;
+        if (xevent.type == ConfigureNotify) {
+            w = xevent.xconfigure.width;
+            h = xevent.xconfigure.height;
         }
-    } while (ev.type != MapNotify);
+    } while (xevent.type != MapNotify);
 
     ttyfd = tty_new(opt_line, CONF_SHELl, opt_io, opt_cmd);
     cresize(w, h);
@@ -2110,12 +2110,12 @@ run(void) {
         xev = 0;
         while (XPending(x_window.dpy)) {
             xev = 1;
-            XNextEvent(x_window.dpy, &ev);
-            if (XFilterEvent(&ev, None)) {
+            XNextEvent(x_window.dpy, &xevent);
+            if (XFilterEvent(&xevent, None)) {
                 continue;
             }
-            if (handler[ev.type]) {
-                (handler[ev.type])(&ev);
+            if (handler[xevent.type]) {
+                (handler[xevent.type])(&xevent);
             }
         }
 
