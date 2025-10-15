@@ -139,7 +139,7 @@ void selection_clear(void);
 void selection_start(int32, int32, int32);
 void selection_extend(int32, int32, int32, int32);
 int32 selected(int32, int32);
-char *get_sel(void);
+char *selection_get(void);
 
 int64 utf8_encode(Rune, char *);
 

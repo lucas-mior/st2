@@ -712,7 +712,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
 }
 
 char *
-get_sel(void) {
+selection_get(void) {
     char *str, *ptr;
     int32 lastx;
     int32 linelen;
@@ -2549,7 +2549,7 @@ void
 term_dump_sel(void) {
     char *ptr;
 
-    if ((ptr = get_sel())) {
+    if ((ptr = selection_get())) {
         term_printer(ptr, (int64)strlen(ptr));
         free(ptr);
     }
