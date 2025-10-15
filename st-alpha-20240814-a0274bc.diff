@@ -24,7 +24,7 @@ index d73152b..f32fd6c 100644
  	int l, t; /* left and top offset */
  	int gm; /* geometry mask */
  } XWindow;
-@@ -752,7 +753,7 @@ xresize(int col, int row)
+@@ -752,7 +753,7 @@ x_resize(int col, int row)
  
  	XFreePixmap(xw.dpy, xw.buf);
  	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
