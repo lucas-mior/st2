@@ -724,18 +724,18 @@ x_resize(int col, int row) {
     term_window.tty_height = row * term_window.ch;
 
     XFreePixmap(x_window.dpy, x_window.buf);
-    x_window.buf =
-        XCreatePixmap(x_window.dpy, x_window.win, term_window.w, term_window.h, x_window.depth);
+    x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, (uint)term_window.w,
+                                 (uint)term_window.h, (uint)x_window.depth);
     XftDrawChange(x_window.draw, x_window.buf);
     x_clear(0, 0, term_window.w, term_window.h);
 
     /* handler_configure_notify to new width */
-    x_window.specbuf = xrealloc(x_window.specbuf, col * sizeof(GlyphFontSpec));
+    x_window.specbuf = xrealloc(x_window.specbuf, (size_t)col * sizeof(GlyphFontSpec));
 }
 
 ushort
 sixd_to_16bit(int x) {
-    return x == 0 ? 0 : 0x3737 + 0x2828 * x;
+    return (ushort)(x == 0 ? 0 : 0x3737 + 0x2828 * x);
 }
 
 int
@@ -749,7 +749,7 @@ x_load_color(int i, const char *name, Color *ncolor) {
                 color.green = sixd_to_16bit(((i - 16) / 6) % 6);
                 color.blue = sixd_to_16bit(((i - 16) / 1) % 6);
             } else { /* greyscale */
-                color.red = 0x0808 + 0x0a0a * (i - (6 * 6 * 6 + 16));
+                color.red = (ushort)(0x0808 + 0x0a0a * (i - (6 * 6 * 6 + 16)));
                 color.green = color.blue = color.red;
             }
             return XftColorAllocValue(x_window.dpy, x_window.vis, x_window.cmap, &color, ncolor);
@@ -772,7 +772,7 @@ x_load_cols(void) {
         }
     } else {
         draw_context.collen = MAX(LEN(colorname), 256);
-        draw_context.col = xmalloc(draw_context.collen * sizeof(Color));
+        draw_context.col = xmalloc((ushort)draw_context.collen * sizeof(Color));
     }
 
     for (int i = 0; i < draw_context.collen; i++) {
@@ -842,7 +842,7 @@ x_clear(int x1, int y1, int x2, int y2) {
     XftDrawRect(x_window.draw,
                 &draw_context.col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? default_foreground
                                                                        : default_background],
-                x1, y1, x2 - x1, y2 - y1);
+                x1, y1, (uint)(x2 - x1), (uint)(y2 - y1));
 }
 
 void
@@ -887,6 +887,9 @@ x_geom_mask_to_gravity(int mask) {
         return NorthEastGravity;
     case YNegative:
         return SouthWestGravity;
+    default:
+        fprintf(stderr, "x_geom_mask_to_gravity: Unhandled switch case.\n");
+        break;
     }
 
     return SouthEastGravity;
@@ -954,7 +957,7 @@ x_load_font(Font *f, FcPattern *pattern) {
     f->ascent = f->match->ascent;
     f->descent = f->match->descent;
     f->lbearing = 0;
-    f->rbearing = f->match->max_advance_width;
+    f->rbearing = (short)f->match->max_advance_width;
 
     f->height = f->ascent + f->descent;
     f->width = DIVCEIL(extents.xOff, strlen(ascii_printable));
