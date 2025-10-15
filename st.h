@@ -75,6 +75,7 @@ typedef uint_least32_t Rune;
 typedef struct {
 	Rune rune;           /* character code */
 	ushort mode;      /* attribute flags */
+	ushort padding;
 	uint32_t fg;      /* foreground  */
 	uint32_t bg;      /* background  */
 } Glyph;
