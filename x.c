@@ -157,7 +157,7 @@ static char *kmap(KeySym, uint);
 static int match(uint, uint);
 
 static void run(void) __attribute__((noreturn));
-static void usage(void);
+static void usage(void) __attribute__((noreturn));
 
 static void (*handler[LASTEvent])(XEvent *) = {
     [KeyPress] = handler_key_press,
