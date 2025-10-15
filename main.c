@@ -148,7 +148,7 @@ static void handler_selection_clear(XEvent *);
 static void handler_selection_request(XEvent *);
 static void setsel(char *, Time);
 static void mouse_select(XEvent *, int32);
-static void mousereport(XEvent *);
+static void mouse_report(XEvent *);
 static char *kmap(KeySym, uint32);
 static int32 match(uint32, uint32);
 
@@ -346,7 +346,7 @@ mouse_select(XEvent *xevent, int32 done) {
 }
 
 void
-mousereport(XEvent *e) {
+mouse_report(XEvent *e) {
     int32 len, btn, code;
     int32 x = xevent_col(e), y = xevent_row(e);
     int32 state = (int32)e->xbutton.state;
@@ -463,7 +463,7 @@ handler_button_press(XEvent *e) {
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
-        mousereport(e);
+        mouse_report(e);
         return;
     }
 
@@ -691,7 +691,7 @@ handler_button_release(XEvent *e) {
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
-        mousereport(e);
+        mouse_report(e);
         return;
     }
 
@@ -707,7 +707,7 @@ handler_button_release(XEvent *e) {
 void
 handler_button_motion(XEvent *e) {
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
-        mousereport(e);
+        mouse_report(e);
         return;
     }
 
