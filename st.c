@@ -1021,7 +1021,7 @@ tty_write(const char *s, int64 n, int32 may_echo) {
 
 void
 tty_write_raw(const char *s, int64 n) {
-    fd_set wfd;
+    fd_set write_fd;
     fd_set rfd;
     int64 r;
     int64 lim = 256;
@@ -1031,19 +1031,19 @@ tty_write_raw(const char *s, int64 n) {
      * Writing too much will clog the line. That's why we are doing this dance.
      */
     while (n > 0) {
-        FD_ZERO(&wfd);
+        FD_ZERO(&write_fd);
         FD_ZERO(&rfd);
-        FD_SET(cmdfd, &wfd);
+        FD_SET(cmdfd, &write_fd);
         FD_SET(cmdfd, &rfd);
 
         /* Check if we can write. */
-        if (pselect(cmdfd + 1, &rfd, &wfd, NULL, NULL, NULL) < 0) {
+        if (pselect(cmdfd + 1, &rfd, &write_fd, NULL, NULL, NULL) < 0) {
             if (errno == EINTR) {
                 continue;
             }
             die("select failed: %s\n", strerror(errno));
         }
-        if (FD_ISSET(cmdfd, &wfd)) {
+        if (FD_ISSET(cmdfd, &write_fd)) {
             /*
              * Only write the bytes written by tty_write() or the
              * default of 256. This seems to be a reasonable value
