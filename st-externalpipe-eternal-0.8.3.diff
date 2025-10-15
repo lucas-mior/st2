@@ -44,7 +44,7 @@ index d4c88a2..2716f44 100644
 +}
 +
  void
- sel_start(int col, int row, int snap)
+ selection_start(int col, int row, int snap)
  {
 @@ -2025,16 +2040,18 @@ externalpipe(const Arg *arg)
  	/* ignore sigpipe for now, in case child exists early */
