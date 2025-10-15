@@ -199,7 +199,6 @@ static void osc_color_response(int32, int32, int32);
 static int32 eschandle(uchar);
 static void string_dump(void);
 static void string_handle(void);
-static void string_reset(void);
 
 static void term_printer(char *, int64);
 static void term_dump_sel(void);
@@ -2498,15 +2497,6 @@ string_dump(void) {
 }
 
 void
-string_reset(void) {
-    str_escape_seq = (STREscape){
-        .buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ),
-        .siz = STR_BUF_SIZ,
-    };
-    return;
-}
-
-void
 user_send_break(const Arg *arg) {
     if (tcsendbreak(cmdfd, 0)) {
         perror("Error sending break");
@@ -2646,7 +2636,10 @@ term_str_sequence(uchar c) {
         fprintf(stderr, "term_str_sequence: unhandled switch case.\n");
         break;
     }
-    string_reset();
+    str_escape_seq = (STREscape){
+        .buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ),
+        .siz = STR_BUF_SIZ,
+    };
     str_escape_seq.type = (char)c;
     term.esc |= ESC_STR;
     return;
