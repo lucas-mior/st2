@@ -334,7 +334,7 @@ index 2478942..2b86d23 100644
  		}
  		break;
 @@ -592,39 +660,34 @@ char *
- getsel(void)
+ get_sel(void)
  {
  	char *str, *ptr;
 -	int y, bufsize, lastx, linelen;
@@ -385,7 +385,7 @@ index 2478942..2b86d23 100644
  
  		/*
  		 * Copy and pasting of line endings is inconsistent
-@@ -636,10 +699,10 @@ getsel(void)
+@@ -636,10 +699,10 @@ get_sel(void)
  		 * FIXME: Fix the computer world.
  		 */
  		if ((y < sel.ne.y || lastx >= linelen) &&

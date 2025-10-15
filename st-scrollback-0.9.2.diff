@@ -110,7 +110,7 @@ index b9f66e7..2478942 100644
  						& ATTR_WRAP)) {
  					break;
  				}
-@@ -602,13 +609,13 @@ getsel(void)
+@@ -602,13 +609,13 @@ get_sel(void)
  		}
  
  		if (sel.type == SEL_RECTANGULAR) {
