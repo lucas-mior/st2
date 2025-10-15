@@ -836,7 +836,7 @@ handler_sigchld(int a)
 void
 stty(char **args)
 {
-	char cmd[_POSIX_ARG_MAX], **p, *q, *s;
+	char cmd[_POSIX_ARG_MAX], *q, *s;
 	size_t n, siz;
 
 	if ((n = strlen(stty_args)) > sizeof(cmd)-1)
@@ -844,7 +844,7 @@ stty(char **args)
 	memcpy(cmd, stty_args, n);
 	q = cmd + n;
 	siz = sizeof(cmd) - n;
-	for (p = args; p && (s = *p); ++p) {
+	for (char **p = args; p && (s = *p); ++p) {
 		if ((n = strlen(s)) > siz-1)
 			die("stty parameter length too long\n");
 		*q++ = ' ';
