@@ -1239,7 +1239,6 @@ x_init(int32 number_cols, int32 number_rows) {
         x_window.depth = attr.depth;
     }
 
-    /* font */
     if (!FcInit()) {
         die("could not init fontconfig.\n");
     }
@@ -1247,10 +1246,8 @@ x_init(int32 number_cols, int32 number_rows) {
     usedfont = (opt_font == NULL) ? font : opt_font;
     x_load_fonts(usedfont, 0);
 
-    /* spare fonts */
     x_load_spare_fonts();
 
-    /* colors */
     x_window.cmap = XCreateColormap(x_window.dpy, parent, x_window.vis, None);
     x_load_cols();
 
