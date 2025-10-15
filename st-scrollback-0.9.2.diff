@@ -155,7 +155,7 @@ index b9f66e7..2478942 100644
 +	if (term.scr > 0) {
 +		term.scr -= n;
 +		sel_scroll(0, -n);
-+		tfulldirt();
++		term_full_dirt();
 +	}
 +}
 +
@@ -170,7 +170,7 @@ index b9f66e7..2478942 100644
 +	if (term.scr <= HISTSIZE-n) {
 +		term.scr += n;
 +		sel_scroll(0, n);
-+		tfulldirt();
++		term_full_dirt();
 +	}
 +}
 +
