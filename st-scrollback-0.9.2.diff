@@ -135,7 +135,7 @@ index b9f66e7..2478942 100644
 +
 +	user_scroll_down(&arg);
  
- 	if (may_echo && IS_SET(MODE_ECHO))
+ 	if (may_echo && IS_SET(TERM_MODE_ECHO))
  		twrite(s, n, 1);
 @@ -1055,13 +1065,53 @@ tswapscreen(void)
  }

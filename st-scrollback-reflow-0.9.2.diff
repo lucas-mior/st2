@@ -424,7 +424,7 @@ index 2478942..2b86d23 100644
 -	user_scroll_down(&arg);
 +    user_scroll_down(&((Arg){ .i = term.scr }));
  
- 	if (may_echo && IS_SET(MODE_ECHO))
+ 	if (may_echo && IS_SET(TERM_MODE_ECHO))
  		twrite(s, n, 1);
 @@ -990,7 +1058,7 @@ tsetdirtattr(int attr)
  	for (i = 0; i < term.row-1; i++) {
