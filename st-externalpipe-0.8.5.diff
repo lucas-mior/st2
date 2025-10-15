@@ -85,7 +85,7 @@ index 034954d..98f2589 100644
 +}
 +
  void
- strdump(void)
+ string_dump(void)
  {
 diff --git a/st.h b/st.h
 index fd3b0d8..754cd08 100644
