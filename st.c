@@ -616,11 +616,12 @@ selection_region(int32 x1, int32 y1, int32 x2, int32 y2) {
         || selection.ne.y < y1) {
         return 0;
     }
-
-    return (selection.type == SELECTION_RECTANGULAR)
-               ? selection.nb.x <= x2 && selection.ne.x >= x1
-               : (selection.nb.y != y2 || selection.nb.x <= x2)
-                     && (selection.ne.y != y1 || selection.ne.x >= x1);
+    if (selection.type == SELECTION_RECTANGULAR) {
+        return selection.nb.x <= x2 && selection.ne.x >= x1;
+    } else {
+        return (selection.nb.y != y2 || selection.nb.x <= x2)
+               && (selection.ne.y != y1 || selection.ne.x >= x1);
+    }
 }
 
 int32
