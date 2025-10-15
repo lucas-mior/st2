@@ -2248,7 +2248,7 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
         return;
     }
 
-    n = snprintf(buf, sizeof buf, "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
+    n = snprintf(buf, sizeof(buf), "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
     if (n < 0 || n >= (int32)sizeof(buf)) {
         fprintf(stderr, "error: %s while printing %s response\n",

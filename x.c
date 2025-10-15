@@ -1964,12 +1964,12 @@ handler_key_press(XEvent *ev) {
     }
 
     if (x_window.ime.xic) {
-        len = XmbLookupString(x_window.ime.xic, e, buf, sizeof buf, &ksym, &status);
+        len = XmbLookupString(x_window.ime.xic, e, buf, sizeof(buf), &ksym, &status);
         if (status == XBufferOverflow) {
             return;
         }
     } else {
-        len = XLookupString(e, buf, sizeof buf, &ksym, NULL);
+        len = XLookupString(e, buf, sizeof(buf), &ksym, NULL);
     }
     /* 1. shortcuts */
     for (bp = shortcuts; bp < shortcuts + LENGTH(shortcuts); bp++) {
