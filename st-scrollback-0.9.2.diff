@@ -46,7 +46,7 @@ index b9f66e7..2478942 100644
 @@ -185,8 +192,8 @@ static void term_new_line(int);
  static void term_put_tab(int);
  static void term_putc(Rune);
- static void treset(void);
+ static void term_reset(void);
 -static void tscrollup(int, int);
 -static void tscrolldown(int, int);
 +static void tscrollup(int, int, int);

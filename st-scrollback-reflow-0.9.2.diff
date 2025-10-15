@@ -86,7 +86,7 @@ index 2478942..2b86d23 100644
  static void term_new_line(int);
  static void term_put_tab(int);
  static void term_putc(Rune);
- static void treset(void);
+ static void term_reset(void);
 -static void tscrollup(int, int, int);
 -static void tscrolldown(int, int, int);
 +static void tscrollup(int, int, int, int);
@@ -457,7 +457,7 @@ index 2478942..2b86d23 100644
 +}
 +
  void
- treset(void)
+ term_reset(void)
  {
  	uint i;
 +    int x, y;
@@ -500,7 +500,7 @@ index 2478942..2b86d23 100644
  {
 -	term = (Term){ .c = { .attr = { .fg = default_foreground, .bg = default_background } } };
 -	tresize(col, row);
--	treset();
+-	term_reset();
 +    int i, j;
 +
 +    for (i = 0; i < 2; i++) {
@@ -514,7 +514,7 @@ index 2478942..2b86d23 100644
 +    term.tabs = xmalloc(col * sizeof(*term.tabs));
 +    for (i = 0; i < HISTSIZE; i++)
 +        term.hist[i] = xmalloc(col * sizeof(Glyph));
-+    treset();
++    term_reset();
  }
  
 +/* handle it with care */
