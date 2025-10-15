@@ -1677,7 +1677,7 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
         g.mode |= ATTR_REVERSE;
         g.fg = CONF_COLOR_INDEX_CURSOR;
         g.bg = CONF_COLOR_INDEX_FONT;
-        drawcol = draw_context.col[default_reverse_cursor];
+        drawcol = draw_context.col[CONF_COLOR_INDEX_REVCURSOR];
     } else {
         g.fg = CONF_COLOR_INDEX_BACK;
         g.bg = CONF_COLOR_INDEX_CURSOR;

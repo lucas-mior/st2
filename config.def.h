@@ -195,7 +195,7 @@ static const int32 trans_colors = 26;
 int32 CONF_COLOR_INDEX_FONT = 7;
 int32 CONF_COLOR_INDEX_BACK = 0;
 int32 CONF_COLOR_INDEX_CURSOR = 256;
-static int32 default_reverse_cursor = 257;
+static int32 CONF_COLOR_INDEX_REVCURSOR = 257;
 static int32 selectionbg = 259;
 static int32 selectionfg = 7;
 /* If 0 use selectionfg as foreground in order to have a uniform foreground-color */
