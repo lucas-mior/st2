@@ -4,10 +4,12 @@
 
 target="${1:-build}"
 CC=${CC:-cc}
-CC=clang
+CC=gcc
 
 VERSION="0.9.3"
 
+CFLAGS="$CFLAGS -Wall -Wextra"
+CFLAGS="$CFLAGS -Wno-unused-parameter"
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage "
