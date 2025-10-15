@@ -314,15 +314,15 @@ user_tty_send(const Arg *arg) {
 }
 
 int32
-xevent_col(XEvent *e) {
-    int32 x = e->xbutton.x - term_window.hborderpx;
+xevent_col(XEvent *xevent) {
+    int32 x = xevent->xbutton.x - term_window.hborderpx;
     LIMIT(x, 0, term_window.tty_width - 1);
     return x / term_window.cw;
 }
 
 int32
-xevent_row(XEvent *e) {
-    int32 y = e->xbutton.y - term_window.vborderpx;
+xevent_row(XEvent *xevent) {
+    int32 y = xevent->xbutton.y - term_window.vborderpx;
     LIMIT(y, 0, term_window.tty_height - 1);
     return y / term_window.ch;
 }
@@ -433,15 +433,16 @@ button_mask(uint32 button) {
 }
 
 int32
-mouse_action(XEvent *e, uint32 release) {
+mouse_action(XEvent *xevent, uint32 release) {
     MouseShortcut *mouse_shortcut;
 
     /* ignore Button<N>mask for Button<N> - it's set on release */
-    uint32 state = e->xbutton.state & ~button_mask(e->xbutton.button);
+    uint32 state = xevent->xbutton.state & ~button_mask(xevent->xbutton.button);
 
     for (mouse_shortcut = CONF_MOUSE_SHORTCUTS;
          mouse_shortcut < CONF_MOUSE_SHORTCUTS + LENGTH(CONF_MOUSE_SHORTCUTS); mouse_shortcut++) {
-        if (mouse_shortcut->release == release && mouse_shortcut->button == e->xbutton.button &&
+        if (mouse_shortcut->release == release &&
+            mouse_shortcut->button == xevent->xbutton.button &&
             (match(mouse_shortcut->mod, state) || /* exact or forced */
              match(mouse_shortcut->mod, state & ~CONF_FORCE_MOUSE_MOD))) {
             mouse_shortcut->func(&(mouse_shortcut->arg));
@@ -453,8 +454,8 @@ mouse_action(XEvent *e, uint32 release) {
 }
 
 void
-handler_button_press(XEvent *e) {
-    int32 btn = (int32)e->xbutton.button;
+handler_button_press(XEvent *xevent) {
+    int32 btn = (int32)xevent->xbutton.button;
     struct timespec now;
     int32 snap;
 
@@ -462,12 +463,12 @@ handler_button_press(XEvent *e) {
         buttons |= 1 << (btn - 1);
     }
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
-        mouse_report(e);
+    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
+        mouse_report(xevent);
         return;
     }
 
-    if (mouse_action(e, 0)) {
+    if (mouse_action(xevent, 0)) {
         return;
     }
 
@@ -487,26 +488,26 @@ handler_button_press(XEvent *e) {
         xsel.tclick2 = xsel.tclick1;
         xsel.tclick1 = now;
 
-        selection_start(xevent_col(e), xevent_row(e), snap);
+        selection_start(xevent_col(xevent), xevent_row(xevent), snap);
     }
     return;
 }
 
 void
-handler_prop_notify(XEvent *e) {
+handler_prop_notify(XEvent *xevent) {
     XPropertyEvent *x_property_event;
     Atom clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
 
-    x_property_event = &e->xproperty;
+    x_property_event = &xevent->xproperty;
     if (x_property_event->state == PropertyNewValue &&
         (x_property_event->atom == XA_PRIMARY || x_property_event->atom == clipboard)) {
-        handler_selection_notify(e);
+        handler_selection_notify(xevent);
     }
     return;
 }
 
 void
-handler_selection_notify(XEvent *e) {
+handler_selection_notify(XEvent *xevent) {
     uint64 nitems, ofs, rem;
     int32 format;
     uchar *data, *last, *repl;
@@ -515,10 +516,10 @@ handler_selection_notify(XEvent *e) {
     incratom = XInternAtom(x_window.display, "INCR", 0);
 
     ofs = 0;
-    if (e->type == SelectionNotify) {
-        property = e->xselection.property;
-    } else if (e->type == PropertyNotify) {
-        property = e->xproperty.atom;
+    if (xevent->type == SelectionNotify) {
+        property = xevent->xselection.property;
+    } else if (xevent->type == PropertyNotify) {
+        property = xevent->xproperty.atom;
     }
 
     if (property == None) {
@@ -532,7 +533,7 @@ handler_selection_notify(XEvent *e) {
             return;
         }
 
-        if (e->type == PropertyNotify && nitems == 0 && rem == 0) {
+        if (xevent->type == PropertyNotify && nitems == 0 && rem == 0) {
             /*
              * If there is some PropertyNotify with no data, then
              * this is the signal of the selection owner that all
@@ -599,20 +600,20 @@ x_clipboard_copy(void) {
 }
 
 void
-handler_selection_clear(XEvent *e) {
-    (void)e;
+handler_selection_clear(XEvent *xevent) {
+    (void)xevent;
     selection_clear();
     return;
 }
 
 void
-handler_selection_request(XEvent *e) {
+handler_selection_request(XEvent *xevent) {
     XSelectionRequestEvent *xsre;
     XSelectionEvent xev;
     Atom xa_targets, string, clipboard;
     char *seltext;
 
-    xsre = (XSelectionRequestEvent *)e;
+    xsre = (XSelectionRequestEvent *)xevent;
     xev.type = SelectionNotify;
     xev.requestor = xsre->requestor;
     xev.selection = xsre->selection;
@@ -683,35 +684,35 @@ x_set_sel(char *str) {
 }
 
 void
-handler_button_release(XEvent *e) {
-    int32 btn = (int32)e->xbutton.button;
+handler_button_release(XEvent *xevent) {
+    int32 btn = (int32)xevent->xbutton.button;
 
     if (1 <= btn && btn <= 11) {
         buttons &= ~(1 << (btn - 1));
     }
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
-        mouse_report(e);
+    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
+        mouse_report(xevent);
         return;
     }
 
-    if (mouse_action(e, 1)) {
+    if (mouse_action(xevent, 1)) {
         return;
     }
     if (btn == Button1) {
-        mouse_select(e, 1);
+        mouse_select(xevent, 1);
     }
     return;
 }
 
 void
-handler_button_motion(XEvent *e) {
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
-        mouse_report(e);
+handler_button_motion(XEvent *xevent) {
+    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
+        mouse_report(xevent);
         return;
     }
 
-    mouse_select(e, 0);
+    mouse_select(xevent, 0);
     return;
 }
 
@@ -2082,19 +2083,19 @@ handler_key_press(XEvent *xevent) {
 }
 
 void
-handler_client_message(XEvent *e) {
+handler_client_message(XEvent *xevent) {
     /*
      * See xembed specs
      *  http://standards.freedesktop.org/xembed-spec/xembed-spec-latest.html
      */
-    if (e->xclient.message_type == x_window.xembed && e->xclient.format == 32) {
-        if (e->xclient.data.l[1] == XEMBED_FOCUS_IN) {
+    if (xevent->xclient.message_type == x_window.xembed && xevent->xclient.format == 32) {
+        if (xevent->xclient.data.l[1] == XEMBED_FOCUS_IN) {
             term_window.mode |= WIN_MODE_FOCUSED;
             x_set_urgency(0);
-        } else if (e->xclient.data.l[1] == XEMBED_FOCUS_OUT) {
+        } else if (xevent->xclient.data.l[1] == XEMBED_FOCUS_OUT) {
             term_window.mode &= ~WIN_MODE_FOCUSED;
         }
-    } else if (e->xclient.data.l[0] == (int64)x_window.wmdeletewin) {
+    } else if (xevent->xclient.data.l[0] == (int64)x_window.wmdeletewin) {
         tty_hangup();
         exit(0);
     }
@@ -2102,12 +2103,12 @@ handler_client_message(XEvent *e) {
 }
 
 void
-handler_configure_notify(XEvent *e) {
-    if (e->xconfigure.width == term_window.w && e->xconfigure.height == term_window.h) {
+handler_configure_notify(XEvent *xevent) {
+    if (xevent->xconfigure.width == term_window.w && xevent->xconfigure.height == term_window.h) {
         return;
     }
 
-    cresize(e->xconfigure.width, e->xconfigure.height);
+    cresize(xevent->xconfigure.width, xevent->xconfigure.height);
 }
 
 void
