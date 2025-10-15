@@ -44,7 +44,7 @@ index d73152b..f32fd6c 100644
  	loaded = 1;
  }
  
-@@ -842,6 +847,12 @@ xsetcolorname(int x, const char *name)
+@@ -842,6 +847,12 @@ x_set_color_name(int x, const char *name)
  	XftColorFree(xw.dpy, xw.vis, xw.cmap, &draw_context.col[x]);
  	draw_context.col[x] = ncolor;
  
