@@ -94,7 +94,7 @@ const int32 CONF_BOXDRAW = 1;
 const int32 CONF_BOXDRAW_BOLD = 1;
 
 /* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
-const int32 boxdraw_braille = 0;
+const int32 CONF_BOXDRAW_BRAILLE = 0;
 
 /*
  * bell volume. It must be a value between -100 and 100. Use 0 for disabling

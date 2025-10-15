@@ -35,13 +35,13 @@ int32
 isboxdraw(Rune u) {
     Rune block = u & ~(uint32)0xff;
     return (CONF_BOXDRAW && block == 0x2500 && boxdata[(uint8_t)u]) ||
-           (boxdraw_braille && block == 0x2800);
+           (CONF_BOXDRAW_BRAILLE && block == 0x2800);
 }
 
 /* the "index" is actually the entire shape data encoded as uint16 */
 uint16
 boxdrawindex(const Glyph *g) {
-    if (boxdraw_braille && (g->rune & ~(uint32)0xff) == 0x2800) {
+    if (CONF_BOXDRAW_BRAILLE && (g->rune & ~(uint32)0xff) == 0x2800) {
         return BRL | (uint8_t)g->rune;
     }
     if (CONF_BOXDRAW_BOLD && (g->mode & ATTR_BOLD)) {
