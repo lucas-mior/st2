@@ -171,15 +171,15 @@ extern const int32 boxdraw, boxdraw_bold, boxdraw_braille;
 extern float alpha;
 
 /* function definitions used in config.def.h */
-static void user_clipboard_copy(const Arg *);
-static void user_clipboard_paste(const Arg *);
-static void user_toggle_numlock(const Arg *);
-static void user_selection_paste(const Arg *);
-static void user_change_alpha(const Arg *);
-static void user_zoom(const Arg *);
-static void zoom_abs(const Arg *);
-static void user_zoom_reset(const Arg *);
-static void tty_send(const Arg *);
+void user_clipboard_copy(const Arg *);
+void user_clipboard_paste(const Arg *);
+void user_toggle_numlock(const Arg *);
+void user_selection_paste(const Arg *);
+void user_change_alpha(const Arg *);
+void user_zoom(const Arg *);
+void zoom_abs(const Arg *);
+void user_zoom_reset(const Arg *);
+void tty_send(const Arg *);
 
 typedef struct {
     uint32 mod;
