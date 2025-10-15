@@ -3217,8 +3217,10 @@ term_reflow(int32 col, int32 row) {
     Line line = 0;
 
     /* y coordinate of cursor line end */
-    for (oce = term.cursor.y; oce < term.row - 1 && tiswrapped(term.line[oce]); oce++)
-        ;
+    oce = term.cursor.y;
+    while (oce < term.row - 1 && tiswrapped(term.line[oce])) {
+        oce++;
+    }
 
     nlines = term.histf + oce + 1;
     if (col < term.col) {
