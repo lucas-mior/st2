@@ -1028,9 +1028,7 @@ tty_write_raw(const char *s, int64 n) {
 
     /*
      * Remember that we are using a pty, which might be a modem line.
-     * Writing too much will clog the line. That's why we are doing this
-     * dance.
-     * FIXME: Migrate the world to Plan 9.
+     * Writing too much will clog the line. That's why we are doing this dance.
      */
     while (n > 0) {
         FD_ZERO(&wfd);
