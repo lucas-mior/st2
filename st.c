@@ -168,7 +168,7 @@ typedef struct {
 /* ESC '[' [[ [<priv>] <arg> [;]] <mode> [<mode>]] */
 typedef struct {
     char buf[ESC_BUF_SIZ]; /* raw string */
-    size_t len;            /* raw string length */
+    int64 len;             /* raw string length */
     char priv;
     int32 arg[ESC_ARG_SIZ];
     int32 narg; /* nb of args */
@@ -178,10 +178,10 @@ typedef struct {
 /* STR Escape sequence structs */
 /* ESC type [[ [<priv>] <arg> [;]] <mode>] ESC '\' */
 typedef struct {
-    char type;  /* ESC type ... */
-    char *buf;  /* allocated raw string */
-    size_t siz; /* allocation size */
-    size_t len; /* raw string length */
+    char type; /* ESC type ... */
+    char *buf; /* allocated raw string */
+    int64 siz; /* allocation size */
+    int64 len; /* raw string length */
     char *args[STR_ARG_SIZ];
     int32 narg; /* nb of args */
 } STREscape;
@@ -189,7 +189,7 @@ typedef struct {
 static void exec_shell(char *, char **) __attribute__((noreturn));
 static void stty(char **);
 static void handler_sigchld(int32);
-static void tty_write_raw(const char *, size_t);
+static void tty_write_raw(const char *, int64);
 
 static void control_seq_intro_dump(void);
 static void control_seq_intro_handle(void);
@@ -202,7 +202,7 @@ static void string_handle(void);
 static void string_parse(void);
 static void string_reset(void);
 
-static void term_printer(char *, size_t);
+static void term_printer(char *, int64);
 static void term_dump_sel(void);
 static void term_dump_line(int32);
 static void term_dump(void);
@@ -217,7 +217,7 @@ static void term_insert_blank_line(int32);
 static int32 term_line_len(Line len);
 static int32 tiswrapped(Line line);
 static char *tgetglyphs(char *, const Glyph *, const Glyph *);
-static size_t tgetline(char *, const Glyph *);
+static int64 tgetline(char *, const Glyph *);
 static void term_move_to(int32, int32);
 static void term_move_abs_to(int32, int32);
 static void term_new_line(int32);
@@ -256,15 +256,15 @@ static void selection_remove(void);
 static int32 regionselected(int32, int32, int32, int32);
 static void selection_snap(int32 *, int32 *, int32);
 
-static size_t utf8_decode(const char *, Rune *, size_t);
-static Rune utf8_decode_byte(char, size_t *);
-static char utf8_encode_byte(Rune, size_t);
-static size_t utf8_validate(Rune *, size_t);
+static int64 utf8_decode(const char *, Rune *, int64);
+static Rune utf8_decode_byte(char, int64 *);
+static char utf8_encode_byte(Rune, int64);
+static int64 utf8_validate(Rune *, int64);
 
 static char *base64_decode(const char *);
 static char base64_decode_getc(const char **);
 
-static ssize_t xwrite(int32, const char *, size_t);
+static ssize_t xwrite(int32, const char *, int64);
 
 /* Globals */
 static Term term;
@@ -281,7 +281,7 @@ static const Rune utfmin[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
 static const Rune utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
 ssize_t
-xwrite(int32 fd, const char *s, size_t len) {
+xwrite(int32 fd, const char *s, int64 len) {
     ssize_t r;
     ssize_t left = (ssize_t)len;
 
@@ -298,7 +298,7 @@ xwrite(int32 fd, const char *s, size_t len) {
 }
 
 void *
-xmalloc(size_t len) {
+xmalloc(int64 len) {
     void *p;
 
     if (!(p = malloc(len))) {
@@ -309,7 +309,7 @@ xmalloc(size_t len) {
 }
 
 void *
-xrealloc(void *p, size_t len) {
+xrealloc(void *p, int64 len) {
     if ((p = realloc(p, len)) == NULL) {
         die("realloc: %s\n", strerror(errno));
     }
@@ -328,10 +328,10 @@ xstrdup(const char *s) {
     return p;
 }
 
-size_t
-utf8_decode(const char *c, Rune *u, size_t clen) {
-    size_t len;
-    size_t type;
+int64
+utf8_decode(const char *c, Rune *u, int64 clen) {
+    int64 len;
+    int64 type;
     Rune udecoded;
 
     *u = UTF_INVALID;
@@ -343,8 +343,8 @@ utf8_decode(const char *c, Rune *u, size_t clen) {
         return 1;
     }
     {
-        size_t j = 1;
-        for (size_t i = 1; i < clen && j < len; ++i, ++j) {
+        int64 j = 1;
+        for (int64 i = 1; i < clen && j < len; ++i, ++j) {
             udecoded = (udecoded << 6) | utf8_decode_byte(c[i], &type);
             if (type != 0) {
                 return j;
@@ -361,7 +361,7 @@ utf8_decode(const char *c, Rune *u, size_t clen) {
 }
 
 Rune
-utf8_decode_byte(char c, size_t *i) {
+utf8_decode_byte(char c, int64 *i) {
     for (*i = 0; *i < LEN(utfmask); ++(*i)) {
         if (((uchar)c & utfmask[*i]) == utfbyte[*i]) {
             return (uchar)c & ~utfmask[*i];
@@ -371,16 +371,16 @@ utf8_decode_byte(char c, size_t *i) {
     return 0;
 }
 
-size_t
+int64
 utf8_encode(Rune u, char *c) {
-    size_t len;
+    int64 len;
 
     len = utf8_validate(&u, 0);
     if (len > UTF_SIZ) {
         return 0;
     }
 
-    for (size_t i = len - 1; i != 0; --i) {
+    for (int64 i = len - 1; i != 0; --i) {
         c[i] = utf8_encode_byte(u, 0);
         u >>= 6;
     }
@@ -390,12 +390,12 @@ utf8_encode(Rune u, char *c) {
 }
 
 char
-utf8_encode_byte(Rune u, size_t i) {
+utf8_encode_byte(Rune u, int64 i) {
     return (char)(utfbyte[i] | (u & ~utfmask[i]));
 }
 
-size_t
-utf8_validate(Rune *u, size_t i) {
+int64
+utf8_validate(Rune *u, int64 i) {
     if (!BETWEEN(*u, utfmin[i], utfmax[i]) || BETWEEN(*u, 0xD800, 0xDFFF)) {
         *u = UTF_INVALID;
     }
@@ -415,7 +415,7 @@ base64_decode_getc(const char **src) {
 
 char *
 base64_decode(const char *src) {
-    size_t in_len = strlen(src);
+    int64 in_len = strlen(src);
     char *result, *dst;
     static const char base64_digits[256] = {
         [43] = 62, 0,  0,  0,  63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0,  0,  0,  -1, 0,
@@ -488,7 +488,7 @@ tgetglyphs(char *buf, const Glyph *gp, const Glyph *lgp) {
     return buf;
 }
 
-size_t
+int64
 tgetline(char *buf, const Glyph *fgp) {
     char *ptr;
     const Glyph *lgp = &fgp[term.col - 1];
@@ -500,7 +500,7 @@ tgetline(char *buf, const Glyph *fgp) {
     if (!(lgp->mode & ATTR_WRAP)) {
         *(ptr++) = '\n';
     }
-    return (size_t)(ptr - buf);
+    return (int64)(ptr - buf);
 }
 
 static int32
@@ -725,7 +725,7 @@ get_sel(void) {
         return NULL;
     }
 
-    str = xmalloc((size_t)((term.col + 1) * (selection.ne.y - selection.nb.y + 1) * UTF_SIZ));
+    str = xmalloc((int64)((term.col + 1) * (selection.ne.y - selection.nb.y + 1) * UTF_SIZ));
     ptr = str;
 
     /* append every set & selected glyph to the selection */
@@ -877,8 +877,8 @@ handler_sigchld(int32 a) {
 void
 stty(char **args) {
     char cmd[_POSIX_ARG_MAX], *q, *s;
-    size_t n;
-    size_t siz;
+    int64 n;
+    int64 siz;
 
     if ((n = strlen(stty_args)) > sizeof(cmd) - 1) {
         die("incorrect stty parameters\n");
@@ -967,7 +967,7 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
     return cmdfd;
 }
 
-size_t
+int64
 tty_read(void) {
     static char buf[BUFSIZ];
     static int32 buflen = 0;
@@ -975,7 +975,7 @@ tty_read(void) {
     int32 written;
 
     /* append read bytes to unprocessed bytes */
-    ret = (int32)read(cmdfd, buf + buflen, (size_t)(LEN(buf) - buflen));
+    ret = (int32)read(cmdfd, buf + buflen, (int64)(LEN(buf) - buflen));
 
     switch (ret) {
     case 0:
@@ -988,14 +988,14 @@ tty_read(void) {
         buflen -= written;
         /* keep any incomplete UTF-8 byte sequence for the next call */
         if (buflen > 0) {
-            memmove(buf, buf + written, (size_t)buflen);
+            memmove(buf, buf + written, (int64)buflen);
         }
-        return (size_t)ret;
+        return (int64)ret;
     }
 }
 
 void
-tty_write(const char *s, size_t n, int32 may_echo) {
+tty_write(const char *s, int64 n, int32 may_echo) {
     const char *next;
 
     user_scroll_down(&((Arg){.i = term.scr}));
@@ -1017,20 +1017,20 @@ tty_write(const char *s, size_t n, int32 may_echo) {
         } else {
             next = memchr(s, '\r', n);
             DEFAULT(next, s + n);
-            tty_write_raw(s, (size_t)(next - s));
+            tty_write_raw(s, (int64)(next - s));
         }
-        n -= (size_t)(next - s);
+        n -= (int64)(next - s);
         s = next;
     }
     return;
 }
 
 void
-tty_write_raw(const char *s, size_t n) {
+tty_write_raw(const char *s, int64 n) {
     fd_set wfd;
     fd_set rfd;
     ssize_t r;
-    size_t lim = 256;
+    int64 lim = 256;
 
     /*
      * Remember that we are using a pty, which might be a modem line.
@@ -1069,8 +1069,8 @@ tty_write_raw(const char *s, size_t n) {
                 if (n < lim) {
                     lim = tty_read();
                 }
-                n -= (size_t)r;
-                s += (size_t)r;
+                n -= (int64)r;
+                s += (int64)r;
             } else {
                 /* All bytes have been written. */
                 break;
@@ -1180,7 +1180,7 @@ void
 term_reset(void) {
     tresetcursor();
 
-    memset(term.tabs, 0, (size_t)term.col * sizeof(*term.tabs));
+    memset(term.tabs, 0, (int64)term.col * sizeof(*term.tabs));
     for (int32 i = tabspaces; i < term.col; i += tabspaces) {
         term.tabs[i] = 1;
     }
@@ -1209,18 +1209,18 @@ term_reset(void) {
 void
 term_new(int32 col, int32 row) {
     for (int32 i = 0; i < 2; i++) {
-        term.line = xmalloc((size_t)row * sizeof(Line));
+        term.line = xmalloc((int64)row * sizeof(Line));
         for (int32 j = 0; j < row; j++) {
-            term.line[j] = xmalloc((size_t)col * sizeof(Glyph));
+            term.line[j] = xmalloc((int64)col * sizeof(Glyph));
         }
         term.col = col;
         term.row = row;
         term_swap_screen();
     }
-    term.dirty = xmalloc((size_t)row * sizeof(*term.dirty));
-    term.tabs = xmalloc((size_t)col * sizeof(*term.tabs));
+    term.dirty = xmalloc((int64)row * sizeof(*term.dirty));
+    term.tabs = xmalloc((int64)col * sizeof(*term.tabs));
     for (int32 i = 0; i < HISTSIZE; i++) {
-        term.hist[i] = xmalloc((size_t)col * sizeof(Glyph));
+        term.hist[i] = xmalloc((int64)col * sizeof(Glyph));
     }
     term_reset();
     return;
@@ -1617,7 +1617,7 @@ term_delete_char(int32 n) {
          * https://stackoverflow.com/questions/29844298
          */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], (size_t)size * sizeof(Glyph));
+        memmove(&line[dst], &line[src], (int64)size * sizeof(Glyph));
     }
     term_clear_region(dst + size, term.cursor.y, term.col - 1, term.cursor.y, 1);
     return;
@@ -1638,7 +1638,7 @@ term_insert_blank(int32 n) {
     size = term.col - dst;
     if (size > 0) { /* otherwise dst would point beyond the array */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], (size_t)size * sizeof(Glyph));
+        memmove(&line[dst], &line[src], (int64)size * sizeof(Glyph));
     }
     term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, 1);
     return;
@@ -2033,7 +2033,7 @@ control_seq_intro_handle(void) {
             term.tabs[term.cursor.x] = 0;
             break;
         case 3: /* clear all the tabs */
-            memset(term.tabs, 0, (size_t)term.col * sizeof(*term.tabs));
+            memset(term.tabs, 0, (int64)term.col * sizeof(*term.tabs));
             break;
         default:
             goto unknown;
@@ -2160,7 +2160,7 @@ control_seq_intro_handle(void) {
             break;
         case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
             n = snprintf(buf, sizeof(buf), "\033[%i;%iR", term.cursor.y + 1, term.cursor.x + 1);
-            tty_write(buf, (size_t)n, 0);
+            tty_write(buf, (int64)n, 0);
             break;
         default:
             goto unknown;
@@ -2206,7 +2206,7 @@ control_seq_intro_dump(void) {
     uint32 c;
 
     fprintf(stderr, "ESC[");
-    for (size_t i = 0; i < csiescseq.len; i++) {
+    for (int64 i = 0; i < csiescseq.len; i++) {
         c = csiescseq.buf[i] & 0xff;
         if (isprint(c)) {
             putc((int32)c, stderr);
@@ -2248,7 +2248,7 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
         fprintf(stderr, "error: %s while printing %s response\n",
                 n < 0 ? "snprintf failed" : "truncation occurred", is_osc4 ? "osc4" : "osc");
     } else {
-        tty_write(buf, (size_t)n, 1);
+        tty_write(buf, (int64)n, 1);
     }
     return;
 }
@@ -2478,7 +2478,7 @@ string_dump(void) {
     uint32 c;
 
     fprintf(stderr, "ESC%c", strescseq.type);
-    for (size_t i = 0; i < strescseq.len; i++) {
+    for (int64 i = 0; i < strescseq.len; i++) {
         c = strescseq.buf[i] & 0xff;
         if (c == '\0') {
             putc('\n', stderr);
@@ -2517,7 +2517,7 @@ user_send_break(const Arg *arg) {
 }
 
 void
-term_printer(char *s, size_t len) {
+term_printer(char *s, int64 len) {
     if (iofd != -1 && xwrite(iofd, s, len) < 0) {
         perror("Error writing to output file");
         close(iofd);
@@ -2557,7 +2557,7 @@ term_dump_sel(void) {
 
 void
 term_dump_line(int32 n) {
-    char *str = xmalloc((size_t)((term.col + 1) * UTF_SIZ) * sizeof(*str));
+    char *str = xmalloc((int64)((term.col + 1) * UTF_SIZ) * sizeof(*str));
     term_printer(str, tgetline(str, &term.line[n][0]));
     return;
 }
@@ -2895,8 +2895,8 @@ term_putc(Rune u) {
             strescseq.buf = xrealloc(strescseq.buf, strescseq.siz);
         }
 
-        memmove(&strescseq.buf[strescseq.len], c, (size_t)len);
-        strescseq.len += (size_t)len;
+        memmove(&strescseq.buf[strescseq.len], c, (int64)len);
+        strescseq.len += (int64)len;
         return;
     }
 
@@ -2961,7 +2961,7 @@ check_control_code:
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_INSERT) && term.cursor.x + width < term.col) {
-        memmove(gp + width, gp, (size_t)(term.col - term.cursor.x - width) * sizeof(Glyph));
+        memmove(gp + width, gp, (int64)(term.col - term.cursor.x - width) * sizeof(Glyph));
         gp->mode &= ~ATTR_WIDE;
     }
 
@@ -3006,7 +3006,7 @@ term_write(const char *buf, int32 buflen, int32 show_ctrl) {
     for (n = 0; n < buflen; n += charsize) {
         if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
             /* process a complete utf8 char */
-            charsize = (int32)utf8_decode(buf + n, &u, (size_t)(buflen - n));
+            charsize = (int32)utf8_decode(buf + n, &u, (int64)(buflen - n));
             if (charsize == 0) {
                 break;
             }
@@ -3076,11 +3076,11 @@ term_resize(int32 col, int32 row) {
             return;
     } */
 
-    term.dirty = xrealloc(term.dirty, (size_t)row * sizeof(*term.dirty));
-    term.tabs = xrealloc(term.tabs, (size_t)col * sizeof(*term.tabs));
+    term.dirty = xrealloc(term.dirty, (int64)row * sizeof(*term.dirty));
+    term.tabs = xrealloc(term.tabs, (int64)col * sizeof(*term.tabs));
     if (col > term.col) {
         bp = term.tabs + term.col;
-        memset(bp, 0, sizeof(*term.tabs) * (size_t)(col - term.col));
+        memset(bp, 0, sizeof(*term.tabs) * (int64)(col - term.col));
         while (--bp > term.tabs && !*bp)
             /* nothing */;
         for (bp += tabspaces; bp < term.tabs + col; bp += tabspaces) {
@@ -3119,10 +3119,10 @@ term_resize_def(int32 col, int32 row) {
         }
 
         /* handler_configure_notify to new height */
-        term.line = xrealloc(term.line, (size_t)row * sizeof(Line));
+        term.line = xrealloc(term.line, (int64)row * sizeof(Line));
         /* allocate any new number_rows */
         for (int32 i = term.row; i < row; i++) {
-            term.line[i] = xmalloc((size_t)col * sizeof(Glyph));
+            term.line[i] = xmalloc((int64)col * sizeof(Glyph));
             for (int32 j = 0; j < col; j++) {
                 term_clear_glyph(&term.line[i][j], 0);
             }
@@ -3159,24 +3159,24 @@ term_resize_alt(int32 col, int32 row) {
     }
     if (i > 0) {
         /* ensure that both src and dst are not NULL */
-        memmove(term.line, term.line + i, (size_t)row * sizeof(Line));
+        memmove(term.line, term.line + i, (int64)row * sizeof(Line));
         term.cursor.y = row - 1;
     }
     for (i += row; i < term.row; i++) {
         free(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    term.line = xrealloc(term.line, (size_t)row * sizeof(Line));
+    term.line = xrealloc(term.line, (int64)row * sizeof(Line));
     /* handler_configure_notify to new width */
     for (i = 0; i < MIN(row, term.row); i++) {
-        term.line[i] = xrealloc(term.line[i], (size_t)col * sizeof(Glyph));
+        term.line[i] = xrealloc(term.line[i], (int64)col * sizeof(Glyph));
         for (int32 j = term.col; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* allocate any new number_rows */
     for (/*i = MIN(row, term.row) */; i < row; i++) {
-        term.line[i] = xmalloc((size_t)col * sizeof(Glyph));
+        term.line[i] = xmalloc((int64)col * sizeof(Glyph));
         for (int32 j = 0; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
@@ -3227,10 +3227,10 @@ term_reflow(int32 col, int32 row) {
             oy = -(nlines / j - oce - 1);
         }
     }
-    buf = xmalloc((size_t)nlines * sizeof(Line));
+    buf = xmalloc((int64)nlines * sizeof(Line));
     do {
         if (!nx) {
-            buf[++ny] = xmalloc((size_t)col * sizeof(Glyph));
+            buf[++ny] = xmalloc((int64)col * sizeof(Glyph));
         }
         if (!ox) {
             line = TLINEABS(oy);
@@ -3249,7 +3249,7 @@ term_reflow(int32 col, int32 row) {
         }
         /* get reflowed lines in buf */
         if (col - nx > len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (size_t)(len - ox) * sizeof(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (int64)(len - ox) * sizeof(Glyph));
             nx += len - ox;
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
                 for (int32 j = nx; j < col; j++) {
@@ -3262,12 +3262,12 @@ term_reflow(int32 col, int32 row) {
             ox = 0;
             oy++;
         } else if (col - nx == len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (size_t)(col - nx) * sizeof(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (int64)(col - nx) * sizeof(Glyph));
             ox = 0;
             oy++;
             nx = 0;
         } else /* if (col - nx < len - ox) */ {
-            memcpy(&buf[ny][nx], &line[ox], (size_t)(col - nx) * sizeof(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (int64)(col - nx) * sizeof(Glyph));
             ox += col - nx;
             buf[ny][col - 1].mode |= ATTR_WRAP;
             nx = 0;
@@ -3284,7 +3284,7 @@ term_reflow(int32 col, int32 row) {
         free(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    term.line = xrealloc(term.line, (size_t)row * sizeof(Line));
+    term.line = xrealloc(term.line, (int64)row * sizeof(Line));
 
     bot = MIN(ny, row - 1);
     scr = MAX(row - term.row, 0);
@@ -3303,7 +3303,7 @@ term_reflow(int32 col, int32 row) {
     }
     /* allocate new number_rows */
     for (i = row - 1; i > nce; i--) {
-        term.line[i] = xmalloc((size_t)col * sizeof(Glyph));
+        term.line[i] = xmalloc((int64)col * sizeof(Glyph));
         for (int32 j = 0; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
@@ -3330,7 +3330,7 @@ term_reflow(int32 col, int32 row) {
     /* handler_configure_notify rest of the history lines */
     for (int32 i = -term.histf - 1; i >= -HISTSIZE; i--) {
         int32 j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
-        term.hist[j] = xrealloc(term.hist[j], (size_t)col * sizeof(Glyph));
+        term.hist[j] = xrealloc(term.hist[j], (int64)col * sizeof(Glyph));
     }
     free(buf);
     return;

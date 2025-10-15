@@ -409,7 +409,7 @@ mousereport(XEvent *e) {
         return;
     }
 
-    tty_write(buf, (size_t)len, 0);
+    tty_write(buf, (int64)len, 0);
 }
 
 uint32
@@ -555,21 +555,21 @@ handler_selection_notify(XEvent *e) {
          * FIXME: Fix the computer world.
          */
         repl = data;
-        last = data + nitems * (size_t)format / 8;
-        while ((repl = memchr(repl, '\n', (size_t)(last - repl)))) {
+        last = data + nitems * (int64)format / 8;
+        while ((repl = memchr(repl, '\n', (int64)(last - repl)))) {
             *repl++ = '\r';
         }
 
         if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && ofs == 0) {
             tty_write("\033[200~", 6, 0);
         }
-        tty_write((char *)data, nitems * (size_t)format / 8, 1);
+        tty_write((char *)data, nitems * (int64)format / 8, 1);
         if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && rem == 0) {
             tty_write("\033[201~", 6, 0);
         }
         XFree(data);
         /* number of 32-bit chunks returned */
-        ofs += nitems * (size_t)format / 32;
+        ofs += nitems * (int64)format / 32;
     } while (rem > 0);
 
     /*
@@ -730,7 +730,7 @@ x_resize(int32 col, int32 row) {
     x_clear(0, 0, term_window.w, term_window.h);
 
     /* handler_configure_notify to new width */
-    x_window.specbuf = xrealloc(x_window.specbuf, (size_t)col * sizeof(GlyphFontSpec));
+    x_window.specbuf = xrealloc(x_window.specbuf, (int64)col * sizeof(GlyphFontSpec));
 }
 
 uint16
@@ -1081,7 +1081,7 @@ xloadsparefonts(void) {
     /* Allocate memory for cache entries. */
     if (frccap < 4 * fc) {
         frccap += 4 * fc - frccap;
-        frc = xrealloc(frc, (size_t)frccap * sizeof(Fontcache));
+        frc = xrealloc(frc, (int64)frccap * sizeof(Fontcache));
     }
 
     for (fp = font2; fp - font2 < fc; ++fp) {
@@ -1291,7 +1291,7 @@ x_init(int32 number_cols, int32 number_rows) {
                    (uint32)term_window.h);
 
     /* font spec buffer */
-    x_window.specbuf = xmalloc((size_t)number_cols * sizeof(GlyphFontSpec));
+    x_window.specbuf = xmalloc((int64)number_cols * sizeof(GlyphFontSpec));
 
     /* Xft rendering context */
     x_window.draw = XftDrawCreate(x_window.dpy, x_window.buf, x_window.vis, x_window.cmap);
@@ -1453,7 +1453,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
             /* Allocate memory for the new cache entry. */
             if (frclen >= frccap) {
                 frccap += 16;
-                frc = xrealloc(frc, (size_t)frccap * sizeof(Fontcache));
+                frc = xrealloc(frc, (int64)frccap * sizeof(Fontcache));
             }
 
             frc[frclen].font = XftFontOpenPattern(x_window.dpy, fontpattern);
@@ -2001,7 +2001,7 @@ handler_key_press(XEvent *ev) {
             len = 2;
         }
     }
-    tty_write(buf, (size_t)len, 1);
+    tty_write(buf, (int64)len, 1);
 }
 
 void

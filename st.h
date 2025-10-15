@@ -127,9 +127,9 @@ void term_resize(int32, int32);
 void term_set_dirt_attr(int32);
 void tty_hangup(void);
 int32 tty_new(const char *, char *, const char *, char **);
-size_t tty_read(void);
+int64 tty_read(void);
 void tty_resize(int32, int32);
-void tty_write(const char *, size_t, int32);
+void tty_write(const char *, int64, int32);
 
 void reset_title(void);
 
@@ -140,10 +140,10 @@ void selection_extend(int32, int32, int32, int32);
 int32 selected(int32, int32);
 char *get_sel(void);
 
-size_t utf8_encode(Rune, char *);
+int64 utf8_encode(Rune, char *);
 
-void *xmalloc(size_t);
-void *xrealloc(void *, size_t);
+void *xmalloc(int64);
+void *xrealloc(void *, int64);
 char *xstrdup(const char *);
 
 int32 isboxdraw(Rune);
