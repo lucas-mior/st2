@@ -286,9 +286,9 @@ run:
     CONF_NUMBER_ROWS = MAX(CONF_NUMBER_ROWS, 1);
 
     for (int32 i = 0; i < 2; i++) {
-        term.line = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(Line));
+        term.line = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*(term.line)));
         for (int32 j = 0; j < CONF_NUMBER_ROWS; j++) {
-            term.line[j] = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(Glyph));
+            term.line[j] = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(*(term.line[j])));
         }
         term.col = CONF_NUMBER_COLS;
         term.row = CONF_NUMBER_ROWS;
