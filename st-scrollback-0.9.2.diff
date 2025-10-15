@@ -7,7 +7,7 @@ index 2cd740a..40b7d93 100644
  	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
  	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
 +	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} },
-+    { ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} },
++    { ShiftMask,            XK_Page_Down,   user_scroll_down,    {.i = -1} },
  };
  
  /*
@@ -133,7 +133,7 @@ index b9f66e7..2478942 100644
  	const char *next;
 +	Arg arg = (Arg) { .i = term.scr };
 +
-+	kscrolldown(&arg);
++	user_scroll_down(&arg);
  
  	if (may_echo && IS_SET(MODE_ECHO))
  		twrite(s, n, 1);
@@ -142,7 +142,7 @@ index b9f66e7..2478942 100644
  
  void
 -tscrolldown(int orig, int n)
-+kscrolldown(const Arg* a)
++user_scroll_down(const Arg* a)
 +{
 +	int n = a->i;
 +
@@ -344,7 +344,7 @@ index fd3b0d8..818a6f8 100644
  void redraw(void);
  void draw(void);
  
-+void kscrolldown(const Arg *);
++void user_scroll_down(const Arg *);
 +void kscrollup(const Arg *);
  void printscreen(const Arg *);
  void printsel(const Arg *);
