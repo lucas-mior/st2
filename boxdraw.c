@@ -24,8 +24,8 @@ static void drawboxlines(int32, int32, int32, int32, XftColor *, uint16);
 /* public API */
 
 void
-boxdraw_xinit(Display *dpy, Colormap cmap, XftDraw *draw, Visual *vis) {
-    xdpy = dpy;
+boxdraw_xinit(Display *display, Colormap cmap, XftDraw *draw, Visual *vis) {
+    xdpy = display;
     xcmap = cmap;
     xd = draw;
     xvis = vis;
