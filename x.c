@@ -167,14 +167,10 @@ static void (*handler[LASTEvent])(XEvent *) = {
     [MotionNotify] = handler_button_motion,
     [ButtonPress] = handler_button_press,
     [ButtonRelease] = handler_button_release,
-    /*
-     * Uncomment if you want the selection to disappear when you select something
-     * different in another window.
-     */
     [SelectionClear] = handler_selection_clear,
     [SelectionNotify] = handler_selection_notify,
     /*
-     * PropertyNotify is only turned on when there is some INCR transfer happening
+     * PropertyNotify is only turned on when there is INCR transfer happening
      * for the selection retrieval.
      */
     [PropertyNotify] = handler_prop_notify,
