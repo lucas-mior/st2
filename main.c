@@ -326,10 +326,10 @@ run:
         x_load_cols();
 
         /* adjust fixed window geometry */
-        term_window.w = 2 * term_window.hborderpx + 2 * CONF_BORDER_PIXELS
-                        + CONF_NUMBER_COLS * term_window.cw;
-        term_window.h = 2 * term_window.vborderpx + 2 * CONF_BORDER_PIXELS
-                        + CONF_NUMBER_ROWS * term_window.ch;
+        term_window.w = 2*term_window.hborderpx + 2*CONF_BORDER_PIXELS
+                        + CONF_NUMBER_COLS*term_window.cw;
+        term_window.h = 2*term_window.vborderpx + 2*CONF_BORDER_PIXELS
+                        + CONF_NUMBER_ROWS*term_window.ch;
         if (x_window.gm & XNegative) {
             x_window.l += DisplayWidth(x_window.display, x_window.scr) - term_window.w - 2;
         }
@@ -366,7 +366,7 @@ run:
                        (uint32)term_window.w, (uint32)term_window.h);
 
         /* font spec buffer */
-        x_window.specbuf = xmalloc((int64)CONF_NUMBER_COLS * SIZEOF(GlyphFontSpec));
+        x_window.specbuf = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(GlyphFontSpec));
 
         /* Xft rendering context */
         x_window.draw = XftDrawCreate(x_window.display, x_window.buf, x_window.vis, x_window.cmap);
@@ -428,7 +428,7 @@ run:
     }
 
     {
-        char buf[SIZEOF(int64) * 8 + 1];
+        char buf[SIZEOF(int64)*8 + 1];
 
         snprintf(buf, SIZEOF(buf), "%lu", x_window.win);
         setenv("WINDOWID", buf, 1);
@@ -480,7 +480,7 @@ run:
             }
 
             seltv.tv_sec = timeout / 1E3f;
-            seltv.tv_nsec = 1E6f * (timeout - 1E3f * (float)seltv.tv_sec);
+            seltv.tv_nsec = 1E6f*(timeout - 1E3f*(float)seltv.tv_sec);
             tv = timeout >= 0 ? &seltv : NULL;
 
             if (pselect(MAX(xfd, ttyfd) + 1, &rfd, NULL, NULL, tv, NULL) < 0) {
@@ -903,7 +903,7 @@ handler_selection_notify(XEvent *xevent) {
          * FIXME: Fix the computer world.
          */
         repl = data;
-        last = data + nitems * (uint64)format / 8;
+        last = data + nitems*(uint64)format / 8;
         while ((repl = memchr(repl, '\n', (size_t)(last - repl)))) {
             *repl++ = '\r';
         }
@@ -911,13 +911,13 @@ handler_selection_notify(XEvent *xevent) {
         if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && ofs == 0) {
             tty_write("\033[200~", 6, 0);
         }
-        tty_write((char *)data, nitems * (uint64)format / 8, 1);
+        tty_write((char *)data, nitems*(uint64)format / 8, 1);
         if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && rem == 0) {
             tty_write("\033[201~", 6, 0);
         }
         XFree(data);
         /* number of 32-bit chunks returned */
-        ofs += nitems * (uint64)format / 32;
+        ofs += nitems*(uint64)format / 32;
     } while (rem > 0);
 
     /*
@@ -1067,13 +1067,13 @@ cresize(int32 width, int32 height) {
         term_window.h = height;
     }
 
-    col = (term_window.w - 2 * CONF_BORDER_PIXELS) / term_window.cw;
-    row = (term_window.h - 2 * CONF_BORDER_PIXELS) / term_window.ch;
+    col = (term_window.w - 2*CONF_BORDER_PIXELS) / term_window.cw;
+    row = (term_window.h - 2*CONF_BORDER_PIXELS) / term_window.ch;
     col = MAX(1, col);
     row = MAX(1, row);
 
-    term_window.hborderpx = (term_window.w - col * term_window.cw) / 2;
-    term_window.vborderpx = (term_window.h - row * term_window.ch) / 2;
+    term_window.hborderpx = (term_window.w - col*term_window.cw) / 2;
+    term_window.vborderpx = (term_window.h - row*term_window.ch) / 2;
 
     term_resize(col, row);
     x_resize(col, row);
@@ -1083,8 +1083,8 @@ cresize(int32 width, int32 height) {
 
 void
 x_resize(int32 col, int32 row) {
-    term_window.tty_width = col * term_window.cw;
-    term_window.tty_height = row * term_window.ch;
+    term_window.tty_width = col*term_window.cw;
+    term_window.tty_height = row*term_window.ch;
 
     XFreePixmap(x_window.display, x_window.buf);
     x_window.buf = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
@@ -1093,13 +1093,13 @@ x_resize(int32 col, int32 row) {
     x_clear(0, 0, term_window.w, term_window.h);
 
     /* handler_configure_notify to new width */
-    x_window.specbuf = xrealloc(x_window.specbuf, (int64)col * SIZEOF(GlyphFontSpec));
+    x_window.specbuf = xrealloc(x_window.specbuf, (int64)col*SIZEOF(GlyphFontSpec));
     return;
 }
 
 uint16
 sixd_to_16bit(int32 x) {
-    return (uint16)(x == 0 ? 0 : 0x3737 + 0x2828 * x);
+    return (uint16)(x == 0 ? 0 : 0x3737 + 0x2828*x);
 }
 
 int32
@@ -1108,12 +1108,12 @@ x_load_color(int32 i, const char *name, Color *ncolor) {
 
     if (!name) {
         if (BETWEEN(i, 16 + CONF_NTRANSPARENT_COLORS, 255)) { /* 256 color */
-            if (i < 6 * 6 * 6 + 16) {                         /* same colors as xterm */
+            if (i < 6*6 * 6 + 16) {                         /* same colors as xterm */
                 color.red = sixd_to_16bit(((i - 16) / 36) % 6);
                 color.green = sixd_to_16bit(((i - 16) / 6) % 6);
                 color.blue = sixd_to_16bit(((i - 16) / 1) % 6);
             } else { /* greyscale */
-                color.red = (uint16)(0x0808 + 0x0a0a * (i - (6 * 6 * 6 + 16)));
+                color.red = (uint16)(0x0808 + 0x0a0a*(i - (6*6 * 6 + 16)));
                 color.green = color.blue = color.red;
             }
             return XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &color,
@@ -1137,7 +1137,7 @@ x_load_cols(void) {
         }
     } else {
         draw_context.collen = MAX(LENGTH(CONF_COLORS), 256);
-        draw_context.col = xmalloc((uint16)draw_context.collen * SIZEOF(Color));
+        draw_context.col = xmalloc((uint16)draw_context.collen*SIZEOF(Color));
     }
 
     for (int32 i = 0; i < draw_context.collen; i++) {
@@ -1150,14 +1150,14 @@ x_load_cols(void) {
         }
     }
 
-    draw_context.col[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff * CONF_ALPHA);
+    draw_context.col[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff*CONF_ALPHA);
     draw_context.col[CONF_COLOR_INDEX_BACK].pixel &= 0x00FFFFFF;
-    draw_context.col[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xFF * CONF_ALPHA) & 0xFF) << 24;
+    draw_context.col[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xFF*CONF_ALPHA) & 0xFF) << 24;
 
     for (int32 i = 16; i < 16 + CONF_NTRANSPARENT_COLORS; i++) {
-        draw_context.col[i].color.alpha = (uint16)(0xffff * CONF_ALPHA);
+        draw_context.col[i].color.alpha = (uint16)(0xffff*CONF_ALPHA);
         draw_context.col[i].pixel &= 0x00FFFFFF;
-        draw_context.col[i].pixel |= ((uint32)(0xff * CONF_ALPHA) & 0xff) << 24;
+        draw_context.col[i].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff) << 24;
     }
     loaded = 1;
     return;
@@ -1192,9 +1192,9 @@ x_set_color_name(int32 x, const char *name) {
     draw_context.col[x] = ncolor;
 
     if (x == CONF_COLOR_INDEX_BACK) {
-        draw_context.col[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff * CONF_ALPHA);
+        draw_context.col[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff*CONF_ALPHA);
         draw_context.col[CONF_COLOR_INDEX_BACK].pixel &= 0x00FFFFFF;
-        draw_context.col[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xff * CONF_ALPHA) & 0xff) << 24;
+        draw_context.col[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff) << 24;
     }
 
     return 0;
@@ -1231,10 +1231,10 @@ x_hints(void) {
     sizeh->width = term_window.w;
     sizeh->height_inc = 1;
     sizeh->width_inc = 1;
-    sizeh->base_height = 2 * CONF_BORDER_PIXELS;
-    sizeh->base_width = 2 * CONF_BORDER_PIXELS;
-    sizeh->min_height = term_window.ch + 2 * CONF_BORDER_PIXELS;
-    sizeh->min_width = term_window.cw + 2 * CONF_BORDER_PIXELS;
+    sizeh->base_height = 2*CONF_BORDER_PIXELS;
+    sizeh->base_width = 2*CONF_BORDER_PIXELS;
+    sizeh->min_height = term_window.ch + 2*CONF_BORDER_PIXELS;
+    sizeh->min_width = term_window.cw + 2*CONF_BORDER_PIXELS;
     if (x_window.isfixed) {
         sizeh->flags |= PMaxSize;
         sizeh->min_width = sizeh->max_width = term_window.w;
@@ -1388,8 +1388,8 @@ x_load_fonts(const char *fontstr, float fontsize) {
     }
 
     /* Setting character width and height. */
-    term_window.cw = ceilf((float)(draw_context.font.width) * CONF_CHAR_WIDTH_SCALE);
-    term_window.ch = ceilf((float)(draw_context.font.height) * CONF_CHAR_HEIGHT_SCALE);
+    term_window.cw = ceilf((float)(draw_context.font.width)*CONF_CHAR_WIDTH_SCALE);
+    term_window.ch = ceilf((float)(draw_context.font.height)*CONF_CHAR_HEIGHT_SCALE);
 
     FcPatternDel(pattern, FC_SLANT);
     FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
@@ -1454,9 +1454,9 @@ x_load_spare_fonts(void) {
     }
 
     /* Allocate memory for cache entries. */
-    if (frccap < 4 * fc) {
-        frccap += 4 * fc - frccap;
-        frc = xrealloc(frc, (int64)frccap * SIZEOF(Fontcache));
+    if (frccap < 4*fc) {
+        frccap += 4*fc - frccap;
+        frc = xrealloc(frc, (int64)frccap*SIZEOF(Fontcache));
     }
 
     for (fp = CONF_FONT2; fp - CONF_FONT2 < fc; ++fp) {
@@ -1601,8 +1601,8 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
 
 int32
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len, int32 x, int32 y) {
-    int32 winx = term_window.hborderpx + x * term_window.cw;
-    int32 winy = term_window.vborderpx + y * term_window.ch;
+    int32 winx = term_window.hborderpx + x*term_window.cw;
+    int32 winy = term_window.vborderpx + y*term_window.ch;
     uint16 mode, prevmode = USHRT_MAX;
     Font *font_local = &draw_context.font;
     int32 frcflags = FRC_NORMAL;
@@ -1632,7 +1632,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
             prevmode = mode;
             font_local = &draw_context.font;
             frcflags = FRC_NORMAL;
-            runewidth = term_window.cw * ((mode & ATTR_WIDE) ? 2 : 1);
+            runewidth = term_window.cw*((mode & ATTR_WIDE) ? 2 : 1);
             if ((mode & ATTR_ITALIC) && (mode & ATTR_BOLD)) {
                 font_local = &draw_context.ibfont;
                 frcflags = FRC_ITALICBOLD;
@@ -1705,7 +1705,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
             /* Allocate memory for the new cache entry. */
             if (frclen >= frccap) {
                 frccap += 16;
-                frc = xrealloc(frc, (int64)frccap * SIZEOF(Fontcache));
+                frc = xrealloc(frc, (int64)frccap*SIZEOF(Fontcache));
             }
 
             frc[frclen].font = XftFontOpenPattern(x_window.display, fontpattern);
@@ -1737,10 +1737,10 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
 
 void
 x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, int32 x, int32 y) {
-    int32 charlen = len * ((base.mode & ATTR_WIDE) ? 2 : 1);
-    int32 winx = term_window.hborderpx + x * term_window.cw;
-    int32 winy = term_window.vborderpx + y * term_window.ch;
-    int32 width = charlen * term_window.cw;
+    int32 charlen = len*((base.mode & ATTR_WIDE) ? 2 : 1);
+    int32 winx = term_window.hborderpx + x*term_window.cw;
+    int32 winy = term_window.vborderpx + y*term_window.ch;
+    int32 width = charlen*term_window.cw;
     Color *fg, *bg, *temp, revfg, revbg, truefg, truebg;
     XRenderColor colfg, colbg;
     XRectangle r;
@@ -1872,14 +1872,14 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
     /* Render underline and strikethrough. */
     if (base.mode & ATTR_UNDERLINE) {
         XftDrawRect(x_window.draw, fg, winx,
-                    winy + (int32)((float)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE) + 1,
+                    winy + (int32)((float)draw_context.font.ascent*CONF_CHAR_HEIGHT_SCALE) + 1,
                     (uint32)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
         XftDrawRect(x_window.draw, fg, winx,
                     winy
-                        + 2 * (int32)((float)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE / 3),
+                        + 2*(int32)((float)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE / 3),
                     (uint32)width, 1);
     }
 
@@ -1941,15 +1941,15 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
             break;
         case 3: /* Blinking Underline */
         case 4: /* Steady Underline */
-            XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                        term_window.vborderpx + (cy + 1) * term_window.ch
+            XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+                        term_window.vborderpx + (cy + 1)*term_window.ch
                             - (int32)CONF_CURSOR_THICKNESS,
                         (uint32)term_window.cw, (uint32)CONF_CURSOR_THICKNESS);
             break;
         case 5: /* Blinking bar */
         case 6: /* Steady bar */
-            XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                        term_window.vborderpx + cy * term_window.ch, CONF_CURSOR_THICKNESS,
+            XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+                        term_window.vborderpx + cy*term_window.ch, CONF_CURSOR_THICKNESS,
                         (uint32)term_window.ch);
             break;
         default:
@@ -1957,14 +1957,14 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
             break;
         }
     } else {
-        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                    term_window.vborderpx + cy * term_window.ch, (uint32)(term_window.cw - 1), 1);
-        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                    term_window.vborderpx + cy * term_window.ch, 1, (uint32)(term_window.ch - 1));
-        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + (cx + 1) * term_window.cw - 1,
-                    term_window.vborderpx + cy * term_window.ch, 1, (uint32)(term_window.ch - 1));
-        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                    term_window.vborderpx + (cy + 1) * term_window.ch - 1, (uint32)term_window.cw,
+        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+                    term_window.vborderpx + cy*term_window.ch, (uint32)(term_window.cw - 1), 1);
+        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+                    term_window.vborderpx + cy*term_window.ch, 1, (uint32)(term_window.ch - 1));
+        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + (cx + 1)*term_window.cw - 1,
+                    term_window.vborderpx + cy*term_window.ch, 1, (uint32)(term_window.ch - 1));
+        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+                    term_window.vborderpx + (cy + 1)*term_window.ch - 1, (uint32)term_window.cw,
                     1);
     }
     return;
@@ -2063,8 +2063,8 @@ x_xim_spot(int32 x, int32 y) {
         return;
     }
 
-    x_window.ime.spot.x = (int16)(CONF_BORDER_PIXELS + x * term_window.cw);
-    x_window.ime.spot.y = (int16)(CONF_BORDER_PIXELS + (y + 1) * term_window.ch);
+    x_window.ime.spot.x = (int16)(CONF_BORDER_PIXELS + x*term_window.cw);
+    x_window.ime.spot.y = (int16)(CONF_BORDER_PIXELS + (y + 1)*term_window.ch);
 
     XSetICValues(x_window.ime.xic, XNPreeditAttributes, x_window.ime.spotlist, NULL);
     return;

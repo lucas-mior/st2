@@ -69,20 +69,20 @@ drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg, uint16 b
 
     } else if (cat == BBD) {
         /* lower (8-X)/8 block */
-        int32 d = DIV((uint8_t)bd * h, 8);
+        int32 d = DIV((uint8_t)bd*h, 8);
         XftDrawRect(xd, fg, x, y + d, (uint32)w, (uint32)(h - d));
 
     } else if (cat == BBU) {
         /* upper X/8 block */
-        XftDrawRect(xd, fg, x, y, (uint32)w, (uint32)DIV((uint8_t)bd * h, 8));
+        XftDrawRect(xd, fg, x, y, (uint32)w, (uint32)DIV((uint8_t)bd*h, 8));
 
     } else if (cat == BBL) {
         /* left X/8 block */
-        XftDrawRect(xd, fg, x, y, (uint32)DIV((uint8_t)bd * w, 8), (uint32)h);
+        XftDrawRect(xd, fg, x, y, (uint32)DIV((uint8_t)bd*w, 8), (uint32)h);
 
     } else if (cat == BBR) {
         /* right (8-X)/8 block */
-        int32 d = DIV((uint8_t)bd * w, 8);
+        int32 d = DIV((uint8_t)bd*w, 8);
         XftDrawRect(xd, fg, x + d, y, (uint32)(w - d), (uint32)h);
 
     } else if (cat == BBQ) {
@@ -107,9 +107,9 @@ drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg, uint16 b
         XftColor xfc;
         XRenderColor xrc = {.alpha = 0xffff};
 
-        xrc.red = (uint16)DIV(fg->color.red * d + bg->color.red * (4 - d), 4);
-        xrc.green = (uint16)DIV(fg->color.green * d + bg->color.green * (4 - d), 4);
-        xrc.blue = (uint16)DIV(fg->color.blue * d + bg->color.blue * (4 - d), 4);
+        xrc.red = (uint16)DIV(fg->color.red*d + bg->color.red*(4 - d), 4);
+        xrc.green = (uint16)DIV(fg->color.green*d + bg->color.green*(4 - d), 4);
+        xrc.blue = (uint16)DIV(fg->color.blue*d + bg->color.blue*(4 - d), 4);
 
         XftColorAllocValue(xdpy, xvis, xcmap, &xrc, &xfc);
         XftDrawRect(xd, &xfc, x, y, (uint32)w, (uint32)h);
@@ -118,7 +118,7 @@ drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg, uint16 b
     } else if (cat == BRL) {
         /* braille, each data bit corresponds to one dot at 2x4 grid */
         int32 w1 = DIV(w, 2);
-        int32 h1 = DIV(h, 4), h2 = DIV(h, 2), h3 = DIV(3 * h, 4);
+        int32 h1 = DIV(h, 4), h2 = DIV(h, 2), h3 = DIV(3*h, 4);
 
         if (bd & 1) {
             XftDrawRect(xd, fg, x, y, (uint32)w1, (uint32)h1);
@@ -150,12 +150,12 @@ drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg, uint16 b
 void
 drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
     /* s: stem thickness. width/8 roughly matches underscore thickness. */
-    /* We draw bold as 1.5 * normal-stem and at least 1px thicker.      */
+    /* We draw bold as 1.5*normal-stem and at least 1px thicker.      */
     /* doubles draw at least 3px, even when w or h < 3. bold needs 6px. */
     int32 mwh = MIN(w, h);
     int32 base_s = MAX(1, DIV(mwh, 8));
     int32 bold = (bd & BDB) && mwh >= 6; /* possibly ignore boldness */
-    int32 s = bold ? MAX(base_s + 1, DIV(3 * base_s, 2)) : base_s;
+    int32 s = bold ? MAX(base_s + 1, DIV(3*base_s, 2)) : base_s;
     int32 w2 = DIV(w - s, 2), h2 = DIV(h - s, 2);
     /* the s-by-s square (x + w2, y + h2, s, s) is the center texel.    */
     /* The base length (per direction till edge) includes this square.  */
