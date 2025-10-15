@@ -313,6 +313,9 @@ xmalloc(int64 len) {
 
 void *
 xrealloc(void *p, int64 len) {
+    if (len <= 0) {
+        die("realloc: len <= 0.\n");
+    }
     if ((p = realloc(p, len)) == NULL) {
         die("realloc: %s\n", strerror(errno));
     }
