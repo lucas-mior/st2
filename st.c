@@ -981,7 +981,7 @@ tty_read(void) {
     int32 written;
 
     /* append read bytes to unprocessed bytes */
-    ret = (int32)read(cmdfd, buf + buflen, (int64)(LENGTH(buf) - buflen));
+    ret = (int32)read(cmdfd, buf + buflen, (size_t)(LENGTH(buf) - buflen));
 
     switch (ret) {
     case 0:
@@ -994,7 +994,7 @@ tty_read(void) {
         buflen -= written;
         /* keep any incomplete UTF-8 byte sequence for the next call */
         if (buflen > 0) {
-            memmove(buf, buf + written, (int64)buflen);
+            memmove(buf, buf + written, (size_t)buflen);
         }
         return (int64)ret;
     }
@@ -1623,7 +1623,7 @@ term_delete_char(int32 n) {
          * https://stackoverflow.com/questions/29844298
          */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], (int64)size * SIZEOF(Glyph));
+        memmove(&line[dst], &line[src], (size_t)size * SIZEOF(Glyph));
     }
     term_clear_region(dst + size, term.cursor.y, term.col - 1, term.cursor.y, 1);
     return;
@@ -1644,7 +1644,7 @@ term_insert_blank(int32 n) {
     size = term.col - dst;
     if (size > 0) { /* otherwise dst would point beyond the array */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], (int64)size * SIZEOF(Glyph));
+        memmove(&line[dst], &line[src], (size_t)size * SIZEOF(Glyph));
     }
     term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, 1);
     return;
@@ -2901,7 +2901,7 @@ term_putc(Rune u) {
             strescseq.buf = xrealloc(strescseq.buf, strescseq.siz);
         }
 
-        memmove(&strescseq.buf[strescseq.len], c, (int64)len);
+        memmove(&strescseq.buf[strescseq.len], c, (size_t)len);
         strescseq.len += (int64)len;
         return;
     }
@@ -2967,7 +2967,7 @@ check_control_code:
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_INSERT) && term.cursor.x + width < term.col) {
-        memmove(gp + width, gp, (int64)(term.col - term.cursor.x - width) * SIZEOF(Glyph));
+        memmove(gp + width, gp, (size_t)(term.col - term.cursor.x - width) * SIZEOF(Glyph));
         gp->mode &= ~ATTR_WIDE;
     }
 
@@ -3165,7 +3165,7 @@ term_resize_alt(int32 col, int32 row) {
     }
     if (i > 0) {
         /* ensure that both src and dst are not NULL */
-        memmove(term.line, term.line + i, (int64)row * SIZEOF(Line));
+        memmove(term.line, term.line + i, (size_t)row * SIZEOF(Line));
         term.cursor.y = row - 1;
     }
     for (i += row; i < term.row; i++) {
@@ -3255,7 +3255,7 @@ term_reflow(int32 col, int32 row) {
         }
         /* get reflowed lines in buf */
         if (col - nx > len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (int64)(len - ox) * SIZEOF(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (size_t)(len - ox) * SIZEOF(Glyph));
             nx += len - ox;
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
                 for (int32 j = nx; j < col; j++) {
@@ -3268,12 +3268,12 @@ term_reflow(int32 col, int32 row) {
             ox = 0;
             oy++;
         } else if (col - nx == len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (int64)(col - nx) * SIZEOF(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (size_t)(col - nx) * SIZEOF(Glyph));
             ox = 0;
             oy++;
             nx = 0;
         } else /* if (col - nx < len - ox) */ {
-            memcpy(&buf[ny][nx], &line[ox], (int64)(col - nx) * SIZEOF(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (size_t)(col - nx) * SIZEOF(Glyph));
             ox += col - nx;
             buf[ny][col - 1].mode |= ATTR_WRAP;
             nx = 0;

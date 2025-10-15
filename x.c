@@ -556,7 +556,7 @@ handler_selection_notify(XEvent *e) {
          */
         repl = data;
         last = data + nitems * (int64)format / 8;
-        while ((repl = memchr(repl, '\n', (int64)(last - repl)))) {
+        while ((repl = memchr(repl, '\n', (size_t)(last - repl)))) {
             *repl++ = '\r';
         }
 
