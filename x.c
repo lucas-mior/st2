@@ -1312,7 +1312,7 @@ x_init(int32 ncols, int32 nrows) {
     }
 
     /* white cursor, black outline */
-    cursor = XCreateFontCursor(x_window.dpy, (uint32)mouse_shape);
+    cursor = XCreateFontCursor(x_window.dpy, (uint32)CONF_MOUSE_SHAPE);
     XDefineCursor(x_window.dpy, x_window.win, cursor);
 
     if (XParseColor(x_window.dpy, x_window.cmap, colorname[mouse_foreground], &xmousefg) == 0) {
