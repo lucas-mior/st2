@@ -613,9 +613,20 @@ int32
 selection_is_selected4(int32 x1, int32 y1, int32 x2, int32 y2) {
     int32 is_selected;
 
-    if (selection.ob.x == -1 || selection.mode == SELECTION_EMPTY
-        || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) || selection.nb.y > y2
-        || selection.ne.y < y1) {
+    if (selection.ob.x == -1) {
+        return 0;
+    }
+    if (selection.mode == SELECTION_EMPTY) {
+        return 0;
+    }
+    if (selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+        return 0;
+    }
+
+    if (selection.nb.y > y2) {
+        return 0;
+    }
+    if (selection.ne.y < y1) {
         return 0;
     }
     if (selection.type == SELECTION_RECTANGULAR) {
