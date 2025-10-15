@@ -173,18 +173,18 @@ index 2478942..2b86d23 100644
  void
 @@ -462,10 +525,11 @@ sel_extend(int col, int row, int type, int done)
  
- 	sel.oe.x = col;
- 	sel.oe.y = row;
+ 	selection.oe.x = col;
+ 	selection.oe.y = row;
 -	sel_normalize();
- 	sel.type = type;
+ 	selection.type = type;
 +	sel_normalize();
  
--	if (oldey != sel.oe.y || oldex != sel.oe.x || oldtype != sel.type || sel.mode == SELECTION_EMPTY)
-+	if (oldey != sel.oe.y || oldex != sel.oe.x ||
-+	    oldtype != sel.type || sel.mode == SELECTION_EMPTY)
- 		tsetdirt(MIN(sel.nb.y, oldsby), MAX(sel.ne.y, oldsey));
+-	if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type || selection.mode == SELECTION_EMPTY)
++	if (oldey != selection.oe.y || oldex != selection.oe.x ||
++	    oldtype != selection.type || selection.mode == SELECTION_EMPTY)
+ 		tsetdirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
  
- 	sel.mode = done ? SELECTION_IDLE : SELECTION_READY;
+ 	selection.mode = done ? SELECTION_IDLE : SELECTION_READY;
 @@ -474,54 +538,62 @@ sel_extend(int col, int row, int type, int done)
  void
  sel_normalize(void)
@@ -192,47 +192,47 @@ index 2478942..2b86d23 100644
 -	int i;
 +    int i;
  
--	if (sel.type == SELECTION_REGULAR && sel.ob.y != sel.oe.y) {
--		sel.nb.x = sel.ob.y < sel.oe.y ? sel.ob.x : sel.oe.x;
--		sel.ne.x = sel.ob.y < sel.oe.y ? sel.oe.x : sel.ob.x;
+-	if (selection.type == SELECTION_REGULAR && selection.ob.y != selection.oe.y) {
+-		selection.nb.x = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
+-		selection.ne.x = selection.ob.y < selection.oe.y ? selection.oe.x : selection.ob.x;
 -	} else {
--		sel.nb.x = MIN(sel.ob.x, sel.oe.x);
--		sel.ne.x = MAX(sel.ob.x, sel.oe.x);
+-		selection.nb.x = MIN(selection.ob.x, selection.oe.x);
+-		selection.ne.x = MAX(selection.ob.x, selection.oe.x);
 -	}
--	sel.nb.y = MIN(sel.ob.y, sel.oe.y);
--	sel.ne.y = MAX(sel.ob.y, sel.oe.y);
-+    if (sel.type == SELECTION_REGULAR && sel.ob.y != sel.oe.y) {
-+        sel.nb.x = sel.ob.y < sel.oe.y ? sel.ob.x : sel.oe.x;
-+        sel.ne.x = sel.ob.y < sel.oe.y ? sel.oe.x : sel.ob.x;
+-	selection.nb.y = MIN(selection.ob.y, selection.oe.y);
+-	selection.ne.y = MAX(selection.ob.y, selection.oe.y);
++    if (selection.type == SELECTION_REGULAR && selection.ob.y != selection.oe.y) {
++        selection.nb.x = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
++        selection.ne.x = selection.ob.y < selection.oe.y ? selection.oe.x : selection.ob.x;
 +    } else {
-+        sel.nb.x = MIN(sel.ob.x, sel.oe.x);
-+        sel.ne.x = MAX(sel.ob.x, sel.oe.x);
++        selection.nb.x = MIN(selection.ob.x, selection.oe.x);
++        selection.ne.x = MAX(selection.ob.x, selection.oe.x);
 +    }
-+    sel.nb.y = MIN(sel.ob.y, sel.oe.y);
-+    sel.ne.y = MAX(sel.ob.y, sel.oe.y);
++    selection.nb.y = MIN(selection.ob.y, selection.oe.y);
++    selection.ne.y = MAX(selection.ob.y, selection.oe.y);
  
--	selsnap(&sel.nb.x, &sel.nb.y, -1);
--	selsnap(&sel.ne.x, &sel.ne.y, +1);
-+    selsnap(&sel.nb.x, &sel.nb.y, -1);
-+    selsnap(&sel.ne.x, &sel.ne.y, +1);
+-	selsnap(&selection.nb.x, &selection.nb.y, -1);
+-	selsnap(&selection.ne.x, &selection.ne.y, +1);
++    selsnap(&selection.nb.x, &selection.nb.y, -1);
++    selsnap(&selection.ne.x, &selection.ne.y, +1);
  
 -	/* expand selection over line breaks */
--	if (sel.type == SELECTION_RECTANGULAR)
+-	if (selection.type == SELECTION_RECTANGULAR)
 -		return;
--	i = tlinelen(sel.nb.y);
--	if (i < sel.nb.x)
--		sel.nb.x = i;
--	if (tlinelen(sel.ne.y) <= sel.ne.x)
--		sel.ne.x = term.col - 1;
+-	i = tlinelen(selection.nb.y);
+-	if (i < selection.nb.x)
+-		selection.nb.x = i;
+-	if (tlinelen(selection.ne.y) <= selection.ne.x)
+-		selection.ne.x = term.col - 1;
 +    /* expand selection over line breaks */
-+    if (sel.type == SELECTION_RECTANGULAR)
++    if (selection.type == SELECTION_RECTANGULAR)
 +        return;
 +
-+    i = tlinelen(TLINE(sel.nb.y));
-+    if (sel.nb.x > i)
-+        sel.nb.x = i;
-+    if (sel.ne.x >= tlinelen(TLINE(sel.ne.y)))
-+        sel.ne.x = term.col - 1;
++    i = tlinelen(TLINE(selection.nb.y));
++    if (selection.nb.x > i)
++        selection.nb.x = i;
++    if (selection.ne.x >= tlinelen(TLINE(selection.ne.y)))
++        selection.ne.x = term.col - 1;
  }
  
 -int
@@ -240,24 +240,24 @@ index 2478942..2b86d23 100644
 +    int
 +regionselected(int x1, int y1, int x2, int y2)
  {
--	if (sel.mode == SELECTION_EMPTY || sel.ob.x == -1 ||
--			sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
+-	if (selection.mode == SELECTION_EMPTY || selection.ob.x == -1 ||
+-			selection.alt != IS_SET(TERM_MODE_ALTSCREEN))
 -		return 0;
-+    if (sel.ob.x == -1 || sel.mode == SELECTION_EMPTY ||
-+            sel.alt != IS_SET(TERM_MODE_ALTSCREEN) || sel.nb.y > y2 || sel.ne.y < y1)
++    if (selection.ob.x == -1 || selection.mode == SELECTION_EMPTY ||
++            selection.alt != IS_SET(TERM_MODE_ALTSCREEN) || selection.nb.y > y2 || selection.ne.y < y1)
 +        return 0;
  
--	if (sel.type == SELECTION_RECTANGULAR)
--		return BETWEEN(y, sel.nb.y, sel.ne.y)
--		    && BETWEEN(x, sel.nb.x, sel.ne.x);
-+    return (sel.type == SELECTION_RECTANGULAR) ? sel.nb.x <= x2 && sel.ne.x >= x1
-+        : (sel.nb.y != y2 || sel.nb.x <= x2) &&
-+        (sel.ne.y != y1 || sel.ne.x >= x1);
+-	if (selection.type == SELECTION_RECTANGULAR)
+-		return BETWEEN(y, selection.nb.y, selection.ne.y)
+-		    && BETWEEN(x, selection.nb.x, selection.ne.x);
++    return (selection.type == SELECTION_RECTANGULAR) ? selection.nb.x <= x2 && selection.ne.x >= x1
++        : (selection.nb.y != y2 || selection.nb.x <= x2) &&
++        (selection.ne.y != y1 || selection.ne.x >= x1);
 +}
  
--	return BETWEEN(y, sel.nb.y, sel.ne.y)
--	    && (y != sel.nb.y || x >= sel.nb.x)
--	    && (y != sel.ne.y || x <= sel.ne.x);
+-	return BETWEEN(y, selection.nb.y, selection.ne.y)
+-	    && (y != selection.nb.y || x >= selection.nb.x)
+-	    && (y != selection.ne.y || x <= selection.ne.x);
 +    int
 +selected(int x, int y)
 +{
@@ -276,7 +276,7 @@ index 2478942..2b86d23 100644
 +	if (!IS_SET(TERM_MODE_ALTSCREEN))
 +		rtop += -term.histf + term.scr, rbot += term.scr;
 +
- 	switch (sel.snap) {
+ 	switch (selection.snap) {
  	case SNAP_WORD:
  		/*
 @@ -536,7 +608,7 @@ selsnap(int *x, int *y, int direction)
@@ -342,17 +342,17 @@ index 2478942..2b86d23 100644
 +	int y, lastx, linelen;
 +	const Glyph *gp, *lgp;
  
--	if (sel.ob.x == -1)
-+	if (sel.ob.x == -1 || sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
+-	if (selection.ob.x == -1)
++	if (selection.ob.x == -1 || selection.alt != IS_SET(TERM_MODE_ALTSCREEN))
  		return NULL;
  
--	bufsize = (term.col+1) * (sel.ne.y-sel.nb.y+1) * UTF_SIZ;
+-	bufsize = (term.col+1) * (selection.ne.y-selection.nb.y+1) * UTF_SIZ;
 -	ptr = str = xmalloc(bufsize);
-+	str = xmalloc((term.col + 1) * (sel.ne.y - sel.nb.y + 1) * UTF_SIZ);
++	str = xmalloc((term.col + 1) * (selection.ne.y - selection.nb.y + 1) * UTF_SIZ);
 +	ptr = str;
  
  	/* append every set & selected glyph to the selection */
- 	for (y = sel.nb.y; y <= sel.ne.y; y++) {
+ 	for (y = selection.nb.y; y <= selection.ne.y; y++) {
 -		if ((linelen = tlinelen(y)) == 0) {
 +		Line line = TLINE(y);
 +
@@ -361,14 +361,14 @@ index 2478942..2b86d23 100644
  			continue;
  		}
  
- 		if (sel.type == SELECTION_RECTANGULAR) {
--			gp = &TLINE(y)[sel.nb.x];
-+			gp = &line[sel.nb.x];
- 			lastx = sel.ne.x;
+ 		if (selection.type == SELECTION_RECTANGULAR) {
+-			gp = &TLINE(y)[selection.nb.x];
++			gp = &line[selection.nb.x];
+ 			lastx = selection.ne.x;
  		} else {
--			gp = &TLINE(y)[sel.nb.y == y ? sel.nb.x : 0];
-+			gp = &line[sel.nb.y == y ? sel.nb.x : 0];
- 			lastx = (sel.ne.y == y) ? sel.ne.x : term.col-1;
+-			gp = &TLINE(y)[selection.nb.y == y ? selection.nb.x : 0];
++			gp = &line[selection.nb.y == y ? selection.nb.x : 0];
+ 			lastx = (selection.ne.y == y) ? selection.ne.x : term.col-1;
  		}
 -		last = &TLINE(y)[MIN(lastx, linelen-1)];
 -		while (last >= gp && last->u == ' ')
@@ -388,9 +388,9 @@ index 2478942..2b86d23 100644
 @@ -636,10 +699,10 @@ get_sel(void)
  		 * FIXME: Fix the computer world.
  		 */
- 		if ((y < sel.ne.y || lastx >= linelen) &&
--		    (!(last->mode & ATTR_WRAP) || sel.type == SELECTION_RECTANGULAR))
-+		    (!(lgp->mode & ATTR_WRAP) || sel.type == SELECTION_RECTANGULAR))
+ 		if ((y < selection.ne.y || lastx >= linelen) &&
+-		    (!(last->mode & ATTR_WRAP) || selection.type == SELECTION_RECTANGULAR))
++		    (!(lgp->mode & ATTR_WRAP) || selection.type == SELECTION_RECTANGULAR))
  			*ptr++ = '\n';
  	}
 -	*ptr = 0;
@@ -400,18 +400,18 @@ index 2478942..2b86d23 100644
  
 @@ -648,9 +711,15 @@ sel_clear(void)
  {
- 	if (sel.ob.x == -1)
+ 	if (selection.ob.x == -1)
  		return;
 +	selremove();
-+	tsetdirt(sel.nb.y, sel.ne.y);
++	tsetdirt(selection.nb.y, selection.ne.y);
 +}
 +
 +void
 +selremove(void)
 +{
- 	sel.mode = SELECTION_IDLE;
- 	sel.ob.x = -1;
--	tsetdirt(sel.nb.y, sel.ne.y);
+ 	selection.mode = SELECTION_IDLE;
+ 	selection.ob.x = -1;
+-	tsetdirt(selection.nb.y, selection.ne.y);
  }
  
  void
@@ -614,7 +614,7 @@ index 2478942..2b86d23 100644
 +        n = term.scr;
 +        term.scr = 0;
 +    }
-+	if (sel.ob.x != -1 && !sel.alt)
++	if (selection.ob.x != -1 && !selection.alt)
 +		selmove(-n); /* negate change in term.scr */
 +	tfulldirt();
  }
@@ -656,7 +656,7 @@ index 2478942..2b86d23 100644
 -		term.line[i] = term.line[i-n];
 -		term.line[i-n] = temp;
 -	}
-+    if (sel.ob.x != -1 && !sel.alt)
++    if (selection.ob.x != -1 && !selection.alt)
 +        selmove(n); /* negate change in term.scr */
 +    tfulldirt();
  
@@ -697,7 +697,7 @@ index 2478942..2b86d23 100644
  
 -	tclearregion(0, orig, term.col-1, orig+n-1);
 -	tsetdirt(orig+n, term.bot);
-+    if (sel.ob.x != -1 && sel.alt == IS_SET(TERM_MODE_ALTSCREEN))
++    if (selection.ob.x != -1 && selection.alt == IS_SET(TERM_MODE_ALTSCREEN))
 +        sel_scroll(top, bot, n);
 +}
  
@@ -749,12 +749,12 @@ index 2478942..2b86d23 100644
 +        term.line[i+n] = temp;
 +    }
 +
-+    if (sel.ob.x != -1 && sel.alt == alt) {
++    if (selection.ob.x != -1 && selection.alt == alt) {
 +        if (!savehist) {
 +            sel_scroll(top, bot, -n);
 +        } else if (s > 0) {
 +            selmove(-s);
-+            if (-term.scr + sel.nb.y < -term.histf)
++            if (-term.scr + selection.nb.y < -term.histf)
 +                selremove();
 +        }
 +    }
@@ -764,34 +764,34 @@ index 2478942..2b86d23 100644
 -sel_scroll(int orig, int n)
 +selmove(int n)
 + {
-+	sel.ob.y += n, sel.nb.y += n;
-+	sel.oe.y += n, sel.ne.y += n;
++	selection.ob.y += n, selection.nb.y += n;
++	selection.oe.y += n, selection.ne.y += n;
 +}
 +
 +void
 +sel_scroll(int top, int bot, int n)
  {
--	if (sel.ob.x == -1 || sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
+-	if (selection.ob.x == -1 || selection.alt != IS_SET(TERM_MODE_ALTSCREEN))
 -		return;
 +    /* turn absolute coordinates into relative */
 +    top += term.scr, bot += term.scr;
  
--	if (BETWEEN(sel.nb.y, orig, term.bot) != BETWEEN(sel.ne.y, orig, term.bot)) {
+-	if (BETWEEN(selection.nb.y, orig, term.bot) != BETWEEN(selection.ne.y, orig, term.bot)) {
 -		sel_clear();
--	} else if (BETWEEN(sel.nb.y, orig, term.bot)) {
--		sel.ob.y += n;
--		sel.oe.y += n;
--		if (sel.ob.y < term.top || sel.ob.y > term.bot ||
--		    sel.oe.y < term.top || sel.oe.y > term.bot) {
+-	} else if (BETWEEN(selection.nb.y, orig, term.bot)) {
+-		selection.ob.y += n;
+-		selection.oe.y += n;
+-		if (selection.ob.y < term.top || selection.ob.y > term.bot ||
+-		    selection.oe.y < term.top || selection.oe.y > term.bot) {
 -			sel_clear();
 -		} else {
 -			sel_normalize();
 -		}
-+    if (BETWEEN(sel.nb.y, top, bot) != BETWEEN(sel.ne.y, top, bot)) {
++    if (BETWEEN(selection.nb.y, top, bot) != BETWEEN(selection.ne.y, top, bot)) {
 +        sel_clear();
-+    } else if (BETWEEN(sel.nb.y, top, bot)) {
++    } else if (BETWEEN(selection.nb.y, top, bot)) {
 +        selmove(n);
-+        if (sel.nb.y < top || sel.ne.y > bot)
++        if (selection.nb.y < top || selection.ne.y > bot)
 +            sel_clear();
  	}
  }
@@ -1246,7 +1246,7 @@ index 2478942..2b86d23 100644
 +        term.scr = i;
 +    } else {
 +        term.scr = 0;
-+        if (sel.ob.x != -1 && !sel.alt)
++        if (selection.ob.x != -1 && !selection.alt)
 +            selmove(-i);
 +    }
 +}
@@ -1346,7 +1346,7 @@ index 2478942..2b86d23 100644
 -		for (bp += tabspaces; bp < term.tabs + col; bp += tabspaces)
 -			*bp = 1;
 +	if (col != term.col) {
-+		if (!sel.alt)
++		if (!selection.alt)
 +			selremove();
 +		treflow(col, row);
 +	} else {
@@ -1407,7 +1407,7 @@ index 2478942..2b86d23 100644
 +        tfulldirt();
 +        return;
 +    }
-+    if (sel.alt)
++    if (selection.alt)
 +        selremove();
 +    /* slide screen up if otherwise cursor would get out of the screen */
 +    for (i = 0; i <= term.c.y - row; i++)

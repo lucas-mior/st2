@@ -113,14 +113,14 @@ index b9f66e7..2478942 100644
 @@ -602,13 +609,13 @@ get_sel(void)
  		}
  
- 		if (sel.type == SELECTION_RECTANGULAR) {
--			gp = &term.line[y][sel.nb.x];
-+			gp = &TLINE(y)[sel.nb.x];
- 			lastx = sel.ne.x;
+ 		if (selection.type == SELECTION_RECTANGULAR) {
+-			gp = &term.line[y][selection.nb.x];
++			gp = &TLINE(y)[selection.nb.x];
+ 			lastx = selection.ne.x;
  		} else {
--			gp = &term.line[y][sel.nb.y == y ? sel.nb.x : 0];
-+			gp = &TLINE(y)[sel.nb.y == y ? sel.nb.x : 0];
- 			lastx = (sel.ne.y == y) ? sel.ne.x : term.col-1;
+-			gp = &term.line[y][selection.nb.y == y ? selection.nb.x : 0];
++			gp = &TLINE(y)[selection.nb.y == y ? selection.nb.x : 0];
+ 			lastx = (selection.ne.y == y) ? selection.ne.x : term.col-1;
  		}
 -		last = &term.line[y][MIN(lastx, linelen-1)];
 +		last = &TLINE(y)[MIN(lastx, linelen-1)];
