@@ -98,7 +98,7 @@ index 2478942..2b86d23 100644
  static void term_set_attr(const int *, int);
  static void term_set_char(Rune, const Glyph *, int, int);
  static void term_set_dirt(int, int);
- static void tsetscroll(int, int);
+ static void term_set_scroll(int, int);
  static void tswapscreen(void);
 +static void tloaddefscreen(int, int);
 +static void tloadaltscreen(int, int);
@@ -1005,7 +1005,7 @@ index 2478942..2b86d23 100644
  }
  
  int32_t
-@@ -1528,7 +1707,7 @@ tsetscroll(int t, int b)
+@@ -1528,7 +1707,7 @@ term_set_scroll(int t, int b)
  void
  term_set_mode(int priv, int set, const int *args, int narg)
  {
@@ -1374,7 +1374,7 @@ index 2478942..2b86d23 100644
 -	term.row = row;
 +	term.col = col, term.row = row;
  	/* reset scrolling region */
--	tsetscroll(0, row-1);
+-	term_set_scroll(0, row-1);
 -	/* make use of the LIMIT in term_move_to */
 -	term_move_to(term.c.x, term.c.y);
 -	/* Clearing both screens (it makes dirty all lines) */
