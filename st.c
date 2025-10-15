@@ -48,7 +48,7 @@
 #define ISCONTROLC1(c) (BETWEEN(c, 0x80, 0x9f))
 #define ISCONTROL(c) (ISCONTROLC0(c) || ISCONTROLC1(c))
 #define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
-#define TLINE(y)                                                                                   \
+#define TERM_LINE(y)                                                                               \
     ((y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTORY_SIZE) % HISTORY_SIZE]   \
                     : term.line[(y) - term.scr])
 
@@ -591,11 +591,11 @@ selection_normalize(void) {
         return;
     }
 
-    len = term_line_len(TLINE(selection.nb.y));
+    len = term_line_len(TERM_LINE(selection.nb.y));
     if (selection.nb.x > len) {
         selection.nb.x = len;
     }
-    if (selection.ne.x >= term_line_len(TLINE(selection.ne.y))) {
+    if (selection.ne.x >= term_line_len(TERM_LINE(selection.ne.y))) {
         selection.ne.x = term.col - 1;
     }
     return;
@@ -642,7 +642,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
          * Snap around if the word wraps around at the end or
          * beginning of a line.
          */
-        prevgp = &TLINE(*y)[*x];
+        prevgp = &TERM_LINE(*y)[*x];
         prevdelim = IS_DELIM(prevgp->rune);
         while (1) {
             newx = *x + direction;
@@ -661,16 +661,16 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
                     yt = newy;
                     xt = newx;
                 }
-                if (!(TLINE(yt)[xt].mode & ATTR_WRAP)) {
+                if (!(TERM_LINE(yt)[xt].mode & ATTR_WRAP)) {
                     break;
                 }
             }
 
-            if (newx >= term_line_len(TLINE(newy))) {
+            if (newx >= term_line_len(TERM_LINE(newy))) {
                 break;
             }
 
-            gp = &TLINE(newy)[newx];
+            gp = &TERM_LINE(newy)[newx];
             delim = IS_DELIM(gp->rune);
             if (!(gp->mode & ATTR_WDUMMY)
                 && (delim != prevdelim || (delim && !(gp->rune == ' ' && prevgp->rune == ' ')))) {
@@ -692,13 +692,13 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
         *x = (direction < 0) ? 0 : term.col - 1;
         if (direction < 0) {
             for (; *y > rtop; *y -= 1) {
-                if (!tiswrapped(TLINE(*y - 1))) {
+                if (!tiswrapped(TERM_LINE(*y - 1))) {
                     break;
                 }
             }
         } else if (direction > 0) {
             for (; *y < rbot; *y += 1) {
-                if (!tiswrapped(TLINE(*y))) {
+                if (!tiswrapped(TERM_LINE(*y))) {
                     break;
                 }
             }
@@ -727,7 +727,7 @@ selection_get(void) {
 
     /* append every set & selected glyph to the selection */
     for (int32 y = selection.nb.y; y <= selection.ne.y; y++) {
-        Line line = TLINE(y);
+        Line line = TERM_LINE(y);
 
         if ((linelen = term_line_len(line)) == 0) {
             *ptr++ = '\n';
@@ -3352,7 +3352,7 @@ draw_region(int32 x1, int32 y1, int32 x2, int32 y2) {
         }
 
         term.dirty[y] = 0;
-        x_draw_line(TLINE(y), x1, y, x2);
+        x_draw_line(TERM_LINE(y), x1, y, x2);
     }
     return;
 }
