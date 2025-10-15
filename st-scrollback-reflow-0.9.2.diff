@@ -1623,4 +1623,4 @@ index 818a6f8..514ec08 100644
 +int tisaltscreen(void);
  void term_resize(int, int);
  void term_set_dirt_attr(int);
- void ttyhangup(void);
+ void tty_hangup(void);
