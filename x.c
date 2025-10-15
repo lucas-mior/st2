@@ -35,9 +35,9 @@
 
 /* macros */
 #define TERM_WINDOW_IS_SET(flag) ((term_window.mode & (flag)) != 0)
-#define TRUERED(x) (((x) & 0xff0000) >> 8)
-#define TRUEGREEN(x) (((x) & 0xff00))
-#define TRUEBLUE(x) (((x) & 0xff) << 8)
+#define TRUERED(x) (ushort)(((x) & 0xff0000) >> 8)
+#define TRUEGREEN(x) (ushort)(((x) & 0xff00))
+#define TRUEBLUE(x) (ushort)(((x) & 0xff) << 8)
 
 typedef XftDraw *Draw;
 typedef XftColor Color;
@@ -1453,7 +1453,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, i
             /* Allocate memory for the new cache entry. */
             if (frclen >= frccap) {
                 frccap += 16;
-                frc = xrealloc(frc, frccap * sizeof(Fontcache));
+                frc = xrealloc(frc, (size_t)frccap * sizeof(Fontcache));
             }
 
             frc[frclen].font = XftFontOpenPattern(x_window.dpy, fontpattern);
@@ -1495,11 +1495,11 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
     /* Fallback on color display for attributes not supported by the font */
     if (base.mode & ATTR_ITALIC && base.mode & ATTR_BOLD) {
         if (draw_context.ibfont.badslant || draw_context.ibfont.badweight) {
-            base.fg = default_attr;
+            base.fg = (int)default_attr;
         }
     } else if ((base.mode & ATTR_ITALIC && draw_context.ifont.badslant) ||
                (base.mode & ATTR_BOLD && draw_context.bfont.badweight)) {
-        base.fg = default_attr;
+        base.fg = (int)default_attr;
     }
 
     if (IS_TRUECOL(base.fg)) {
@@ -1600,13 +1600,13 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
     }
 
     /* Clean up the region we want to draw to. */
-    XftDrawRect(x_window.draw, bg, winx, winy, width, term_window.ch);
+    XftDrawRect(x_window.draw, bg, winx, winy, (uint)width, (uint)term_window.ch);
 
     /* Set the clip region because Xft is sometimes dirty. */
     r.x = 0;
     r.y = 0;
-    r.height = term_window.ch;
-    r.width = width;
+    r.height = (ushort)term_window.ch;
+    r.width = (ushort)width;
     XftDrawSetClipRectangles(x_window.draw, winx, winy, &r, 1);
 
     if (base.mode & ATTR_BOXDRAW) {
@@ -1619,12 +1619,12 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
     /* Render underline and strikethrough. */
     if (base.mode & ATTR_UNDERLINE) {
         XftDrawRect(x_window.draw, fg, winx,
-                    winy + draw_context.font.ascent * char_height_scale + 1, width, 1);
+                    winy + draw_context.font.ascent * char_height_scale + 1, (uint)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
         XftDrawRect(x_window.draw, fg, winx,
-                    winy + 2 * draw_context.font.ascent * char_height_scale / 3, width, 1);
+                    winy + 2 * draw_context.font.ascent * char_height_scale / 3, (uint)width, 1);
     }
 
     /* Reset clip to none. */
@@ -1685,7 +1685,7 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og) {
         case 4: /* Steady Underline */
             XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
                         term_window.vborderpx + (cy + 1) * term_window.ch - cursorthickness,
-                        term_window.cw, cursorthickness);
+                        (uint)term_window.cw, cursorthickness);
             break;
         case 5: /* Blinking bar */
         case 6: /* Steady bar */
