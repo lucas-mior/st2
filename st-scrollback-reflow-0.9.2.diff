@@ -1015,7 +1015,7 @@ index 2478942..2b86d23 100644
  	for (lim = args + narg; args < lim; ++args) {
  		if (priv) {
 @@ -1589,26 +1768,20 @@ term_set_mode(int priv, int set, const int *args, int narg)
- 				xsetmode(set, WIN_MODE_8BIT);
+ 				x_set_mode(set, WIN_MODE_8BIT);
  				break;
  			case 1049: /* swap screen & set/restore cursor as xterm */
 -				if (!allowaltscreen)
@@ -1050,7 +1050,7 @@ index 2478942..2b86d23 100644
 +                term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
  				break;
  			case 2004: /* 2004: bracketed paste mode */
- 				xsetmode(set, WIN_MODE_BRCKTPASTE);
+ 				x_set_mode(set, WIN_MODE_BRCKTPASTE);
 @@ -1659,7 +1832,7 @@ void
  control_seq_intro_handle(void)
  {
