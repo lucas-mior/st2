@@ -154,7 +154,7 @@ index b9f66e7..2478942 100644
 +
 +	if (term.scr > 0) {
 +		term.scr -= n;
-+		selscroll(0, -n);
++		sel_scroll(0, -n);
 +		tfulldirt();
 +	}
 +}
@@ -169,7 +169,7 @@ index b9f66e7..2478942 100644
 +
 +	if (term.scr <= HISTSIZE-n) {
 +		term.scr += n;
-+		selscroll(0, n);
++		sel_scroll(0, n);
 +		tfulldirt();
 +	}
 +}
@@ -196,9 +196,9 @@ index b9f66e7..2478942 100644
  		term.line[i-n] = temp;
  	}
  
--	selscroll(orig, n);
+-	sel_scroll(orig, n);
 +	if (term.scr == 0)
-+		selscroll(orig, n);
++		sel_scroll(orig, n);
  }
  
  void
@@ -227,9 +227,9 @@ index b9f66e7..2478942 100644
  		term.line[i+n] = temp;
  	}
  
--	selscroll(orig, -n);
+-	sel_scroll(orig, -n);
 +	if (term.scr == 0)
-+		selscroll(orig, -n);
++		sel_scroll(orig, -n);
  }
  
  void
