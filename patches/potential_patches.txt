@@ -1,0 +1,11 @@
+62476a2 patch: NET ICON
+01741c1 patch: anysize
+97513ec patch: selectioncolors
+5134863 patch: bold is not bright
+0f8ad51 patch: delkey
+055a8b3 patch: externalpipe-eternal
+dd608d7 patch: externalpipe
+92131b4 patch: font2
+0866f59 patch: alpha
+3000a56 patch: scrollback
+27d807c patch: boxdraw
