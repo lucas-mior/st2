@@ -35,6 +35,11 @@ echo "target=$target"
 ctags --kinds-C=+l+d ./*.h ./*.c 2> /dev/null || true
 vtags.sed tags > .tags.vim 2> /dev/null || true
 
+clang-format -i --style=file:/home/lucas/.config/clangd/clang-format.yaml *.c
+for f in *.c; do
+	sed -Ei 's/(\S+) \* (\S+)/\1*\2/g' "$f"
+done
+
 case "$target" in
     clean)
         set -x
