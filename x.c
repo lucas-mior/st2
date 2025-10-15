@@ -2119,7 +2119,7 @@ run(void) {
          * everything, and if nothing new arrives - we draw.
          * We start with trying to wait CONF_LATENCY_MIN ms. If more content
          * arrives sooner, we retry with shorter and shorter periods,
-         * and eventually draw even without idle after LATENCY_MAX ms.
+         * and eventually draw even without idle after CONF_LATENCY_MAX ms.
          * Typically this results in low latency while interacting,
          * maximum latency intervals during `cat huge.txt`, and perfect
          * sync with periodic updates from animations/key-repeats/etc.
@@ -2129,14 +2129,14 @@ run(void) {
                 trigger = now;
                 drawing = 1;
             }
-            timeout =
-                (LATENCY_MAX - (float)TIMEDIFF(now, trigger)) / LATENCY_MAX * CONF_LATENCY_MIN;
+            timeout = (CONF_LATENCY_MAX - (float)TIMEDIFF(now, trigger)) / CONF_LATENCY_MAX *
+                      CONF_LATENCY_MIN;
             if (timeout > 0) {
                 continue; /* we have time, try to find idle */
             }
         }
 
-        /* idle detected or LATENCY_MAX exhausted -> draw */
+        /* idle detected or CONF_LATENCY_MAX exhausted -> draw */
         timeout = -1;
         if (BLINK_TIMEOUT && term_attr_set(ATTR_BLINK)) {
             timeout = (float)BLINK_TIMEOUT - (float)TIMEDIFF(now, lastblink);
