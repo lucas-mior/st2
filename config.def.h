@@ -75,7 +75,7 @@ static const float CONF_LATENCY_MAX = 33;
  * blinking timeout (set to 0 to disable blinking) for the terminal blinking
  * attribute.
  */
-static uint32 BLINK_TIMEOUT = 800;
+static uint32 CONF_BLINK_TIMEOUT = 800;
 
 /*
  * thickness of underline and bar cursors

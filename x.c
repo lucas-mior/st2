@@ -2141,16 +2141,16 @@ run(void) {
 
         /* idle detected or CONF_LATENCY_MAX exhausted -> draw */
         timeout = -1;
-        if (BLINK_TIMEOUT && term_attr_set(ATTR_BLINK)) {
-            timeout = (float)BLINK_TIMEOUT - (float)TIMEDIFF(now, lastblink);
+        if (CONF_BLINK_TIMEOUT && term_attr_set(ATTR_BLINK)) {
+            timeout = (float)CONF_BLINK_TIMEOUT - (float)TIMEDIFF(now, lastblink);
             if (timeout <= 0) {
-                if (-timeout > (float)BLINK_TIMEOUT) { /* start visible */
+                if (-timeout > (float)CONF_BLINK_TIMEOUT) { /* start visible */
                     term_window.mode |= WIN_MODE_BLINK;
                 }
                 term_window.mode ^= WIN_MODE_BLINK;
                 term_set_dirt_attr(ATTR_BLINK);
                 lastblink = now;
-                timeout = (float)BLINK_TIMEOUT;
+                timeout = (float)CONF_BLINK_TIMEOUT;
             }
         }
 
