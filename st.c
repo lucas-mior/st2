@@ -228,7 +228,7 @@ static void term_scroll_up(int, int, int, int);
 static void term_scroll_down(int, int);
 static void term_reflow(int, int);
 static void rscrolldown(int);
-static void tresizedef(int, int);
+static void term_resize_def(int, int);
 static void tresizealt(int, int);
 static void term_set_attr(const int *, int);
 static void term_set_char(Rune, const Glyph *, int, int);
@@ -1229,7 +1229,7 @@ tloaddefscreen(int clear, int loadcursor) {
         term_cursor(CURSOR_LOAD);
     }
     if (alt) {
-        tresizedef(col, row);
+        term_resize_def(col, row);
     }
 }
 
@@ -2986,12 +2986,12 @@ term_resize(int col, int row) {
     if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         tresizealt(col, row);
     } else {
-        tresizedef(col, row);
+        term_resize_def(col, row);
     }
 }
 
 void
-tresizedef(int col, int row) {
+term_resize_def(int col, int row) {
     /* return if dimensions haven't changed */
     if (term.col == col && term.row == row) {
         term_full_dirt();
