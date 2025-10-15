@@ -1180,7 +1180,7 @@ void
 term_reset(void) {
     tresetcursor();
 
-    memset(term.tabs, 0, term.col * sizeof(*term.tabs));
+    memset(term.tabs, 0, (size_t)term.col * sizeof(*term.tabs));
     for (int i = tabspaces; i < term.col; i += tabspaces) {
         term.tabs[i] = 1;
     }
@@ -1209,17 +1209,18 @@ term_reset(void) {
 void
 term_new(int col, int row) {
     for (int i = 0; i < 2; i++) {
-        term.line = xmalloc(row * sizeof(Line));
+        term.line = xmalloc((size_t)row * sizeof(Line));
         for (int j = 0; j < row; j++) {
-            term.line[j] = xmalloc(col * sizeof(Glyph));
+            term.line[j] = xmalloc((size_t)col * sizeof(Glyph));
         }
-        term.col = col, term.row = row;
+        term.col = col;
+        term.row = row;
         term_swap_screen();
     }
-    term.dirty = xmalloc(row * sizeof(*term.dirty));
-    term.tabs = xmalloc(col * sizeof(*term.tabs));
+    term.dirty = xmalloc((size_t)row * sizeof(*term.dirty));
+    term.tabs = xmalloc((size_t)col * sizeof(*term.tabs));
     for (int i = 0; i < HISTSIZE; i++) {
-        term.hist[i] = xmalloc(col * sizeof(Glyph));
+        term.hist[i] = xmalloc((size_t)col * sizeof(Glyph));
     }
     term_reset();
     return;
@@ -1234,22 +1235,27 @@ term_swap_screen(void) {
     int tmpcol = term.col, tmprow = term.row;
 
     term.line = altline;
-    term.col = altcol, term.row = altrow;
+    term.col = altcol;
+    term.row = altrow;
     altline = tmpline;
-    altcol = tmpcol, altrow = tmprow;
+    altcol = tmpcol;
+    altrow = tmprow;
     term.mode ^= TERM_MODE_ALTSCREEN;
     return;
 }
 
 void
 term_load_def_screen(int clear, int loadcursor) {
-    int col, row, alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    int col = 0;
+    int row = 0;
+    int alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
     if (alt) {
         if (clear) {
             term_clear_region(0, 0, term.col - 1, term.row - 1, 1);
         }
-        col = term.col, row = term.row;
+        col = term.col;
+        row = term.row;
         term_swap_screen();
     }
     if (loadcursor) {
@@ -1269,7 +1275,8 @@ term_load_alt_screen(int clear, int savecursor) {
         term_cursor(CURSOR_SAVE);
     }
     if (def) {
-        col = term.col, row = term.row;
+        col = term.col;
+        row = term.row;
         term_swap_screen();
         term.scr = 0;
         term_resize_alt(col, row);

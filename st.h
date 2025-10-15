@@ -76,8 +76,8 @@ typedef struct {
 	Rune rune;           /* character code */
 	ushort mode;      /* attribute flags */
 	ushort padding;
-	uint32_t fg;      /* foreground  */
-	uint32_t bg;      /* background  */
+	int fg;      /* foreground  */
+	int bg;      /* background  */
 } Glyph;
 
 typedef Glyph *Line;
