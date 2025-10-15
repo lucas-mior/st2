@@ -3199,15 +3199,18 @@ term_reflow(int col, int row) {
         term.line[i] = buf[ny];
     }
     /* fill lines in history buffer and update term.histf */
-    for (/*i = -1 */; ny >= 0 && i >= -HISTSIZE; i--, ny--) {
-        int j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
-        free(term.hist[j]);
-        term.hist[j] = buf[ny];
+    {
+        int k;
+        for (k = -1; ny >= 0 && k >= -HISTSIZE; k--, ny--) {
+            int j = (term.histi + k + 1 + HISTSIZE) % HISTSIZE;
+            free(term.hist[j]);
+            term.hist[j] = buf[ny];
+        }
+        term.histf = -k - 1;
     }
-    term.histf = -i - 1;
     term.scr = MIN(term.scr, term.histf);
     /* handler_configure_notify rest of the history lines */
-    for (/*i = -term.histf - 1 */; i >= -HISTSIZE; i--) {
+    for (int i = -term.histf - 1; i >= -HISTSIZE; i--) {
         int j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
         term.hist[j] = xrealloc(term.hist[j], col * sizeof(Glyph));
     }
