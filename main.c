@@ -147,7 +147,6 @@ static void handler_selection_request(XEvent *);
 static void selection_set(char *, Time);
 static void mouse_select(XEvent *, int32);
 static void mouse_report(XEvent *);
-static char *kmap(KeySym, uint32);
 static int32 match_mask_state(uint32, uint32);
 
 static void usage(void) __attribute__((noreturn));
@@ -2174,66 +2173,11 @@ match_mask_state(uint32 mask, uint32 state) {
     return mask == XK_ANY_MOD || mask == (state & ~CONF_IGNORE_MOD);
 }
 
-char *
-kmap(KeySym k, uint32 state) {
-    int32 i;
-
-    /* Check for mapped keys out of X11 function keys. */
-    for (i = 0; i < LENGTH(CONF_MAPPED_KEYS); i++) {
-        if (CONF_MAPPED_KEYS[i] == k) {
-            break;
-        }
-    }
-    if (i == LENGTH(CONF_MAPPED_KEYS)) {
-        if ((k & 0xFFFF) < 0xFD00) {
-            return NULL;
-        }
-    }
-
-    for (Key *kp = CONF_KEYS; kp < CONF_KEYS + LENGTH(CONF_KEYS); kp += 1) {
-        if (kp->k != k) {
-            continue;
-        }
-
-        if (!match_mask_state(kp->mask, state)) {
-            continue;
-        }
-
-        if (TERM_WINDOW_IS_SET(WIN_MODE_APPKEYPAD)) {
-            if (kp->appkey < 0) {
-                continue;
-            }
-        } else {
-            if (kp->appkey > 0) {
-                continue;
-            }
-        }
-
-        if (TERM_WINDOW_IS_SET(WIN_MODE_NUMLOCK) && kp->appkey == 2) {
-            continue;
-        }
-
-        if (TERM_WINDOW_IS_SET(WIN_MODE_APPCURSOR)) {
-            if (kp->appcursor < 0) {
-                continue;
-            }
-        } else {
-            if (kp->appcursor > 0) {
-                continue;
-            }
-        }
-
-        return kp->s;
-    }
-
-    return NULL;
-}
-
 void
 handler_key_press(XEvent *xevent) {
     XKeyEvent *e = &xevent->xkey;
     KeySym ksym = NoSymbol;
-    char buffer[64], *customkey;
+    char buffer[64], *customkey = NULL;
     int32 len;
     Rune c;
     Status status;
@@ -2261,7 +2205,60 @@ handler_key_press(XEvent *xevent) {
     }
 
     /* 2. custom keys from config.def.h */
-    if ((customkey = kmap(ksym, e->state))) {
+    {
+        int32 i;
+
+        /* Check for mapped keys out of X11 function keys. */
+        for (i = 0; i < LENGTH(CONF_MAPPED_KEYS); i++) {
+            if (CONF_MAPPED_KEYS[i] == ksym) {
+                break;
+            }
+        }
+        if (i == LENGTH(CONF_MAPPED_KEYS)) {
+            if ((ksym & 0xFFFF) < 0xFD00) {
+                goto tried_custom_keys;
+            }
+        }
+
+        for (Key *kp = CONF_KEYS; kp < CONF_KEYS + LENGTH(CONF_KEYS); kp += 1) {
+            if (kp->k != ksym) {
+                continue;
+            }
+
+            if (!match_mask_state(kp->mask, e->state)) {
+                continue;
+            }
+
+            if (TERM_WINDOW_IS_SET(WIN_MODE_APPKEYPAD)) {
+                if (kp->appkey < 0) {
+                    continue;
+                }
+            } else {
+                if (kp->appkey > 0) {
+                    continue;
+                }
+            }
+
+            if (TERM_WINDOW_IS_SET(WIN_MODE_NUMLOCK) && kp->appkey == 2) {
+                continue;
+            }
+
+            if (TERM_WINDOW_IS_SET(WIN_MODE_APPCURSOR)) {
+                if (kp->appcursor < 0) {
+                    continue;
+                }
+            } else {
+                if (kp->appcursor > 0) {
+                    continue;
+                }
+            }
+            customkey = kp->s;
+            goto tried_custom_keys;
+        }
+        customkey = NULL;
+    }
+tried_custom_keys:
+    if (customkey) {
         tty_write(customkey, (int64)strlen(customkey), 1);
         return;
     }
