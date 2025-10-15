@@ -1675,13 +1675,13 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
         g.mode |= ATTR_REVERSE;
-        g.fg = default_cursor;
+        g.fg = CONF_COLOR_INDEX_CURSOR;
         g.bg = CONF_COLOR_INDEX_FONT;
         drawcol = draw_context.col[default_reverse_cursor];
     } else {
         g.fg = CONF_COLOR_INDEX_BACK;
-        g.bg = default_cursor;
-        drawcol = draw_context.col[default_cursor];
+        g.bg = CONF_COLOR_INDEX_CURSOR;
+        drawcol = draw_context.col[CONF_COLOR_INDEX_CURSOR];
     }
 
     /* draw the new one */

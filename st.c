@@ -2273,7 +2273,7 @@ string_handle(void) {
         char *str;
     } osc_table[] = {{CONF_COLOR_INDEX_FONT, "foreground"},
                      {CONF_COLOR_INDEX_BACK, "background"},
-                     {default_cursor, "cursor"}};
+                     {CONF_COLOR_INDEX_CURSOR, "cursor"}};
 
     term.esc &= ~(ESC_STR_END | ESC_STR);
     string_parse();
