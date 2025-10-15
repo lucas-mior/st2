@@ -23,7 +23,7 @@ static char *FONT2[] = {
 	"LiterationMono Nerd Font Mono:pixelsize=18:style=Regular",
 };
 
-static int32 border_pixels = 2;
+static int32 BORDER_PIXELS = 2;
 
 /*
  * What program is execed by st depends of these precedence rules:
