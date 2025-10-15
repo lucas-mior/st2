@@ -192,7 +192,7 @@ index 2478942..2b86d23 100644
 -	int i;
 +    int i;
  
--	if (sel.type == SEL_REGULAR && sel.ob.y != sel.oe.y) {
+-	if (sel.type == SELECTION_REGULAR && sel.ob.y != sel.oe.y) {
 -		sel.nb.x = sel.ob.y < sel.oe.y ? sel.ob.x : sel.oe.x;
 -		sel.ne.x = sel.ob.y < sel.oe.y ? sel.oe.x : sel.ob.x;
 -	} else {
@@ -201,7 +201,7 @@ index 2478942..2b86d23 100644
 -	}
 -	sel.nb.y = MIN(sel.ob.y, sel.oe.y);
 -	sel.ne.y = MAX(sel.ob.y, sel.oe.y);
-+    if (sel.type == SEL_REGULAR && sel.ob.y != sel.oe.y) {
++    if (sel.type == SELECTION_REGULAR && sel.ob.y != sel.oe.y) {
 +        sel.nb.x = sel.ob.y < sel.oe.y ? sel.ob.x : sel.oe.x;
 +        sel.ne.x = sel.ob.y < sel.oe.y ? sel.oe.x : sel.ob.x;
 +    } else {
