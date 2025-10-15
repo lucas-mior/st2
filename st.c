@@ -635,7 +635,8 @@ selection_snap(int *x, int *y, int direction) {
     const Glyph *gp, *prevgp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-        rtop += -term.histf + term.scr, rbot += term.scr;
+        rtop += term.scr - term.histf;
+        rbot += term.scr;
     }
 
     switch (selection.snap) {
