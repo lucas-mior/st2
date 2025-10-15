@@ -368,7 +368,7 @@ utf8_decode(const char *c, Rune *u, int64 clen) {
 
 Rune
 utf8_decode_byte(char c, int64 *i) {
-    for (*i = 0; *i < LEN(utfmask); ++(*i)) {
+    for (*i = 0; *i < LENGTH(utfmask); ++(*i)) {
         if (((uchar)c & utfmask[*i]) == utfbyte[*i]) {
             return (uchar)c & ~utfmask[*i];
         }
@@ -981,7 +981,7 @@ tty_read(void) {
     int32 written;
 
     /* append read bytes to unprocessed bytes */
-    ret = (int32)read(cmdfd, buf + buflen, (int64)(LEN(buf) - buflen));
+    ret = (int32)read(cmdfd, buf + buflen, (int64)(LENGTH(buf) - buflen));
 
     switch (ret) {
     case 0:
@@ -2313,7 +2313,7 @@ string_handle(void) {
                 break;
             }
             p = strescseq.args[1];
-            if ((j = par - 10) < 0 || j >= LEN(osc_table)) {
+            if ((j = par - 10) < 0 || j >= LENGTH(osc_table)) {
                 break; /* shouldn't be possible */
             }
 
@@ -2356,7 +2356,7 @@ string_handle(void) {
             if (narg != 1) {
                 break;
             }
-            if ((j = par - 110) < 0 || j >= LEN(osc_table)) {
+            if ((j = par - 110) < 0 || j >= LENGTH(osc_table)) {
                 break; /* shouldn't be possible */
             }
             if (x_set_color_name(osc_table[j].idx, NULL)) {

@@ -325,7 +325,7 @@ mousesel(XEvent *e, int32 done) {
     int32 type, seltype = SELECTION_REGULAR;
     uint32 state = e->xbutton.state & ~(Button1Mask | force_mouse_mod);
 
-    for (type = 1; type < LEN(selmasks); ++type) {
+    for (type = 1; type < LENGTH(selmasks); ++type) {
         if (match(selmasks[type], state)) {
             seltype = type;
             break;
@@ -429,7 +429,7 @@ mouse_action(XEvent *e, uint32 release) {
     /* ignore Button<N>mask for Button<N> - it's set on release */
     uint32 state = e->xbutton.state & ~button_mask(e->xbutton.button);
 
-    for (mouse_shortcut = mshortcuts; mouse_shortcut < mshortcuts + LEN(mshortcuts);
+    for (mouse_shortcut = mshortcuts; mouse_shortcut < mshortcuts + LENGTH(mshortcuts);
          mouse_shortcut++) {
         if (mouse_shortcut->release == release && mouse_shortcut->button == e->xbutton.button &&
             (match(mouse_shortcut->mod, state) || /* exact or forced */
@@ -771,7 +771,7 @@ x_load_cols(void) {
             XftColorFree(x_window.dpy, x_window.vis, x_window.cmap, cp);
         }
     } else {
-        draw_context.collen = MAX(LEN(colorname), 256);
+        draw_context.collen = MAX(LENGTH(colorname), 256);
         draw_context.col = xmalloc((uint16)draw_context.collen * sizeof(Color));
     }
 
@@ -1912,18 +1912,18 @@ kmap(KeySym k, uint32 state) {
     int32 i;
 
     /* Check for mapped keys out of X11 function keys. */
-    for (i = 0; i < LEN(mappedkeys); i++) {
+    for (i = 0; i < LENGTH(mappedkeys); i++) {
         if (mappedkeys[i] == k) {
             break;
         }
     }
-    if (i == LEN(mappedkeys)) {
+    if (i == LENGTH(mappedkeys)) {
         if ((k & 0xFFFF) < 0xFD00) {
             return NULL;
         }
     }
 
-    for (kp = key; kp < key + LEN(key); kp++) {
+    for (kp = key; kp < key + LENGTH(key); kp++) {
         if (kp->k != k) {
             continue;
         }
@@ -1972,7 +1972,7 @@ handler_key_press(XEvent *ev) {
         len = XLookupString(e, buf, sizeof buf, &ksym, NULL);
     }
     /* 1. shortcuts */
-    for (bp = shortcuts; bp < shortcuts + LEN(shortcuts); bp++) {
+    for (bp = shortcuts; bp < shortcuts + LENGTH(shortcuts); bp++) {
         if (ksym == bp->keysym && match(bp->mod, e->state)) {
             bp->func(&(bp->arg));
             return;
