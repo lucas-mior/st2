@@ -144,7 +144,7 @@ static void handler_prop_notify(XEvent *);
 static void handler_selection_notify(XEvent *);
 static void handler_selection_clear(XEvent *);
 static void handler_selection_request(XEvent *);
-static void setsel(char *, Time);
+static void selection_set(char *, Time);
 static void mouse_select(XEvent *, int32);
 static void mouse_report(XEvent *);
 static char *kmap(KeySym, uint32);
@@ -674,7 +674,7 @@ mouse_select(XEvent *xevent, int32 done) {
     }
     selection_extend(xevent_col(xevent), xevent_row(xevent), seltype, done);
     if (done) {
-        setsel(get_sel(), xevent->xbutton.time);
+        selection_set(get_sel(), xevent->xbutton.time);
     }
     return;
 }
@@ -1001,7 +1001,7 @@ handler_selection_request(XEvent *xevent) {
 }
 
 void
-setsel(char *str, Time t) {
+selection_set(char *str, Time t) {
     if (!str) {
         return;
     }
@@ -1018,7 +1018,7 @@ setsel(char *str, Time t) {
 
 void
 x_set_sel(char *str) {
-    setsel(str, CurrentTime);
+    selection_set(str, CurrentTime);
     return;
 }
 
