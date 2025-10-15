@@ -21,7 +21,7 @@ index 8a16faa..220fc4f 100644
 +++ b/x.c
 @@ -157,6 +157,8 @@ static void x_hints(void);
  static int x_load_color(int, const char *, Color *);
- static int xloadfont(Font *, FcPattern *);
+ static int x_load_font(Font *, FcPattern *);
  static void x_load_fonts(const char *, double);
 +static int xloadsparefont(FcPattern *, int);
 +static void xloadsparefonts(void);
