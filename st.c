@@ -1146,18 +1146,16 @@ term_reset(void)
 void
 term_new(int col, int row)
 {
-    int i, j;
-
-    for (i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
         term.line = xmalloc(row * sizeof(Line));
-        for (j = 0; j < row; j++)
+        for (int j = 0; j < row; j++)
             term.line[j] = xmalloc(col * sizeof(Glyph));
         term.col = col, term.row = row;
         term_swap_screen();
     }
     term.dirty = xmalloc(row * sizeof(*term.dirty));
     term.tabs = xmalloc(col * sizeof(*term.tabs));
-    for (i = 0; i < HISTSIZE; i++)
+    for (int i = 0; i < HISTSIZE; i++)
         term.hist[i] = xmalloc(col * sizeof(Glyph));
     term_reset();
 }
