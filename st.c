@@ -1119,13 +1119,10 @@ tresetcursor(void)
 void
 term_reset(void)
 {
-	uint i;
-    int x, y;
-
 	tresetcursor();
 
 	memset(term.tabs, 0, term.col * sizeof(*term.tabs));
-	for (i = tabspaces; i < term.col; i += tabspaces)
+	for (uint i = tabspaces; i < term.col; i += tabspaces)
 		term.tabs[i] = 1;
 	term.top = 0;
 	term.histf = 0;
@@ -1136,10 +1133,10 @@ term_reset(void)
 	term.charset = 0;
 
     selremove();
-	for (i = 0; i < 2; i++) {
+	for (uint i = 0; i < 2; i++) {
         term_cursor(CURSOR_SAVE); /* reset saved cursor */
-        for (y = 0; y < term.row; y++)
-            for (x = 0; x < term.col; x++)
+        for (int y = 0; y < term.row; y++)
+            for (int x = 0; x < term.col; x++)
                 tclearglyph(&term.line[y][x], 0);
         term_swap_screen();
 	}
