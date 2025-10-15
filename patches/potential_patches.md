@@ -1,6 +1,6 @@
 - NET ICON
 - anysize
-- selectioncolors
+- ~~selectioncolors~~
 - ~~bold is not bright~~
 - ~~delkey~~
 - ~~externalpipe-eternal~~
