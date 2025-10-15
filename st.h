@@ -234,8 +234,9 @@ void x_set_title(char *);
 int32 x_set_cursor(int32);
 void x_set_mode(int32, uint32);
 void x_set_pointer_motion(int32);
-void x_set_sel(char *);
 int32 x_start_draw(void);
 void x_xim_spot(int32, int32);
+
+void selection_set(char *, Time);
 
 #endif /* ST_H */

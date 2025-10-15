@@ -144,7 +144,6 @@ static void handler_prop_notify(XEvent *);
 static void handler_selection_notify(XEvent *);
 static void handler_selection_clear(XEvent *);
 static void handler_selection_request(XEvent *);
-static void selection_set(char *, Time);
 static void mouse_select(XEvent *, int32);
 static void mouse_report(XEvent *);
 static int32 match_mask_state(uint32, uint32);
@@ -1036,12 +1035,6 @@ selection_set(char *string, Time t) {
     if (XGetSelectionOwner(x_window.display, XA_PRIMARY) != x_window.win) {
         selection_clear();
     }
-    return;
-}
-
-void
-x_set_sel(char *string) {
-    selection_set(string, CurrentTime);
     return;
 }
 

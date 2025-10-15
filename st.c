@@ -2340,7 +2340,7 @@ string_handle(void) {
             if (narg > 2 && CONF_ALLOW_WINDOW_OPS) {
                 dec = base64_decode(str_escape_seq.args[2]);
                 if (dec) {
-                    x_set_sel(dec);
+                    selection_set(dec, CurrentTime);
                     x_clipboard_copy();
                 } else {
                     fprintf(stderr, "erresc: invalid base64\n");
