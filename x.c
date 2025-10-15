@@ -1213,7 +1213,8 @@ void
 x_init(int number_cols, int number_rows) {
     XGCValues gcvalues;
     Cursor cursor;
-    Window parent, root;
+    Window parent = 0;
+    Window root;
     pid_t thispid = getpid();
     XColor xmousefg, xmousebg;
     XWindowAttributes attr;
@@ -1283,14 +1284,14 @@ x_init(int number_cols, int number_rows) {
     memset(&gcvalues, 0, sizeof(gcvalues));
     gcvalues.graphics_exposures = False;
     draw_context.graphics = XCreateGC(x_window.dpy, x_window.win, GCGraphicsExposures, &gcvalues);
-    x_window.buf =
-        XCreatePixmap(x_window.dpy, x_window.win, term_window.w, term_window.h, x_window.depth);
+    x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, (uint)term_window.w,
+                                 (uint)term_window.h, (uint)x_window.depth);
     XSetForeground(x_window.dpy, draw_context.graphics, draw_context.col[default_background].pixel);
-    XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, term_window.w,
-                   term_window.h);
+    XFillRectangle(x_window.dpy, x_window.buf, draw_context.graphics, 0, 0, (uint)term_window.w,
+                   (uint)term_window.h);
 
     /* font spec buffer */
-    x_window.specbuf = xmalloc(number_cols * sizeof(GlyphFontSpec));
+    x_window.specbuf = xmalloc((size_t)number_cols * sizeof(GlyphFontSpec));
 
     /* Xft rendering context */
     x_window.draw = XftDrawCreate(x_window.dpy, x_window.buf, x_window.vis, x_window.cmap);
@@ -1301,7 +1302,7 @@ x_init(int number_cols, int number_rows) {
     }
 
     /* white cursor, black outline */
-    cursor = XCreateFontCursor(x_window.dpy, mouse_shape);
+    cursor = XCreateFontCursor(x_window.dpy, (uint)mouse_shape);
     XDefineCursor(x_window.dpy, x_window.win, cursor);
 
     if (XParseColor(x_window.dpy, x_window.cmap, colorname[mouse_foreground], &xmousefg) == 0) {
@@ -1348,12 +1349,14 @@ x_init(int number_cols, int number_rows) {
 
 int
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x, int y) {
-    float winx = term_window.hborderpx + x * term_window.cw,
-          winy = term_window.vborderpx + y * term_window.ch, xp, yp;
+    float winx = (float)(term_window.hborderpx + x * term_window.cw);
+    float winy = (float)(term_window.vborderpx + y * term_window.ch);
+    float xp;
+    float yp;
     ushort mode, prevmode = USHRT_MAX;
     Font *font = &draw_context.font;
     int frcflags = FRC_NORMAL;
-    float runewidth = term_window.cw;
+    float runewidth = (float)term_window.cw;
     Rune rune;
     FT_UInt glyphidx;
     FcResult fcres;
