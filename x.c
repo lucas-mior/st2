@@ -1684,25 +1684,28 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og) {
         case 3: /* Blinking Underline */
         case 4: /* Steady Underline */
             XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                        term_window.vborderpx + (cy + 1) * term_window.ch - cursorthickness,
-                        (uint)term_window.cw, cursorthickness);
+                        term_window.vborderpx + (cy + 1) * term_window.ch - (int)cursorthickness,
+                        (uint)term_window.cw, (uint)cursorthickness);
             break;
         case 5: /* Blinking bar */
         case 6: /* Steady bar */
             XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
                         term_window.vborderpx + cy * term_window.ch, cursorthickness,
-                        term_window.ch);
+                        (uint)term_window.ch);
+            break;
+        default:
+            fprintf(stderr, "x_draw_cursor: Unhandled switch case.\n");
             break;
         }
     } else {
         XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                    term_window.vborderpx + cy * term_window.ch, term_window.cw - 1, 1);
+                    term_window.vborderpx + cy * term_window.ch, (uint)(term_window.cw - 1), 1);
         XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                    term_window.vborderpx + cy * term_window.ch, 1, term_window.ch - 1);
+                    term_window.vborderpx + cy * term_window.ch, 1, (uint)(term_window.ch - 1));
         XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + (cx + 1) * term_window.cw - 1,
-                    term_window.vborderpx + cy * term_window.ch, 1, term_window.ch - 1);
+                    term_window.vborderpx + cy * term_window.ch, 1, (uint)(term_window.ch - 1));
         XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx * term_window.cw,
-                    term_window.vborderpx + (cy + 1) * term_window.ch - 1, term_window.cw, 1);
+                    term_window.vborderpx + (cy + 1) * term_window.ch - 1, (uint)term_window.cw, 1);
     }
 }
 
@@ -1756,7 +1759,7 @@ x_start_draw(void) {
 void
 x_draw_line(Line line, int x1, int y1, int x2) {
     int i, x, ox, numspecs;
-    Glyph base, new;
+    Glyph base = {0}, new = {0};
     XftGlyphFontSpec *specs = x_window.specbuf;
 
     numspecs = x_make_glyph_font_specs(specs, &line[x1], x2 - x1, x1, y1);
