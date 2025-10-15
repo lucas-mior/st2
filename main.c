@@ -320,7 +320,11 @@ run:
             die("could not init fontconfig.\n");
         }
 
-        usedfont = (opt_font == NULL) ? CONF_FONT : opt_font;
+        if (opt_font) {
+            usedfont = opt_font;
+        } else {
+            usedfont = CONF_FONT;
+        }
         x_load_fonts(usedfont, 0);
 
         x_load_spare_fonts();
