@@ -9,14 +9,9 @@ CC=gcc
 VERSION="0.9.3"
 
 CFLAGS="$CFLAGS -Wall -Wextra " #-Werror -ferror-limit=1"
-CFLAGS="$CFLAGS -Wno-unused-parameter -fsanitize=undefined -g"
-CFLAGS="$CFLAGS -Wno-unused-variable -Wno-unused-macros -Wno-type-limits"
-CFLAGS="$CFLAGS -Wno-missing-field-initializers -Wno-unused-function"
-CFLAGS="$CFLAGS -Wno-format-nonliteral -Wno-implicit-fallthrough"
-CFLAGS="$CFLAGS -Wno-shadow -Wno-float-conversion -Wno-implicit-int-float-conversion"
+CFLAGS="$CFLAGS -Wno-type-limits"
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything"
-    CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage -Wno-padded"
 fi
 
 PREFIX="${PREFIX:-/usr/local}"

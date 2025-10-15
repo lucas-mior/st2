@@ -853,9 +853,10 @@ exec_shell(char *cmd, char **args) {
 }
 
 void
-handler_sigchld(int32 a) {
+handler_sigchld(int32 unused) {
     int32 stat;
     pid_t p;
+    (void)unused;
 
     if ((p = waitpid(pid, &stat, WNOHANG)) < 0) {
         die("waiting for pid %hd failed: %s\n", pid, strerror(errno));
@@ -2520,6 +2521,7 @@ user_send_break(const Arg *arg) {
     if (tcsendbreak(cmdfd, 0)) {
         perror("Error sending break");
     }
+    (void)arg;
     return;
 }
 
@@ -2536,18 +2538,21 @@ term_printer(char *s, int64 len) {
 void
 user_toggle_printer(const Arg *arg) {
     term.mode ^= TERM_MODE_PRINT;
+    (void)arg;
     return;
 }
 
 void
 user_print_screen(const Arg *arg) {
     term_dump();
+    (void)arg;
     return;
 }
 
 void
 user_print_sel(const Arg *arg) {
     term_dump_sel();
+    (void)arg;
     return;
 }
 
