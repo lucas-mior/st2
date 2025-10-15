@@ -207,7 +207,7 @@ static void term_dump_line(int);
 static void term_dump(void);
 static void term_clear_region(int, int, int, int, int);
 static void term_cursor(int);
-static void tclearglyph(Glyph *, int);
+static void term_clear_glyph(Glyph *, int);
 static void tresetcursor(void);
 static void term_delete_char(int);
 static void term_delete_line(int);
@@ -1158,7 +1158,7 @@ term_reset(void) {
         term_cursor(CURSOR_SAVE); /* reset saved cursor */
         for (int y = 0; y < term.row; y++) {
             for (int x = 0; x < term.col; x++) {
-                tclearglyph(&term.line[y][x], 0);
+                term_clear_glyph(&term.line[y][x], 0);
             }
         }
         term_swap_screen();
@@ -1331,7 +1331,7 @@ term_scroll_up(int top, int bot, int n, int mode) {
             term.histi = (term.histi + 1) % HISTSIZE;
             temp = term.hist[term.histi];
             for (int j = 0; j < term.col; j++) {
-                tclearglyph(&temp[j], 1);
+                term_clear_glyph(&temp[j], 1);
             }
             term.hist[term.histi] = term.line[i];
             term.line[i] = temp;
@@ -1502,7 +1502,7 @@ term_set_char(Rune u, const Glyph *attr, int x, int y) {
 }
 
 void
-tclearglyph(Glyph *gp, int usecurattr) {
+term_clear_glyph(Glyph *gp, int usecurattr) {
     if (usecurattr) {
         gp->fg = term.cursor.attr.fg;
         gp->bg = term.cursor.attr.bg;
@@ -1524,7 +1524,7 @@ term_clear_region(int x1, int y1, int x2, int y2, int usecurattr) {
     for (int y = y1; y <= y2; y++) {
         term.dirty[y] = 1;
         for (int x = x1; x <= x2; x++) {
-            tclearglyph(&term.line[y][x], usecurattr);
+            term_clear_glyph(&term.line[y][x], usecurattr);
         }
     }
 }
@@ -2991,7 +2991,7 @@ tresizedef(int col, int row) {
         for (int i = term.row; i < row; i++) {
             term.line[i] = xmalloc(col * sizeof(Glyph));
             for (int j = 0; j < col; j++) {
-                tclearglyph(&term.line[i][j], 0);
+                term_clear_glyph(&term.line[i][j], 0);
             }
         }
         /* scroll down as much as height has increased */
@@ -3035,14 +3035,14 @@ tresizealt(int col, int row) {
     for (i = 0; i < MIN(row, term.row); i++) {
         term.line[i] = xrealloc(term.line[i], col * sizeof(Glyph));
         for (int j = term.col; j < col; j++) {
-            tclearglyph(&term.line[i][j], 0);
+            term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* allocate any new number_rows */
     for (/*i = MIN(row, term.row) */; i < row; i++) {
         term.line[i] = xmalloc(col * sizeof(Glyph));
         for (int j = 0; j < col; j++) {
-            tclearglyph(&term.line[i][j], 0);
+            term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* update cursor */
@@ -3108,7 +3108,7 @@ term_reflow(int col, int row) {
             nx += len - ox;
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
                 for (int j = nx; j < col; j++) {
-                    tclearglyph(&buf[ny][j], 0);
+                    term_clear_glyph(&buf[ny][j], 0);
                 }
                 nx = 0;
             } else if (nx > 0) {
@@ -3127,7 +3127,7 @@ term_reflow(int col, int row) {
     } while (oy <= oce);
     if (nx) {
         for (int j = nx; j < col; j++) {
-            tclearglyph(&buf[ny][j], 0);
+            term_clear_glyph(&buf[ny][j], 0);
         }
     }
 
@@ -3157,7 +3157,7 @@ term_reflow(int col, int row) {
     for (i = row - 1; i > nce; i--) {
         term.line[i] = xmalloc(col * sizeof(Glyph));
         for (int j = 0; j < col; j++) {
-            tclearglyph(&term.line[i][j], 0);
+            term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* fill visible area */
