@@ -3206,7 +3206,10 @@ term_reflow(int32 col, int32 row) {
     int32 nce;
     int32 bot;
     int32 scr;
-    int32 ox = 0, oy = -term.histf, nx = 0, ny = -1;
+    int32 ox = 0;
+    int32 oy = -term.histf;
+    int32 nx = 0;
+    int32 ny = -1;
     int32 len = 0;
     int32 cy = -1; /* proxy for new y coordinate of cursor */
     int32 nlines;
