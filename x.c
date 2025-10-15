@@ -1586,6 +1586,12 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 		bg = temp;
 	}
 
+	if (base.mode & ATTR_SELECTED) {
+		bg = &draw_context.col[selectionbg];
+		if (!ignoreselfg)
+			fg = &draw_context.col[selectionfg];
+	}
+
 	if (base.mode & ATTR_BLINK && term_window.mode & WIN_MODE_BLINK)
 		fg = bg;
 
@@ -1656,7 +1662,7 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 
 	/* remove the old cursor */
 	if (selected(ox, oy))
-		og.mode ^= ATTR_REVERSE;
+		og.mode |= ATTR_SELECTED;
 	x_draw_glyph(og, ox, oy);
 
 	if (IS_SET(WIN_MODE_HIDE))
@@ -1669,23 +1675,13 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 
 	if (IS_SET(WIN_MODE_REVERSE)) {
 		g.mode |= ATTR_REVERSE;
+		g.fg = default_cursor;
 		g.bg = default_foreground;
-		if (selected(cx, cy)) {
-			drawcol = draw_context.col[default_cursor];
-			g.fg = default_reverse_cursor;
-		} else {
-			drawcol = draw_context.col[default_reverse_cursor];
-			g.fg = default_cursor;
-		}
+		drawcol = draw_context.col[default_reverse_cursor];
 	} else {
-		if (selected(cx, cy)) {
-			g.fg = default_foreground;
-			g.bg = default_reverse_cursor;
-		} else {
-			g.fg = default_background;
-			g.bg = default_cursor;
-		}
-		drawcol = draw_context.col[g.bg];
+		g.fg = default_background;
+		g.bg = default_cursor;
+		drawcol = draw_context.col[default_cursor];
 	}
 
 	/* draw the new one */
@@ -1798,7 +1794,7 @@ x_draw_line(Line line, int x1, int y1, int x2)
 		if (new.mode == ATTR_WDUMMY)
 			continue;
 		if (selected(x, y1))
-			new.mode ^= ATTR_REVERSE;
+			new.mode |= ATTR_SELECTED;
 		if (i > 0 && ATTRCMP(base, new)) {
 			x_draw_glyph_font_specs(specs, base, i, ox, y1);
 			specs += i;
