@@ -5,7 +5,7 @@ index 2cd740a..40b7d93 100644
 @@ -201,6 +201,8 @@ static Shortcut shortcuts[] = {
  	{ TERMMOD,              XK_Y,           user_sel_paste,       {.i =  0} },
  	{ ShiftMask,            XK_Insert,      user_sel_paste,       {.i =  0} },
- 	{ TERMMOD,              XK_Num_Lock,    toggle_numlock,        {.i =  0} },
+ 	{ TERMMOD,              XK_Num_Lock,    user_toggle_numlock,        {.i =  0} },
 +	{ ShiftMask,            XK_Page_Up,     user_scroll_up,      {.i = -1} },
 +    { ShiftMask,            XK_Page_Down,   user_scroll_down,    {.i = -1} },
  };
