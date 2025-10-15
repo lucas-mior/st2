@@ -123,7 +123,6 @@ void user_send_break(const Arg *);
 void user_toggle_printer(const Arg *);
 
 int32 term_attr_set(int32);
-void term_new(int32, int32);
 int32 tisaltscreen(void);
 void term_resize(int32, int32);
 void term_set_dirt_attr(int32);

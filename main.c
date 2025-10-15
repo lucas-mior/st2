@@ -284,7 +284,22 @@ run:
     XSetLocaleModifiers("");
     CONF_NUMBER_COLS = MAX(CONF_NUMBER_COLS, 1);
     CONF_NUMBER_ROWS = MAX(CONF_NUMBER_ROWS, 1);
-    term_new(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
+
+    for (int32 i = 0; i < 2; i++) {
+        term.line = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(Line));
+        for (int32 j = 0; j < CONF_NUMBER_ROWS; j++) {
+            term.line[j] = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(Glyph));
+        }
+        term.col = CONF_NUMBER_COLS;
+        term.row = CONF_NUMBER_ROWS;
+        term_swap_screen();
+    }
+    term.dirty = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*term.dirty));
+    term.tabs = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(*term.tabs));
+    for (int32 i = 0; i < HISTORY_SIZE; i++) {
+        term.hist[i] = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(Glyph));
+    }
+    term_reset();
 
     {
         XGCValues xgc_values;

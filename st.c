@@ -1230,26 +1230,6 @@ term_reset(void) {
     return;
 }
 
-void
-term_new(int32 col, int32 row) {
-    for (int32 i = 0; i < 2; i++) {
-        term.line = xmalloc((int64)row*SIZEOF(Line));
-        for (int32 j = 0; j < row; j++) {
-            term.line[j] = xmalloc((int64)col*SIZEOF(Glyph));
-        }
-        term.col = col;
-        term.row = row;
-        term_swap_screen();
-    }
-    term.dirty = xmalloc((int64)row*SIZEOF(*term.dirty));
-    term.tabs = xmalloc((int64)col*SIZEOF(*term.tabs));
-    for (int32 i = 0; i < HISTORY_SIZE; i++) {
-        term.hist[i] = xmalloc((int64)col*SIZEOF(Glyph));
-    }
-    term_reset();
-    return;
-}
-
 /* handle it with care */
 void
 term_swap_screen(void) {
