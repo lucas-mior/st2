@@ -1078,10 +1078,8 @@ term_set_dirt(int top, int bot)
 void
 term_set_dirt_attr(int attr)
 {
-	int i, j;
-
-	for (i = 0; i < term.row-1; i++) {
-		for (j = 0; j < term.col-1; j++) {
+	for (int i = 0; i < term.row-1; i++) {
+		for (int j = 0; j < term.col-1; j++) {
 			if (term.line[i][j].mode & attr) {
 				term.dirty[i] = 1;
 				break;
