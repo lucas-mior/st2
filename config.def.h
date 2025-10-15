@@ -196,8 +196,8 @@ int default_foreground = 7;
 int default_background = 0;
 int default_cursor = 256;
 static int default_reverse_cursor = 257;
-int selectionbg = 259;
-int selectionfg = 7;
+static int selectionbg = 259;
+static int selectionfg = 7;
 /* If 0 use selectionfg as foreground in order to have a uniform foreground-color */
 /* Else if 1 keep original foreground-color of each cell => more colors :) */
 static int ignoreselfg = 1;
@@ -272,8 +272,8 @@ static Shortcut shortcuts[] = {
 	{ ControlMask|ShiftMask, XK_B,          user_scroll_down,     {.i = -1} },
 	{ ControlMask|ShiftMask, XK_L,          user_scroll_up,       {.i = +1} },
 	{ ControlMask|ShiftMask, XK_K,          user_scroll_down,     {.i = +1} },
-	{ ControlMask|ShiftMask, XK_N,          user_change_alpha,    {.f = -0.02} },
-	{ ControlMask|ShiftMask, XK_M,          user_change_alpha,    {.f = +0.02} },
+	{ ControlMask|ShiftMask, XK_N,          user_change_alpha,    {.f = -0.02f} },
+	{ ControlMask|ShiftMask, XK_M,          user_change_alpha,    {.f = +0.02f} },
 };
 
 /*
@@ -301,7 +301,7 @@ static Shortcut shortcuts[] = {
  * If you want keys other than the X11 function keys (0xFD00 - 0xFFFF)
  * to be mapped below, add them to this array.
  */
-static KeySym mappedkeys[] = { -1 };
+static KeySym mappedkeys[] = { (KeySym)-1 };
 
 /*
  * State bits to ignore when matching key or button events.  By default,

@@ -124,7 +124,7 @@ static void x_resize(int, int);
 static void x_hints(void);
 static int x_load_color(int, const char *, Color *);
 static int x_load_font(Font *, FcPattern *);
-static void x_load_fonts(const char *, double);
+static void x_load_fonts(const char *, float);
 static int xloadsparefont(FcPattern *, int);
 static void xloadsparefonts(void);
 static void x_unload_font(Font *);
@@ -210,8 +210,8 @@ static Fontcache *frc = NULL;
 static int frclen = 0;
 static int frccap = 0;
 static char *usedfont = NULL;
-static double usedfontsize = 0;
-static double defaultfontsize = 0;
+static float usedfontsize = 0;
+static float defaultfontsize = 0;
 
 static char *opt_class = NULL;
 static char **opt_cmd = NULL;
@@ -341,7 +341,7 @@ void
 mousereport(XEvent *e) {
     int len, btn, code;
     int x = evcol(e), y = evrow(e);
-    int state = e->xbutton.state;
+    int state = (int)e->xbutton.state;
     char buf[40];
     static int ox, oy;
 
@@ -362,7 +362,7 @@ mousereport(XEvent *e) {
             ;
         code = 32;
     } else {
-        btn = e->xbutton.button;
+        btn = (int)e->xbutton.button;
         /* Only buttons 1 through 11 can be encoded */
         if (btn < 1 || btn > 11) {
             return;
@@ -409,7 +409,7 @@ mousereport(XEvent *e) {
         return;
     }
 
-    tty_write(buf, len, 0);
+    tty_write(buf, (size_t)len, 0);
 }
 
 uint
@@ -444,7 +444,7 @@ mouse_action(XEvent *e, uint release) {
 
 void
 handler_button_press(XEvent *e) {
-    int btn = e->xbutton.button;
+    int btn = (int)e->xbutton.button;
     struct timespec now;
     int snap;
 
@@ -963,7 +963,7 @@ x_load_font(Font *f, FcPattern *pattern) {
 }
 
 void
-x_load_fonts(const char *fontstr, double fontsize) {
+x_load_fonts(const char *fontstr, float fontsize) {
     FcPattern *pattern;
     double fontval;
 
