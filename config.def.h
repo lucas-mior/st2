@@ -16,7 +16,7 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *FONT = "Liberation Mono:pixelsize=18:antialias=true:autohint=true";
+static char *CONF_FONT = "Liberation Mono:pixelsize=18:antialias=true:autohint=true";
 /* Spare fonts */
 static char *FONT2[] = {
 	"Noto Color Emoji:pixelsize=18:antialias=true:autohint=true",
