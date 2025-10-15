@@ -2477,11 +2477,9 @@ term_def_tran(char ascii)
 void
 term_dec_test(char c)
 {
-	int x, y;
-
 	if (c == '8') { /* DEC screen alignment test. */
-		for (x = 0; x < term.col; ++x) {
-			for (y = 0; y < term.row; ++y)
+		for (int x = 0; x < term.col; ++x) {
+			for (int y = 0; y < term.row; ++y)
 				term_set_char('E', &term.cursor.attr, x, y);
 		}
 	}
