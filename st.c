@@ -2298,7 +2298,7 @@ string_handle(void) {
             }
             return;
         case 52: /* manipulate selection data */
-            if (narg > 2 && allowwindowops) {
+            if (narg > 2 && ALLOW_WINDOW_OPS) {
                 dec = base64_decode(strescseq.args[2]);
                 if (dec) {
                     x_set_sel(dec);

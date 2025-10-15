@@ -62,7 +62,7 @@ int32 ALLOW_ALT_SCREEN = 1;
 
 /* allow certain non-interactive (insecure) window operations such as:
    setting the clipboard text */
-int32 allowwindowops = 0;
+int32 ALLOW_WINDOW_OPS = 0;
 
 /*
  * draw latency range in ms - from new content/keypress/etc until drawing.
