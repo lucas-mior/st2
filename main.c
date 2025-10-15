@@ -2176,7 +2176,7 @@ match_mask_state(uint32 mask, uint32 state) {
 void
 handler_key_press(XEvent *xevent) {
     XKeyEvent *e = &xevent->xkey;
-    KeySym ksym = NoSymbol;
+    KeySym key_sym = NoSymbol;
     char buffer[64];
     char *custom_key = NULL;
     int32 len;
@@ -2189,17 +2189,17 @@ handler_key_press(XEvent *xevent) {
     }
 
     if (x_window.ime.xic) {
-        len = XmbLookupString(x_window.ime.xic, e, buffer, SIZEOF(buffer), &ksym, &status);
+        len = XmbLookupString(x_window.ime.xic, e, buffer, SIZEOF(buffer), &key_sym, &status);
         if (status == XBufferOverflow) {
             return;
         }
     } else {
-        len = XLookupString(e, buffer, SIZEOF(buffer), &ksym, NULL);
+        len = XLookupString(e, buffer, SIZEOF(buffer), &key_sym, NULL);
     }
     /* 1. CONF_KEYBOARD_SHORTCUTS */
     for (bp = CONF_KEYBOARD_SHORTCUTS;
          bp < CONF_KEYBOARD_SHORTCUTS + LENGTH(CONF_KEYBOARD_SHORTCUTS); bp++) {
-        if (ksym == bp->keysym && match_mask_state(bp->mod, e->state)) {
+        if (key_sym == bp->keysym && match_mask_state(bp->mod, e->state)) {
             bp->func(&(bp->arg));
             return;
         }
@@ -2211,18 +2211,18 @@ handler_key_press(XEvent *xevent) {
 
         /* Check for mapped keys out of X11 function keys. */
         for (i = 0; i < LENGTH(CONF_MAPPED_KEYS); i++) {
-            if (CONF_MAPPED_KEYS[i] == ksym) {
+            if (CONF_MAPPED_KEYS[i] == key_sym) {
                 break;
             }
         }
         if (i == LENGTH(CONF_MAPPED_KEYS)) {
-            if ((ksym & 0xFFFF) < 0xFD00) {
+            if ((key_sym & 0xFFFF) < 0xFD00) {
                 goto tried_custom_keys;
             }
         }
 
         for (Key *kp = CONF_KEYS; kp < CONF_KEYS + LENGTH(CONF_KEYS); kp += 1) {
-            if (kp->k != ksym) {
+            if (kp->k != key_sym) {
                 continue;
             }
 
