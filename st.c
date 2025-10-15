@@ -1021,7 +1021,7 @@ tty_write(const char *s, int64 n, int32 may_echo) {
             next = s + 1;
             tty_write_raw("\r\n", 2);
         } else {
-            next = memchr(s, '\r', n);
+            next = memchr(s, '\r', (size_t)n);
             DEFAULT(next, s + n);
             tty_write_raw(s, (int64)(next - s));
         }
@@ -1063,7 +1063,8 @@ tty_write_raw(const char *s, int64 n) {
              * default of 256. This seems to be a reasonable value
              * for a serial line. Bigger values might clog the I/O.
              */
-            if ((r = write(cmdfd, s, (n < lim) ? n : lim)) < 0) {
+            size_t size = (size_t)((n < lim) ? n : lim);
+            if ((r = write(cmdfd, s, size)) < 0) {
                 goto write_error;
             }
             if (r < (int64)n) {
@@ -1186,7 +1187,7 @@ void
 term_reset(void) {
     tresetcursor();
 
-    memset(term.tabs, 0, (int64)term.col * SIZEOF(*term.tabs));
+    memset(term.tabs, 0, (size_t)term.col * SIZEOF(*term.tabs));
     for (int32 i = tabspaces; i < term.col; i += tabspaces) {
         term.tabs[i] = 1;
     }
@@ -2039,7 +2040,7 @@ control_seq_intro_handle(void) {
             term.tabs[term.cursor.x] = 0;
             break;
         case 3: /* clear all the tabs */
-            memset(term.tabs, 0, (int64)term.col * SIZEOF(*term.tabs));
+            memset(term.tabs, 0, (size_t)term.col * SIZEOF(*term.tabs));
             break;
         default:
             goto unknown;
@@ -3086,7 +3087,7 @@ term_resize(int32 col, int32 row) {
     term.tabs = xrealloc(term.tabs, (int64)col * SIZEOF(*term.tabs));
     if (col > term.col) {
         bp = term.tabs + term.col;
-        memset(bp, 0, SIZEOF(*term.tabs) * (int64)(col - term.col));
+        memset(bp, 0, SIZEOF(*term.tabs) * (size_t)(col - term.col));
         while (--bp > term.tabs && !*bp)
             /* nothing */;
         for (bp += tabspaces; bp < term.tabs + col; bp += tabspaces) {
