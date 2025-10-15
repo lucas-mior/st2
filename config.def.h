@@ -233,7 +233,7 @@ static uint32 CONF_DEFAULT_ATTR = 11;
 
 /*
  * Force mouse select/shortcuts while mask is active (when WIN_MODE_MOUSE is set).
- * Note that if you want to use ShiftMask with selmasks, set this to an other
+ * Note that if you want to use ShiftMask with CONF_SELECTION_MASKS, set this to an other
  * modifier, set to 0 to not use it.
  */
 static uint32 CONF_FORCE_MOUSE_MOD = ShiftMask;
@@ -533,7 +533,7 @@ static Key key[] = {
  * ButtonRelease and MotionNotify.
  * If no match is found, regular selection is used.
  */
-static uint32 selmasks[] = {
+static uint32 CONF_SELECTION_MASKS[] = {
 	[SELECTION_RECTANGULAR] = Mod1Mask,
 };
 

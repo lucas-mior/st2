@@ -327,8 +327,8 @@ mousesel(XEvent *e, int32 done) {
     int32 type, seltype = SELECTION_REGULAR;
     uint32 state = e->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
 
-    for (type = 1; type < LENGTH(selmasks); ++type) {
-        if (match(selmasks[type], state)) {
+    for (type = 1; type < LENGTH(CONF_SELECTION_MASKS); ++type) {
+        if (match(CONF_SELECTION_MASKS[type], state)) {
             seltype = type;
             break;
         }
