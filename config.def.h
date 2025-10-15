@@ -53,7 +53,7 @@ wchar_t *CONF_WORD_DELIMITERS = L" ";
 
 /* selection timeouts (in milliseconds) */
 static const uint32 CONF_DOUBLE_CLICK_TIMEOUT = 300;
-static const uint32 TRIPLE_CLICK_TIMEOUT = 600;
+static const uint32 CONF_TRIPLE_CLICK_TIMEOUT = 600;
 
 /* alt screens */
 int32 CONF_ALLOW_ALT_SCREEN = 1;
