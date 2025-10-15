@@ -512,7 +512,7 @@ diff --git a/x.c b/x.c
 index 2a3bd38..bf6bbf9 100644
 --- a/x.c
 +++ b/x.c
-@@ -1237,6 +1237,8 @@ xinit(int cols, int rows)
+@@ -1237,6 +1237,8 @@ xinit(int number_cols, int rows)
  	xsel.xtarget = XInternAtom(xw.dpy, "UTF8_STRING", 0);
  	if (xsel.xtarget == None)
  		xsel.xtarget = XA_STRING;
