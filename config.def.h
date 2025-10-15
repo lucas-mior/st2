@@ -30,10 +30,10 @@ static int32 CONF_BORDER_PIXELS = 2;
  * 1: program passed with -e
  * 2: scroll and/or utmp
  * 3: SHELL environment variable
- * 4: value of shell in /etc/passwd
- * 5: value of shell in config.def.h
+ * 4: value of CONF_SHELl in /etc/passwd
+ * 5: value of CONF_SHELl in config.def.h
  */
-static char *shell = "/bin/sh";
+static char *CONF_SHELl = "/bin/sh";
 char *utmp = NULL;
 /* scroll program: to enable use a string like "scroll" */
 char *scroll = NULL;

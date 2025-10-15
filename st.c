@@ -988,7 +988,7 @@ tty_read(void) {
     case 0:
         exit(0);
     case -1:
-        die("couldn't read from shell: %s\n", strerror(errno));
+        die("couldn't read from CONF_SHELl: %s\n", strerror(errno));
     default:
         buflen += ret;
         written = term_write(buf, buflen, 0);
@@ -1111,7 +1111,7 @@ tty_resize(int32 tty_width, int32 tty_height) {
 
 void
 tty_hangup(void) {
-    /* Send SIGHUP to shell */
+    /* Send SIGHUP to CONF_SHELl */
     kill(pid, SIGHUP);
     return;
 }
