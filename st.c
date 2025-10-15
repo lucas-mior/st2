@@ -132,7 +132,8 @@ typedef struct {
      * oe – original coordinates of the end of the selection
      */
     struct {
-        int x, y;
+        int x;
+        int y;
     } nb, ne, ob, oe;
 
     int alt;
@@ -329,7 +330,8 @@ xstrdup(const char *s) {
 
 size_t
 utf8_decode(const char *c, Rune *u, size_t clen) {
-    size_t len, type;
+    size_t len;
+    size_t type;
     Rune udecoded;
 
     *u = UTF_INVALID;
@@ -534,7 +536,11 @@ selection_start(int col, int row, int snap) {
 
 void
 selection_extend(int col, int row, int type, int done) {
-    int oldey, oldex, oldsby, oldsey, oldtype;
+    int oldey;
+    int oldex;
+    int oldsby;
+    int oldsey;
+    int oldtype;
 
     if (selection.mode == SELECTION_IDLE) {
         return;
@@ -615,9 +621,13 @@ selected(int x, int y) {
 
 void
 selection_snap(int *x, int *y, int direction) {
-    int newx, newy, xt, yt;
+    int newx;
+    int newy;
+    int xt;
+    int yt;
     int rtop = 0, rbot = term.row - 1;
-    int delim, prevdelim;
+    int delim;
+    int prevdelim;
     const Glyph *gp, *prevgp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -696,7 +706,8 @@ selection_snap(int *x, int *y, int direction) {
 char *
 get_sel(void) {
     char *str, *ptr;
-    int lastx, linelen;
+    int lastx;
+    int linelen;
     const Glyph *gp, *lgp;
 
     if (selection.ob.x == -1 || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -852,7 +863,8 @@ handler_sigchld(int a) {
 void
 stty(char **args) {
     char cmd[_POSIX_ARG_MAX], *q, *s;
-    size_t n, siz;
+    size_t n;
+    size_t siz;
 
     if ((n = strlen(stty_args)) > sizeof(cmd) - 1) {
         die("incorrect stty parameters\n");
@@ -877,7 +889,8 @@ stty(char **args) {
 
 int
 tty_new(const char *line, char *cmd, const char *out, char **args) {
-    int m, s;
+    int m;
+    int s;
 
     if (out) {
         term.mode |= TERM_MODE_PRINT;
@@ -943,7 +956,8 @@ size_t
 tty_read(void) {
     static char buf[BUFSIZ];
     static int buflen = 0;
-    int ret, written;
+    int ret;
+    int written;
 
     /* append read bytes to unprocessed bytes */
     ret = read(cmdfd, buf + buflen, LEN(buf) - buflen);
@@ -997,7 +1011,8 @@ tty_write(const char *s, size_t n, int may_echo) {
 
 void
 tty_write_raw(const char *s, size_t n) {
-    fd_set wfd, rfd;
+    fd_set wfd;
+    fd_set rfd;
     ssize_t r;
     size_t lim = 256;
 
@@ -1446,7 +1461,8 @@ term_move_abs_to(int x, int y) {
 
 void
 term_move_to(int x, int y) {
-    int miny, maxy;
+    int miny;
+    int maxy;
 
     if (term.cursor.state & CURSOR_ORIGIN) {
         miny = term.top;
@@ -1531,7 +1547,9 @@ term_clear_region(int x1, int y1, int x2, int y2, int usecurattr) {
 
 void
 term_delete_char(int n) {
-    int src, dst, size;
+    int src;
+    int dst;
+    int size;
     Line line;
 
     if (n <= 0) {
@@ -1554,7 +1572,9 @@ term_delete_char(int n) {
 
 void
 term_insert_blank(int n) {
-    int src, dst, size;
+    int src;
+    int dst;
+    int size;
     Line line;
 
     if (n <= 0) {
@@ -1587,7 +1607,9 @@ term_delete_line(int n) {
 int32_t
 term_def_color(const int *attr, int *npar, int l) {
     int32_t idx = -1;
-    uint r, g, b;
+    uint r;
+    uint g;
+    uint b;
 
     switch (attr[*npar + 1]) {
     case 2: /* direct color in RGB space */
@@ -1871,7 +1893,8 @@ term_set_mode(int priv, int set, const int *args, int narg) {
 void
 control_seq_intro_handle(void) {
     char buf[40];
-    int n, x;
+    int n;
+    int x;
 
     switch (csiescseq.mode[0]) {
     default:
@@ -2164,7 +2187,9 @@ osc_color_response(int num, int index, int is_osc4) {
 void
 string_handle(void) {
     char *p = NULL, *dec;
-    int j, narg, par;
+    int j;
+    int narg;
+    int par;
     const struct {
         int idx;
         char *str;
@@ -2310,7 +2335,8 @@ externalpipe(const Arg *arg) {
     char buf[UTF_SIZ];
     void (*oldsigpipe)(int);
     Glyph *bp, *end;
-    int lastpos, newline;
+    int lastpos;
+    int newline;
 
     if (pipe(to) == -1) {
         return;
@@ -2713,7 +2739,8 @@ void
 term_putc(Rune u) {
     char c[UTF_SIZ];
     int control;
-    int width, len;
+    int width;
+    int len;
     Glyph *gp;
 
     control = ISCONTROL(u);
@@ -3063,7 +3090,10 @@ tresizealt(int col, int row) {
 void
 term_reflow(int col, int row) {
     int i;
-    int oce, nce, bot, scr;
+    int oce;
+    int nce;
+    int bot;
+    int scr;
     int ox = 0, oy = -term.histf, nx = 0, ny = -1, len;
     int cy = -1; /* proxy for new y coordinate of cursor */
     int nlines;
