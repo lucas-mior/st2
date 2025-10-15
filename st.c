@@ -643,7 +643,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
          */
         prevgp = &TLINE(*y)[*x];
         prevdelim = ISDELIM(prevgp->rune);
-        for (;;) {
+        while (1) {
             newx = *x + direction;
             newy = *y;
             if (!BETWEEN(newx, 0, term.col - 1)) {
