@@ -4,14 +4,15 @@
 
 target="${1:-build}"
 CC=${CC:-cc}
-CC=gcc
+CC=clang
 
 VERSION="0.9.3"
 
 CFLAGS="$CFLAGS -Wall -Wextra " #-Werror -ferror-limit=1"
-CFLAGS="$CFLAGS -Wno-type-limits"
+CFLAGS="$CFLAGS -Wno-type-limits -Wno-implicit-fallthrough"
 if [ "$CC" = "clang" ]; then
-    CFLAGS="$CFLAGS -Weverything"
+    CFLAGS="$CFLAGS -Weverything -Wno-padded -Wno-format-nonliteral"
+    CFLAGS="$CFLAGS -Wno-float-conversion"
 fi
 
 PREFIX="${PREFIX:-/usr/local}"

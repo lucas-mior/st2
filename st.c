@@ -3340,8 +3340,8 @@ term_reflow(int32 col, int32 row) {
     }
     term.scr = MIN(term.scr, term.histf);
     /* handler_configure_notify rest of the history lines */
-    for (int32 i = -term.histf - 1; i >= -HISTSIZE; i--) {
-        int32 j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
+    for (int32 k = -term.histf - 1; k >= -HISTSIZE; k--) {
+        int32 j = (term.histi + k + 1 + HISTSIZE) % HISTSIZE;
         term.hist[j] = xrealloc(term.hist[j], (int64)col * SIZEOF(Glyph));
     }
     free(buf);

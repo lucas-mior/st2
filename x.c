@@ -1225,7 +1225,7 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
 }
 
 void
-x_init(int32 number_cols, int32 number_rows) {
+x_init(int32 ncols, int32 nrows) {
     XGCValues gcvalues;
     Cursor cursor;
     Window parent = 0;
@@ -1267,8 +1267,8 @@ x_init(int32 number_cols, int32 number_rows) {
     x_load_cols();
 
     /* adjust fixed window geometry */
-    term_window.w = 2 * term_window.hborderpx + 2 * border_pixels + number_cols * term_window.cw;
-    term_window.h = 2 * term_window.vborderpx + 2 * border_pixels + number_rows * term_window.ch;
+    term_window.w = 2 * term_window.hborderpx + 2 * border_pixels + ncols * term_window.cw;
+    term_window.h = 2 * term_window.vborderpx + 2 * border_pixels + nrows * term_window.ch;
     if (x_window.gm & XNegative) {
         x_window.l += DisplayWidth(x_window.dpy, x_window.scr) - term_window.w - 2;
     }
@@ -1303,7 +1303,7 @@ x_init(int32 number_cols, int32 number_rows) {
                    (uint32)term_window.h);
 
     /* font spec buffer */
-    x_window.specbuf = xmalloc((int64)number_cols * SIZEOF(GlyphFontSpec));
+    x_window.specbuf = xmalloc((int64)ncols * SIZEOF(GlyphFontSpec));
 
     /* Xft rendering context */
     x_window.draw = XftDrawCreate(x_window.dpy, x_window.buf, x_window.vis, x_window.cmap);
