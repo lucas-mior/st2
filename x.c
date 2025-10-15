@@ -1366,7 +1366,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
     uint16 mode, prevmode = USHRT_MAX;
     Font *font_local = &draw_context.font;
     int32 frcflags = FRC_NORMAL;
-    float runewidth = (float)term_window.cw;
+    int32 runewidth = term_window.cw;
     Rune rune;
     FT_UInt glyphidx;
     FcResult fcres;
@@ -1392,7 +1392,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
             prevmode = mode;
             font_local = &draw_context.font;
             frcflags = FRC_NORMAL;
-            runewidth = term_window.cw * ((mode & ATTR_WIDE) ? 2.0f : 1.0f);
+            runewidth = term_window.cw * ((mode & ATTR_WIDE) ? 2 : 1);
             if ((mode & ATTR_ITALIC) && (mode & ATTR_BOLD)) {
                 font_local = &draw_context.ibfont;
                 frcflags = FRC_ITALICBOLD;
