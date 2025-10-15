@@ -127,7 +127,7 @@ static void x_unload_font(Font *);
 static void x_unload_fonts(void);
 static void x_setenv(void);
 static void x_set_urgency(int32);
-static int32 evcol(XEvent *);
+static int32 xevent_col(XEvent *);
 static int32 evrow(XEvent *);
 
 static void handler_expose(XEvent *);
@@ -314,7 +314,7 @@ tty_send(const Arg *arg) {
 }
 
 int32
-evcol(XEvent *e) {
+xevent_col(XEvent *e) {
     int32 x = e->xbutton.x - term_window.hborderpx;
     LIMIT(x, 0, term_window.tty_width - 1);
     return x / term_window.cw;
@@ -338,7 +338,7 @@ mousesel(XEvent *e, int32 done) {
             break;
         }
     }
-    selection_extend(evcol(e), evrow(e), seltype, done);
+    selection_extend(xevent_col(e), evrow(e), seltype, done);
     if (done) {
         setsel(get_sel(), e->xbutton.time);
     }
@@ -348,7 +348,7 @@ mousesel(XEvent *e, int32 done) {
 void
 mousereport(XEvent *e) {
     int32 len, btn, code;
-    int32 x = evcol(e), y = evrow(e);
+    int32 x = xevent_col(e), y = evrow(e);
     int32 state = (int32)e->xbutton.state;
     char buf[40];
     static int32 ox, oy;
@@ -487,7 +487,7 @@ handler_button_press(XEvent *e) {
         xsel.tclick2 = xsel.tclick1;
         xsel.tclick1 = now;
 
-        selection_start(evcol(e), evrow(e), snap);
+        selection_start(xevent_col(e), evrow(e), snap);
     }
     return;
 }
