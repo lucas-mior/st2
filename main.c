@@ -2176,7 +2176,6 @@ match_mask_state(uint32 mask, uint32 state) {
 
 char *
 kmap(KeySym k, uint32 state) {
-    Key *kp;
     int32 i;
 
     /* Check for mapped keys out of X11 function keys. */
@@ -2191,7 +2190,7 @@ kmap(KeySym k, uint32 state) {
         }
     }
 
-    for (kp = CONF_KEYS; kp < CONF_KEYS + LENGTH(CONF_KEYS); kp++) {
+    for (Key *kp = CONF_KEYS; kp < CONF_KEYS + LENGTH(CONF_KEYS); kp++) {
         if (kp->k != k) {
             continue;
         }
