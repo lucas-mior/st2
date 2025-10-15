@@ -4,11 +4,11 @@
 
 target="${1:-build}"
 CC=${CC:-cc}
-CC=gcc
+CC=clang
 
 VERSION="0.9.3"
 
-CFLAGS="$CFLAGS " #-Wall -Wextra -Werror -fmax-errors=1"
+CFLAGS="$CFLAGS -Wall -Wextra "  #-Werror -fmax-errors=1"
 CFLAGS="$CFLAGS -Wno-unused-parameter -fsanitize=undefined -g"
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything"
