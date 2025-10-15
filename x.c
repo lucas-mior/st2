@@ -26,32 +26,6 @@ char *argv0;
 #include "boxdraw.c"
 
 /* types used in config.def.h */
-typedef struct {
-    uint mod;
-    KeySym keysym;
-    void (*func)(const Arg *);
-    const Arg arg;
-} Shortcut;
-
-typedef struct {
-    KeySym k;
-    uint mask;
-    char *s;
-    /* three-valued logic variables: 0 indifferent, 1 on, -1 off */
-    signed char appkey;    /* application keypad */
-    signed char appcursor; /* application cursor */
-} Key;
-
-/* function definitions used in config.def.h */
-static void user_clipboard_copy(const Arg *);
-static void user_clipboard_paste(const Arg *);
-static void user_toggle_numlock(const Arg *);
-static void user_selection_paste(const Arg *);
-static void user_change_alpha(const Arg *);
-static void user_zoom(const Arg *);
-static void zoom_abs(const Arg *);
-static void user_zoom_reset(const Arg *);
-static void tty_send(const Arg *);
 
 /* config.def.h for applying patches and the configuration. */
 #include "config.def.h"

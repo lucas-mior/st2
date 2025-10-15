@@ -3,8 +3,8 @@
 #ifndef CONFIG_DEF_H
 #define CONFIG_DEF_H
 
-#include <stdlib.h>
 #include <stdint.h>
+#include <limits.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 #include <X11/X.h>
