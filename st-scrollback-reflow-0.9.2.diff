@@ -106,7 +106,7 @@ index 2478942..2b86d23 100644
  static int twrite(const char *, int, int);
  static void tfulldirt(void);
 @@ -212,7 +243,10 @@ static void tstrsequence(uchar);
- static void drawregion(int, int, int, int);
+ static void draw_region(int, int, int, int);
  
  static void selnormalize(void);
 -static void selscroll(int, int);
@@ -1572,7 +1572,7 @@ index 2478942..2b86d23 100644
 @@ -2728,9 +3099,8 @@ draw(void)
  		cx--;
  
- 	drawregion(0, 0, term.col, term.row);
+ 	draw_region(0, 0, term.col, term.row);
 -	if (term.scr == 0)
 -		xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
 -				term.ocx, term.ocy, term.line[term.ocy][term.ocx]);

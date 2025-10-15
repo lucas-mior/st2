@@ -315,7 +315,7 @@ index b9f66e7..2478942 100644
  	/* resize each row to new width, zero-pad if needed */
  	for (i = 0; i < minrow; i++) {
  		term.line[i] = xrealloc(term.line[i], col * sizeof(Glyph));
-@@ -2637,7 +2707,7 @@ drawregion(int x1, int y1, int x2, int y2)
+@@ -2637,7 +2707,7 @@ draw_region(int x1, int y1, int x2, int y2)
  			continue;
  
  		term.dirty[y] = 0;
@@ -327,7 +327,7 @@ index b9f66e7..2478942 100644
 @@ -2658,8 +2728,9 @@ draw(void)
  		cx--;
  
- 	drawregion(0, 0, term.col, term.row);
+ 	draw_region(0, 0, term.col, term.row);
 -	xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
 -			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
 +	if (term.scr == 0)
