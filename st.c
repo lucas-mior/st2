@@ -207,7 +207,7 @@ static void term_dump(void);
 static void term_clear_region(int32, int32, int32, int32, int32);
 static void term_cursor(int32);
 static void term_clear_glyph(Glyph *, int32);
-static void tresetcursor(void);
+static void term_reset_cursor(void);
 static void term_delete_char(int32);
 static void term_delete_line(int32);
 static void term_insert_blank(int32);
@@ -1161,7 +1161,7 @@ term_cursor(int32 mode) {
 }
 
 void
-tresetcursor(void) {
+term_reset_cursor(void) {
     term.cursor = (TCursor){
         .attr = (Glyph){
 			.mode = ATTR_NULL,
@@ -1176,7 +1176,7 @@ tresetcursor(void) {
 
 void
 term_reset(void) {
-    tresetcursor();
+    term_reset_cursor();
 
     memset(term.tabs, 0, (size_t)term.col * SIZEOF(*term.tabs));
     for (int32 i = CONF_TAB_NSPACES; i < term.col; i += CONF_TAB_NSPACES) {
