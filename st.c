@@ -2433,6 +2433,8 @@ externalpipe(const Arg *arg) {
         fprintf(stderr, "st: execvp %s\n", argv[0]);
         perror("failed");
         exit(0);
+    default:
+        break;
     }
 
     close(to[0]);
@@ -2482,7 +2484,7 @@ string_dump(void) {
             putc('\n', stderr);
             return;
         } else if (isprint(c)) {
-            putc(c, stderr);
+            putc((int)c, stderr);
         } else if (c == '\n') {
             fprintf(stderr, "(\\n)");
         } else if (c == '\r') {
@@ -2555,7 +2557,7 @@ term_dump_sel(void) {
 
 void
 term_dump_line(int n) {
-    char str[(term.col + 1) * UTF_SIZ];
+    char *str = xmalloc((size_t)((term.col + 1) * UTF_SIZ) * sizeof(*str));
     term_printer(str, tgetline(str, &term.line[n][0]));
     return;
 }
@@ -2606,7 +2608,7 @@ term_def_tran(char ascii) {
     if ((p = strchr(cs, ascii)) == NULL) {
         fprintf(stderr, "esc unhandled charset: ESC ( %c\n", ascii);
     } else {
-        term.trantbl[term.icharset] = vcs[p - cs];
+        term.trantbl[term.icharset] = (char)vcs[p - cs];
     }
     return;
 }
@@ -2638,9 +2640,12 @@ term_str_sequence(uchar c) {
     case 0x9d: /* OSC -- Operating System Command */
         c = ']';
         break;
+    default:
+        fprintf(stderr, "term_str_sequence: unhandled switch case.\n");
+        break;
     }
     string_reset();
-    strescseq.type = c;
+    strescseq.type = (char)c;
     term.esc |= ESC_STR;
     return;
 }
@@ -2736,6 +2741,9 @@ term_control_code(uchar ascii) {
     case 0x9f: /* APC -- Application Program Command */
         term_str_sequence(ascii);
         return;
+    default:
+        fprintf(stderr, "term_control_code: unhandled switch case.\n");
+        break;
     }
     /* only CAN, SUB, \a and C1 chars interrupt a sequence */
     term.esc &= ~(ESC_STR_END | ESC_STR);
@@ -2840,17 +2848,17 @@ term_putc(Rune u) {
 
     control = ISCONTROL(u);
     if (u < 127 || !TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
-        c[0] = u;
+        c[0] = (char)u;
         width = len = 1;
     } else {
         len = utf8_encode(u, c);
-        if (!control && (width = wcwidth(u)) == -1) {
+        if (!control && (width = wcwidth((wchar_t)u)) == -1) {
             width = 1;
         }
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_PRINT)) {
-        term_printer(c, len);
+        term_printer(c, (ulong)len);
     }
 
     /*
@@ -2866,7 +2874,7 @@ term_putc(Rune u) {
             goto check_control_code;
         }
 
-        if (strescseq.len + len >= strescseq.siz) {
+        if (strescseq.len + (ulong)len >= strescseq.siz) {
             /*
              * Here is a bug in terminals. If the user never sends
              * some code to stop the str or esc command, then st
@@ -2887,8 +2895,8 @@ term_putc(Rune u) {
             strescseq.buf = xrealloc(strescseq.buf, strescseq.siz);
         }
 
-        memmove(&strescseq.buf[strescseq.len], c, len);
-        strescseq.len += len;
+        memmove(&strescseq.buf[strescseq.len], c, (size_t)len);
+        strescseq.len += (size_t)len;
         return;
     }
 
@@ -2903,7 +2911,7 @@ check_control_code:
         if (TERM_MODE_IS_SET(TERM_MODE_UTF8) && ISCONTROLC1(u)) {
             return;
         }
-        term_control_code(u);
+        term_control_code((uchar)u);
         /*
          * control codes are not shown ever
          */
