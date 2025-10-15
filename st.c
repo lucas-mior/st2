@@ -3304,6 +3304,7 @@ term_reflow(int32 col, int32 row) {
             nx = 0;
         }
     } while (oy <= oce);
+
     if (nx) {
         for (int32 j = nx; j < col; j += 1) {
             term_clear_glyph(&buffer[ny][j], 0);
