@@ -785,12 +785,12 @@ x_load_cols(void) {
         }
     }
 
-    draw_context.col[default_background].color.alpha = (unsigned short)(0xffff * alpha);
+    draw_context.col[default_background].color.alpha = (ushort)(0xffff * alpha);
     draw_context.col[default_background].pixel &= 0x00FFFFFF;
     draw_context.col[default_background].pixel |= ((uint)(0xFF * alpha) & 0xFF) << 24;
 
     for (int i = 16; i < 16 + trans_colors; i++) {
-        draw_context.col[i].color.alpha = (unsigned short)(0xffff * alpha);
+        draw_context.col[i].color.alpha = (ushort)(0xffff * alpha);
         draw_context.col[i].pixel &= 0x00FFFFFF;
         draw_context.col[i].pixel |= ((uint)(0xff * alpha) & 0xff) << 24;
     }
@@ -826,7 +826,7 @@ x_set_color_name(int x, const char *name) {
     draw_context.col[x] = ncolor;
 
     if (x == default_background) {
-        draw_context.col[default_background].color.alpha = (unsigned short)(0xffff * alpha);
+        draw_context.col[default_background].color.alpha = (ushort)(0xffff * alpha);
         draw_context.col[default_background].pixel &= 0x00FFFFFF;
         draw_context.col[default_background].pixel |= ((uint)(0xff * alpha) & 0xff) << 24;
     }
