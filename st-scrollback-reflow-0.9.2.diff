@@ -76,8 +76,8 @@ index 2478942..2b86d23 100644
  static void term_delete_line(int);
  static void term_insert_blank(int);
  static void term_insert_blank_line(int);
--static int tlinelen(int);
-+static int tlinelen(Line len);
+-static int term_line_len(int);
++static int term_line_len(Line len);
 +static int tiswrapped(Line line);
 +static char *tgetglyphs(char *, const Glyph *, const Glyph *);
 +static size_t tgetline(char *, const Glyph *);
@@ -121,8 +121,8 @@ index 2478942..2b86d23 100644
  }
  
  int
--tlinelen(int y)
-+tlinelen(Line line)
+-term_line_len(int y)
++term_line_len(Line line)
  {
 -	int i = term.col;
 +	int i = term.col - 1;
@@ -138,7 +138,7 @@ index 2478942..2b86d23 100644
 +int
 +tiswrapped(Line line)
 +{
-+	int len = tlinelen(line);
++	int len = term_line_len(line);
  
 -	return i;
 +	return len > 0 && (line[len - 1].mode & ATTR_WRAP);
@@ -219,19 +219,19 @@ index 2478942..2b86d23 100644
 -	/* expand selection over line breaks */
 -	if (selection.type == SELECTION_RECTANGULAR)
 -		return;
--	i = tlinelen(selection.nb.y);
+-	i = term_line_len(selection.nb.y);
 -	if (i < selection.nb.x)
 -		selection.nb.x = i;
--	if (tlinelen(selection.ne.y) <= selection.ne.x)
+-	if (term_line_len(selection.ne.y) <= selection.ne.x)
 -		selection.ne.x = term.col - 1;
 +    /* expand selection over line breaks */
 +    if (selection.type == SELECTION_RECTANGULAR)
 +        return;
 +
-+    i = tlinelen(TLINE(selection.nb.y));
++    i = term_line_len(TLINE(selection.nb.y));
 +    if (selection.nb.x > i)
 +        selection.nb.x = i;
-+    if (selection.ne.x >= tlinelen(TLINE(selection.ne.y)))
++    if (selection.ne.x >= term_line_len(TLINE(selection.ne.y)))
 +        selection.ne.x = term.col - 1;
  }
  
@@ -292,8 +292,8 @@ index 2478942..2b86d23 100644
  					break;
  			}
  
--			if (newx >= tlinelen(newy))
-+            if (newx >= tlinelen(TLINE(newy)))
+-			if (newx >= term_line_len(newy))
++            if (newx >= term_line_len(TLINE(newy)))
  				break;
  
  			gp = &TLINE(newy)[newx];
@@ -353,10 +353,10 @@ index 2478942..2b86d23 100644
  
  	/* append every set & selected glyph to the selection */
  	for (y = selection.nb.y; y <= selection.ne.y; y++) {
--		if ((linelen = tlinelen(y)) == 0) {
+-		if ((linelen = term_line_len(y)) == 0) {
 +		Line line = TLINE(y);
 +
-+		if ((linelen = tlinelen(line)) == 0) {
++		if ((linelen = term_line_len(line)) == 0) {
  			*ptr++ = '\n';
  			continue;
  		}
@@ -1091,7 +1091,7 @@ index 2478942..2b86d23 100644
 +               tscrollup(0, term.row-1, term.row, SCROLL_SAVEHIST); */
 +
 +            /* alacritty does this: */
-+            for (n = term.row-1; n >= 0 && tlinelen(term.line[n]) == 0; n--);
++            for (n = term.row-1; n >= 0 && term_line_len(term.line[n]) == 0; n--);
 +            if (n >= 0)
 +                tscrollup(0, term.row-1, n+1, SCROLL_SAVEHIST);
 +            tscrollup(0, term.row-1, term.row-n-1, SCROLL_NOSAVEHIST);
@@ -1164,7 +1164,7 @@ index 2478942..2b86d23 100644
 -	const Glyph *bp, *end;
 -
 -	bp = &term.line[n][0];
--	end = &bp[MIN(tlinelen(n), term.col) - 1];
+-	end = &bp[MIN(term_line_len(n), term.col) - 1];
 -	if (bp != end || bp->u != ' ') {
 -		for ( ; bp <= end; ++bp)
 -			tprinter(buf, utf8encode(bp->u, buf));
@@ -1482,7 +1482,7 @@ index 2478942..2b86d23 100644
 +            buf[++ny] = xmalloc(col * sizeof(Glyph));
 +        if (!ox) {
 +            line = TLINEABS(oy);
-+            len = tlinelen(line);
++            len = term_line_len(line);
 +        }
 +        if (oy == term.c.y) {
 +            if (!ox)
