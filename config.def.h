@@ -240,7 +240,7 @@ static uint32 CONF_FORCE_MOUSE_MOD = ShiftMask;
  * Internal mouse CONF_KEYBOARD_SHORTCUTS.
  * Beware that overloading Button1 will disable the selection.
  */
-static MouseShortcut mshortcuts[] = {
+static MouseShortcut CONF_MOUSE_SHORTCUTS[] = {
 	/* mask       button   function              argument            release */
 	{ XK_ANY_MOD, Button2, user_selection_paste, {.i = 0},           1 },
 	{ ShiftMask,  Button4, tty_send,             {.s = "\033[5;2~"}, 0 },

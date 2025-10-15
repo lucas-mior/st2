@@ -431,8 +431,8 @@ mouse_action(XEvent *e, uint32 release) {
     /* ignore Button<N>mask for Button<N> - it's set on release */
     uint32 state = e->xbutton.state & ~button_mask(e->xbutton.button);
 
-    for (mouse_shortcut = mshortcuts; mouse_shortcut < mshortcuts + LENGTH(mshortcuts);
-         mouse_shortcut++) {
+    for (mouse_shortcut = CONF_MOUSE_SHORTCUTS;
+         mouse_shortcut < CONF_MOUSE_SHORTCUTS + LENGTH(CONF_MOUSE_SHORTCUTS); mouse_shortcut++) {
         if (mouse_shortcut->release == release && mouse_shortcut->button == e->xbutton.button &&
             (match(mouse_shortcut->mod, state) || /* exact or forced */
              match(mouse_shortcut->mod, state & ~CONF_FORCE_MOUSE_MOD))) {
