@@ -33,7 +33,7 @@
 #define TERM_WINDOW_IS_SET(flag) ((term_window.mode & (flag)) != 0)
 #define TRUE_RED(x) (uint16)(((x) & 0xff0000) >> 8)
 #define TRUE_GREEN(x) (uint16)(((x) & 0xff00))
-#define TRUEBLUE(x) (uint16)(((x) & 0xff) << 8)
+#define TRUE_BLUE(x) (uint16)(((x) & 0xff) << 8)
 
 typedef XftDraw *Draw;
 typedef XftColor Color;
@@ -1564,7 +1564,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         colfg.alpha = 0xffff;
         colfg.red = TRUE_RED(base.fg);
         colfg.green = TRUE_GREEN(base.fg);
-        colfg.blue = TRUEBLUE(base.fg);
+        colfg.blue = TRUE_BLUE(base.fg);
         XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &colfg, &truefg);
         fg = &truefg;
     } else {
@@ -1575,7 +1575,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         colbg.alpha = 0xffff;
         colbg.green = TRUE_GREEN(base.bg);
         colbg.red = TRUE_RED(base.bg);
-        colbg.blue = TRUEBLUE(base.bg);
+        colbg.blue = TRUE_BLUE(base.bg);
         XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &colbg, &truebg);
         bg = &truebg;
     } else {
