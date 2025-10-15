@@ -54,7 +54,7 @@
 
 #define TERM_LINE_ABS(y)                                                                           \
     ((y) < 0 ? term.hist[(term.histi + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] : term.line[(y)])
-#define TLINE_HIST(y)                                                                              \
+#define TERM_LINE_HIST(y)                                                                          \
     ((y) <= HISTORY_SIZE - term.row + 2 ? term.hist[(y)]                                           \
                                         : term.line[(y - HISTORY_SIZE + term.row - 3)])
 
@@ -504,11 +504,11 @@ static int32
 tlinehistlen(int32 y) {
     int32 i = term.col;
 
-    if (TLINE_HIST(y)[i - 1].mode & ATTR_WRAP) {
+    if (TERM_LINE_HIST(y)[i - 1].mode & ATTR_WRAP) {
         return i;
     }
 
-    while (i > 0 && TLINE_HIST(y)[i - 1].rune == ' ') {
+    while (i > 0 && TERM_LINE_HIST(y)[i - 1].rune == ' ') {
         --i;
     }
 
@@ -2440,7 +2440,7 @@ externalpipe(const Arg *arg) {
     oldsigpipe = signal(SIGPIPE, SIG_IGN);
     newline = 0;
     for (int32 n = 0; n <= HISTORY_SIZE + 2; n++) {
-        bp = TLINE_HIST(n);
+        bp = TERM_LINE_HIST(n);
         lastpos = MIN(tlinehistlen(n) + 1, term.col) - 1;
         if (lastpos < 0) {
             break;
@@ -2454,7 +2454,7 @@ externalpipe(const Arg *arg) {
                 break;
             }
         }
-        if ((newline = TLINE_HIST(n)[lastpos].mode & ATTR_WRAP)) {
+        if ((newline = TERM_LINE_HIST(n)[lastpos].mode & ATTR_WRAP)) {
             continue;
         }
         if (xwrite(to[1], "\n", 1) < 0) {
