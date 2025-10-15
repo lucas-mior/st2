@@ -2,7 +2,7 @@ diff --git a/st.c b/st.c
 index 034954d..98f2589 100644
 --- a/st.c
 +++ b/st.c
-@@ -718,8 +718,14 @@ sigchld(int a)
+@@ -718,8 +718,14 @@ handler_sigchld(int a)
  	if ((p = waitpid(pid, &stat, WNOHANG)) < 0)
  		die("waiting for pid %hd failed: %s\n", pid, strerror(errno));
  
@@ -11,8 +11,8 @@ index 034954d..98f2589 100644
 +		if (p == 0 && wait(&stat) < 0)
 +			die("wait: %s\n", strerror(errno));
 +
-+		/* reinstall sigchld handler */
-+		signal(SIGCHLD, sigchld);
++		/* reinstall handler_sigchld handler */
++		signal(SIGCHLD, handler_sigchld);
  		return;
 +	}
  
