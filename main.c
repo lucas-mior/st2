@@ -695,7 +695,7 @@ mouse_select(XEvent *xevent, int32 done) {
 
 void
 mouse_report(XEvent *xevent) {
-    int32 len, btn, code;
+    int32 len, button, code;
     int32 x = xevent_col(xevent), y = xevent_row(xevent);
     int32 state = (int32)xevent->xbutton.state;
     char buffer[40];
@@ -712,15 +712,15 @@ mouse_report(XEvent *xevent) {
         if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSEMOTION) && buttons == 0) {
             return;
         }
-        /* Set btn to lowest-numbered pressed button, or 12 if no
+        /* Set button to lowest-numbered pressed button, or 12 if no
          * buttons are pressed. */
-        for (btn = 1; btn <= 11 && !(buttons & (1 << (btn - 1))); btn++)
+        for (button = 1; button <= 11 && !(buttons & (1 << (button - 1))); button++)
             ;
         code = 32;
     } else {
-        btn = (int32)xevent->xbutton.button;
+        button = (int32)xevent->xbutton.button;
         /* Only buttons 1 through 11 can be encoded */
-        if (btn < 1 || btn > 11) {
+        if (button < 1 || button > 11) {
             return;
         }
         if (xevent->type == ButtonRelease) {
@@ -729,7 +729,7 @@ mouse_report(XEvent *xevent) {
                 return;
             }
             /* Don't send release events for the scroll wheel */
-            if (btn == 4 || btn == 5) {
+            if (button == 4 || button == 5) {
                 return;
             }
         }
@@ -739,16 +739,16 @@ mouse_report(XEvent *xevent) {
     ox = x;
     oy = y;
 
-    /* Encode btn into code. If no button is pressed for a motion event in
+    /* Encode button into code. If no button is pressed for a motion event in
      * WIN_MODE_MOUSEMANY, then encode it as a release. */
-    if ((!TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR) && xevent->type == ButtonRelease) || btn == 12) {
+    if ((!TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR) && xevent->type == ButtonRelease) || button == 12) {
         code += 3;
-    } else if (btn >= 8) {
-        code += 128 + btn - 8;
-    } else if (btn >= 4) {
-        code += 64 + btn - 4;
+    } else if (button >= 8) {
+        code += 128 + button - 8;
+    } else if (button >= 4) {
+        code += 64 + button - 4;
     } else {
-        code += btn - 1;
+        code += button - 1;
     }
 
     if (!TERM_WINDOW_IS_SET(WIN_MODE_MOUSEX10)) {
@@ -807,12 +807,12 @@ mouse_action(XEvent *xevent, uint32 release) {
 
 void
 handler_button_press(XEvent *xevent) {
-    int32 btn = (int32)xevent->xbutton.button;
+    int32 button = (int32)xevent->xbutton.button;
     struct timespec now;
     int32 snap;
 
-    if (1 <= btn && btn <= 11) {
-        buttons |= 1 << (btn - 1);
+    if (1 <= button && button <= 11) {
+        buttons |= 1 << (button - 1);
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
@@ -824,7 +824,7 @@ handler_button_press(XEvent *xevent) {
         return;
     }
 
-    if (btn == Button1) {
+    if (button == Button1) {
         /*
          * If the user clicks below predefined timeouts specific
          * snapping behaviour is exposed.
@@ -1042,10 +1042,10 @@ x_set_sel(char *str) {
 
 void
 handler_button_release(XEvent *xevent) {
-    int32 btn = (int32)xevent->xbutton.button;
+    int32 button = (int32)xevent->xbutton.button;
 
-    if (1 <= btn && btn <= 11) {
-        buttons &= ~(1 << (btn - 1));
+    if (1 <= button && button <= 11) {
+        buttons &= ~(1 << (button - 1));
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
@@ -1056,7 +1056,7 @@ handler_button_release(XEvent *xevent) {
     if (mouse_action(xevent, 1)) {
         return;
     }
-    if (btn == Button1) {
+    if (button == Button1) {
         mouse_select(xevent, 1);
     }
     return;
