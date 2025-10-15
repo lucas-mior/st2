@@ -65,11 +65,11 @@ index 0000000..28a92d0
 +ushort
 +boxdrawindex(const Glyph *g)
 +{
-+	if (boxdraw_braille && (g->u & ~0xff) == 0x2800)
-+		return BRL | (uint8_t)g->u;
++	if (boxdraw_braille && (g->rune & ~0xff) == 0x2800)
++		return BRL | (uint8_t)g->rune;
 +	if (boxdraw_bold && (g->mode & ATTR_BOLD))
-+		return BDB | boxdata[(uint8_t)g->u];
-+	return boxdata[(uint8_t)g->u];
++		return BDB | boxdata[(uint8_t)g->rune];
++	return boxdata[(uint8_t)g->rune];
 +}
 +
 +void
@@ -469,7 +469,7 @@ index f43cfd3..baa2bed 100644
 @@ -1214,6 +1214,9 @@ term_set_char(Rune u, const Glyph *attr, int x, int y)
  	term.dirty[y] = 1;
  	term.line[y][x] = *attr;
- 	term.line[y][x].u = u;
+ 	term.line[y][x].rune = u;
 +
 +	if (isboxdraw(u))
 +		term.line[y][x].mode |= ATTR_BOXDRAW;
