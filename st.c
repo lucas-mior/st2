@@ -20,6 +20,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <wchar.h>
+#include <assert.h>
 
 #include "st.h"
 #include "boxdraw.c"
@@ -3241,7 +3242,7 @@ term_reflow(int32 ncols, int32 nrows) {
     int32 len = 0;
     int32 new_cursor_y_proxy = -1; /* proxy for new y coordinate of cursor */
     int32 nlines;
-    Line *buffer;
+    static Line *buffer = NULL;
     Line line = 0;
 
     /* --- determine end of current cursor line --- */
@@ -3264,11 +3265,15 @@ term_reflow(int32 ncols, int32 nrows) {
     }
 
     /* --- allocate reflow buffer --- */
-    buffer = xmalloc((int64)nlines*SIZEOF(*buffer));
+    assert(nlines <= HISTORY_SIZE);
+    if (buffer == NULL) {
+        buffer = xmalloc((int64)HISTORY_SIZE*SIZEOF(*buffer));
+    }
 
     /* --- reflow old lines into buffer --- */
     do {
         if (!new_x_offset) {
+            error("allocating ncols=%d\n", ncols);
             buffer[++new_y_index] = xmalloc((int64)ncols*SIZEOF(*(buffer[new_y_index])));
         }
 
@@ -3396,8 +3401,6 @@ term_reflow(int32 ncols, int32 nrows) {
         int32 j = (term.histi + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
         term.hist[j] = xrealloc(term.hist[j], (int64)ncols*SIZEOF(*(term.hist[j])));
     }
-
-    xfree(buffer);
 }
 void
 reset_title(void) {
