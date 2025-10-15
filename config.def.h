@@ -18,7 +18,7 @@
  */
 static char *CONF_FONT = "Liberation Mono:pixelsize=18:antialias=true:autohint=true";
 /* Spare fonts */
-static char *FONT2[] = {
+static char *CONF_FONT2[] = {
 	"Noto Color Emoji:pixelsize=18:antialias=true:autohint=true",
 	"LiterationMono Nerd Font Mono:pixelsize=18:style=Regular",
 };

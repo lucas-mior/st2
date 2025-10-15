@@ -1076,7 +1076,7 @@ x_load_spare_fonts(void) {
     }
 
     /* Calculate count of spare fonts */
-    fc = SIZEOF(FONT2) / SIZEOF(*FONT2);
+    fc = SIZEOF(CONF_FONT2) / SIZEOF(*CONF_FONT2);
     if (fc == 0) {
         return;
     }
@@ -1087,7 +1087,7 @@ x_load_spare_fonts(void) {
         frc = xrealloc(frc, (int64)frccap * SIZEOF(Fontcache));
     }
 
-    for (fp = FONT2; fp - FONT2 < fc; ++fp) {
+    for (fp = CONF_FONT2; fp - CONF_FONT2 < fc; ++fp) {
 
         if (**fp == '-') {
             pattern = XftXlfdParse(*fp, False, False);
