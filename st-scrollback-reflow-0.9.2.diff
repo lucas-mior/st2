@@ -1323,7 +1323,7 @@ index 2478942..2b86d23 100644
 -		term.alt[i]  = xrealloc(term.alt[i],  col * sizeof(Glyph));
 -	}
  
--	/* allocate any new rows */
+-	/* allocate any new number_rows */
 -	for (/* i = minrow */; i < row; i++) {
 -		term.line[i] = xmalloc(col * sizeof(Glyph));
 -		term.alt[i] = xmalloc(col * sizeof(Glyph));
@@ -1360,7 +1360,7 @@ index 2478942..2b86d23 100644
 +
 +		/* handler_configure_notify to new height */
 +		term.line = xrealloc(term.line, row * sizeof(Line));
-+		/* allocate any new rows */
++		/* allocate any new number_rows */
 +		for (i = term.row; i < row; i++) {
 +			term.line[i] = xmalloc(col * sizeof(Glyph));
 +			for (j = 0; j < col; j++)
@@ -1427,7 +1427,7 @@ index 2478942..2b86d23 100644
 +        for (j = term.col; j < col; j++)
 +            tclearglyph(&term.line[i][j], 0);
 +    }
-+    /* allocate any new rows */
++    /* allocate any new number_rows */
 +    for (/*i = MIN(row, term.row) */; i < row; i++) {
 +        term.line[i] = xmalloc(col * sizeof(Glyph));
 +        for (j = 0; j < col; j++)
@@ -1539,7 +1539,7 @@ index 2478942..2b86d23 100644
 +            term.c.y++;
 +        }
 +    }
-+    /* allocate new rows */
++    /* allocate new number_rows */
 +    for (i = row - 1; i > nce; i--) {
 +        term.line[i] = xmalloc(col * sizeof(Glyph));
 +        for (j = 0; j < col; j++)
