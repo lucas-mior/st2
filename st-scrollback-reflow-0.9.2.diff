@@ -75,7 +75,7 @@ index 2478942..2b86d23 100644
  static void term_delete_char(int);
  static void term_delete_line(int);
  static void tinsertblank(int);
- static void tinsertblankline(int);
+ static void term_insert_blank_line(int);
 -static int tlinelen(int);
 +static int tlinelen(Line len);
 +static int tiswrapped(Line line);
@@ -989,7 +989,7 @@ index 2478942..2b86d23 100644
  }
  
  void
- tinsertblankline(int n)
+ term_insert_blank_line(int n)
  {
  	if (BETWEEN(term.c.y, term.top, term.bot))
 -		tscrolldown(term.c.y, n, 0);

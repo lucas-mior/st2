@@ -243,7 +243,7 @@ index b9f66e7..2478942 100644
  		y++;
  	}
 @@ -1285,14 +1347,14 @@ void
- tinsertblankline(int n)
+ term_insert_blank_line(int n)
  {
  	if (BETWEEN(term.c.y, term.top, term.bot))
 -		tscrolldown(term.c.y, n);
