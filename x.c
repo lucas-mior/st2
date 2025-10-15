@@ -1929,12 +1929,12 @@ kmap(KeySym k, uint32 state) {
     int32 i;
 
     /* Check for mapped keys out of X11 function keys. */
-    for (i = 0; i < LENGTH(mappedkeys); i++) {
-        if (mappedkeys[i] == k) {
+    for (i = 0; i < LENGTH(CONF_MAPPED_KEYS); i++) {
+        if (CONF_MAPPED_KEYS[i] == k) {
             break;
         }
     }
-    if (i == LENGTH(mappedkeys)) {
+    if (i == LENGTH(CONF_MAPPED_KEYS)) {
         if ((k & 0xFFFF) < 0xFD00) {
             return NULL;
         }
