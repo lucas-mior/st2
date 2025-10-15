@@ -64,7 +64,7 @@ index 2478942..2b86d23 100644
  	TCursor c;    /* cursor */
  	int ocx;      /* old cursor col */
 @@ -179,26 +199,37 @@ static void tprinter(char *, size_t);
- static void tdumpsel(void);
+ static void term_dump_sel(void);
  static void term_dump_line(int);
  static void tdump(void);
 -static void term_clear_region(int, int, int, int);
@@ -1156,7 +1156,7 @@ index 2478942..2b86d23 100644
  			break;
  		default:
  			goto unknown;
-@@ -2138,16 +2323,8 @@ tdumpsel(void)
+@@ -2138,16 +2323,8 @@ term_dump_sel(void)
  void
  term_dump_line(int n)
  {
