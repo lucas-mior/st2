@@ -608,54 +608,59 @@ handler_selection_clear(XEvent *xevent) {
 
 void
 handler_selection_request(XEvent *xevent) {
-    XSelectionRequestEvent *xsre;
+    XSelectionRequestEvent *xselection_request_event;
     XSelectionEvent xselection_event;
     Atom xa_targets, string, clipboard;
     char *seltext;
 
-    xsre = (XSelectionRequestEvent *)xevent;
+    xselection_request_event = (XSelectionRequestEvent *)xevent;
     xselection_event.type = SelectionNotify;
-    xselection_event.requestor = xsre->requestor;
-    xselection_event.selection = xsre->selection;
-    xselection_event.target = xsre->target;
-    xselection_event.time = xsre->time;
-    if (xsre->property == None) {
-        xsre->property = xsre->target;
+    xselection_event.requestor = xselection_request_event->requestor;
+    xselection_event.selection = xselection_request_event->selection;
+    xselection_event.target = xselection_request_event->target;
+    xselection_event.time = xselection_request_event->time;
+    if (xselection_request_event->property == None) {
+        xselection_request_event->property = xselection_request_event->target;
     }
 
     /* reject */
     xselection_event.property = None;
 
     xa_targets = XInternAtom(x_window.display, "TARGETS", 0);
-    if (xsre->target == xa_targets) {
+    if (xselection_request_event->target == xa_targets) {
         /* respond with the supported type */
         string = xsel.xtarget;
-        XChangeProperty(xsre->display, xsre->requestor, xsre->property, XA_ATOM, 32,
-                        PropModeReplace, (uchar *)&string, 1);
-        xselection_event.property = xsre->property;
-    } else if (xsre->target == xsel.xtarget || xsre->target == XA_STRING) {
+        XChangeProperty(xselection_request_event->display, xselection_request_event->requestor,
+                        xselection_request_event->property, XA_ATOM, 32, PropModeReplace,
+                        (uchar *)&string, 1);
+        xselection_event.property = xselection_request_event->property;
+    } else if (xselection_request_event->target == xsel.xtarget ||
+               xselection_request_event->target == XA_STRING) {
         /*
          * xith XA_STRING non ascii characters may be incorrect in the
          * requestor. It is not our problem, use utf8.
          */
         clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
-        if (xsre->selection == XA_PRIMARY) {
+        if (xselection_request_event->selection == XA_PRIMARY) {
             seltext = xsel.primary;
-        } else if (xsre->selection == clipboard) {
+        } else if (xselection_request_event->selection == clipboard) {
             seltext = xsel.clipboard;
         } else {
-            fprintf(stderr, "Unhandled clipboard selection 0x%lx\n", xsre->selection);
+            fprintf(stderr, "Unhandled clipboard selection 0x%lx\n",
+                    xselection_request_event->selection);
             return;
         }
         if (seltext != NULL) {
-            XChangeProperty(xsre->display, xsre->requestor, xsre->property, xsre->target, 8,
+            XChangeProperty(xselection_request_event->display, xselection_request_event->requestor,
+                            xselection_request_event->property, xselection_request_event->target, 8,
                             PropModeReplace, (uchar *)seltext, (int32)(int64)strlen(seltext));
-            xselection_event.property = xsre->property;
+            xselection_event.property = xselection_request_event->property;
         }
     }
 
     /* all done, send a notification to the listener */
-    if (!XSendEvent(xsre->display, xsre->requestor, 1, 0, (XEvent *)&xselection_event)) {
+    if (!XSendEvent(xselection_request_event->display, xselection_request_event->requestor, 1, 0,
+                    (XEvent *)&xselection_event)) {
         fprintf(stderr, "Error sending SelectionNotify event\n");
     }
     return;
