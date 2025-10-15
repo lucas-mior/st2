@@ -101,7 +101,7 @@ const int32 CONF_BOXDRAW_BRAILLE = 0;
 static int32 BELL_VOLUME = 0;
 
 /* default TERM value */
-char *TERM_NAME = "st-256color";
+char *CONF_TERM_NAME = "st-256color";
 
 /*
  * spaces per tab
