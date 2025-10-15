@@ -1111,7 +1111,13 @@ x_resize(int32 col, int32 row) {
 
 uint16
 sixd_to_16bit(int32 x) {
-    return (uint16)(x == 0 ? 0 : 0x3737 + 0x2828*x);
+    int32 y;
+    if (x == 0) {
+        y = 0;
+    } else {
+        y = 0x3737 + 0x2828*x;
+    }
+    return (uint16)y;
 }
 
 int32
