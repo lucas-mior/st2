@@ -35,7 +35,7 @@ static int32 CONF_BORDER_PIXELS = 2;
  */
 static char *CONF_SHELl = "/bin/sh";
 char *utmp = NULL;
-char *stty_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
+char *CONF_STTY_ARGS = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 
 /* identification sequence returned in DA and DECID */
 char *vtiden = "\033[?6c";

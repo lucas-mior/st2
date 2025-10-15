@@ -2168,7 +2168,7 @@ usage(void) {
         "       %s [-aiv] [-c class] [-f font] [-g geometry]"
         " [-n name] [-o file]\n"
         "          [-T title] [-t title] [-w windowid] -l line"
-        " [stty_args ...]\n",
+        " [CONF_STTY_ARGS ...]\n",
         argv0, argv0);
 }
 

@@ -884,10 +884,10 @@ stty(char **args) {
     int64 n;
     int64 siz;
 
-    if ((n = (int64)strlen(stty_args)) > SIZEOF(cmd) - 1) {
+    if ((n = (int64)strlen(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
         die("incorrect stty parameters\n");
     }
-    memcpy(cmd, stty_args, (size_t)n);
+    memcpy(cmd, CONF_STTY_ARGS, (size_t)n);
     q = cmd + n;
     siz = SIZEOF(cmd) - n;
     for (char **p = args; p && (s = *p); ++p) {
