@@ -97,7 +97,7 @@ index 2478942..2b86d23 100644
 +static void tresizealt(int, int);
  static void term_set_attr(const int *, int);
  static void term_set_char(Rune, const Glyph *, int, int);
- static void tsetdirt(int, int);
+ static void term_set_dirt(int, int);
  static void tsetscroll(int, int);
  static void tswapscreen(void);
 +static void tloaddefscreen(int, int);
@@ -182,7 +182,7 @@ index 2478942..2b86d23 100644
 -	if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type || selection.mode == SELECTION_EMPTY)
 +	if (oldey != selection.oe.y || oldex != selection.oe.x ||
 +	    oldtype != selection.type || selection.mode == SELECTION_EMPTY)
- 		tsetdirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
+ 		term_set_dirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
  
  	selection.mode = done ? SELECTION_IDLE : SELECTION_READY;
 @@ -474,54 +538,62 @@ sel_extend(int col, int row, int type, int done)
@@ -403,7 +403,7 @@ index 2478942..2b86d23 100644
  	if (selection.ob.x == -1)
  		return;
 +	selremove();
-+	tsetdirt(selection.nb.y, selection.ne.y);
++	term_set_dirt(selection.nb.y, selection.ne.y);
 +}
 +
 +void
@@ -411,7 +411,7 @@ index 2478942..2b86d23 100644
 +{
  	selection.mode = SELECTION_IDLE;
  	selection.ob.x = -1;
--	tsetdirt(selection.nb.y, selection.ne.y);
+-	term_set_dirt(selection.nb.y, selection.ne.y);
  }
  
  void
@@ -430,7 +430,7 @@ index 2478942..2b86d23 100644
  	for (i = 0; i < term.row-1; i++) {
  		for (j = 0; j < term.col-1; j++) {
  			if (term.line[i][j].mode & attr) {
--				tsetdirt(i, i);
+-				term_set_dirt(i, i);
 +				term.dirty[i] = 1;
  				break;
  			}
@@ -439,7 +439,7 @@ index 2478942..2b86d23 100644
  void
  term_full_dirt(void)
  {
--	tsetdirt(0, term.row-1);
+-	term_set_dirt(0, term.row-1);
 +    for (int i = 0; i < term.row; i++)
 +        term.dirty[i] = 1;
  }
@@ -642,7 +642,7 @@ index 2478942..2b86d23 100644
 +    if (n < 0)
 +        n = MAX(term.row / -n, 1);
  
--	tsetdirt(orig, term.bot-n);
+-	term_set_dirt(orig, term.bot-n);
 -	term_clear_region(0, term.bot-n+1, term.col-1, term.bot);
 +    if (term.scr + n <= term.histf) {
 +        term.scr += n;
@@ -684,7 +684,7 @@ index 2478942..2b86d23 100644
 -		term.hist[term.histi] = term.line[orig];
 -		term.line[orig] = temp;
 -	}
-+    tsetdirt(top, bot-n);
++    term_set_dirt(top, bot-n);
 +    term_clear_region(0, bot-n+1, term.col-1, bot, 1);
  
 -	if (term.scr > 0 && term.scr < HISTSIZE)
@@ -696,7 +696,7 @@ index 2478942..2b86d23 100644
 +    }
  
 -	term_clear_region(0, orig, term.col-1, orig+n-1);
--	tsetdirt(orig+n, term.bot);
+-	term_set_dirt(orig+n, term.bot);
 +    if (selection.ob.x != -1 && selection.alt == IS_SET(TERM_MODE_ALTSCREEN))
 +        sel_scroll(top, bot, n);
 +}
@@ -740,7 +740,7 @@ index 2478942..2b86d23 100644
 +            term_full_dirt();
 +    } else {
 +        term_clear_region(0, top, term.col-1, top+n-1, 1);
-+        tsetdirt(top+n, bot);
++        term_set_dirt(top+n, bot);
 +    }
 +
 +    for (i = top; i <= bot-n; i++) {

@@ -53,7 +53,7 @@ index b9f66e7..2478942 100644
 +static void term_scroll_down(int, int, int);
  static void term_set_attr(const int *, int);
  static void term_set_char(Rune, const Glyph *, int, int);
- static void tsetdirt(int, int);
+ static void term_set_dirt(int, int);
 @@ -409,10 +416,10 @@ term_line_len(int y)
  {
  	int i = term.col;
@@ -189,7 +189,7 @@ index b9f66e7..2478942 100644
 +		term.line[term.bot] = temp;
 +	}
 +
- 	tsetdirt(orig, term.bot-n);
+ 	term_set_dirt(orig, term.bot-n);
  	term_clear_region(0, term.bot-n+1, term.col-1, term.bot);
  
 @@ -1071,17 +1121,28 @@ term_scroll_down(int orig, int n)
@@ -221,7 +221,7 @@ index b9f66e7..2478942 100644
 +		term.scr = MIN(term.scr + n, HISTSIZE-1);
 +
  	term_clear_region(0, orig, term.col-1, orig+n-1);
- 	tsetdirt(orig+n, term.bot);
+ 	term_set_dirt(orig+n, term.bot);
  
 @@ -1091,7 +1152,8 @@ term_scroll_up(int orig, int n)
  		term.line[i+n] = temp;
