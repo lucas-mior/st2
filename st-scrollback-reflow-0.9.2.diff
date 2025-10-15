@@ -277,7 +277,7 @@ index 2478942..2b86d23 100644
 +		rtop += -term.histf + term.scr, rbot += term.scr;
 +
  	switch (selection.snap) {
- 	case SNAP_WORD:
+ 	case SELECTION_SNAP_WORD:
  		/*
 @@ -536,7 +608,7 @@ sel_snap(int *x, int *y, int direction)
  			if (!BETWEEN(newx, 0, term.col - 1)) {
