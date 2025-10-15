@@ -1920,7 +1920,7 @@ handler_focus(XEvent *ev) {
 
 int32
 match(uint32 mask, uint32 state) {
-    return mask == XK_ANY_MOD || mask == (state & ~ignoremod);
+    return mask == XK_ANY_MOD || mask == (state & ~CONF_IGNORE_MOD);
 }
 
 char *

@@ -307,7 +307,7 @@ static KeySym CONF_MAPPED_KEYS[] = { (KeySym)-1 };
  * State bits to ignore when matching key or button events.  By default,
  * user_toggle_numlock (Mod2Mask) and keyboard layout (XK_SWITCH_MOD) are ignored.
  */
-static uint32 ignoremod = Mod2Mask|XK_SWITCH_MOD;
+static uint32 CONF_IGNORE_MOD = Mod2Mask|XK_SWITCH_MOD;
 
 /*
  * This is the huge key array which defines all compatibility to the Linux
