@@ -1404,7 +1404,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
         }
 
         if (mode & ATTR_BOXDRAW) {
-            /* minor shoehorning: boxdraw uses only this uint16 */
+            /* minor shoehorning: CONF_BOXDRAW uses only this uint16 */
             glyphidx = boxdrawindex(&glyphs[i]);
         } else {
             /* Lookup character index with default font. */

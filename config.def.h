@@ -90,7 +90,7 @@ static uint32 CONF_CURSOR_THICKNESS = 2;
  *    Bold affects lines thickness if boxdraw_bold is not 0. Italic is ignored.
  * 0: disable (render all U25XX glyphs normally from the font).
  */
-const int32 boxdraw = 1;
+const int32 CONF_BOXDRAW = 1;
 const int32 boxdraw_bold = 1;
 
 /* braille (U28XX):  1: render as adjacent "pixels",  0: use font */

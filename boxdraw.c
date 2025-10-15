@@ -34,7 +34,7 @@ boxdraw_xinit(Display *dpy, Colormap cmap, XftDraw *draw, Visual *vis) {
 int32
 isboxdraw(Rune u) {
     Rune block = u & ~(uint32)0xff;
-    return (boxdraw && block == 0x2500 && boxdata[(uint8_t)u]) ||
+    return (CONF_BOXDRAW && block == 0x2500 && boxdata[(uint8_t)u]) ||
            (boxdraw_braille && block == 0x2800);
 }
 
