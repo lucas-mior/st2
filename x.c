@@ -495,7 +495,7 @@ handler_prop_notify(XEvent *e) {
 
 void
 handler_selection_notify(XEvent *e) {
-    ulong nitems, ofs, rem;
+    uint64 nitems, ofs, rem;
     int format;
     uchar *data, *last, *repl;
     Atom type, incratom, property = None;
@@ -543,7 +543,7 @@ handler_selection_notify(XEvent *e) {
             /*
              * Deleting the property is the transfer start signal.
              */
-            XDeleteProperty(x_window.dpy, x_window.win, (ulong)property);
+            XDeleteProperty(x_window.dpy, x_window.win, (uint64)property);
             continue;
         }
 
@@ -576,7 +576,7 @@ handler_selection_notify(XEvent *e) {
      * Deleting the property again tells the selection owner to send the
      * next data chunk in the property.
      */
-    XDeleteProperty(x_window.dpy, x_window.win, (ulong)property);
+    XDeleteProperty(x_window.dpy, x_window.win, (uint64)property);
 }
 
 void
@@ -1226,7 +1226,7 @@ x_init(int number_cols, int number_rows) {
     x_window.scr = XDefaultScreen(x_window.dpy);
 
     root = XRootWindow(x_window.dpy, x_window.scr);
-    if (!(opt_embed && (parent = (ulong)strtol(opt_embed, NULL, 0)))) {
+    if (!(opt_embed && (parent = (uint64)strtol(opt_embed, NULL, 0)))) {
         parent = root;
     }
 

@@ -2858,7 +2858,7 @@ term_putc(Rune u) {
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_PRINT)) {
-        term_printer(c, (ulong)len);
+        term_printer(c, (uint64)len);
     }
 
     /*
@@ -2874,7 +2874,7 @@ term_putc(Rune u) {
             goto check_control_code;
         }
 
-        if (strescseq.len + (ulong)len >= strescseq.siz) {
+        if (strescseq.len + (uint64)len >= strescseq.siz) {
             /*
              * Here is a bug in terminals. If the user never sends
              * some code to stop the str or esc command, then st
