@@ -1,7 +1,4 @@
 /* See LICENSE for license details. */
-#ifndef X_C
-#define X_C
-
 #include <errno.h>
 #include <math.h>
 #include <limits.h>
@@ -2246,5 +2243,3 @@ run:
     selection_init();
     run();
 }
-
-#endif /* X_C */
