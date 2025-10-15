@@ -1068,12 +1068,10 @@ term_attr_set(int attr)
 void
 term_set_dirt(int top, int bot)
 {
-	int i;
-
 	LIMIT(top, 0, term.row-1);
 	LIMIT(bot, 0, term.row-1);
 
-	for (i = top; i <= bot; i++)
+	for (int i = top; i <= bot; i++)
 		term.dirty[i] = 1;
 }
 
