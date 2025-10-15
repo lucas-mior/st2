@@ -95,7 +95,7 @@ index 2478942..2b86d23 100644
 +static void rscrolldown(int);
 +static void tresizedef(int, int);
 +static void tresizealt(int, int);
- static void tsetattr(const int *, int);
+ static void term_set_attr(const int *, int);
  static void tsetchar(Rune, const Glyph *, int, int);
  static void tsetdirt(int, int);
  static void tsetscroll(int, int);
