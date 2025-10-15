@@ -234,7 +234,7 @@ index b9f66e7..2478942 100644
  
  void
 @@ -1120,7 +1182,7 @@ term_new_line(int first_col)
- 	int y = term.c.y;
+ 	int y = term.cursor.y;
  
  	if (y == term.bot) {
 -		term_scroll_up(term.top, 1);
@@ -245,17 +245,17 @@ index b9f66e7..2478942 100644
 @@ -1285,14 +1347,14 @@ void
  term_insert_blank_line(int n)
  {
- 	if (BETWEEN(term.c.y, term.top, term.bot))
--		term_scroll_down(term.c.y, n);
-+		term_scroll_down(term.c.y, n, 0);
+ 	if (BETWEEN(term.cursor.y, term.top, term.bot))
+-		term_scroll_down(term.cursor.y, n);
++		term_scroll_down(term.cursor.y, n, 0);
  }
  
  void
  term_delete_line(int n)
  {
- 	if (BETWEEN(term.c.y, term.top, term.bot))
--		term_scroll_up(term.c.y, n);
-+		term_scroll_up(term.c.y, n, 0);
+ 	if (BETWEEN(term.cursor.y, term.top, term.bot))
+-		term_scroll_up(term.cursor.y, n);
++		term_scroll_up(term.cursor.y, n, 0);
  }
  
  int32_t
@@ -276,20 +276,20 @@ index b9f66e7..2478942 100644
 @@ -2306,7 +2368,7 @@ eschandle(uchar ascii)
  		return 0;
  	case 'D': /* IND -- Linefeed */
- 		if (term.c.y == term.bot) {
+ 		if (term.cursor.y == term.bot) {
 -			term_scroll_up(term.top, 1);
 +			term_scroll_up(term.top, 1, 1);
  		} else {
- 			term_move_to(term.c.x, term.c.y+1);
+ 			term_move_to(term.cursor.x, term.cursor.y+1);
  		}
 @@ -2319,7 +2381,7 @@ eschandle(uchar ascii)
  		break;
  	case 'M': /* RI -- Reverse index */
- 		if (term.c.y == term.top) {
+ 		if (term.cursor.y == term.top) {
 -			term_scroll_down(term.top, 1);
 +			term_scroll_down(term.top, 1, 1);
  		} else {
- 			term_move_to(term.c.x, term.c.y-1);
+ 			term_move_to(term.cursor.x, term.cursor.y-1);
  		}
 @@ -2542,7 +2604,7 @@ term_write(const char *buf, int buflen, int show_ctrl)
  void
@@ -307,7 +307,7 @@ index b9f66e7..2478942 100644
 +	for (i = 0; i < HISTSIZE; i++) {
 +		term.hist[i] = xrealloc(term.hist[i], col * sizeof(Glyph));
 +		for (j = mincol; j < col; j++) {
-+			term.hist[i][j] = term.c.attr;
++			term.hist[i][j] = term.cursor.attr;
 +			term.hist[i][j].rune = ' ';
 +		}
 +	}
@@ -328,13 +328,13 @@ index b9f66e7..2478942 100644
  		cx--;
  
  	draw_region(0, 0, term.col, term.row);
--	x_draw_cursor(cx, term.c.y, term.line[term.c.y][cx],
+-	x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx],
 -			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
 +	if (term.scr == 0)
-+		x_draw_cursor(cx, term.c.y, term.line[term.c.y][cx],
++		x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx],
 +				term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
  	term.ocx = cx;
- 	term.ocy = term.c.y;
+ 	term.ocy = term.cursor.y;
  	x_finish_draw();
 diff --git a/st.h b/st.h
 index fd3b0d8..818a6f8 100644

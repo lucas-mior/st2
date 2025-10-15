@@ -27,9 +27,9 @@ index 2478942..2b86d23 100644
 +)
 +
 +#define UPDATEWRAPNEXT(alt, col) do { \
-+	if ((term.c.state & CURSOR_WRAPNEXT) && term.c.x + term.wrapcwidth[alt] < col) { \
-+		term.c.x += term.wrapcwidth[alt]; \
-+		term.c.state &= ~CURSOR_WRAPNEXT; \
++	if ((term.cursor.state & CURSOR_WRAPNEXT) && term.cursor.x + term.wrapcwidth[alt] < col) { \
++		term.cursor.x += term.wrapcwidth[alt]; \
++		term.cursor.state &= ~CURSOR_WRAPNEXT; \
 +	} \
 +} while (0);
  
@@ -452,7 +452,7 @@ index 2478942..2b86d23 100644
 +void
 +tresetcursor(void)
 +{
-+	term.c = (TCursor){ { .mode = ATTR_NULL, .fg = default_foreground, .bg = default_background },
++	term.cursor = (TCursor){ { .mode = ATTR_NULL, .fg = default_foreground, .bg = default_background },
 +	                    .x = 0, .y = 0, .state = CURSOR_DEFAULT };
 +}
 +
@@ -462,7 +462,7 @@ index 2478942..2b86d23 100644
  	uint i;
 +    int x, y;
  
--	term.c = (TCursor){{
+-	term.cursor = (TCursor){{
 -		.mode = ATTR_NULL,
 -		.fg = default_foreground,
 -		.bg = default_background
@@ -498,7 +498,7 @@ index 2478942..2b86d23 100644
  void
  term_new(int col, int row)
  {
--	term = (Term){ .c = { .attr = { .fg = default_foreground, .bg = default_background } } };
+-	term = (Term){ .cursor = { .attr = { .fg = default_foreground, .bg = default_background } } };
 -	term_resize(col, row);
 -	term_reset();
 +    int i, j;
@@ -797,7 +797,7 @@ index 2478942..2b86d23 100644
  }
  
 @@ -1182,7 +1350,7 @@ term_new_line(int first_col)
- 	int y = term.c.y;
+ 	int y = term.cursor.y;
  
  	if (y == term.bot) {
 -		term_scroll_up(term.top, 1, 1);
@@ -881,8 +881,8 @@ index 2478942..2b86d23 100644
 -	int x, y, temp;
 -	Glyph *gp;
 +	if (usecurattr) {
-+		gp->fg = term.c.attr.fg;
-+		gp->bg = term.c.attr.bg;
++		gp->fg = term.cursor.attr.fg;
++		gp->bg = term.cursor.attr.bg;
 +	} else {
 +		gp->fg = default_foreground;
 +		gp->bg = default_background;
@@ -916,8 +916,8 @@ index 2478942..2b86d23 100644
 -			gp = &term.line[y][x];
 -			if (selected(x, y))
 -				selection_clear();
--			gp->fg = term.c.attr.fg;
--			gp->bg = term.c.attr.bg;
+-			gp->fg = term.cursor.attr.fg;
+-			gp->bg = term.cursor.attr.bg;
 -			gp->mode = 0;
 -			gp->rune = ' ';
 -		}
@@ -932,31 +932,31 @@ index 2478942..2b86d23 100644
 -	int dst, src, size;
 -	Glyph *line;
 -
--	LIMIT(n, 0, term.col - term.c.x);
+-	LIMIT(n, 0, term.col - term.cursor.x);
 +    int src, dst, size;
 +    Line line;
  
--	dst = term.c.x;
--	src = term.c.x + n;
+-	dst = term.cursor.x;
+-	src = term.cursor.x + n;
 -	size = term.col - src;
--	line = term.line[term.c.y];
+-	line = term.line[term.cursor.y];
 +    if (n <= 0)
 +        return;
  
 -	memmove(&line[dst], &line[src], size * sizeof(Glyph));
--	term_clear_region(term.col-n, term.c.y, term.col-1, term.c.y);
-+    dst = term.c.x;
-+    src = MIN(term.c.x + n, term.col);
+-	term_clear_region(term.col-n, term.cursor.y, term.col-1, term.cursor.y);
++    dst = term.cursor.x;
++    src = MIN(term.cursor.x + n, term.col);
 +    size = term.col - src;
 +    if (size > 0) {
 +        /*
 +         * otherwise src would point beyond the array
 +         * https://stackoverflow.com/questions/29844298
 +         */
-+        line = term.line[term.c.y];
++        line = term.line[term.cursor.y];
 +        memmove(&line[dst], &line[src], size * sizeof(Glyph));
 +    }
-+    term_clear_region(dst + size, term.c.y, term.col - 1, term.c.y, 1);
++    term_clear_region(dst + size, term.cursor.y, term.col - 1, term.cursor.y, 1);
  }
  
  void
@@ -965,43 +965,43 @@ index 2478942..2b86d23 100644
 -	int dst, src, size;
 -	Glyph *line;
 -
--	LIMIT(n, 0, term.col - term.c.x);
+-	LIMIT(n, 0, term.col - term.cursor.x);
 -
--	dst = term.c.x + n;
--	src = term.c.x;
+-	dst = term.cursor.x + n;
+-	src = term.cursor.x;
 -	size = term.col - dst;
--	line = term.line[term.c.y];
+-	line = term.line[term.cursor.y];
 +    int src, dst, size;
 +    Line line;
  
 -	memmove(&line[dst], &line[src], size * sizeof(Glyph));
--	term_clear_region(src, term.c.y, dst - 1, term.c.y);
+-	term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y);
 +    if (n <= 0)
 +        return;
-+    dst = MIN(term.c.x + n, term.col);
-+    src = term.c.x;
++    dst = MIN(term.cursor.x + n, term.col);
++    src = term.cursor.x;
 +    size = term.col - dst;
 +    if (size > 0) { /* otherwise dst would point beyond the array */
-+        line = term.line[term.c.y];
++        line = term.line[term.cursor.y];
 +        memmove(&line[dst], &line[src], size * sizeof(Glyph));
 +    }
-+    term_clear_region(src, term.c.y, dst - 1, term.c.y, 1);
++    term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, 1);
  }
  
  void
  term_insert_blank_line(int n)
  {
- 	if (BETWEEN(term.c.y, term.top, term.bot))
--		term_scroll_down(term.c.y, n, 0);
-+		term_scroll_down(term.c.y, n);
+ 	if (BETWEEN(term.cursor.y, term.top, term.bot))
+-		term_scroll_down(term.cursor.y, n, 0);
++		term_scroll_down(term.cursor.y, n);
  }
  
  void
  term_delete_line(int n)
  {
- 	if (BETWEEN(term.c.y, term.top, term.bot))
--		term_scroll_up(term.c.y, n, 0);
-+		term_scroll_up(term.c.y, term.bot, n, SCROLL_NOSAVEHIST);
+ 	if (BETWEEN(term.cursor.y, term.top, term.bot))
+-		term_scroll_up(term.cursor.y, n, 0);
++		term_scroll_up(term.cursor.y, term.bot, n, SCROLL_NOSAVEHIST);
  }
  
  int32_t
@@ -1064,21 +1064,21 @@ index 2478942..2b86d23 100644
  	case 'J': /* ED -- Clear screen */
  		switch (csiescseq.arg[0]) {
  		case 0: /* below */
--			term_clear_region(term.c.x, term.c.y, term.col-1, term.c.y);
-+			term_clear_region(term.c.x, term.c.y, term.col-1, term.c.y, 1);
- 			if (term.c.y < term.row-1) {
--				term_clear_region(0, term.c.y+1, term.col-1,
+-			term_clear_region(term.cursor.x, term.cursor.y, term.col-1, term.cursor.y);
++			term_clear_region(term.cursor.x, term.cursor.y, term.col-1, term.cursor.y, 1);
+ 			if (term.cursor.y < term.row-1) {
+-				term_clear_region(0, term.cursor.y+1, term.col-1,
 -						term.row-1);
-+				term_clear_region(0, term.c.y+1, term.col-1, term.row-1, 1);
++				term_clear_region(0, term.cursor.y+1, term.col-1, term.row-1, 1);
  			}
  			break;
  		case 1: /* above */
--			if (term.c.y > 1)
--				term_clear_region(0, 0, term.col-1, term.c.y-1);
--			term_clear_region(0, term.c.y, term.c.x, term.c.y);
-+			if (term.c.y >= 1)
-+				term_clear_region(0, 0, term.col-1, term.c.y-1, 1);
-+			term_clear_region(0, term.c.y, term.c.x, term.c.y, 1);
+-			if (term.cursor.y > 1)
+-				term_clear_region(0, 0, term.col-1, term.cursor.y-1);
+-			term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y);
++			if (term.cursor.y >= 1)
++				term_clear_region(0, 0, term.col-1, term.cursor.y-1, 1);
++			term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y, 1);
  			break;
 -		case 2: /* all */
 -			term_clear_region(0, 0, term.col-1, term.row-1);
@@ -1102,17 +1102,17 @@ index 2478942..2b86d23 100644
  	case 'K': /* EL -- Clear line */
  		switch (csiescseq.arg[0]) {
  		case 0: /* right */
--			term_clear_region(term.c.x, term.c.y, term.col-1,
--					term.c.y);
-+			term_clear_region(term.c.x, term.c.y, term.col-1, term.c.y, 1);
+-			term_clear_region(term.cursor.x, term.cursor.y, term.col-1,
+-					term.cursor.y);
++			term_clear_region(term.cursor.x, term.cursor.y, term.col-1, term.cursor.y, 1);
  			break;
  		case 1: /* left */
--			term_clear_region(0, term.c.y, term.c.x, term.c.y);
-+			term_clear_region(0, term.c.y, term.c.x, term.c.y, 1);
+-			term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y);
++			term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y, 1);
  			break;
  		case 2: /* all */
--			term_clear_region(0, term.c.y, term.col-1, term.c.y);
-+			term_clear_region(0, term.c.y, term.col-1, term.c.y, 1);
+-			term_clear_region(0, term.cursor.y, term.col-1, term.cursor.y);
++			term_clear_region(0, term.cursor.y, term.col-1, term.cursor.y, 1);
  			break;
  		}
  		break;
@@ -1137,10 +1137,10 @@ index 2478942..2b86d23 100644
 +		if (csiescseq.arg[0] < 0)
 +			return;
  		DEFAULT(csiescseq.arg[0], 1);
--		term_clear_region(term.c.x, term.c.y,
--				term.c.x + csiescseq.arg[0] - 1, term.c.y);
-+		x = MIN(term.c.x + csiescseq.arg[0], term.col) - 1;
-+		term_clear_region(term.c.x, term.c.y, x, term.c.y, 1);
+-		term_clear_region(term.cursor.x, term.cursor.y,
+-				term.cursor.x + csiescseq.arg[0] - 1, term.cursor.y);
++		x = MIN(term.cursor.x + csiescseq.arg[0], term.col) - 1;
++		term_clear_region(term.cursor.x, term.cursor.y, x, term.cursor.y, 1);
  		break;
  	case 'P': /* DCH -- Delete <n> char */
  		DEFAULT(csiescseq.arg[0], 1);
@@ -1150,7 +1150,7 @@ index 2478942..2b86d23 100644
  		case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
 -			len = snprintf(buf, sizeof(buf), "\033[%i;%iR",
 +			n = snprintf(buf, sizeof(buf), "\033[%i;%iR",
- 			               term.c.y+1, term.c.x+1);
+ 			               term.cursor.y+1, term.cursor.x+1);
 -			tty_write(buf, len, 0);
 +			tty_write(buf, n, 0);
  			break;
@@ -1178,38 +1178,38 @@ index 2478942..2b86d23 100644
 @@ -2368,7 +2545,7 @@ eschandle(uchar ascii)
  		return 0;
  	case 'D': /* IND -- Linefeed */
- 		if (term.c.y == term.bot) {
+ 		if (term.cursor.y == term.bot) {
 -			term_scroll_up(term.top, 1, 1);
 +			term_scroll_up(term.top, term.bot, 1, SCROLL_SAVEHIST);
  		} else {
- 			term_move_to(term.c.x, term.c.y+1);
+ 			term_move_to(term.cursor.x, term.cursor.y+1);
  		}
 @@ -2381,7 +2558,7 @@ eschandle(uchar ascii)
  		break;
  	case 'M': /* RI -- Reverse index */
- 		if (term.c.y == term.top) {
+ 		if (term.cursor.y == term.top) {
 -			term_scroll_down(term.top, 1, 1);
 +			term_scroll_down(term.top, 1);
  		} else {
- 			term_move_to(term.c.x, term.c.y-1);
+ 			term_move_to(term.cursor.x, term.cursor.y-1);
  		}
 @@ -2525,7 +2702,9 @@ check_control_code:
  		 */
  		return;
  	}
--	if (selected(term.c.x, term.c.y))
+-	if (selected(term.cursor.x, term.cursor.y))
 +
 +    /* selected() takes relative coordinates */
-+	if (selected(term.c.x + term.scr, term.c.y + term.scr))
++	if (selected(term.cursor.x + term.scr, term.cursor.y + term.scr))
  		selection_clear();
  
- 	gp = &term.line[term.c.y][term.c.x];
+ 	gp = &term.line[term.cursor.y][term.cursor.x];
 @@ -2565,6 +2744,7 @@ check_control_code:
- 	if (term.c.x+width < term.col) {
- 		term_move_to(term.c.x+width, term.c.y);
+ 	if (term.cursor.x+width < term.col) {
+ 		term_move_to(term.cursor.x+width, term.cursor.y);
  	} else {
 +		term.wrapcwidth[IS_SET(TERM_MODE_ALTSCREEN)] = width;
- 		term.c.state |= CURSOR_WRAPNEXT;
+ 		term.cursor.state |= CURSOR_WRAPNEXT;
  	}
  }
 @@ -2601,94 +2781,285 @@ term_write(const char *buf, int buflen, int show_ctrl)
@@ -1229,7 +1229,7 @@ index 2478942..2b86d23 100644
 +    if ((n = MIN(n, term.histf)) <= 0)
 +        return;
 +
-+    for (i = term.c.y + n; i >= n; i--) {
++    for (i = term.cursor.y + n; i >= n; i--) {
 +        temp = term.line[i];
 +        term.line[i] = term.line[i-n];
 +        term.line[i-n] = temp;
@@ -1240,7 +1240,7 @@ index 2478942..2b86d23 100644
 +        term.hist[term.histi] = temp;
 +        term.histi = (term.histi - 1 + HISTSIZE) % HISTSIZE;
 +    }
-+    term.c.y += n;
++    term.cursor.y += n;
 +    term.histf -= n;
 +    if ((i = term.scr - n) >= 0) {
 +        term.scr = i;
@@ -1276,7 +1276,7 @@ index 2478942..2b86d23 100644
 -	 * term_scroll_up would work here, but we can optimize to
 -	 * memmove because we're freeing the earlier lines
 -	 */
--	for (i = 0; i <= term.c.y - row; i++) {
+-	for (i = 0; i <= term.cursor.y - row; i++) {
 -		free(term.line[i]);
 -		free(term.alt[i]);
 -	}
@@ -1307,7 +1307,7 @@ index 2478942..2b86d23 100644
 -	for (i = 0; i < HISTSIZE; i++) {
 -		term.hist[i] = xrealloc(term.hist[i], col * sizeof(Glyph));
 -		for (j = mincol; j < col; j++) {
--			term.hist[i][j] = term.c.attr;
+-			term.hist[i][j] = term.cursor.attr;
 -			term.hist[i][j].rune = ' ';
 -		}
 -	}
@@ -1351,9 +1351,9 @@ index 2478942..2b86d23 100644
 +		treflow(col, row);
 +	} else {
 +		/* slide screen up if otherwise cursor would get out of the screen */
-+		if (term.c.y >= row) {
-+			term_scroll_up(0, term.row - 1, term.c.y - row + 1, SCROLL_RESIZE);
-+			term.c.y = row - 1;
++		if (term.cursor.y >= row) {
++			term_scroll_up(0, term.row - 1, term.cursor.y - row + 1, SCROLL_RESIZE);
++			term.cursor.y = row - 1;
 + 		}
 +		for (i = row; i < term.row; i++)
 +			free(term.line[i]);
@@ -1376,9 +1376,9 @@ index 2478942..2b86d23 100644
  	/* reset scrolling region */
 -	term_set_scroll(0, row-1);
 -	/* make use of the LIMIT in term_move_to */
--	term_move_to(term.c.x, term.c.y);
+-	term_move_to(term.cursor.x, term.cursor.y);
 -	/* Clearing both screens (it makes dirty all lines) */
--	c = term.c;
+-	c = term.cursor;
 -	for (i = 0; i < 2; i++) {
 -		if (mincol < col && 0 < minrow) {
 -			term_clear_region(mincol, 0, col - 1, minrow - 1);
@@ -1389,7 +1389,7 @@ index 2478942..2b86d23 100644
 -		term_swap_screen();
 -		term_cursor(CURSOR_LOAD);
 -	}
--	term.c = c;
+-	term.cursor = c;
 +	term.top = 0, term.bot = row - 1;
 +	/* dirty all lines */
 +	term_full_dirt();
@@ -1410,12 +1410,12 @@ index 2478942..2b86d23 100644
 +    if (selection.alt)
 +        selremove();
 +    /* slide screen up if otherwise cursor would get out of the screen */
-+    for (i = 0; i <= term.c.y - row; i++)
++    for (i = 0; i <= term.cursor.y - row; i++)
 +        free(term.line[i]);
 +    if (i > 0) {
 +        /* ensure that both src and dst are not NULL */
 +        memmove(term.line, term.line + i, row * sizeof(Line));
-+        term.c.y = row - 1;
++        term.cursor.y = row - 1;
 +    }
 +    for (i += row; i < term.row; i++)
 +        free(term.line[i]);
@@ -1434,9 +1434,9 @@ index 2478942..2b86d23 100644
 +            tclearglyph(&term.line[i][j], 0);
 +    }
 +    /* update cursor */
-+    if (term.c.x >= col) {
-+        term.c.state &= ~CURSOR_WRAPNEXT;
-+        term.c.x = col - 1;
++    if (term.cursor.x >= col) {
++        term.cursor.state &= ~CURSOR_WRAPNEXT;
++        term.cursor.x = col - 1;
 +    } else {
 +        UPDATEWRAPNEXT(1, col);
 +    }
@@ -1463,7 +1463,7 @@ index 2478942..2b86d23 100644
 +    Line *buf, line;
 +
 +    /* y coordinate of cursor line end */
-+    for (oce = term.c.y; oce < term.row - 1 &&
++    for (oce = term.cursor.y; oce < term.row - 1 &&
 +            tiswrapped(term.line[oce]); oce++);
 +
 +    nlines = term.histf + oce + 1;
@@ -1484,12 +1484,12 @@ index 2478942..2b86d23 100644
 +            line = TLINEABS(oy);
 +            len = term_line_len(line);
 +        }
-+        if (oy == term.c.y) {
++        if (oy == term.cursor.y) {
 +            if (!ox)
-+                len = MAX(len, term.c.x + 1);
++                len = MAX(len, term.cursor.x + 1);
 +            /* update cursor */
-+            if (cy < 0 && term.c.x - ox < col - nx) {
-+                term.c.x = nx + term.c.x - ox, cy = ny;
++            if (cy < 0 && term.cursor.x - ox < col - nx) {
++                term.cursor.x = nx + term.cursor.x - ox, cy = ny;
 +                UPDATEWRAPNEXT(0, col);
 +            }
 +        }
@@ -1530,13 +1530,13 @@ index 2478942..2b86d23 100644
 +    /* update y coordinate of cursor line end */
 +    nce = MIN(oce + scr, bot);
 +    /* update cursor y coordinate */
-+    term.c.y = nce - (ny - cy);
-+    if (term.c.y < 0) {
-+        j = nce, nce = MIN(nce + -term.c.y, bot);
-+        term.c.y += nce - j;
-+        while (term.c.y < 0) {
++    term.cursor.y = nce - (ny - cy);
++    if (term.cursor.y < 0) {
++        j = nce, nce = MIN(nce + -term.cursor.y, bot);
++        term.cursor.y += nce - j;
++        while (term.cursor.y < 0) {
 +            free(buf[ny--]);
-+            term.c.y++;
++            term.cursor.y++;
 +        }
 +    }
 +    /* allocate new number_rows */
@@ -1574,12 +1574,12 @@ index 2478942..2b86d23 100644
  
  	draw_region(0, 0, term.col, term.row);
 -	if (term.scr == 0)
--		x_draw_cursor(cx, term.c.y, term.line[term.c.y][cx],
+-		x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx],
 -				term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
-+	x_draw_cursor(cx, term.c.y, term.line[term.c.y][cx],
++	x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx],
 +			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
  	term.ocx = cx;
- 	term.ocy = term.c.y;
+ 	term.ocy = term.cursor.y;
  	x_finish_draw();
 diff --git a/st.h b/st.h
 index 818a6f8..514ec08 100644
