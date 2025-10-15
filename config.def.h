@@ -184,7 +184,7 @@ static const char *CONF_COLORS[] = {
 	[259] = "#555555",
 };
 
-static const int32 trans_colors = 26;
+static const int32 CONF_NTRANSPARENT_COLORS = 26;
 
 /*
  * Default colors (CONF_COLORS index)
