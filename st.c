@@ -898,7 +898,7 @@ stty(char **args) {
 
 int32
 tty_new(const char *line, char *cmd, const char *out, char **args) {
-    int32 m;
+    int32 amaster;
     int32 s;
 
     if (out) {
@@ -919,7 +919,7 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
     }
 
     /* seems to work fine on linux, openbsd and freebsd */
-    if (openpty(&m, &s, NULL, NULL, NULL) < 0) {
+    if (openpty(&amaster, &s, NULL, NULL, NULL) < 0) {
         die("openpty failed: %s\n", strerror(errno));
     }
 
@@ -929,7 +929,7 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
         break;
     case 0:
         close(iofd);
-        close(m);
+        close(amaster);
         setsid(); /* create a new process group */
         dup2(s, 0);
         dup2(s, 1);
@@ -954,7 +954,7 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
         }
 #endif
         close(s);
-        cmdfd = m;
+        cmdfd = amaster;
         signal(SIGCHLD, handler_sigchld);
         break;
     }
