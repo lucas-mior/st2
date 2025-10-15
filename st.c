@@ -35,6 +35,7 @@
 #define ESC_ARG_SIZ   16
 #define STR_BUF_SIZ   ESC_BUF_SIZ
 #define STR_ARG_SIZ   ESC_ARG_SIZ
+#define HISTSIZE      2000
 
 /* macros */
 #define IS_SET(flag)		((term.mode & (flag)) != 0)
@@ -42,6 +43,9 @@
 #define ISCONTROLC1(c)		(BETWEEN(c, 0x80, 0x9f))
 #define ISCONTROL(c)		(ISCONTROLC0(c) || ISCONTROLC1(c))
 #define ISDELIM(u)		(u && wcschr(worddelimiters, u))
+#define TLINE(y)		((y) < term.scr ? term.hist[((y) + term.histi - \
+            term.scr + HISTSIZE + 1) % HISTSIZE] : \
+            term.line[(y) - term.scr])
 
 enum term_mode {
 	TERM_MODE_WRAP        = 1 << 0,
@@ -115,6 +119,9 @@ typedef struct {
 	int col;      /* nb col */
 	Line *line;   /* screen */
 	Line *alt;    /* alternate screen */
+	Line hist[HISTSIZE]; /* history buffer */
+	int histi;    /* history index */
+	int scr;      /* scroll back */
 	int *dirty;   /* dirtyness of lines */
 	TCursor cursor;    /* cursor */
 	int ocx;      /* old cursor col */
@@ -185,8 +192,8 @@ static void term_new_line(int);
 static void term_put_tab(int);
 static void term_putc(Rune);
 static void term_reset(void);
-static void term_scroll_up(int, int);
-static void term_scroll_down(int, int);
+static void term_scroll_up(int, int, int);
+static void term_scroll_down(int, int, int);
 static void term_set_attr(const int *, int);
 static void term_set_char(Rune, const Glyph *, int, int);
 static void term_set_dirt(int, int);
@@ -409,10 +416,10 @@ term_line_len(int y)
 {
 	int i = term.col;
 
-	if (term.line[y][i - 1].mode & ATTR_WRAP)
+	if (TLINE(y)[i - 1].mode & ATTR_WRAP)
 		return i;
 
-	while (i > 0 && term.line[y][i - 1].rune == ' ')
+	while (i > 0 && TLINE(y)[i - 1].rune == ' ')
 		--i;
 
 	return i;
@@ -521,7 +528,7 @@ selection_snap(int *x, int *y, int direction)
 		 * Snap around if the word wraps around at the end or
 		 * beginning of a line.
 		 */
-		prevgp = &term.line[*y][*x];
+		prevgp = &TLINE(*y)[*x];
 		prevdelim = ISDELIM(prevgp->rune);
 		for (;;) {
 			newx = *x + direction;
@@ -536,14 +543,14 @@ selection_snap(int *x, int *y, int direction)
 					yt = *y, xt = *x;
 				else
 					yt = newy, xt = newx;
-				if (!(term.line[yt][xt].mode & ATTR_WRAP))
+				if (!(TLINE(yt)[xt].mode & ATTR_WRAP))
 					break;
 			}
 
 			if (newx >= term_line_len(newy))
 				break;
 
-			gp = &term.line[newy][newx];
+			gp = &TLINE(newy)[newx];
 			delim = ISDELIM(gp->rune);
 			if (!(gp->mode & ATTR_WDUMMY) && (delim != prevdelim
 					|| (delim && gp->rune != prevgp->rune)))
@@ -564,14 +571,14 @@ selection_snap(int *x, int *y, int direction)
 		*x = (direction < 0) ? 0 : term.col - 1;
 		if (direction < 0) {
 			for (; *y > 0; *y += direction) {
-				if (!(term.line[*y-1][term.col-1].mode
+				if (!(TLINE(*y-1)[term.col-1].mode
 						& ATTR_WRAP)) {
 					break;
 				}
 			}
 		} else if (direction > 0) {
 			for (; *y < term.row-1; *y += direction) {
-				if (!(term.line[*y][term.col-1].mode
+				if (!(TLINE(*y)[term.col-1].mode
 						& ATTR_WRAP)) {
 					break;
 				}
@@ -602,13 +609,13 @@ get_sel(void)
 		}
 
 		if (selection.type == SELECTION_RECTANGULAR) {
-			gp = &term.line[y][selection.nb.x];
+			gp = &TLINE(y)[selection.nb.x];
 			lastx = selection.ne.x;
 		} else {
-			gp = &term.line[y][selection.nb.y == y ? selection.nb.x : 0];
+			gp = &TLINE(y)[selection.nb.y == y ? selection.nb.x : 0];
 			lastx = (selection.ne.y == y) ? selection.ne.x : term.col-1;
 		}
-		last = &term.line[y][MIN(lastx, linelen-1)];
+		last = &TLINE(y)[MIN(lastx, linelen-1)];
 		while (last >= gp && last->rune == ' ')
 			--last;
 
@@ -844,6 +851,9 @@ void
 tty_write(const char *s, size_t n, int may_echo)
 {
 	const char *next;
+	Arg arg = (Arg) { .i = term.scr };
+
+	user_scroll_down(&arg);
 
 	if (may_echo && IS_SET(TERM_MODE_ECHO))
 		term_write(s, n, 1);
@@ -1055,12 +1065,52 @@ term_swap_screen(void)
 }
 
 void
-term_scroll_down(int orig, int n)
+user_scroll_down(const Arg* a)
+{
+	int n = a->i;
+
+	if (n < 0)
+		n = term.row + n;
+
+	if (n > term.scr)
+		n = term.scr;
+
+	if (term.scr > 0) {
+		term.scr -= n;
+		selection_scroll(0, -n);
+		term_full_dirt();
+	}
+}
+
+void
+user_scroll_up(const Arg* a)
+{
+	int n = a->i;
+
+	if (n < 0)
+		n = term.row + n;
+
+	if (term.scr <= HISTSIZE-n) {
+		term.scr += n;
+		selection_scroll(0, n);
+		term_full_dirt();
+	}
+}
+
+void
+term_scroll_down(int orig, int n, int copyhist)
 {
 	int i;
 	Line temp;
 
 	LIMIT(n, 0, term.bot-orig+1);
+
+	if (copyhist) {
+		term.histi = (term.histi - 1 + HISTSIZE) % HISTSIZE;
+		temp = term.hist[term.histi];
+		term.hist[term.histi] = term.line[term.bot];
+		term.line[term.bot] = temp;
+	}
 
 	term_set_dirt(orig, term.bot-n);
 	term_clear_region(0, term.bot-n+1, term.col-1, term.bot);
@@ -1071,16 +1121,27 @@ term_scroll_down(int orig, int n)
 		term.line[i-n] = temp;
 	}
 
-	selection_scroll(orig, n);
+	if (term.scr == 0)
+		selection_scroll(orig, n);
 }
 
 void
-term_scroll_up(int orig, int n)
+term_scroll_up(int orig, int n, int copyhist)
 {
 	int i;
 	Line temp;
 
 	LIMIT(n, 0, term.bot-orig+1);
+
+	if (copyhist) {
+		term.histi = (term.histi + 1) % HISTSIZE;
+		temp = term.hist[term.histi];
+		term.hist[term.histi] = term.line[orig];
+		term.line[orig] = temp;
+	}
+
+	if (term.scr > 0 && term.scr < HISTSIZE)
+		term.scr = MIN(term.scr + n, HISTSIZE-1);
 
 	term_clear_region(0, orig, term.col-1, orig+n-1);
 	term_set_dirt(orig+n, term.bot);
@@ -1091,7 +1152,8 @@ term_scroll_up(int orig, int n)
 		term.line[i+n] = temp;
 	}
 
-	selection_scroll(orig, -n);
+	if (term.scr == 0)
+		selection_scroll(orig, -n);
 }
 
 void
@@ -1120,7 +1182,7 @@ term_new_line(int first_col)
 	int y = term.cursor.y;
 
 	if (y == term.bot) {
-		term_scroll_up(term.top, 1);
+		term_scroll_up(term.top, 1, 1);
 	} else {
 		y++;
 	}
@@ -1288,14 +1350,14 @@ void
 term_insert_blank_line(int n)
 {
 	if (BETWEEN(term.cursor.y, term.top, term.bot))
-		term_scroll_down(term.cursor.y, n);
+		term_scroll_down(term.cursor.y, n, 0);
 }
 
 void
 term_delete_line(int n)
 {
 	if (BETWEEN(term.cursor.y, term.top, term.bot))
-		term_scroll_up(term.cursor.y, n);
+		term_scroll_up(term.cursor.y, n, 0);
 }
 
 int32_t
@@ -1739,11 +1801,11 @@ control_seq_intro_handle(void)
 	case 'S': /* SU -- Scroll <n> line up */
 		if (csiescseq.priv) break;
 		DEFAULT(csiescseq.arg[0], 1);
-		term_scroll_up(term.top, csiescseq.arg[0]);
+		term_scroll_up(term.top, csiescseq.arg[0], 0);
 		break;
 	case 'T': /* SD -- Scroll <n> line down */
 		DEFAULT(csiescseq.arg[0], 1);
-		term_scroll_down(term.top, csiescseq.arg[0]);
+		term_scroll_down(term.top, csiescseq.arg[0], 0);
 		break;
 	case 'L': /* IL -- Insert <n> blank lines */
 		DEFAULT(csiescseq.arg[0], 1);
@@ -2332,7 +2394,7 @@ eschandle(uchar ascii)
 		return 0;
 	case 'D': /* IND -- Linefeed */
 		if (term.cursor.y == term.bot) {
-			term_scroll_up(term.top, 1);
+			term_scroll_up(term.top, 1, 1);
 		} else {
 			term_move_to(term.cursor.x, term.cursor.y+1);
 		}
@@ -2345,7 +2407,7 @@ eschandle(uchar ascii)
 		break;
 	case 'M': /* RI -- Reverse index */
 		if (term.cursor.y == term.top) {
-			term_scroll_down(term.top, 1);
+			term_scroll_down(term.top, 1, 1);
 		} else {
 			term_move_to(term.cursor.x, term.cursor.y-1);
 		}
@@ -2568,7 +2630,7 @@ term_write(const char *buf, int buflen, int show_ctrl)
 void
 term_resize(int col, int row)
 {
-	int i;
+	int i, j;
 	int minrow = MIN(row, term.row);
 	int mincol = MIN(col, term.col);
 	int *bp;
@@ -2604,6 +2666,14 @@ term_resize(int col, int row)
 	term.alt  = xrealloc(term.alt,  row * sizeof(Line));
 	term.dirty = xrealloc(term.dirty, row * sizeof(*term.dirty));
 	term.tabs = xrealloc(term.tabs, col * sizeof(*term.tabs));
+
+	for (i = 0; i < HISTSIZE; i++) {
+		term.hist[i] = xrealloc(term.hist[i], col * sizeof(Glyph));
+		for (j = mincol; j < col; j++) {
+			term.hist[i][j] = term.cursor.attr;
+			term.hist[i][j].rune = ' ';
+		}
+	}
 
 	/* handler_configure_notify each row to new width, zero-pad if needed */
 	for (i = 0; i < minrow; i++) {
@@ -2663,7 +2733,7 @@ draw_region(int x1, int y1, int x2, int y2)
 			continue;
 
 		term.dirty[y] = 0;
-		x_draw_line(term.line[y], x1, y, x2);
+		x_draw_line(TLINE(y), x1, y, x2);
 	}
 }
 
@@ -2684,8 +2754,9 @@ draw(void)
 		cx--;
 
 	draw_region(0, 0, term.col, term.row);
-	x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx],
-			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
+	if (term.scr == 0)
+		x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx],
+				term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
 	term.ocx = cx;
 	term.ocy = term.cursor.y;
 	x_finish_draw();
