@@ -328,10 +328,10 @@ index b9f66e7..2478942 100644
  		cx--;
  
  	draw_region(0, 0, term.col, term.row);
--	xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
+-	x_draw_cursor(cx, term.c.y, term.line[term.c.y][cx],
 -			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
 +	if (term.scr == 0)
-+		xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
++		x_draw_cursor(cx, term.c.y, term.line[term.c.y][cx],
 +				term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
  	term.ocx = cx;
  	term.ocy = term.c.y;
