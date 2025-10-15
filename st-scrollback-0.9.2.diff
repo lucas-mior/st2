@@ -293,14 +293,14 @@ index b9f66e7..2478942 100644
  		}
 @@ -2542,7 +2604,7 @@ twrite(const char *buf, int buflen, int show_ctrl)
  void
- tresize(int col, int row)
+ term_resize(int col, int row)
  {
 -	int i;
 +	int i, j;
  	int minrow = MIN(row, term.row);
  	int mincol = MIN(col, term.col);
  	int *bp;
-@@ -2579,6 +2641,14 @@ tresize(int col, int row)
+@@ -2579,6 +2641,14 @@ term_resize(int col, int row)
  	term.dirty = xrealloc(term.dirty, row * sizeof(*term.dirty));
  	term.tabs = xrealloc(term.tabs, col * sizeof(*term.tabs));
  

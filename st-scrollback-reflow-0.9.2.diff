@@ -499,7 +499,7 @@ index 2478942..2b86d23 100644
  term_new(int col, int row)
  {
 -	term = (Term){ .c = { .attr = { .fg = default_foreground, .bg = default_background } } };
--	tresize(col, row);
+-	term_resize(col, row);
 -	term_reset();
 +    int i, j;
 +
@@ -1254,7 +1254,7 @@ index 2478942..2b86d23 100644
 +
 +
  void
- tresize(int col, int row)
+ term_resize(int col, int row)
  {
 -	int i, j;
 -	int minrow = MIN(row, term.row);
@@ -1265,8 +1265,8 @@ index 2478942..2b86d23 100644
 +	/* col and row are always MAX(_, 1)
  	if (col < 1 || row < 1) {
 -		fprintf(stderr,
--		        "tresize: error resizing to %dx%d\n", col, row);
-+		fprintf(stderr, "tresize: error resizing to %dx%d\n", col, row);
+-		        "term_resize: error resizing to %dx%d\n", col, row);
++		fprintf(stderr, "term_resize: error resizing to %dx%d\n", col, row);
  		return;
 -	}
 +	} */
@@ -1621,6 +1621,6 @@ index 818a6f8..514ec08 100644
  int term_attr_set(int);
  void term_new(int, int);
 +int tisaltscreen(void);
- void tresize(int, int);
+ void term_resize(int, int);
  void tsetdirtattr(int);
  void ttyhangup(void);
