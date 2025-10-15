@@ -335,7 +335,7 @@ index b9f66e7..2478942 100644
 +				term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
  	term.ocx = cx;
  	term.ocy = term.c.y;
- 	xfinishdraw();
+ 	x_finish_draw();
 diff --git a/st.h b/st.h
 index fd3b0d8..818a6f8 100644
 --- a/st.h
