@@ -1158,7 +1158,7 @@ x_load_color(int32 i, const char *name, Color *ncolor) {
 
 void
 x_load_cols(void) {
-    static int32 loaded;
+    static int32 loaded = 0;
     Color *cp;
 
     if (loaded) {
