@@ -469,7 +469,7 @@ handler_button_press(XEvent *e) {
          * snapping behaviour is exposed.
          */
         clock_gettime(CLOCK_MONOTONIC, &now);
-        if (TIMEDIFF(now, xsel.tclick2) <= (float)tripleclicktimeout) {
+        if (TIMEDIFF(now, xsel.tclick2) <= (float)triple_click_timeout) {
             snap = SELECTION_SNAP_LINE;
         } else if (TIMEDIFF(now, xsel.tclick1) <= (float)double_click_timeout) {
             snap = SELECTION_SNAP_WORD;

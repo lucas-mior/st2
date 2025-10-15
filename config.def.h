@@ -55,7 +55,7 @@ wchar_t *worddelimiters = L" ";
 
 /* selection timeouts (in milliseconds) */
 static const uint32 double_click_timeout = 300;
-static const uint32 tripleclicktimeout = 600;
+static const uint32 triple_click_timeout = 600;
 
 /* alt screens */
 int32 allowaltscreen = 1;
