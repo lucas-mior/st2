@@ -147,7 +147,7 @@ index 8a16faa..220fc4f 100644
 +
  	/* colors */
  	xw.cmap = XDefaultColormap(xw.dpy, xw.scr);
- 	xloadcols();
+ 	x_load_cols();
 --
 2.37.1
 
