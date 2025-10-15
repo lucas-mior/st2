@@ -209,7 +209,7 @@ static int32 CONF_COLOR_IGNORE_SELECTION_FONT_COLOR = 1;
  * 6: Bar ("|")
  * 7: Snowman ("☃")
  */
-static uint32 CURSOR_SHAPE = 2;
+static uint32 CONF_CURSOR_SHAPE = 2;
 
 /*
  * Default columns and CONF_NUMBER_ROWS numbers

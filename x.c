@@ -2176,7 +2176,7 @@ int32
 main(int32 argc, char *argv[]) {
     x_window.l = x_window.t = 0;
     x_window.isfixed = False;
-    x_set_cursor((int32)CURSOR_SHAPE);
+    x_set_cursor((int32)CONF_CURSOR_SHAPE);
 
     ARGBEGIN {
     case 'a':
