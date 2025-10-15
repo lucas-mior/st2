@@ -45,8 +45,8 @@
 /* macros */
 #define TERM_MODE_IS_SET(flag) ((term.mode & (flag)) != 0)
 #define IS_CONTROL_C0(c) (BETWEEN(c, 0, 0x1f) || (c) == 0x7f)
-#define ISCONTROLC1(c) (BETWEEN(c, 0x80, 0x9f))
-#define ISCONTROL(c) (IS_CONTROL_C0(c) || ISCONTROLC1(c))
+#define IS_CONTROL_C1(c) (BETWEEN(c, 0x80, 0x9f))
+#define ISCONTROL(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
 #define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
 #define TERM_LINE(y)                                                                               \
     ((y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTORY_SIZE) % HISTORY_SIZE]   \
@@ -2870,7 +2870,7 @@ term_putc(Rune u) {
      * character.
      */
     if (term.esc & ESC_STR) {
-        if (u == '\a' || u == 030 || u == 032 || u == 033 || ISCONTROLC1(u)) {
+        if (u == '\a' || u == 030 || u == 032 || u == 033 || IS_CONTROL_C1(u)) {
             term.esc &= ~(ESC_START | ESC_STR);
             term.esc |= ESC_STR_END;
             goto check_control_code;
@@ -2910,7 +2910,7 @@ check_control_code:
      */
     if (control) {
         /* in UTF-8 mode ignore handling C1 control characters */
-        if (TERM_MODE_IS_SET(TERM_MODE_UTF8) && ISCONTROLC1(u)) {
+        if (TERM_MODE_IS_SET(TERM_MODE_UTF8) && IS_CONTROL_C1(u)) {
             return;
         }
         term_control_code((uchar)u);
