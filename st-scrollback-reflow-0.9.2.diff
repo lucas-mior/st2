@@ -241,10 +241,10 @@ index 2478942..2b86d23 100644
 +regionselected(int x1, int y1, int x2, int y2)
  {
 -	if (sel.mode == SEL_EMPTY || sel.ob.x == -1 ||
--			sel.alt != IS_SET(MODE_ALTSCREEN))
+-			sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
 -		return 0;
 +    if (sel.ob.x == -1 || sel.mode == SEL_EMPTY ||
-+            sel.alt != IS_SET(MODE_ALTSCREEN) || sel.nb.y > y2 || sel.ne.y < y1)
++            sel.alt != IS_SET(TERM_MODE_ALTSCREEN) || sel.nb.y > y2 || sel.ne.y < y1)
 +        return 0;
  
 -	if (sel.type == SEL_RECTANGULAR)
@@ -273,7 +273,7 @@ index 2478942..2b86d23 100644
  	int delim, prevdelim;
  	const Glyph *gp, *prevgp;
  
-+	if (!IS_SET(MODE_ALTSCREEN))
++	if (!IS_SET(TERM_MODE_ALTSCREEN))
 +		rtop += -term.histf + term.scr, rbot += term.scr;
 +
  	switch (sel.snap) {
@@ -343,7 +343,7 @@ index 2478942..2b86d23 100644
 +	const Glyph *gp, *lgp;
  
 -	if (sel.ob.x == -1)
-+	if (sel.ob.x == -1 || sel.alt != IS_SET(MODE_ALTSCREEN))
++	if (sel.ob.x == -1 || sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
  		return NULL;
  
 -	bufsize = (term.col+1) * (sel.ne.y-sel.nb.y+1) * UTF_SIZ;
@@ -533,7 +533,7 @@ index 2478942..2b86d23 100644
 +	term.col = altcol, term.row = altrow;
 +	altline = tmpline;
 +	altcol = tmpcol, altrow = tmprow;
- 	term.mode ^= MODE_ALTSCREEN;
+ 	term.mode ^= TERM_MODE_ALTSCREEN;
 -	tfulldirt();
  }
  
@@ -542,7 +542,7 @@ index 2478942..2b86d23 100644
 +tloaddefscreen(int clear, int loadcursor)
  {
 -	int n = a->i;
-+	int col, row, alt = IS_SET(MODE_ALTSCREEN);
++	int col, row, alt = IS_SET(TERM_MODE_ALTSCREEN);
  
 -	if (n < 0)
 -		n = term.row + n;
@@ -563,7 +563,7 @@ index 2478942..2b86d23 100644
 +void
 +tloadaltscreen(int clear, int savecursor)
 +{
-+	int col, row, def = !IS_SET(MODE_ALTSCREEN);
++	int col, row, def = !IS_SET(TERM_MODE_ALTSCREEN);
  
 -	if (term.scr > 0) {
 -		term.scr -= n;
@@ -584,7 +584,7 @@ index 2478942..2b86d23 100644
 +int
 +tisaltscreen(void)
 +{
-+	return IS_SET(MODE_ALTSCREEN);
++	return IS_SET(TERM_MODE_ALTSCREEN);
 +}
 +
 +
@@ -597,7 +597,7 @@ index 2478942..2b86d23 100644
  
 -	if (n < 0)
 -		n = term.row + n;
-+    if (!term.scr || IS_SET(MODE_ALTSCREEN))
++    if (!term.scr || IS_SET(TERM_MODE_ALTSCREEN))
 +        return;
  
 -	if (term.scr <= HISTSIZE-n) {
@@ -630,7 +630,7 @@ index 2478942..2b86d23 100644
 +    int n = a->i;
  
 -	LIMIT(n, 0, term.bot-orig+1);
-+    if (!term.histf || IS_SET(MODE_ALTSCREEN))
++    if (!term.histf || IS_SET(TERM_MODE_ALTSCREEN))
 +        return;
  
 -	if (copyhist) {
@@ -697,7 +697,7 @@ index 2478942..2b86d23 100644
  
 -	tclearregion(0, orig, term.col-1, orig+n-1);
 -	tsetdirt(orig+n, term.bot);
-+    if (sel.ob.x != -1 && sel.alt == IS_SET(MODE_ALTSCREEN))
++    if (sel.ob.x != -1 && sel.alt == IS_SET(TERM_MODE_ALTSCREEN))
 +        selscroll(top, bot, n);
 +}
  
@@ -710,7 +710,7 @@ index 2478942..2b86d23 100644
 +tscrollup(int top, int bot, int n, int mode)
 +{
 +    int i, j, s;
-+    int alt = IS_SET(MODE_ALTSCREEN);
++    int alt = IS_SET(TERM_MODE_ALTSCREEN);
 +    int savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
 +    Line temp;
 +
@@ -771,7 +771,7 @@ index 2478942..2b86d23 100644
 +void
 +selscroll(int top, int bot, int n)
  {
--	if (sel.ob.x == -1 || sel.alt != IS_SET(MODE_ALTSCREEN))
+-	if (sel.ob.x == -1 || sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
 -		return;
 +    /* turn absolute coordinates into relative */
 +    top += term.scr, bot += term.scr;
@@ -1027,7 +1027,7 @@ index 2478942..2b86d23 100644
 +			case 1047: /*swap screen, clearing alternate screen */
  				if (!allowaltscreen)
  					break;
--				alt = IS_SET(MODE_ALTSCREEN);
+-				alt = IS_SET(TERM_MODE_ALTSCREEN);
 -				if (alt) {
 -					tclearregion(0, 0, term.col-1,
 -							term.row-1);
@@ -1083,7 +1083,7 @@ index 2478942..2b86d23 100644
 -		case 2: /* all */
 -			tclearregion(0, 0, term.col-1, term.row-1);
 +        case 2: /* all */
-+            if (IS_SET(MODE_ALTSCREEN)) {
++            if (IS_SET(TERM_MODE_ALTSCREEN)) {
 +                tclearregion(0, 0, term.col-1, term.row-1, 1);
 +                break;
 +            }
@@ -1208,7 +1208,7 @@ index 2478942..2b86d23 100644
  	if (term.c.x+width < term.col) {
  		tmoveto(term.c.x+width, term.c.y);
  	} else {
-+		term.wrapcwidth[IS_SET(MODE_ALTSCREEN)] = width;
++		term.wrapcwidth[IS_SET(TERM_MODE_ALTSCREEN)] = width;
  		term.c.state |= CURSOR_WRAPNEXT;
  	}
  }
@@ -1223,7 +1223,7 @@ index 2478942..2b86d23 100644
 +    Line temp;
 +
 +    /* can never be true as of now
-+       if (IS_SET(MODE_ALTSCREEN))
++       if (IS_SET(TERM_MODE_ALTSCREEN))
 +       return; */
 +
 +    if ((n = MIN(n, term.histf)) <= 0)
@@ -1311,7 +1311,7 @@ index 2478942..2b86d23 100644
 -			term.hist[i][j].u = ' ';
 -		}
 -	}
-+	if (IS_SET(MODE_ALTSCREEN))
++	if (IS_SET(TERM_MODE_ALTSCREEN))
 +		tresizealt(col, row);
 +	else
 +		tresizedef(col, row);
