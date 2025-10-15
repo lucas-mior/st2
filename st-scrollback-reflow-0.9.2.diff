@@ -1616,7 +1616,7 @@ index 818a6f8..514ec08 100644
  	ATTR_BOLD_FAINT = ATTR_BOLD | ATTR_FAINT,
  };
  
-@@ -90,6 +92,7 @@ void toggleprinter(const Arg *);
+@@ -90,6 +92,7 @@ void user_toggle_printer(const Arg *);
  
  int term_attr_set(int);
  void term_new(int, int);
