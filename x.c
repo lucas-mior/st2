@@ -1498,8 +1498,9 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
 void
 x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, int32 x, int32 y) {
     int32 charlen = len * ((base.mode & ATTR_WIDE) ? 2 : 1);
-    int32 winx = term_window.hborderpx + x * term_window.cw,
-          winy = term_window.vborderpx + y * term_window.ch, width = charlen * term_window.cw;
+    int32 winx = term_window.hborderpx + x * term_window.cw;
+    int32 winy = term_window.vborderpx + y * term_window.ch;
+    int32 width = charlen * term_window.cw;
     Color *fg, *bg, *temp, revfg, revbg, truefg, truebg;
     XRenderColor colfg, colbg;
     XRectangle r;
@@ -1631,12 +1632,14 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
     /* Render underline and strikethrough. */
     if (base.mode & ATTR_UNDERLINE) {
         XftDrawRect(x_window.draw, fg, winx,
-                    winy + draw_context.font.ascent * char_height_scale + 1, (uint32)width, 1);
+                    winy + (int32)((float)draw_context.font.ascent * char_height_scale) + 1,
+                    (uint32)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
         XftDrawRect(x_window.draw, fg, winx,
-                    winy + 2 * draw_context.font.ascent * char_height_scale / 3, (uint32)width, 1);
+                    winy + 2 * (int32)((float)draw_context.font.ascent * char_height_scale / 3),
+                    (uint32)width, 1);
     }
 
     /* Reset clip to none. */
