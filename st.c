@@ -48,7 +48,7 @@
 #define ISCONTROLC0(c) (BETWEEN(c, 0, 0x1f) || (c) == 0x7f)
 #define ISCONTROLC1(c) (BETWEEN(c, 0x80, 0x9f))
 #define ISCONTROL(c) (ISCONTROLC0(c) || ISCONTROLC1(c))
-#define ISDELIM(u) (u && wcschr(worddelimiters, u))
+#define ISDELIM(u) (u && wcschr(worddelimiters, (wchar_t)u))
 #define TLINE(y)                                                                                   \
     ((y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTSIZE) % HISTSIZE]           \
                     : term.line[(y) - term.scr])
@@ -658,9 +658,11 @@ selection_snap(int *x, int *y, int direction) {
                 }
 
                 if (direction > 0) {
-                    yt = *y, xt = *x;
+                    yt = *y;
+                    xt = *x;
                 } else {
-                    yt = newy, xt = newx;
+                    yt = newy;
+                    xt = newx;
                 }
                 if (!(TLINE(yt)[xt].mode & ATTR_WRAP)) {
                     break;
@@ -704,6 +706,9 @@ selection_snap(int *x, int *y, int direction) {
                 }
             }
         }
+        break;
+    default:
+        fprintf(stderr, "selection_snap: did not match.\n");
         break;
     }
     return;
