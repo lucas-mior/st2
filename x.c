@@ -471,7 +471,7 @@ handler_button_press(XEvent *e) {
         clock_gettime(CLOCK_MONOTONIC, &now);
         if (TIMEDIFF(now, xsel.tclick2) <= (float)triple_click_timeout) {
             snap = SELECTION_SNAP_LINE;
-        } else if (TIMEDIFF(now, xsel.tclick1) <= (float)double_click_timeout) {
+        } else if (TIMEDIFF(now, xsel.tclick1) <= (float)DOUBLE_CLICK_TIMEOUT) {
             snap = SELECTION_SNAP_WORD;
         } else {
             snap = 0;
