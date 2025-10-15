@@ -179,9 +179,9 @@ index 2478942..2b86d23 100644
  	sel.type = type;
 +	selnormalize();
  
--	if (oldey != sel.oe.y || oldex != sel.oe.x || oldtype != sel.type || sel.mode == SEL_EMPTY)
+-	if (oldey != sel.oe.y || oldex != sel.oe.x || oldtype != sel.type || sel.mode == SELECTION_EMPTY)
 +	if (oldey != sel.oe.y || oldex != sel.oe.x ||
-+	    oldtype != sel.type || sel.mode == SEL_EMPTY)
++	    oldtype != sel.type || sel.mode == SELECTION_EMPTY)
  		tsetdirt(MIN(sel.nb.y, oldsby), MAX(sel.ne.y, oldsey));
  
  	sel.mode = done ? SEL_IDLE : SEL_READY;
@@ -240,10 +240,10 @@ index 2478942..2b86d23 100644
 +    int
 +regionselected(int x1, int y1, int x2, int y2)
  {
--	if (sel.mode == SEL_EMPTY || sel.ob.x == -1 ||
+-	if (sel.mode == SELECTION_EMPTY || sel.ob.x == -1 ||
 -			sel.alt != IS_SET(TERM_MODE_ALTSCREEN))
 -		return 0;
-+    if (sel.ob.x == -1 || sel.mode == SEL_EMPTY ||
++    if (sel.ob.x == -1 || sel.mode == SELECTION_EMPTY ||
 +            sel.alt != IS_SET(TERM_MODE_ALTSCREEN) || sel.nb.y > y2 || sel.ne.y < y1)
 +        return 0;
  
