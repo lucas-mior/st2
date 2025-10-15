@@ -12,7 +12,7 @@ index 91ab8ca..717b2f0 100644
 +/*	"Hack Nerd Font Mono:pixelsize=11:antialias=true:autohint=true", */
 +};
 +
- static int borderpx = 2;
+ static int border_pixels = 2;
 
  /*
 diff --git a/x.c b/x.c
