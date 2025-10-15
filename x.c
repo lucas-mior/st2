@@ -229,6 +229,7 @@ user_clipboard_copy(const Arg *arg) {
         clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
         XSetSelectionOwner(x_window.display, clipboard, x_window.win, CurrentTime);
     }
+    return;
 }
 
 void
@@ -239,6 +240,7 @@ user_clipboard_paste(const Arg *arg) {
     clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
     XConvertSelection(x_window.display, clipboard, xsel.xtarget, clipboard, x_window.win,
                       CurrentTime);
+    return;
 }
 
 void
@@ -246,6 +248,7 @@ user_selection_paste(const Arg *arg) {
     (void)arg;
     XConvertSelection(x_window.display, XA_PRIMARY, xsel.xtarget, XA_PRIMARY, x_window.win,
                       CurrentTime);
+    return;
 }
 
 void
@@ -262,12 +265,14 @@ user_change_alpha(const Arg *arg) {
 
     x_load_cols();
     redraw();
+    return;
 }
 
 void
 user_toggle_numlock(const Arg *arg) {
     (void)arg;
     term_window.mode ^= WIN_MODE_NUMLOCK;
+    return;
 }
 
 void
@@ -276,6 +281,7 @@ user_zoom(const Arg *arg) {
 
     larg.f = usedfontsize + arg->f;
     zoom_abs(&larg);
+    return;
 }
 
 void
@@ -286,6 +292,7 @@ zoom_abs(const Arg *arg) {
     cresize(0, 0);
     redraw();
     x_hints();
+    return;
 }
 
 void
@@ -297,11 +304,13 @@ user_zoom_reset(const Arg *arg) {
         larg.f = defaultfontsize;
         zoom_abs(&larg);
     }
+    return;
 }
 
 void
 tty_send(const Arg *arg) {
     tty_write(arg->s, (int64)strlen(arg->s), 1);
+    return;
 }
 
 int32
@@ -333,6 +342,7 @@ mousesel(XEvent *e, int32 done) {
     if (done) {
         setsel(get_sel(), e->xbutton.time);
     }
+    return;
 }
 
 void
@@ -409,6 +419,7 @@ mousereport(XEvent *e) {
     }
 
     tty_write(buf, (int64)len, 0);
+    return;
 }
 
 uint32
@@ -478,6 +489,7 @@ handler_button_press(XEvent *e) {
 
         selection_start(evcol(e), evrow(e), snap);
     }
+    return;
 }
 
 void
@@ -490,6 +502,7 @@ handler_prop_notify(XEvent *e) {
         (x_property_event->atom == XA_PRIMARY || x_property_event->atom == clipboard)) {
         handler_selection_notify(e);
     }
+    return;
 }
 
 void
@@ -576,17 +589,20 @@ handler_selection_notify(XEvent *e) {
      * next data chunk in the property.
      */
     XDeleteProperty(x_window.display, x_window.win, (ulong)property);
+    return;
 }
 
 void
 x_clipboard_copy(void) {
     user_clipboard_copy(NULL);
+    return;
 }
 
 void
 handler_selection_clear(XEvent *e) {
     (void)e;
     selection_clear();
+    return;
 }
 
 void
@@ -641,6 +657,7 @@ handler_selection_request(XEvent *e) {
     if (!XSendEvent(xsre->display, xsre->requestor, 1, 0, (XEvent *)&xev)) {
         fprintf(stderr, "Error sending SelectionNotify event\n");
     }
+    return;
 }
 
 void
@@ -656,11 +673,13 @@ setsel(char *str, Time t) {
     if (XGetSelectionOwner(x_window.display, XA_PRIMARY) != x_window.win) {
         selection_clear();
     }
+    return;
 }
 
 void
 x_set_sel(char *str) {
     setsel(str, CurrentTime);
+    return;
 }
 
 void
@@ -682,6 +701,7 @@ handler_button_release(XEvent *e) {
     if (btn == Button1) {
         mousesel(e, 1);
     }
+    return;
 }
 
 void
@@ -692,6 +712,7 @@ handler_button_motion(XEvent *e) {
     }
 
     mousesel(e, 0);
+    return;
 }
 
 void
@@ -716,6 +737,7 @@ cresize(int32 width, int32 height) {
     term_resize(col, row);
     x_resize(col, row);
     tty_resize(term_window.tty_width, term_window.tty_height);
+    return;
 }
 
 void
@@ -731,6 +753,7 @@ x_resize(int32 col, int32 row) {
 
     /* handler_configure_notify to new width */
     x_window.specbuf = xrealloc(x_window.specbuf, (int64)col * SIZEOF(GlyphFontSpec));
+    return;
 }
 
 uint16
@@ -796,6 +819,7 @@ x_load_cols(void) {
         draw_context.col[i].pixel |= ((uint32)(0xff * CONF_ALPHA) & 0xff) << 24;
     }
     loaded = 1;
+    return;
 }
 
 int32
@@ -849,6 +873,7 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
 
     XftDrawRect(x_window.draw, &draw_context.col[color_index], x1, y1, (uint32)(x2 - x1),
                 (uint32)(y2 - y1));
+    return;
 }
 
 void
@@ -883,6 +908,7 @@ x_hints(void) {
 
     XSetWMProperties(x_window.display, x_window.win, NULL, NULL, NULL, 0, sizeh, &wm, &class);
     XFree(sizeh);
+    return;
 }
 
 int32
@@ -1043,6 +1069,7 @@ x_load_fonts(const char *fontstr, float fontsize) {
     }
 
     FcPatternDestroy(pattern);
+    return;
 }
 
 int32
@@ -1143,6 +1170,7 @@ x_load_spare_fonts(void) {
 
         FcPatternDestroy(pattern);
     }
+    return;
 }
 
 void
@@ -1152,6 +1180,7 @@ x_unload_font(Font *f) {
     if (f->set) {
         FcFontSetDestroy(f->set);
     }
+    return;
 }
 
 void
@@ -1165,6 +1194,7 @@ x_unload_fonts(void) {
     x_unload_font(&draw_context.bfont);
     x_unload_font(&draw_context.ifont);
     x_unload_font(&draw_context.ibfont);
+    return;
 }
 
 int32
@@ -1205,6 +1235,7 @@ x_im_instantiate(Display *display, XPointer client, XPointer call) {
         XUnregisterIMInstantiateCallback(x_window.display, NULL, NULL, NULL, x_im_instantiate,
                                          NULL);
     }
+    return;
 }
 
 void
@@ -1215,6 +1246,7 @@ x_im_destroy(XIM xim, XPointer client, XPointer call) {
     x_window.ime.xim = NULL;
     XRegisterIMInstantiateCallback(x_window.display, NULL, NULL, NULL, x_im_instantiate, NULL);
     XFree(x_window.ime.spotlist);
+    return;
 }
 
 int32
@@ -1363,6 +1395,7 @@ x_init(int32 ncols, int32 nrows) {
     }
 
     boxdraw_xinit(x_window.display, x_window.cmap, x_window.draw, x_window.vis);
+    return;
 }
 
 int32
@@ -1651,6 +1684,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
 
     /* Reset clip to none. */
     XftDrawSetClip(x_window.draw, 0);
+    return;
 }
 
 void
@@ -1660,6 +1694,7 @@ x_draw_glyph(Glyph g, int32 x, int32 y) {
 
     numspecs = x_make_glyph_font_specs(&spec, &g, 1, x, y);
     x_draw_glyph_font_specs(&spec, g, numspecs, x, y);
+    return;
 }
 
 void
@@ -1731,6 +1766,7 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
                     term_window.vborderpx + (cy + 1) * term_window.ch - 1, (uint32)term_window.cw,
                     1);
     }
+    return;
 }
 
 void
@@ -1739,6 +1775,7 @@ x_setenv(void) {
 
     snprintf(buf, SIZEOF(buf), "%lu", x_window.win);
     setenv("WINDOWID", buf, 1);
+    return;
 }
 
 void
@@ -1756,6 +1793,7 @@ x_set_icon_title(char *p) {
     XSetWMIconName(x_window.display, x_window.win, &prop);
     XSetTextProperty(x_window.display, x_window.win, &prop, x_window.netwmiconname);
     XFree(prop.value);
+    return;
 }
 
 void
@@ -1773,6 +1811,7 @@ x_set_title(char *p) {
     XSetWMName(x_window.display, x_window.win, &prop);
     XSetTextProperty(x_window.display, x_window.win, &prop, x_window.netwmname);
     XFree(prop.value);
+    return;
 }
 
 int32
@@ -1811,6 +1850,7 @@ x_draw_line(Line line, int32 x1, int32 y1, int32 x2) {
     if (i > 0) {
         x_draw_glyph_font_specs(specs, base, i, ox, y1);
     }
+    return;
 }
 
 void
@@ -1822,6 +1862,7 @@ x_finish_draw(void) {
                        .col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT
                                                                  : CONF_COLOR_INDEX_BACK]
                        .pixel);
+    return;
 }
 
 void
@@ -1834,12 +1875,14 @@ x_xim_spot(int32 x, int32 y) {
     x_window.ime.spot.y = (int16)(CONF_BORDER_PIXELS + (y + 1) * term_window.ch);
 
     XSetICValues(x_window.ime.xic, XNPreeditAttributes, x_window.ime.spotlist, NULL);
+    return;
 }
 
 void
 handler_expose(XEvent *xevent) {
     (void)xevent;
     redraw();
+    return;
 }
 
 void
@@ -1847,18 +1890,21 @@ handler_visibility(XEvent *xevent) {
     XVisibilityEvent *e = &xevent->xvisibility;
 
     MODBIT(term_window.mode, e->state != VisibilityFullyObscured, WIN_MODE_VISIBLE);
+    return;
 }
 
 void
 handler_unmap(XEvent *xevent) {
     (void)xevent;
     term_window.mode &= ~WIN_MODE_VISIBLE;
+    return;
 }
 
 void
 x_set_pointer_motion(int32 set) {
     MODBIT(x_window.attrs.event_mask, set, PointerMotionMask);
     XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask, &x_window.attrs);
+    return;
 }
 
 void
@@ -1868,6 +1914,7 @@ x_set_mode(int32 set, uint32 flags) {
     if ((term_window.mode & WIN_MODE_REVERSE) != (mode & WIN_MODE_REVERSE)) {
         redraw();
     }
+    return;
 }
 
 int32
@@ -1886,6 +1933,7 @@ x_set_urgency(int32 add) {
     MODBIT(h->flags, add, XUrgencyHint);
     XSetWMHints(x_window.display, x_window.win, h);
     XFree(h);
+    return;
 }
 
 void
@@ -1896,6 +1944,7 @@ x_bell(void) {
     if (CONF_BELL_VOLUME) {
         XkbBell(x_window.display, x_window.win, CONF_BELL_VOLUME, (Atom)NULL);
     }
+    return;
 }
 
 void
@@ -1924,6 +1973,7 @@ handler_focus(XEvent *xevent) {
             tty_write("\033[O", 3, 0);
         }
     }
+    return;
 }
 
 int32
@@ -2028,6 +2078,7 @@ handler_key_press(XEvent *xevent) {
         }
     }
     tty_write(buf, (int64)len, 1);
+    return;
 }
 
 void
@@ -2047,6 +2098,7 @@ handler_client_message(XEvent *e) {
         tty_hangup();
         exit(0);
     }
+    return;
 }
 
 void
