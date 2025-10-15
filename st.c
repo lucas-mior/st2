@@ -1170,7 +1170,8 @@ term_reset_cursor(void) {
 		},
         .x = 0,
         .y = 0,
-        .state = CURSOR_DEFAULT,};
+        .state = CURSOR_DEFAULT,
+	};
     return;
 }
 
