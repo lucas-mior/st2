@@ -156,7 +156,7 @@ static void mousereport(XEvent *);
 static char *kmap(KeySym, uint);
 static int match(uint, uint);
 
-static void run(void);
+static void run(void) __attribute__((noreturn));
 static void usage(void);
 
 static void (*handler[LASTEvent])(XEvent *) = {
@@ -2218,8 +2218,6 @@ run:
     x_setenv();
     selection_init();
     run();
-
-    return 0;
 }
 
 #endif /* X_C */
