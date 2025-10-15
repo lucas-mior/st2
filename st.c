@@ -975,7 +975,7 @@ tty_read(void) {
     int written;
 
     /* append read bytes to unprocessed bytes */
-    ret = read(cmdfd, buf + buflen, (size_t)(LEN(buf) - buflen));
+    ret = (int)read(cmdfd, buf + buflen, (size_t)(LEN(buf) - buflen));
 
     switch (ret) {
     case 0:
@@ -1001,7 +1001,7 @@ tty_write(const char *s, size_t n, int may_echo) {
     user_scroll_down(&((Arg){.i = term.scr}));
 
     if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHO)) {
-        term_write(s, n, 1);
+        term_write(s, (int)n, 1);
     }
 
     if (!TERM_MODE_IS_SET(TERM_MODE_CRLF)) {
@@ -1017,9 +1017,9 @@ tty_write(const char *s, size_t n, int may_echo) {
         } else {
             next = memchr(s, '\r', n);
             DEFAULT(next, s + n);
-            tty_write_raw(s, next - s);
+            tty_write_raw(s, (size_t)(next - s));
         }
-        n -= next - s;
+        n -= (size_t)(next - s);
         s = next;
     }
     return;
@@ -1069,8 +1069,8 @@ tty_write_raw(const char *s, size_t n) {
                 if (n < lim) {
                     lim = tty_read();
                 }
-                n -= r;
-                s += r;
+                n -= (size_t)r;
+                s += (size_t)r;
             } else {
                 /* All bytes have been written. */
                 break;
@@ -1091,10 +1091,10 @@ void
 tty_resize(int tty_width, int tty_height) {
     struct winsize winsize;
 
-    winsize.ws_row = term.row;
-    winsize.ws_col = term.col;
-    winsize.ws_xpixel = tty_width;
-    winsize.ws_ypixel = tty_height;
+    winsize.ws_row = (ushort)term.row;
+    winsize.ws_col = (ushort)term.col;
+    winsize.ws_xpixel = (ushort)tty_width;
+    winsize.ws_ypixel = (ushort)tty_height;
     if (ioctl(cmdfd, TIOCSWINSZ, &winsize) < 0) {
         fprintf(stderr, "Couldn't set window size: %s\n", strerror(errno));
     }
