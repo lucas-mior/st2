@@ -1255,7 +1255,7 @@ x_init(int32 ncols, int32 nrows) {
         die("could not init fontconfig.\n");
     }
 
-    usedfont = (opt_font == NULL) ? font : opt_font;
+    usedfont = (opt_font == NULL) ? FONT : opt_font;
     x_load_fonts(usedfont, 0);
 
     x_load_spare_fonts();
