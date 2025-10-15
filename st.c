@@ -2885,7 +2885,7 @@ term_write(const char *buf, int buflen, int show_ctrl)
 void
 rscrolldown(int n)
 {
-    int i;
+	int j;
     Line temp;
 
     /* can never be true as of now
@@ -2895,12 +2895,12 @@ rscrolldown(int n)
     if ((n = MIN(n, term.histf)) <= 0)
         return;
 
-    for (i = term.cursor.y + n; i >= n; i--) {
+    for (int i = term.cursor.y + n; i >= n; i--) {
         temp = term.line[i];
         term.line[i] = term.line[i-n];
         term.line[i-n] = temp;
     }
-    for (/*i = n - 1 */; i >= 0; i--) {
+    for (int i = n - 1; i >= 0; i--) {
         temp = term.line[i];
         term.line[i] = term.hist[term.histi];
         term.hist[term.histi] = temp;
@@ -2908,12 +2908,12 @@ rscrolldown(int n)
     }
     term.cursor.y += n;
     term.histf -= n;
-    if ((i = term.scr - n) >= 0) {
-        term.scr = i;
+    if ((j = term.scr - n) >= 0) {
+        term.scr = j;
     } else {
         term.scr = 0;
         if (selection.ob.x != -1 && !selection.alt)
-            selmove(-i);
+            selmove(-j);
     }
 }
 
