@@ -4,6 +4,7 @@
 #define ST_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include <sys/types.h>
 
 /* macros */
@@ -22,6 +23,11 @@
 
 #define TRUECOLOR(r,g,b)	(1 << 24 | (r) << 16 | (g) << 8 | (b))
 #define IS_TRUECOL(x)		(1 << 24 & (x))
+
+/* X modifiers */
+#define XK_ANY_MOD UINT_MAX
+#define XK_NO_MOD 0
+#define XK_SWITCH_MOD (1 << 13 | 1 << 14)
 
 enum glyph_attribute {
 	ATTR_NULL       = 0,
@@ -82,6 +88,14 @@ typedef union {
 	const void *v;
 	const char *s;
 } Arg;
+
+typedef struct {
+    uint mod;
+    uint button;
+    void (*func)(const Arg *);
+    const Arg arg;
+    uint release;
+} MouseShortcut;
 
 void die(const char *, ...) __attribute__((noreturn));
 void redraw(void);

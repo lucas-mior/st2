@@ -34,14 +34,6 @@ typedef struct {
 } Shortcut;
 
 typedef struct {
-    uint mod;
-    uint button;
-    void (*func)(const Arg *);
-    const Arg arg;
-    uint release;
-} MouseShortcut;
-
-typedef struct {
     KeySym k;
     uint mask;
     char *s;
@@ -49,11 +41,6 @@ typedef struct {
     signed char appkey;    /* application keypad */
     signed char appcursor; /* application cursor */
 } Key;
-
-/* X modifiers */
-#define XK_ANY_MOD UINT_MAX
-#define XK_NO_MOD 0
-#define XK_SWITCH_MOD (1 << 13 | 1 << 14)
 
 /* function definitions used in config.def.h */
 static void user_clipboard_copy(const Arg *);

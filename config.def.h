@@ -3,6 +3,14 @@
 #ifndef CONFIG_DEF_H
 #define CONFIG_DEF_H
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <X11/cursorfont.h>
+#include <X11/keysym.h>
+#include <X11/X.h>
+
+#include "st.h"
+
 /*
  * appearance
  *
