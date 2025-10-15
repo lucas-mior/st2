@@ -198,7 +198,6 @@ static void osc_color_response(int32, int32, int32);
 static int32 eschandle(uchar);
 static void string_dump(void);
 static void string_handle(void);
-static void string_parse(void);
 static void string_reset(void);
 
 static void term_printer(char *, int64);
@@ -2264,7 +2263,29 @@ string_handle(void) {
                      {CONF_COLOR_INDEX_CURSOR, "cursor"}};
 
     term.esc &= ~(ESC_STR_END | ESC_STR);
-    string_parse();
+    {
+        int32 c;
+        char *p2 = strescseq.buf;
+
+        strescseq.narg = 0;
+        strescseq.buf[strescseq.len] = '\0';
+
+        if (*p2 == '\0') {
+            return;
+        }
+
+        while (strescseq.narg < STR_ARG_SIZ) {
+            strescseq.args[strescseq.narg++] = p2;
+            while ((c = *p2) != ';' && c != '\0') {
+                ++p2;
+            }
+            if (c == '\0') {
+                return;
+            }
+            *p2++ = '\0';
+        }
+        return;
+    }
     par = (narg = strescseq.narg) ? atoi(strescseq.args[0]) : 0;
 
     switch (strescseq.type) {
@@ -2375,31 +2396,6 @@ string_handle(void) {
 
     fprintf(stderr, "erresc: unknown str ");
     string_dump();
-    return;
-}
-
-void
-string_parse(void) {
-    int32 c;
-    char *p = strescseq.buf;
-
-    strescseq.narg = 0;
-    strescseq.buf[strescseq.len] = '\0';
-
-    if (*p == '\0') {
-        return;
-    }
-
-    while (strescseq.narg < STR_ARG_SIZ) {
-        strescseq.args[strescseq.narg++] = p;
-        while ((c = *p) != ';' && c != '\0') {
-            ++p;
-        }
-        if (c == '\0') {
-            return;
-        }
-        *p++ = '\0';
-    }
     return;
 }
 
