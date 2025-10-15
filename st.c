@@ -1022,7 +1022,7 @@ tty_write(const char *s, int64 n, int32 may_echo) {
 void
 tty_write_raw(const char *s, int64 n) {
     fd_set write_fd;
-    fd_set rfd;
+    fd_set read_fd;
     int64 r;
     int64 lim = 256;
 
@@ -1032,12 +1032,12 @@ tty_write_raw(const char *s, int64 n) {
      */
     while (n > 0) {
         FD_ZERO(&write_fd);
-        FD_ZERO(&rfd);
+        FD_ZERO(&read_fd);
         FD_SET(cmdfd, &write_fd);
-        FD_SET(cmdfd, &rfd);
+        FD_SET(cmdfd, &read_fd);
 
         /* Check if we can write. */
-        if (pselect(cmdfd + 1, &rfd, &write_fd, NULL, NULL, NULL) < 0) {
+        if (pselect(cmdfd + 1, &read_fd, &write_fd, NULL, NULL, NULL) < 0) {
             if (errno == EINTR) {
                 continue;
             }
@@ -1069,7 +1069,7 @@ tty_write_raw(const char *s, int64 n) {
                 break;
             }
         }
-        if (FD_ISSET(cmdfd, &rfd)) {
+        if (FD_ISSET(cmdfd, &read_fd)) {
             lim = tty_read();
         }
     }

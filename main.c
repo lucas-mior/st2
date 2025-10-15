@@ -442,7 +442,7 @@ run:
         XEvent xevent;
         int32 w = term_window.w;
         int32 h = term_window.h;
-        fd_set rfd;
+        fd_set read_fd;
         int32 xfd = XConnectionNumber(x_window.display), ttyfd, xev, drawing;
         struct timespec seltv, *tv, now, lastblink, trigger;
         float timeout;
@@ -472,9 +472,9 @@ run:
         lastblink = (struct timespec){0};
 
         while (1) {
-            FD_ZERO(&rfd);
-            FD_SET(ttyfd, &rfd);
-            FD_SET(xfd, &rfd);
+            FD_ZERO(&read_fd);
+            FD_SET(ttyfd, &read_fd);
+            FD_SET(xfd, &read_fd);
 
             if (XPending(x_window.display)) {
                 timeout = 0; /* existing events might not set xfd */
@@ -484,7 +484,7 @@ run:
             seltv.tv_nsec = 1E6f*(timeout - 1E3f*(float)seltv.tv_sec);
             tv = timeout >= 0 ? &seltv : NULL;
 
-            if (pselect(MAX(xfd, ttyfd) + 1, &rfd, NULL, NULL, tv, NULL) < 0) {
+            if (pselect(MAX(xfd, ttyfd) + 1, &read_fd, NULL, NULL, tv, NULL) < 0) {
                 if (errno == EINTR) {
                     continue;
                 }
@@ -492,7 +492,7 @@ run:
             }
             clock_gettime(CLOCK_MONOTONIC, &now);
 
-            if (FD_ISSET(ttyfd, &rfd)) {
+            if (FD_ISSET(ttyfd, &read_fd)) {
                 tty_read();
             }
 
@@ -519,7 +519,7 @@ run:
              * maximum latency intervals during `cat huge.txt`, and perfect
              * sync with periodic updates from animations/CONF_KEYS-repeats/etc.
              */
-            if (FD_ISSET(ttyfd, &rfd) || xev) {
+            if (FD_ISSET(ttyfd, &read_fd) || xev) {
                 if (!drawing) {
                     trigger = now;
                     drawing = 1;
