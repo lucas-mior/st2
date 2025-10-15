@@ -930,7 +930,7 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
     case 0:
         close(iofd);
         close(amaster);
-        setsid(); /* create a new process group */
+        setsid();
         dup2(aslave, 0);
         dup2(aslave, 1);
         dup2(aslave, 2);
