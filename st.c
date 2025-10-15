@@ -2341,7 +2341,7 @@ string_handle(void) {
                 dec = base64_decode(str_escape_seq.args[2]);
                 if (dec) {
                     selection_set(dec, CurrentTime);
-                    x_clipboard_copy();
+                    user_clipboard_copy(NULL);
                 } else {
                     fprintf(stderr, "erresc: invalid base64\n");
                 }

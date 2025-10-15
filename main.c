@@ -947,12 +947,6 @@ handler_selection_notify(XEvent *xevent) {
 }
 
 void
-x_clipboard_copy(void) {
-    user_clipboard_copy(NULL);
-    return;
-}
-
-void
 handler_selection_clear(XEvent *xevent) {
     (void)xevent;
     selection_clear();

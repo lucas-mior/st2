@@ -222,7 +222,6 @@ enum win_mode {
 };
 
 void x_bell(void);
-void x_clipboard_copy(void);
 void x_draw_cursor(int32, int32, Glyph, int32, int32, Glyph);
 void x_draw_line(Line, int32, int32, int32);
 void x_finish_draw(void);
