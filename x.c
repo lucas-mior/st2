@@ -2056,7 +2056,7 @@ run(void) {
     fd_set rfd;
     int32 xfd = XConnectionNumber(x_window.dpy), ttyfd, xev, drawing;
     struct timespec seltv, *tv, now, lastblink, trigger;
-    double timeout;
+    float timeout;
 
     /* Waiting for window mapping */
     do {
@@ -2087,8 +2087,8 @@ run(void) {
             timeout = 0; /* existing events might not set xfd */
         }
 
-        seltv.tv_sec = timeout / 1E3;
-        seltv.tv_nsec = 1E6 * (timeout - 1E3 * seltv.tv_sec);
+        seltv.tv_sec = timeout / 1E3f;
+        seltv.tv_nsec = 1E6f * (timeout - 1E3f * (float)seltv.tv_sec);
         tv = timeout >= 0 ? &seltv : NULL;
 
         if (pselect(MAX(xfd, ttyfd) + 1, &rfd, NULL, NULL, tv, NULL) < 0) {
