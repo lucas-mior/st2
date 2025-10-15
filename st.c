@@ -391,7 +391,7 @@ utf8_encode(Rune u, char *c) {
 
 char
 utf8_encode_byte(Rune u, size_t i) {
-    return utfbyte[i] | (u & ~utfmask[i]);
+    return (char)(utfbyte[i] | (u & ~utfmask[i]));
 }
 
 size_t
@@ -438,15 +438,15 @@ base64_decode(const char *src) {
             break;
         }
 
-        *dst++ = (a << 2) | ((b & 0x30) >> 4);
+        *dst++ = (char)((a << 2) | ((b & 0x30) >> 4));
         if (c == -1) {
             break;
         }
-        *dst++ = ((b & 0x0f) << 4) | ((c & 0x3c) >> 2);
+        *dst++ = (char)(((b & 0x0f) << 4) | ((c & 0x3c) >> 2));
         if (d == -1) {
             break;
         }
-        *dst++ = ((c & 0x03) << 6) | d;
+        *dst++ = (char)(((c & 0x03) << 6) | d);
     }
     *dst = '\0';
     return result;
@@ -500,10 +500,10 @@ tgetline(char *buf, const Glyph *fgp) {
     if (!(lgp->mode & ATTR_WRAP)) {
         *(ptr++) = '\n';
     }
-    return ptr - buf;
+    return (size_t)(ptr - buf);
 }
 
-int
+static int
 tlinehistlen(int y) {
     int i = term.col;
 
