@@ -57,7 +57,7 @@ index d73152b..f32fd6c 100644
  	return 0;
  }
  
-@@ -1134,11 +1145,25 @@ xinit(int number_cols, int rows)
+@@ -1134,11 +1145,25 @@ xinit(int number_cols, int number_rows)
  	Window parent, root;
  	pid_t thispid = getpid();
  	XColor xmousefg, xmousebg;
@@ -84,7 +84,7 @@ index d73152b..f32fd6c 100644
  
  	/* font */
  	if (!FcInit())
-@@ -1148,7 +1173,7 @@ xinit(int number_cols, int rows)
+@@ -1148,7 +1173,7 @@ xinit(int number_cols, int number_rows)
  	xloadfonts(usedfont, 0);
  
  	/* colors */
@@ -93,7 +93,7 @@ index d73152b..f32fd6c 100644
  	xloadcols();
  
  	/* adjust fixed window geometry */
-@@ -1168,11 +1193,8 @@ xinit(int number_cols, int rows)
+@@ -1168,11 +1193,8 @@ xinit(int number_cols, int number_rows)
  		| ButtonMotionMask | ButtonPressMask | ButtonReleaseMask;
  	xw.attrs.colormap = xw.cmap;
  
@@ -107,7 +107,7 @@ index d73152b..f32fd6c 100644
  			xw.vis, CWBackPixel | CWBorderPixel | CWBitGravity
  			| CWEventMask | CWColormap, &xw.attrs);
  	if (parent != root)
-@@ -1183,7 +1205,7 @@ xinit(int number_cols, int rows)
+@@ -1183,7 +1205,7 @@ xinit(int number_cols, int number_rows)
  	draw_context.graphics = XCreateGC(xw.dpy, xw.win, GCGraphicsExposures,
  			&gcvalues);
  	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
