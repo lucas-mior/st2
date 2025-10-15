@@ -1545,10 +1545,6 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 		bg = &draw_context.col[base.bg];
 	}
 
-	/* Change basic system colors [0-7] to bright system colors [8-15] */
-	if ((base.mode & ATTR_BOLD_FAINT) == ATTR_BOLD && BETWEEN(base.fg, 0, 7))
-		fg = &draw_context.col[base.fg + 8];
-
 	if (IS_SET(WIN_MODE_REVERSE)) {
 		if (fg == &draw_context.col[default_foreground]) {
 			fg = &draw_context.col[default_background];
