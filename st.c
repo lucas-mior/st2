@@ -268,7 +268,7 @@ static int64 xwrite(int32, const char *, int64);
 static Term term;
 static Selection selection;
 static CSIEscape csi_escape_seq;
-static STREscape strescseq;
+static STREscape str_escape_seq;
 static int32 iofd = 1;
 static int32 cmdfd;
 static pid_t pid;
@@ -2269,17 +2269,17 @@ string_handle(void) {
     term.esc &= ~(ESC_STR_END | ESC_STR);
     {
         int32 c;
-        char *p2 = strescseq.buffer;
+        char *p2 = str_escape_seq.buffer;
 
-        strescseq.narg = 0;
-        strescseq.buffer[strescseq.len] = '\0';
+        str_escape_seq.narg = 0;
+        str_escape_seq.buffer[str_escape_seq.len] = '\0';
 
         if (*p2 == '\0') {
             return;
         }
 
-        while (strescseq.narg < STR_ARG_SIZ) {
-            strescseq.args[strescseq.narg++] = p2;
+        while (str_escape_seq.narg < STR_ARG_SIZ) {
+            str_escape_seq.args[str_escape_seq.narg++] = p2;
             while ((c = *p2) != ';' && c != '\0') {
                 ++p2;
             }
@@ -2290,30 +2290,30 @@ string_handle(void) {
         }
         return;
     }
-    par = (narg = strescseq.narg) ? atoi(strescseq.args[0]) : 0;
+    par = (narg = str_escape_seq.narg) ? atoi(str_escape_seq.args[0]) : 0;
 
-    switch (strescseq.type) {
+    switch (str_escape_seq.type) {
     case ']': /* OSC -- Operating System Command */
         switch (par) {
         case 0:
             if (narg > 1) {
-                x_set_title(strescseq.args[1]);
-                x_set_icon_title(strescseq.args[1]);
+                x_set_title(str_escape_seq.args[1]);
+                x_set_icon_title(str_escape_seq.args[1]);
             }
             return;
         case 1:
             if (narg > 1) {
-                x_set_icon_title(strescseq.args[1]);
+                x_set_icon_title(str_escape_seq.args[1]);
             }
             return;
         case 2:
             if (narg > 1) {
-                x_set_title(strescseq.args[1]);
+                x_set_title(str_escape_seq.args[1]);
             }
             return;
         case 52: /* manipulate selection data */
             if (narg > 2 && CONF_ALLOW_WINDOW_OPS) {
-                dec = base64_decode(strescseq.args[2]);
+                dec = base64_decode(str_escape_seq.args[2]);
                 if (dec) {
                     x_set_sel(dec);
                     x_clipboard_copy();
@@ -2328,7 +2328,7 @@ string_handle(void) {
             if (narg < 2) {
                 break;
             }
-            p = strescseq.args[1];
+            p = str_escape_seq.args[1];
             if ((j = par - 10) < 0 || j >= LENGTH(osc_table)) {
                 break; /* shouldn't be possible */
             }
@@ -2345,10 +2345,10 @@ string_handle(void) {
             if (narg < 3) {
                 break;
             }
-            p = strescseq.args[2];
+            p = str_escape_seq.args[2];
             /* FALLTHROUGH */
         case 104: /* color reset */
-            j = (narg > 1) ? atoi(strescseq.args[1]) : -1;
+            j = (narg > 1) ? atoi(str_escape_seq.args[1]) : -1;
 
             if (p && !strcmp(p, "?")) {
                 osc_color_response(j, 0, 1);
@@ -2387,7 +2387,7 @@ string_handle(void) {
         }
         break;
     case 'k': /* old title set compatibility */
-        x_set_title(strescseq.args[0]);
+        x_set_title(str_escape_seq.args[0]);
         return;
     case 'P': /* DCS -- Device Control String */
     case '_': /* APC -- Application Program Command */
@@ -2474,9 +2474,9 @@ void
 string_dump(void) {
     uint32 c;
 
-    fprintf(stderr, "ESC%c", strescseq.type);
-    for (uint64 i = 0; i < strescseq.len; i++) {
-        c = strescseq.buffer[i] & 0xff;
+    fprintf(stderr, "ESC%c", str_escape_seq.type);
+    for (uint64 i = 0; i < str_escape_seq.len; i++) {
+        c = str_escape_seq.buffer[i] & 0xff;
         if (c == '\0') {
             putc('\n', stderr);
             return;
@@ -2498,8 +2498,8 @@ string_dump(void) {
 
 void
 string_reset(void) {
-    strescseq = (STREscape){
-        .buffer = xrealloc(strescseq.buffer, STR_BUF_SIZ),
+    str_escape_seq = (STREscape){
+        .buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ),
         .siz = STR_BUF_SIZ,
     };
     return;
@@ -2646,7 +2646,7 @@ term_str_sequence(uchar c) {
         break;
     }
     string_reset();
-    strescseq.type = (char)c;
+    str_escape_seq.type = (char)c;
     term.esc |= ESC_STR;
     return;
 }
@@ -2875,7 +2875,7 @@ term_putc(Rune u) {
             goto check_control_code;
         }
 
-        if (strescseq.len + (uint64)len >= strescseq.siz) {
+        if (str_escape_seq.len + (uint64)len >= str_escape_seq.siz) {
             /*
              * Here is a bug in terminals. If the user never sends
              * some code to stop the str or esc command, then st
@@ -2889,15 +2889,15 @@ term_putc(Rune u) {
              * term.esc = 0;
              * string_handle();
              */
-            if (strescseq.siz > (SIZE_MAX - UTF_SIZ) / 2) {
+            if (str_escape_seq.siz > (SIZE_MAX - UTF_SIZ) / 2) {
                 return;
             }
-            strescseq.siz *= 2;
-            strescseq.buffer = xrealloc(strescseq.buffer, (int64)strescseq.siz);
+            str_escape_seq.siz *= 2;
+            str_escape_seq.buffer = xrealloc(str_escape_seq.buffer, (int64)str_escape_seq.siz);
         }
 
-        memmove(&strescseq.buffer[strescseq.len], c, (size_t)len);
-        strescseq.len += (uint64)len;
+        memmove(&str_escape_seq.buffer[str_escape_seq.len], c, (size_t)len);
+        str_escape_seq.len += (uint64)len;
         return;
     }
 
