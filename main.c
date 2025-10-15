@@ -1024,13 +1024,13 @@ handler_selection_request(XEvent *xevent) {
 }
 
 void
-selection_set(char *str, Time t) {
-    if (!str) {
+selection_set(char *string, Time t) {
+    if (!string) {
         return;
     }
 
     free(xsel.primary);
-    xsel.primary = str;
+    xsel.primary = string;
 
     XSetSelectionOwner(x_window.display, XA_PRIMARY, x_window.win, t);
     if (XGetSelectionOwner(x_window.display, XA_PRIMARY) != x_window.win) {
@@ -1040,8 +1040,8 @@ selection_set(char *str, Time t) {
 }
 
 void
-x_set_sel(char *str) {
-    selection_set(str, CurrentTime);
+x_set_sel(char *string) {
+    selection_set(string, CurrentTime);
     return;
 }
 

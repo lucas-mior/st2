@@ -442,7 +442,7 @@ base64_decode(const char *src) {
         int32 c = base64_digits[(uchar)base64_decode_getc(&src)];
         int32 d = base64_digits[(uchar)base64_decode_getc(&src)];
 
-        /* invalid input. 'a' can be -1, e.g. if src is "\n" (c-str) */
+        /* invalid input. 'a' can be -1, e.g. if src is "\n" (c-string) */
         if (a == -1 || b == -1) {
             break;
         }
@@ -737,7 +737,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
 
 char *
 selection_get(void) {
-    char *str, *ptr;
+    char *string, *ptr;
     int32 lastx;
     int32 line_len;
     const Glyph *gp, *lgp;
@@ -746,8 +746,8 @@ selection_get(void) {
         return NULL;
     }
 
-    str = xmalloc((int64)((term.col + 1)*(selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
-    ptr = str;
+    string = xmalloc((int64)((term.col + 1)*(selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
+    ptr = string;
 
     /* append every set & selection_is_selected glyph to the selection */
     for (int32 y = selection.nb.y; y <= selection.ne.y; y++) {
@@ -784,7 +784,7 @@ selection_get(void) {
         }
     }
     *ptr = '\0';
-    return str;
+    return string;
 }
 
 void
@@ -2286,7 +2286,7 @@ string_handle(void) {
     int32 par;
     const struct {
         int32 idx;
-        char *str;
+        char *string;
     } osc_table[] = {{CONF_COLOR_INDEX_FONT, "foreground"},
                      {CONF_COLOR_INDEX_BACK, "background"},
                      {CONF_COLOR_INDEX_CURSOR, "cursor"}};
@@ -2361,7 +2361,7 @@ string_handle(void) {
             if (!strcmp(p, "?")) {
                 osc_color_response(par, osc_table[j].idx, 0);
             } else if (x_set_color_name(osc_table[j].idx, p)) {
-                fprintf(stderr, "erresc: invalid %s color: %s\n", osc_table[j].str, p);
+                fprintf(stderr, "erresc: invalid %s color: %s\n", osc_table[j].string, p);
             } else {
                 term_full_dirt();
             }
@@ -2401,7 +2401,7 @@ string_handle(void) {
                 break; /* shouldn't be possible */
             }
             if (x_set_color_name(osc_table[j].idx, NULL)) {
-                fprintf(stderr, "erresc: %s color not found\n", osc_table[j].str);
+                fprintf(stderr, "erresc: %s color not found\n", osc_table[j].string);
             } else {
                 term_full_dirt();
             }
@@ -2423,7 +2423,7 @@ string_handle(void) {
         break;
     }
 
-    fprintf(stderr, "erresc: unknown str ");
+    fprintf(stderr, "erresc: unknown string ");
     string_dump();
     return;
 }
@@ -2574,8 +2574,8 @@ term_dump_sel(void) {
 
 void
 term_dump_line(int32 n) {
-    char *str = xmalloc((int64)((term.col + 1)*UTF_SIZ) * SIZEOF(*str));
-    term_printer(str, tgetline(str, &term.line[n][0]));
+    char *string = xmalloc((int64)((term.col + 1)*UTF_SIZ) * SIZEOF(*string));
+    term_printer(string, tgetline(string, &term.line[n][0]));
     return;
 }
 
@@ -2897,7 +2897,7 @@ term_putc(Rune u) {
         if (str_escape_seq.len + (uint64)len >= str_escape_seq.siz) {
             /*
              * Here is a bug in terminals. If the user never sends
-             * some code to stop the str or esc command, then st
+             * some code to stop the string or esc command, then st
              * will stop responding. But this is better than
              * silently failing with unknown characters. At least
              * then users will report back.
