@@ -98,7 +98,7 @@ index fd3b0d8..754cd08 100644
 +void externalpipe(const Arg *);
  void user_print_screen(const Arg *);
  void user_print_sel(const Arg *);
- void sendbreak(const Arg *);
+ void user_send_break(const Arg *);
 -- 
 2.42.0
 
