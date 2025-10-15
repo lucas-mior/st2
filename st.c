@@ -3225,6 +3225,8 @@ term_resize_alt(int32 col, int32 row) {
     return;
 }
 
+#define error(...) fprintf(stderr, __VA_ARGS__)
+
 void
 term_reflow(int32 col, int32 row) {
     int32 i;
