@@ -243,12 +243,12 @@ static uint32 force_mouse_mod = ShiftMask;
  * Beware that overloading Button1 will disable the selection.
  */
 static MouseShortcut mshortcuts[] = {
-	/* mask                 button   function        argument       release */
-	{ XK_ANY_MOD,           Button2, user_selection_paste,       {.i = 0},      1 },
-	{ ShiftMask,            Button4, tty_send,        {.s = "\033[5;2~"} },
-	{ XK_ANY_MOD,           Button4, tty_send,        {.s = "\031"} },
-	{ ShiftMask,            Button5, tty_send,        {.s = "\033[6;2~"} },
-	{ XK_ANY_MOD,           Button5, tty_send,        {.s = "\005"} },
+	/* mask       button   function              argument            release */
+	{ XK_ANY_MOD, Button2, user_selection_paste, {.i = 0},           1 },
+	{ ShiftMask,  Button4, tty_send,             {.s = "\033[5;2~"}, 0 },
+	{ XK_ANY_MOD, Button4, tty_send,             {.s = "\031"},      0 },
+	{ ShiftMask,  Button5, tty_send,             {.s = "\033[6;2~"}, 0 },
+	{ XK_ANY_MOD, Button5, tty_send,             {.s = "\005"},      0 },
 };
 
 /* Internal keyboard shortcuts. */
