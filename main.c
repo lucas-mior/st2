@@ -808,7 +808,7 @@ mouse_action(XEvent *xevent, uint32 release) {
 void
 handler_button_press(XEvent *xevent) {
     int32 button = (int32)xevent->xbutton.button;
-    struct timespec now;
+    struct timespec tnow;
     int32 snap;
 
     if (1 <= button && button <= 11) {
@@ -829,16 +829,16 @@ handler_button_press(XEvent *xevent) {
          * If the user clicks below predefined timeouts specific
          * snapping behaviour is exposed.
          */
-        clock_gettime(CLOCK_MONOTONIC, &now);
-        if (TIMEDIFF(now, xsel.tclick2) <= (float)CONF_TRIPLE_CLICK_TIMEOUT) {
+        clock_gettime(CLOCK_MONOTONIC, &tnow);
+        if (TIMEDIFF(tnow, xsel.tclick2) <= (float)CONF_TRIPLE_CLICK_TIMEOUT) {
             snap = SELECTION_SNAP_LINE;
-        } else if (TIMEDIFF(now, xsel.tclick1) <= (float)CONF_DOUBLE_CLICK_TIMEOUT) {
+        } else if (TIMEDIFF(tnow, xsel.tclick1) <= (float)CONF_DOUBLE_CLICK_TIMEOUT) {
             snap = SELECTION_SNAP_WORD;
         } else {
             snap = 0;
         }
         xsel.tclick2 = xsel.tclick1;
-        xsel.tclick1 = now;
+        xsel.tclick1 = tnow;
 
         selection_start(xevent_col(xevent), xevent_row(xevent), snap);
     }
