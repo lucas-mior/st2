@@ -98,7 +98,7 @@ const int32 CONF_BOXDRAW_BRAILLE = 0;
  * bell volume. It must be a value between -100 and 100. Use 0 for disabling
  * it
  */
-static int32 BELL_VOLUME = 0;
+static int32 CONF_BELL_VOLUME = 0;
 
 /* default TERM value */
 char *CONF_TERM_NAME = "st-256color";

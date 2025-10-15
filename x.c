@@ -1886,8 +1886,8 @@ x_bell(void) {
     if (!(TERM_WINDOW_IS_SET(WIN_MODE_FOCUSED))) {
         x_set_urgency(1);
     }
-    if (BELL_VOLUME) {
-        XkbBell(x_window.dpy, x_window.win, BELL_VOLUME, (Atom)NULL);
+    if (CONF_BELL_VOLUME) {
+        XkbBell(x_window.dpy, x_window.win, CONF_BELL_VOLUME, (Atom)NULL);
     }
 }
 
