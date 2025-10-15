@@ -57,7 +57,7 @@
 #define TLINE_HIST(y)                                                                              \
     ((y) <= HISTSIZE - term.row + 2 ? term.hist[(y)] : term.line[(y - HISTSIZE + term.row - 3)])
 
-#define UPDATEWRAPNEXT(alt, col)                                                                   \
+#define UPDATE_WRAP_NEXT(alt, col)                                                                 \
     do {                                                                                           \
         if ((term.cursor.state & CURSOR_WRAPNEXT) && term.cursor.x + term.wrapcwidth[alt] < col) { \
             term.cursor.x += term.wrapcwidth[alt];                                                 \
@@ -3195,7 +3195,7 @@ term_resize_alt(int32 col, int32 row) {
         term.cursor.state &= ~CURSOR_WRAPNEXT;
         term.cursor.x = col - 1;
     } else {
-        UPDATEWRAPNEXT(1, col);
+        UPDATE_WRAP_NEXT(1, col);
     }
     /* update terminal size */
     term.col = col;
@@ -3253,7 +3253,7 @@ term_reflow(int32 col, int32 row) {
             if (cy < 0 && term.cursor.x - ox < col - nx) {
                 term.cursor.x = nx + term.cursor.x - ox;
                 cy = ny;
-                UPDATEWRAPNEXT(0, col);
+                UPDATE_WRAP_NEXT(0, col);
             }
         }
         /* get reflowed lines in buf */
