@@ -27,7 +27,7 @@ index 034954d..98f2589 100644
  			die("pledge\n");
  #endif
  		close(s);
-@@ -1991,6 +1997,59 @@ strparse(void)
+@@ -1991,6 +1997,59 @@ string_parse(void)
  	}
  }
  
