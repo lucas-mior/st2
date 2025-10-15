@@ -1576,7 +1576,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
 
     if (base.mode & ATTR_SELECTED) {
         bg = &draw_context.col[CONF_COLOR_INDEX_SELECTION_BACK];
-        if (!ignoreselfg) {
+        if (!CONF_COLOR_IGNORE_SELECTION_FONT_COLOR) {
             fg = &draw_context.col[CONF_COLOR_INDEX_SELECTION_FONT];
         }
     }
