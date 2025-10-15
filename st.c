@@ -569,7 +569,11 @@ selection_extend(int32 col, int32 row, int32 type, int32 done) {
         term_set_dirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
     }
 
-    selection.mode = done ? SELECTION_IDLE : SELECTION_READY;
+    if (done) {
+        selection.mode = SELECTION_IDLE;
+    } else {
+        selection.mode = SELECTION_READY;
+    }
     return;
 }
 
