@@ -967,7 +967,7 @@ handler_selection_request(XEvent *xevent) {
     Atom xa_targets;
     Atom string;
     Atom clipboard;
-    char *seltext;
+    char *selection_text;
 
     xselection_request_event = (XSelectionRequestEvent *)xevent;
     xselection_event.type = SelectionNotify;
@@ -998,18 +998,19 @@ handler_selection_request(XEvent *xevent) {
          */
         clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
         if (xselection_request_event->selection == XA_PRIMARY) {
-            seltext = xsel.primary;
+            selection_text = xsel.primary;
         } else if (xselection_request_event->selection == clipboard) {
-            seltext = xsel.clipboard;
+            selection_text = xsel.clipboard;
         } else {
             fprintf(stderr, "Unhandled clipboard selection 0x%lx\n",
                     xselection_request_event->selection);
             return;
         }
-        if (seltext != NULL) {
+        if (selection_text != NULL) {
             XChangeProperty(xselection_request_event->display, xselection_request_event->requestor,
                             xselection_request_event->property, xselection_request_event->target, 8,
-                            PropModeReplace, (uchar *)seltext, (int32)(int64)strlen(seltext));
+                            PropModeReplace, (uchar *)selection_text,
+                            (int32)(int64)strlen(selection_text));
             xselection_event.property = xselection_request_event->property;
         }
     }
