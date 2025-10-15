@@ -821,7 +821,6 @@ x_load_color(int i, const char *name, Color *ncolor)
 void
 x_load_cols(void)
 {
-	int i;
 	static int loaded;
 	Color *cp;
 
@@ -833,7 +832,7 @@ x_load_cols(void)
 		draw_context.col = xmalloc(draw_context.collen * sizeof(Color));
 	}
 
-	for (i = 0; i < draw_context.collen; i++)
+	for (int i = 0; i < draw_context.collen; i++)
 		if (!x_load_color(i, NULL, &draw_context.col[i])) {
 			if (colorname[i])
 				die("could not allocate color '%s'\n", colorname[i]);
@@ -845,7 +844,7 @@ x_load_cols(void)
 	draw_context.col[default_background].pixel &= 0x00FFFFFF;
 	draw_context.col[default_background].pixel |= (unsigned char)(0xff * alpha) << 24;
 
-	for (i = 16; i < 16 + trans_colors; i++) {
+	for (int i = 16; i < 16 + trans_colors; i++) {
 		draw_context.col[i].color.alpha = (unsigned short)(0xffff * alpha);
 		draw_context.col[i].pixel &= 0x00FFFFFF;
 		draw_context.col[i].pixel |= (unsigned char)(0xff * alpha) << 24;
@@ -1411,9 +1410,9 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, i
 	FcPattern *fcpattern, *fontpattern;
 	FcFontSet *fcsets[] = { NULL };
 	FcCharSet *fccharset;
-	int i, f, numspecs = 0;
+	int f, numspecs = 0;
 
-	for (i = 0, xp = winx, yp = winy + font->ascent; i < len; ++i) {
+	for (int i = 0, xp = winx, yp = winy + font->ascent; i < len; ++i) {
 		/* Fetch rune and mode for current glyph. */
 		rune = glyphs[i].rune;
 		mode = glyphs[i].mode;
