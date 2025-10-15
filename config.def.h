@@ -209,7 +209,7 @@ static int32 ignoreselfg = 1;
  * 6: Bar ("|")
  * 7: Snowman ("☃")
  */
-static uint32 cursor_shape = 2;
+static uint32 CURSOR_SHAPE = 2;
 
 /*
  * Default columns and number_rows numbers
