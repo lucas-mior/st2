@@ -886,18 +886,18 @@ stty(char **args) {
     int64 n;
     int64 siz;
 
-    if ((n = (int64)strlen(stty_args)) > sizeof(cmd) - 1) {
+    if ((n = (int64)strlen(stty_args)) > SIZEOF(cmd) - 1) {
         die("incorrect stty parameters\n");
     }
-    memcpy(cmd, stty_args, n);
+    memcpy(cmd, stty_args, (size_t)n);
     q = cmd + n;
-    siz = sizeof(cmd) - n;
+    siz = SIZEOF(cmd) - n;
     for (char **p = args; p && (s = *p); ++p) {
         if ((n = (int64)strlen(s)) > siz - 1) {
             die("stty parameter length too int64\n");
         }
         *q++ = ' ';
-        memcpy(q, s, n);
+        memcpy(q, s, (size_t)n);
         q += n;
         siz -= n + 1;
     }
@@ -1186,7 +1186,7 @@ void
 term_reset(void) {
     tresetcursor();
 
-    memset(term.tabs, 0, (int64)term.col * sizeof(*term.tabs));
+    memset(term.tabs, 0, (int64)term.col * SIZEOF(*term.tabs));
     for (int32 i = tabspaces; i < term.col; i += tabspaces) {
         term.tabs[i] = 1;
     }
@@ -1195,7 +1195,7 @@ term_reset(void) {
     term.scr = 0;
     term.bot = term.row - 1;
     term.mode = TERM_MODE_WRAP | TERM_MODE_UTF8;
-    memset(term.trantbl, CS_USA, sizeof(term.trantbl));
+    memset(term.trantbl, CS_USA, SIZEOF(term.trantbl));
     term.charset = 0;
 
     selection_remove();
@@ -1215,18 +1215,18 @@ term_reset(void) {
 void
 term_new(int32 col, int32 row) {
     for (int32 i = 0; i < 2; i++) {
-        term.line = xmalloc((int64)row * sizeof(Line));
+        term.line = xmalloc((int64)row * SIZEOF(Line));
         for (int32 j = 0; j < row; j++) {
-            term.line[j] = xmalloc((int64)col * sizeof(Glyph));
+            term.line[j] = xmalloc((int64)col * SIZEOF(Glyph));
         }
         term.col = col;
         term.row = row;
         term_swap_screen();
     }
-    term.dirty = xmalloc((int64)row * sizeof(*term.dirty));
-    term.tabs = xmalloc((int64)col * sizeof(*term.tabs));
+    term.dirty = xmalloc((int64)row * SIZEOF(*term.dirty));
+    term.tabs = xmalloc((int64)col * SIZEOF(*term.tabs));
     for (int32 i = 0; i < HISTSIZE; i++) {
-        term.hist[i] = xmalloc((int64)col * sizeof(Glyph));
+        term.hist[i] = xmalloc((int64)col * SIZEOF(Glyph));
     }
     term_reset();
     return;
@@ -1623,7 +1623,7 @@ term_delete_char(int32 n) {
          * https://stackoverflow.com/questions/29844298
          */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], (int64)size * sizeof(Glyph));
+        memmove(&line[dst], &line[src], (int64)size * SIZEOF(Glyph));
     }
     term_clear_region(dst + size, term.cursor.y, term.col - 1, term.cursor.y, 1);
     return;
@@ -1644,7 +1644,7 @@ term_insert_blank(int32 n) {
     size = term.col - dst;
     if (size > 0) { /* otherwise dst would point beyond the array */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], (int64)size * sizeof(Glyph));
+        memmove(&line[dst], &line[src], (int64)size * SIZEOF(Glyph));
     }
     term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, 1);
     return;
@@ -2039,7 +2039,7 @@ control_seq_intro_handle(void) {
             term.tabs[term.cursor.x] = 0;
             break;
         case 3: /* clear all the tabs */
-            memset(term.tabs, 0, (int64)term.col * sizeof(*term.tabs));
+            memset(term.tabs, 0, (int64)term.col * SIZEOF(*term.tabs));
             break;
         default:
             goto unknown;
@@ -2162,10 +2162,10 @@ control_seq_intro_handle(void) {
     case 'n': /* DSR -- Device Status Report */
         switch (csiescseq.arg[0]) {
         case 5: /* Status Report "OK" `0n` */
-            tty_write("\033[0n", sizeof("\033[0n") - 1, 0);
+            tty_write("\033[0n", SIZEOF("\033[0n") - 1, 0);
             break;
         case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
-            n = snprintf(buf, sizeof(buf), "\033[%i;%iR", term.cursor.y + 1, term.cursor.x + 1);
+            n = snprintf(buf, SIZEOF(buf), "\033[%i;%iR", term.cursor.y + 1, term.cursor.x + 1);
             tty_write(buf, (int64)n, 0);
             break;
         default:
@@ -2232,7 +2232,7 @@ control_seq_intro_dump(void) {
 
 void
 control_seq_intro_reset(void) {
-    memset(&csiescseq, 0, sizeof(csiescseq));
+    memset(&csiescseq, 0, SIZEOF(csiescseq));
     return;
 }
 
@@ -2248,9 +2248,9 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
         return;
     }
 
-    n = snprintf(buf, sizeof(buf), "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
+    n = snprintf(buf, SIZEOF(buf), "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
-    if (n < 0 || n >= (int32)sizeof(buf)) {
+    if (n < 0 || n >= (int32)SIZEOF(buf)) {
         fprintf(stderr, "error: %s while printing %s response\n",
                 n < 0 ? "snprintf failed" : "truncation occurred", is_osc4 ? "osc4" : "osc");
     } else {
@@ -2563,7 +2563,7 @@ term_dump_sel(void) {
 
 void
 term_dump_line(int32 n) {
-    char *str = xmalloc((int64)((term.col + 1) * UTF_SIZ) * sizeof(*str));
+    char *str = xmalloc((int64)((term.col + 1) * UTF_SIZ) * SIZEOF(*str));
     term_printer(str, tgetline(str, &term.line[n][0]));
     return;
 }
@@ -2928,7 +2928,7 @@ check_control_code:
     } else if (term.esc & ESC_START) {
         if (term.esc & ESC_CSI) {
             csiescseq.buf[csiescseq.len++] = (char)u;
-            if (BETWEEN(u, 0x40, 0x7E) || csiescseq.len >= sizeof(csiescseq.buf) - 1) {
+            if (BETWEEN(u, 0x40, 0x7E) || csiescseq.len >= SIZEOF(csiescseq.buf) - 1) {
                 term.esc = 0;
                 control_seq_intro_parse();
                 control_seq_intro_handle();
@@ -2967,7 +2967,7 @@ check_control_code:
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_INSERT) && term.cursor.x + width < term.col) {
-        memmove(gp + width, gp, (int64)(term.col - term.cursor.x - width) * sizeof(Glyph));
+        memmove(gp + width, gp, (int64)(term.col - term.cursor.x - width) * SIZEOF(Glyph));
         gp->mode &= ~ATTR_WIDE;
     }
 
@@ -3082,11 +3082,11 @@ term_resize(int32 col, int32 row) {
             return;
     } */
 
-    term.dirty = xrealloc(term.dirty, (int64)row * sizeof(*term.dirty));
-    term.tabs = xrealloc(term.tabs, (int64)col * sizeof(*term.tabs));
+    term.dirty = xrealloc(term.dirty, (int64)row * SIZEOF(*term.dirty));
+    term.tabs = xrealloc(term.tabs, (int64)col * SIZEOF(*term.tabs));
     if (col > term.col) {
         bp = term.tabs + term.col;
-        memset(bp, 0, sizeof(*term.tabs) * (int64)(col - term.col));
+        memset(bp, 0, SIZEOF(*term.tabs) * (int64)(col - term.col));
         while (--bp > term.tabs && !*bp)
             /* nothing */;
         for (bp += tabspaces; bp < term.tabs + col; bp += tabspaces) {
@@ -3125,10 +3125,10 @@ term_resize_def(int32 col, int32 row) {
         }
 
         /* handler_configure_notify to new height */
-        term.line = xrealloc(term.line, (int64)row * sizeof(Line));
+        term.line = xrealloc(term.line, (int64)row * SIZEOF(Line));
         /* allocate any new number_rows */
         for (int32 i = term.row; i < row; i++) {
-            term.line[i] = xmalloc((int64)col * sizeof(Glyph));
+            term.line[i] = xmalloc((int64)col * SIZEOF(Glyph));
             for (int32 j = 0; j < col; j++) {
                 term_clear_glyph(&term.line[i][j], 0);
             }
@@ -3165,24 +3165,24 @@ term_resize_alt(int32 col, int32 row) {
     }
     if (i > 0) {
         /* ensure that both src and dst are not NULL */
-        memmove(term.line, term.line + i, (int64)row * sizeof(Line));
+        memmove(term.line, term.line + i, (int64)row * SIZEOF(Line));
         term.cursor.y = row - 1;
     }
     for (i += row; i < term.row; i++) {
         free(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    term.line = xrealloc(term.line, (int64)row * sizeof(Line));
+    term.line = xrealloc(term.line, (int64)row * SIZEOF(Line));
     /* handler_configure_notify to new width */
     for (i = 0; i < MIN(row, term.row); i++) {
-        term.line[i] = xrealloc(term.line[i], (int64)col * sizeof(Glyph));
+        term.line[i] = xrealloc(term.line[i], (int64)col * SIZEOF(Glyph));
         for (int32 j = term.col; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* allocate any new number_rows */
     for (/*i = MIN(row, term.row) */; i < row; i++) {
-        term.line[i] = xmalloc((int64)col * sizeof(Glyph));
+        term.line[i] = xmalloc((int64)col * SIZEOF(Glyph));
         for (int32 j = 0; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
@@ -3233,10 +3233,10 @@ term_reflow(int32 col, int32 row) {
             oy = -(nlines / j - oce - 1);
         }
     }
-    buf = xmalloc((int64)nlines * sizeof(Line));
+    buf = xmalloc((int64)nlines * SIZEOF(Line));
     do {
         if (!nx) {
-            buf[++ny] = xmalloc((int64)col * sizeof(Glyph));
+            buf[++ny] = xmalloc((int64)col * SIZEOF(Glyph));
         }
         if (!ox) {
             line = TLINEABS(oy);
@@ -3255,7 +3255,7 @@ term_reflow(int32 col, int32 row) {
         }
         /* get reflowed lines in buf */
         if (col - nx > len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (int64)(len - ox) * sizeof(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (int64)(len - ox) * SIZEOF(Glyph));
             nx += len - ox;
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
                 for (int32 j = nx; j < col; j++) {
@@ -3268,12 +3268,12 @@ term_reflow(int32 col, int32 row) {
             ox = 0;
             oy++;
         } else if (col - nx == len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (int64)(col - nx) * sizeof(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (int64)(col - nx) * SIZEOF(Glyph));
             ox = 0;
             oy++;
             nx = 0;
         } else /* if (col - nx < len - ox) */ {
-            memcpy(&buf[ny][nx], &line[ox], (int64)(col - nx) * sizeof(Glyph));
+            memcpy(&buf[ny][nx], &line[ox], (int64)(col - nx) * SIZEOF(Glyph));
             ox += col - nx;
             buf[ny][col - 1].mode |= ATTR_WRAP;
             nx = 0;
@@ -3290,7 +3290,7 @@ term_reflow(int32 col, int32 row) {
         free(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    term.line = xrealloc(term.line, (int64)row * sizeof(Line));
+    term.line = xrealloc(term.line, (int64)row * SIZEOF(Line));
 
     bot = MIN(ny, row - 1);
     scr = MAX(row - term.row, 0);
@@ -3309,7 +3309,7 @@ term_reflow(int32 col, int32 row) {
     }
     /* allocate new number_rows */
     for (i = row - 1; i > nce; i--) {
-        term.line[i] = xmalloc((int64)col * sizeof(Glyph));
+        term.line[i] = xmalloc((int64)col * SIZEOF(Glyph));
         for (int32 j = 0; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
@@ -3336,7 +3336,7 @@ term_reflow(int32 col, int32 row) {
     /* handler_configure_notify rest of the history lines */
     for (int32 i = -term.histf - 1; i >= -HISTSIZE; i--) {
         int32 j = (term.histi + i + 1 + HISTSIZE) % HISTSIZE;
-        term.hist[j] = xrealloc(term.hist[j], (int64)col * sizeof(Glyph));
+        term.hist[j] = xrealloc(term.hist[j], (int64)col * SIZEOF(Glyph));
     }
     free(buf);
     return;

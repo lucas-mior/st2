@@ -401,10 +401,10 @@ mousereport(XEvent *e) {
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR)) {
-        len = snprintf(buf, sizeof(buf), "\033[<%d;%d;%d%c", code, x + 1, y + 1,
+        len = snprintf(buf, SIZEOF(buf), "\033[<%d;%d;%d%c", code, x + 1, y + 1,
                        e->type == ButtonRelease ? 'm' : 'M');
     } else if (x < 223 && y < 223) {
-        len = snprintf(buf, sizeof(buf), "\033[M%c%c%c", 32 + code, 32 + x + 1, 32 + y + 1);
+        len = snprintf(buf, SIZEOF(buf), "\033[M%c%c%c", 32 + code, 32 + x + 1, 32 + y + 1);
     } else {
         return;
     }
@@ -730,7 +730,7 @@ x_resize(int32 col, int32 row) {
     x_clear(0, 0, term_window.w, term_window.h);
 
     /* handler_configure_notify to new width */
-    x_window.specbuf = xrealloc(x_window.specbuf, (int64)col * sizeof(GlyphFontSpec));
+    x_window.specbuf = xrealloc(x_window.specbuf, (int64)col * SIZEOF(GlyphFontSpec));
 }
 
 uint16
@@ -772,7 +772,7 @@ x_load_cols(void) {
         }
     } else {
         draw_context.collen = MAX(LENGTH(colorname), 256);
-        draw_context.col = xmalloc((uint16)draw_context.collen * sizeof(Color));
+        draw_context.col = xmalloc((uint16)draw_context.collen * SIZEOF(Color));
     }
 
     for (int32 i = 0; i < draw_context.collen; i++) {
@@ -1073,7 +1073,7 @@ xloadsparefonts(void) {
     }
 
     /* Calculate count of spare fonts */
-    fc = sizeof(font2) / sizeof(*font2);
+    fc = SIZEOF(font2) / SIZEOF(*font2);
     if (fc == 0) {
         return;
     }
@@ -1081,7 +1081,7 @@ xloadsparefonts(void) {
     /* Allocate memory for cache entries. */
     if (frccap < 4 * fc) {
         frccap += 4 * fc - frccap;
-        frc = xrealloc(frc, (int64)frccap * sizeof(Fontcache));
+        frc = xrealloc(frc, (int64)frccap * SIZEOF(Fontcache));
     }
 
     for (fp = font2; fp - font2 < fc; ++fp) {
@@ -1281,7 +1281,7 @@ x_init(int32 number_cols, int32 number_rows) {
         XReparentWindow(x_window.dpy, x_window.win, parent, x_window.l, x_window.t);
     }
 
-    memset(&gcvalues, 0, sizeof(gcvalues));
+    memset(&gcvalues, 0, SIZEOF(gcvalues));
     gcvalues.graphics_exposures = False;
     draw_context.graphics = XCreateGC(x_window.dpy, x_window.win, GCGraphicsExposures, &gcvalues);
     x_window.buf = XCreatePixmap(x_window.dpy, x_window.win, (uint32)term_window.w,
@@ -1291,7 +1291,7 @@ x_init(int32 number_cols, int32 number_rows) {
                    (uint32)term_window.h);
 
     /* font spec buffer */
-    x_window.specbuf = xmalloc((int64)number_cols * sizeof(GlyphFontSpec));
+    x_window.specbuf = xmalloc((int64)number_cols * SIZEOF(GlyphFontSpec));
 
     /* Xft rendering context */
     x_window.draw = XftDrawCreate(x_window.dpy, x_window.buf, x_window.vis, x_window.cmap);
@@ -1453,7 +1453,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
             /* Allocate memory for the new cache entry. */
             if (frclen >= frccap) {
                 frccap += 16;
-                frc = xrealloc(frc, (int64)frccap * sizeof(Fontcache));
+                frc = xrealloc(frc, (int64)frccap * SIZEOF(Fontcache));
             }
 
             frc[frclen].font = XftFontOpenPattern(x_window.dpy, fontpattern);
@@ -1712,9 +1712,9 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
 
 void
 x_setenv(void) {
-    char buf[sizeof(int64) * 8 + 1];
+    char buf[SIZEOF(int64) * 8 + 1];
 
-    snprintf(buf, sizeof(buf), "%lu", x_window.win);
+    snprintf(buf, SIZEOF(buf), "%lu", x_window.win);
     setenv("WINDOWID", buf, 1);
 }
 
@@ -1964,12 +1964,12 @@ handler_key_press(XEvent *ev) {
     }
 
     if (x_window.ime.xic) {
-        len = XmbLookupString(x_window.ime.xic, e, buf, sizeof(buf), &ksym, &status);
+        len = XmbLookupString(x_window.ime.xic, e, buf, SIZEOF(buf), &ksym, &status);
         if (status == XBufferOverflow) {
             return;
         }
     } else {
-        len = XLookupString(e, buf, sizeof(buf), &ksym, NULL);
+        len = XLookupString(e, buf, SIZEOF(buf), &ksym, NULL);
     }
     /* 1. shortcuts */
     for (bp = shortcuts; bp < shortcuts + LENGTH(shortcuts); bp++) {
