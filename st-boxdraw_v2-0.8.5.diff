@@ -466,7 +466,7 @@ diff --git a/st.c b/st.c
 index f43cfd3..baa2bed 100644
 --- a/st.c
 +++ b/st.c
-@@ -1214,6 +1214,9 @@ tsetchar(Rune u, const Glyph *attr, int x, int y)
+@@ -1214,6 +1214,9 @@ term_set_char(Rune u, const Glyph *attr, int x, int y)
  	term.dirty[y] = 1;
  	term.line[y][x] = *attr;
  	term.line[y][x].u = u;
