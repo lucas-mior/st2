@@ -25,7 +25,7 @@ index 8a16faa..220fc4f 100644
  static void x_load_fonts(const char *, double);
 +static int xloadsparefont(FcPattern *, int);
 +static void xloadsparefonts(void);
- static void xunloadfont(Font *);
+ static void x_unload_font(Font *);
  static void x_unload_fonts(void);
  static void x_setenv(void);
 @@ -306,6 +308,7 @@ zoomabs(const Arg *arg)
@@ -136,7 +136,7 @@ index 8a16faa..220fc4f 100644
 +}
 +
  void
- xunloadfont(Font *f)
+ x_unload_font(Font *f)
  {
 @@ -1131,6 +1229,9 @@ x_init(int number_cols, int number_rows)
  	usedfont = (opt_font == NULL)? font : opt_font;
