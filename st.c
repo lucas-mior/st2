@@ -899,7 +899,7 @@ stty(char **args) {
 int32
 tty_new(const char *line, char *cmd, const char *out, char **args) {
     int32 amaster;
-    int32 s;
+    int32 aslave;
 
     if (out) {
         term.mode |= TERM_MODE_PRINT;
@@ -919,7 +919,7 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
     }
 
     /* seems to work fine on linux, openbsd and freebsd */
-    if (openpty(&amaster, &s, NULL, NULL, NULL) < 0) {
+    if (openpty(&amaster, &aslave, NULL, NULL, NULL) < 0) {
         die("openpty failed: %s\n", strerror(errno));
     }
 
@@ -931,14 +931,14 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
         close(iofd);
         close(amaster);
         setsid(); /* create a new process group */
-        dup2(s, 0);
-        dup2(s, 1);
-        dup2(s, 2);
-        if (ioctl(s, TIOCSCTTY, NULL) < 0) {
+        dup2(aslave, 0);
+        dup2(aslave, 1);
+        dup2(aslave, 2);
+        if (ioctl(aslave, TIOCSCTTY, NULL) < 0) {
             die("ioctl TIOCSCTTY failed: %s\n", strerror(errno));
         }
-        if (s > 2) {
-            close(s);
+        if (aslave > 2) {
+            close(aslave);
         }
 #ifdef __OpenBSD__
         if (pledge("stdio getpw proc exec", NULL) == -1) {
@@ -953,7 +953,7 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
             die("pledge\n");
         }
 #endif
-        close(s);
+        close(aslave);
         cmdfd = amaster;
         signal(SIGCHLD, handler_sigchld);
         break;
