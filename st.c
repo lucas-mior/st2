@@ -1992,6 +1992,9 @@ control_seq_intro_handle(void) {
         case 5:
             term.mode |= TERM_MODE_PRINT;
             break;
+        default:
+            fprintf(stderr, "control_seq_intro_handle: Unhandled switch case.\n");
+            break;
         }
         break;
     case 'c': /* DA -- Device Attributes */
@@ -2030,7 +2033,7 @@ control_seq_intro_handle(void) {
             term.tabs[term.cursor.x] = 0;
             break;
         case 3: /* clear all the tabs */
-            memset(term.tabs, 0, term.col * sizeof(*term.tabs));
+            memset(term.tabs, 0, (size_t)term.col * sizeof(*term.tabs));
             break;
         default:
             goto unknown;
@@ -2096,6 +2099,9 @@ control_seq_intro_handle(void) {
         case 2: /* all */
             term_clear_region(0, term.cursor.y, term.col - 1, term.cursor.y, 1);
             break;
+        default:
+            fprintf(stderr, "control_seq_intro_handle: Unhandled switch case.\n");
+            break;
         }
         break;
     case 'S': /* SU -- Scroll <n> line up */
@@ -2154,7 +2160,7 @@ control_seq_intro_handle(void) {
             break;
         case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
             n = snprintf(buf, sizeof(buf), "\033[%i;%iR", term.cursor.y + 1, term.cursor.x + 1);
-            tty_write(buf, n, 0);
+            tty_write(buf, (size_t)n, 0);
             break;
         default:
             goto unknown;
@@ -2203,7 +2209,7 @@ control_seq_intro_dump(void) {
     for (size_t i = 0; i < csiescseq.len; i++) {
         c = csiescseq.buf[i] & 0xff;
         if (isprint(c)) {
-            putc(c, stderr);
+            putc((int)c, stderr);
         } else if (c == '\n') {
             fprintf(stderr, "(\\n)");
         } else if (c == '\r') {
@@ -2242,7 +2248,7 @@ osc_color_response(int num, int index, int is_osc4) {
         fprintf(stderr, "error: %s while printing %s response\n",
                 n < 0 ? "snprintf failed" : "truncation occurred", is_osc4 ? "osc4" : "osc");
     } else {
-        tty_write(buf, n, 1);
+        tty_write(buf, (size_t)n, 1);
     }
     return;
 }
@@ -2353,6 +2359,9 @@ string_handle(void) {
                 term_full_dirt();
             }
             return;
+        default:
+            fprintf(stderr, "string_handle: Unhandled switch case.\n");
+            break;
         }
         break;
     case 'k': /* old title set compatibility */
@@ -2362,6 +2371,9 @@ string_handle(void) {
     case '_': /* APC -- Application Program Command */
     case '^': /* PM -- Privacy Message */
         return;
+    default:
+        fprintf(stderr, "string_handle: Unhandled switch case.\n");
+        break;
     }
 
     fprintf(stderr, "erresc: unknown str ");
@@ -2402,6 +2414,7 @@ externalpipe(const Arg *arg) {
     Glyph *bp, *end;
     int lastpos;
     int newline;
+    char *const *argv = arg->v;
 
     if (pipe(to) == -1) {
         return;
@@ -2416,8 +2429,8 @@ externalpipe(const Arg *arg) {
         dup2(to[0], STDIN_FILENO);
         close(to[0]);
         close(to[1]);
-        execvp(((char **)arg->v)[0], (char **)arg->v);
-        fprintf(stderr, "st: execvp %s\n", ((char **)arg->v)[0]);
+        execvp(argv[0], argv);
+        fprintf(stderr, "st: execvp %s\n", argv[0]);
         perror("failed");
         exit(0);
     }
