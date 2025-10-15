@@ -1991,8 +1991,9 @@ handler_key_press(XEvent *ev) {
     } else {
         len = XLookupString(e, buf, SIZEOF(buf), &ksym, NULL);
     }
-    /* 1. shortcuts */
-    for (bp = shortcuts; bp < shortcuts + LENGTH(shortcuts); bp++) {
+    /* 1. CONF_KEYBOARD_SHORTCUTS */
+    for (bp = CONF_KEYBOARD_SHORTCUTS;
+         bp < CONF_KEYBOARD_SHORTCUTS + LENGTH(CONF_KEYBOARD_SHORTCUTS); bp++) {
         if (ksym == bp->keysym && match(bp->mod, e->state)) {
             bp->func(&(bp->arg));
             return;

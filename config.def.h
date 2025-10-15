@@ -230,14 +230,14 @@ static int32 CONF_MOUSE_COLOR_BG = 0;
 static uint32 CONF_DEFAULT_ATTR = 11;
 
 /*
- * Force mouse select/shortcuts while mask is active (when WIN_MODE_MOUSE is set).
+ * Force mouse select/CONF_KEYBOARD_SHORTCUTS while mask is active (when WIN_MODE_MOUSE is set).
  * Note that if you want to use ShiftMask with CONF_SELECTION_MASKS, set this to an other
  * modifier, set to 0 to not use it.
  */
 static uint32 CONF_FORCE_MOUSE_MOD = ShiftMask;
 
 /*
- * Internal mouse shortcuts.
+ * Internal mouse CONF_KEYBOARD_SHORTCUTS.
  * Beware that overloading Button1 will disable the selection.
  */
 static MouseShortcut mshortcuts[] = {
@@ -249,11 +249,11 @@ static MouseShortcut mshortcuts[] = {
 	{ XK_ANY_MOD, Button5, tty_send,             {.s = "\005"},      0 },
 };
 
-/* Internal keyboard shortcuts. */
+/* Internal keyboard CONF_KEYBOARD_SHORTCUTS. */
 #define MODKEY Mod1Mask
 #define TERMMOD (ControlMask|ShiftMask)
 
-static Shortcut shortcuts[] = {
+static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
 	/* mask                  keysym         function        argument */
 	{ XK_ANY_MOD,            XK_Break,      user_send_break,      {.i =  0} },
 	{ ControlMask,           XK_Print,      user_toggle_printer,  {.i =  0} },
