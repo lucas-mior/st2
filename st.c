@@ -2345,11 +2345,10 @@ externalpipe(const Arg *arg)
 void
 string_dump(void)
 {
-	size_t i;
 	uint c;
 
 	fprintf(stderr, "ESC%c", strescseq.type);
-	for (i = 0; i < strescseq.len; i++) {
+	for (size_t i = 0; i < strescseq.len; i++) {
 		c = strescseq.buf[i] & 0xff;
 		if (c == '\0') {
 			putc('\n', stderr);
