@@ -64,7 +64,7 @@
             term.cursor.x += term.wrapcwidth[alt];                                                 \
             term.cursor.state &= ~CURSOR_WRAPNEXT;                                                 \
         }                                                                                          \
-    } while (0);
+    } while (0)
 
 enum term_mode {
     TERM_MODE_WRAP = 1 << 0,
@@ -3176,7 +3176,7 @@ term_resize_alt(int col, int row) {
     }
     /* allocate any new number_rows */
     for (/*i = MIN(row, term.row) */; i < row; i++) {
-        term.line[i] = xmalloc(col * sizeof(Glyph));
+        term.line[i] = xmalloc((size_t)col * sizeof(Glyph));
         for (int j = 0; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
@@ -3189,9 +3189,11 @@ term_resize_alt(int col, int row) {
         UPDATEWRAPNEXT(1, col);
     }
     /* update terminal size */
-    term.col = col, term.row = row;
+    term.col = col;
+    term.row = row;
     /* reset scrolling region */
-    term.top = 0, term.bot = row - 1;
+    term.top = 0;
+    term.bot = row - 1;
     /* dirty all lines */
     term_full_dirt();
     return;
