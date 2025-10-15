@@ -1613,10 +1613,9 @@ term_def_color(const int *attr, int *npar, int l)
 void
 term_set_attr(const int *attr, int l)
 {
-	int i;
 	int32_t idx;
 
-	for (i = 0; i < l; i++) {
+	for (int i = 0; i < l; i++) {
 		switch (attr[i]) {
 		case 0:
 			term.cursor.attr.mode &= ~(
