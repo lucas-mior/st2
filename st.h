@@ -160,7 +160,7 @@ void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, const XftGlyp
 extern char *utmp;
 extern char *scroll;
 extern char *CONF_STTY_ARGS;
-extern char *vtiden;
+extern char *CONF_VTIDEN;
 extern wchar_t *WORD_DELIMITERS;
 extern int32 ALLOW_ALT_SCREEN;
 extern int32 ALLOW_WINDOW_OPS;

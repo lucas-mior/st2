@@ -2005,7 +2005,7 @@ control_seq_intro_handle(void) {
         break;
     case 'c': /* DA -- Device Attributes */
         if (csiescseq.arg[0] == 0) {
-            tty_write(vtiden, (int64)strlen(vtiden), 0);
+            tty_write(CONF_VTIDEN, (int64)strlen(CONF_VTIDEN), 0);
         }
         break;
     case 'b': /* REP -- if last char is printable print it <n> more times */
@@ -2740,7 +2740,7 @@ term_control_code(uchar ascii) {
     case 0x99: /* TODO: SGCI */
         break;
     case 0x9a: /* DECID -- Identify Terminal */
-        tty_write(vtiden, (int64)strlen(vtiden), 0);
+        tty_write(CONF_VTIDEN, (int64)strlen(CONF_VTIDEN), 0);
         break;
     case 0x9b: /* TODO: CSI */
     case 0x9c: /* TODO: ST */
@@ -2815,7 +2815,7 @@ eschandle(uchar ascii) {
         }
         break;
     case 'Z': /* DECID -- Identify Terminal */
-        tty_write(vtiden, (int64)strlen(vtiden), 0);
+        tty_write(CONF_VTIDEN, (int64)strlen(CONF_VTIDEN), 0);
         break;
     case 'c': /* RIS -- Reset to initial state */
         term_reset();
