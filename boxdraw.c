@@ -41,7 +41,7 @@ isboxdraw(Rune u) {
 /* the "index" is actually the entire shape data encoded as ushort */
 ushort
 boxdrawindex(const Glyph *g) {
-    if (boxdraw_braille && (g->rune & ~0xff) == 0x2800) {
+    if (boxdraw_braille && (g->rune & ~(uint)0xff) == 0x2800) {
         return BRL | (uint8_t)g->rune;
     }
     if (boxdraw_bold && (g->mode & ATTR_BOLD)) {
@@ -70,35 +70,35 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, ushort bd) {
     } else if (cat == BBD) {
         /* lower (8-X)/8 block */
         int d = DIV((uint8_t)bd * h, 8);
-        XftDrawRect(xd, fg, x, y + d, w, h - d);
+        XftDrawRect(xd, fg, x, y + d, (uint)w, (uint)h - d);
 
     } else if (cat == BBU) {
         /* upper X/8 block */
-        XftDrawRect(xd, fg, x, y, w, DIV((uint8_t)bd * h, 8));
+        XftDrawRect(xd, fg, x, y, (uint)w, (uint)DIV((uint8_t)bd * h, 8));
 
     } else if (cat == BBL) {
         /* left X/8 block */
-        XftDrawRect(xd, fg, x, y, DIV((uint8_t)bd * w, 8), h);
+        XftDrawRect(xd, fg, x, y, (uint)DIV((uint8_t)bd * w, (uint)8), h);
 
     } else if (cat == BBR) {
         /* right (8-X)/8 block */
         int d = DIV((uint8_t)bd * w, 8);
-        XftDrawRect(xd, fg, x + d, y, w - d, h);
+        XftDrawRect(xd, fg, x + d, y, (uint)w - d, (uint)h);
 
     } else if (cat == BBQ) {
         /* Quadrants */
         int w2 = DIV(w, 2), h2 = DIV(h, 2);
         if (bd & TL) {
-            XftDrawRect(xd, fg, x, y, w2, h2);
+            XftDrawRect(xd, fg, x, y, (uint)w2, (uint)h2);
         }
         if (bd & TR) {
-            XftDrawRect(xd, fg, x + w2, y, w - w2, h2);
+            XftDrawRect(xd, fg, x + w2, y, (uint)w - w2, (uint)h2);
         }
         if (bd & BL) {
-            XftDrawRect(xd, fg, x, y + h2, w2, h - h2);
+            XftDrawRect(xd, fg, x, y + h2, (uint)w2, (uint)h - h2);
         }
         if (bd & BR) {
-            XftDrawRect(xd, fg, x + w2, y + h2, w - w2, h - h2);
+            XftDrawRect(xd, fg, x + w2, y + h2, (uint)w - w2, (uint)h - h2);
         }
 
     } else if (bd & BBS) {
@@ -112,7 +112,7 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, ushort bd) {
         xrc.blue = DIV(fg->color.blue * d + bg->color.blue * (4 - d), 4);
 
         XftColorAllocValue(xdpy, xvis, xcmap, &xrc, &xfc);
-        XftDrawRect(xd, &xfc, x, y, w, h);
+        XftDrawRect(xd, &xfc, x, y, (uint)w, (uint)h);
         XftColorFree(xdpy, xvis, xcmap, &xfc);
 
     } else if (cat == BRL) {
@@ -121,28 +121,28 @@ drawbox(int x, int y, int w, int h, XftColor *fg, XftColor *bg, ushort bd) {
         int h1 = DIV(h, 4), h2 = DIV(h, 2), h3 = DIV(3 * h, 4);
 
         if (bd & 1) {
-            XftDrawRect(xd, fg, x, y, w1, h1);
+            XftDrawRect(xd, fg, x, y, (uint)w1, (uint)h1);
         }
         if (bd & 2) {
-            XftDrawRect(xd, fg, x, y + h1, w1, h2 - h1);
+            XftDrawRect(xd, fg, x, y + h1, (uint)w1, (uint)h2 - h1);
         }
         if (bd & 4) {
-            XftDrawRect(xd, fg, x, y + h2, w1, h3 - h2);
+            XftDrawRect(xd, fg, x, y + h2, (uint)w1, (uint)h3 - h2);
         }
         if (bd & 8) {
-            XftDrawRect(xd, fg, x + w1, y, w - w1, h1);
+            XftDrawRect(xd, fg, x + w1, y, (uint)w - w1, (uint)h1);
         }
         if (bd & 16) {
-            XftDrawRect(xd, fg, x + w1, y + h1, w - w1, h2 - h1);
+            XftDrawRect(xd, fg, x + w1, y + h1, (uint)w - w1, (uint)h2 - h1);
         }
         if (bd & 32) {
-            XftDrawRect(xd, fg, x + w1, y + h2, w - w1, h3 - h2);
+            XftDrawRect(xd, fg, x + w1, y + h2, (uint)w - w1, (uint)h3 - h2);
         }
         if (bd & 64) {
-            XftDrawRect(xd, fg, x, y + h3, w1, h - h3);
+            XftDrawRect(xd, fg, x, y + h3, (uint)w1, (uint)h - h3);
         }
         if (bd & 128) {
-            XftDrawRect(xd, fg, x + w1, y + h3, w - w1, h - h3);
+            XftDrawRect(xd, fg, x + w1, y + h3, (uint)w - w1, (uint)h - h3);
         }
     }
 }
@@ -173,16 +173,16 @@ drawboxlines(int x, int y, int w, int h, XftColor *fg, ushort bd) {
         int d = arc || (multi_double && !multi_light) ? -s : 0;
 
         if (bd & LL) {
-            XftDrawRect(xd, fg, x, y + h2, w2 + s + d, s);
+            XftDrawRect(xd, fg, x, y + h2, (uint)w2 + s + d, (uint)s);
         }
         if (bd & LU) {
-            XftDrawRect(xd, fg, x + w2, y, s, h2 + s + d);
+            XftDrawRect(xd, fg, x + w2, y, (uint)s, (uint)h2 + s + d);
         }
         if (bd & LR) {
-            XftDrawRect(xd, fg, x + w2 - d, y + h2, w - w2 + d, s);
+            XftDrawRect(xd, fg, x + w2 - d, y + h2, (uint)w - w2 + d, (uint)s);
         }
         if (bd & LD) {
-            XftDrawRect(xd, fg, x + w2, y + h2 - d, s, h - h2 + d);
+            XftDrawRect(xd, fg, x + w2, y + h2 - d, (uint)s, (uint)h - h2 + d);
         }
     }
 
@@ -198,23 +198,23 @@ drawboxlines(int x, int y, int w, int h, XftColor *fg, ushort bd) {
         int dl = bd & DL, du = bd & DU, dr = bd & DR, dd = bd & DD;
         if (dl) {
             int p = dd ? -s : 0, n = du ? -s : dd ? s : 0;
-            XftDrawRect(xd, fg, x, y + h2 + s, w2 + s + p, s);
-            XftDrawRect(xd, fg, x, y + h2 - s, w2 + s + n, s);
+            XftDrawRect(xd, fg, x, y + h2 + s, (uint)w2 + s + p, (uint)s);
+            XftDrawRect(xd, fg, x, y + h2 - s, (uint)w2 + s + n, (uint)s);
         }
         if (du) {
             int p = dl ? -s : 0, n = dr ? -s : dl ? s : 0;
-            XftDrawRect(xd, fg, x + w2 - s, y, s, h2 + s + p);
-            XftDrawRect(xd, fg, x + w2 + s, y, s, h2 + s + n);
+            XftDrawRect(xd, fg, x + w2 - s, y, (uint)s, (uint)h2 + s + p);
+            XftDrawRect(xd, fg, x + w2 + s, y, (uint)s, (uint)h2 + s + n);
         }
         if (dr) {
             int p = du ? -s : 0, n = dd ? -s : du ? s : 0;
-            XftDrawRect(xd, fg, x + w2 - p, y + h2 - s, w - w2 + p, s);
-            XftDrawRect(xd, fg, x + w2 - n, y + h2 + s, w - w2 + n, s);
+            XftDrawRect(xd, fg, x + w2 - p, y + h2 - s, (uint)w - w2 + p, (uint)s);
+            XftDrawRect(xd, fg, x + w2 - n, y + h2 + s, (uint)w - w2 + n, (uint)s);
         }
         if (dd) {
             int p = dr ? -s : 0, n = dl ? -s : dr ? s : 0;
-            XftDrawRect(xd, fg, x + w2 + s, y + h2 - p, s, h - h2 + p);
-            XftDrawRect(xd, fg, x + w2 - s, y + h2 - n, s, h - h2 + n);
+            XftDrawRect(xd, fg, x + w2 + s, y + h2 - p, (uint)s, (uint)h - h2 + p);
+            XftDrawRect(xd, fg, x + w2 - s, y + h2 - n, (uint)s, (uint)h - h2 + n);
         }
     }
 }
