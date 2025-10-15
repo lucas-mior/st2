@@ -35,8 +35,6 @@ static int32 CONF_BORDER_PIXELS = 2;
  */
 static char *CONF_SHELl = "/bin/sh";
 char *utmp = NULL;
-/* scroll program: to enable use a string like "scroll" */
-char *scroll = NULL;
 char *stty_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 
 /* identification sequence returned in DA and DECID */

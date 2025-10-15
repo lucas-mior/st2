@@ -820,9 +820,6 @@ exec_shell(char *cmd, char **args) {
     if (args) {
         program = args[0];
         arg = NULL;
-    } else if (scroll) {
-        program = scroll;
-        arg = utmp ? utmp : sh;
     } else if (utmp) {
         program = utmp;
         arg = NULL;
