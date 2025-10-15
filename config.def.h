@@ -181,7 +181,7 @@ const int trans_colors = 26;
  * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor, selection
  */
-unsigned int default_foreground = 258;
+unsigned int default_foreground = 7;
 unsigned int default_background = 0;
 unsigned int default_cursor = 256;
 static unsigned int default_reverse_cursor = 257;
