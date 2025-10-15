@@ -290,7 +290,7 @@ run:
         Window parent = 0;
         Window root;
         pid_t pid_this = getpid();
-        XColor xmouse_fg, xmousebg;
+        XColor xmouse_fg, xmouse_bg;
         XWindowAttributes attr;
         XVisualInfo vis;
 
@@ -389,13 +389,13 @@ run:
         }
 
         if (XParseColor(x_window.display, x_window.cmap, CONF_COLORS[CONF_MOUSE_COLOR_BG],
-                        &xmousebg) == 0) {
-            xmousebg.red = 0x0000;
-            xmousebg.green = 0x0000;
-            xmousebg.blue = 0x0000;
+                        &xmouse_bg) == 0) {
+            xmouse_bg.red = 0x0000;
+            xmouse_bg.green = 0x0000;
+            xmouse_bg.blue = 0x0000;
         }
 
-        XRecolorCursor(x_window.display, cursor, &xmouse_fg, &xmousebg);
+        XRecolorCursor(x_window.display, cursor, &xmouse_fg, &xmouse_bg);
 
         x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
         x_window.wmdeletewin = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
