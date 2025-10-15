@@ -407,7 +407,7 @@ utf8_validate(Rune *u, size_t i) {
 
 char
 base64_decode_getc(const char **src) {
-    while (**src && !isprint((unsigned char)**src)) {
+    while (**src && !isprint((uchar) * *src)) {
         (*src)++;
     }
     return **src ? *((*src)++) : '='; /* emulate padding if string ends */
@@ -428,10 +428,10 @@ base64_decode(const char *src) {
     }
     result = dst = xmalloc(in_len / 4 * 3 + 1);
     while (*src) {
-        int a = base64_digits[(unsigned char)base64_decode_getc(&src)];
-        int b = base64_digits[(unsigned char)base64_decode_getc(&src)];
-        int c = base64_digits[(unsigned char)base64_decode_getc(&src)];
-        int d = base64_digits[(unsigned char)base64_decode_getc(&src)];
+        int a = base64_digits[(uchar)base64_decode_getc(&src)];
+        int b = base64_digits[(uchar)base64_decode_getc(&src)];
+        int c = base64_digits[(uchar)base64_decode_getc(&src)];
+        int d = base64_digits[(uchar)base64_decode_getc(&src)];
 
         /* invalid input. 'a' can be -1, e.g. if src is "\n" (c-str) */
         if (a == -1 || b == -1) {
@@ -2234,7 +2234,7 @@ void
 osc_color_response(int num, int index, int is_osc4) {
     int n;
     char buf[32];
-    unsigned char r, g, b;
+    uchar r, g, b;
 
     if (x_get_color(is_osc4 ? num : index, &r, &g, &b)) {
         fprintf(stderr, "erresc: failed to fetch %s color %d\n", is_osc4 ? "osc4" : "osc",
