@@ -87,9 +87,9 @@ index 2478942..2b86d23 100644
  static void term_put_tab(int);
  static void term_putc(Rune);
  static void term_reset(void);
--static void tscrollup(int, int, int);
+-static void term_scroll_up(int, int, int);
 -static void term_scroll_down(int, int, int);
-+static void tscrollup(int, int, int, int);
++static void term_scroll_up(int, int, int, int);
 +static void term_scroll_down(int, int);
 +static void treflow(int, int);
 +static void rscrolldown(int);
@@ -665,7 +665,7 @@ index 2478942..2b86d23 100644
  }
  
  void
--tscrollup(int orig, int n, int copyhist)
+-term_scroll_up(int orig, int n, int copyhist)
 +term_scroll_down(int top, int n)
  {
 -	int i;
@@ -707,7 +707,7 @@ index 2478942..2b86d23 100644
 -		term.line[i+n] = temp;
 -	}
 +void
-+tscrollup(int top, int bot, int n, int mode)
++term_scroll_up(int top, int bot, int n, int mode)
 +{
 +    int i, j, s;
 +    int alt = IS_SET(TERM_MODE_ALTSCREEN);
@@ -800,8 +800,8 @@ index 2478942..2b86d23 100644
  	int y = term.c.y;
  
  	if (y == term.bot) {
--		tscrollup(term.top, 1, 1);
-+		tscrollup(term.top, term.bot, 1, SCROLL_SAVEHIST);
+-		term_scroll_up(term.top, 1, 1);
++		term_scroll_up(term.top, term.bot, 1, SCROLL_SAVEHIST);
  	} else {
  		y++;
  	}
@@ -1000,8 +1000,8 @@ index 2478942..2b86d23 100644
  term_delete_line(int n)
  {
  	if (BETWEEN(term.c.y, term.top, term.bot))
--		tscrollup(term.c.y, n, 0);
-+		tscrollup(term.c.y, term.bot, n, SCROLL_NOSAVEHIST);
+-		term_scroll_up(term.c.y, n, 0);
++		term_scroll_up(term.c.y, term.bot, n, SCROLL_NOSAVEHIST);
  }
  
  int32_t
@@ -1088,13 +1088,13 @@ index 2478942..2b86d23 100644
 +                break;
 +            }
 +            /* vte does this:
-+               tscrollup(0, term.row-1, term.row, SCROLL_SAVEHIST); */
++               term_scroll_up(0, term.row-1, term.row, SCROLL_SAVEHIST); */
 +
 +            /* alacritty does this: */
 +            for (n = term.row-1; n >= 0 && term_line_len(term.line[n]) == 0; n--);
 +            if (n >= 0)
-+                tscrollup(0, term.row-1, n+1, SCROLL_SAVEHIST);
-+            tscrollup(0, term.row-1, term.row-n-1, SCROLL_NOSAVEHIST);
++                term_scroll_up(0, term.row-1, n+1, SCROLL_SAVEHIST);
++            term_scroll_up(0, term.row-1, term.row-n-1, SCROLL_NOSAVEHIST);
  			break;
  		default:
  			goto unknown;
@@ -1119,9 +1119,9 @@ index 2478942..2b86d23 100644
  	case 'S': /* SU -- Scroll <n> line up */
  		if (csiescseq.priv) break;
  		DEFAULT(csiescseq.arg[0], 1);
--		tscrollup(term.top, csiescseq.arg[0], 0);
+-		term_scroll_up(term.top, csiescseq.arg[0], 0);
 +		/* xterm, urxvt, alacritty save this in history */
-+		tscrollup(term.top, term.bot, csiescseq.arg[0], SCROLL_SAVEHIST);
++		term_scroll_up(term.top, term.bot, csiescseq.arg[0], SCROLL_SAVEHIST);
  		break;
  	case 'T': /* SD -- Scroll <n> line down */
  		DEFAULT(csiescseq.arg[0], 1);
@@ -1179,8 +1179,8 @@ index 2478942..2b86d23 100644
  		return 0;
  	case 'D': /* IND -- Linefeed */
  		if (term.c.y == term.bot) {
--			tscrollup(term.top, 1, 1);
-+			tscrollup(term.top, term.bot, 1, SCROLL_SAVEHIST);
+-			term_scroll_up(term.top, 1, 1);
++			term_scroll_up(term.top, term.bot, 1, SCROLL_SAVEHIST);
  		} else {
  			term_move_to(term.c.x, term.c.y+1);
  		}
@@ -1273,7 +1273,7 @@ index 2478942..2b86d23 100644
  
 -	/*
 -	 * slide screen to keep cursor where we expect it -
--	 * tscrollup would work here, but we can optimize to
+-	 * term_scroll_up would work here, but we can optimize to
 -	 * memmove because we're freeing the earlier lines
 -	 */
 -	for (i = 0; i <= term.c.y - row; i++) {
@@ -1352,7 +1352,7 @@ index 2478942..2b86d23 100644
 +	} else {
 +		/* slide screen up if otherwise cursor would get out of the screen */
 +		if (term.c.y >= row) {
-+			tscrollup(0, term.row - 1, term.c.y - row + 1, SCROLL_RESIZE);
++			term_scroll_up(0, term.row - 1, term.c.y - row + 1, SCROLL_RESIZE);
 +			term.c.y = row - 1;
 + 		}
 +		for (i = row; i < term.row; i++)
