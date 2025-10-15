@@ -27,12 +27,13 @@ void
 boxdraw_xinit(Display *dpy, Colormap cmap, XftDraw *draw, Visual *vis) {
     xdpy = dpy;
     xcmap = cmap;
-    xd = draw, xvis = vis;
+    xd = draw;
+    xvis = vis;
 }
 
 int
 isboxdraw(Rune u) {
-    Rune block = u & ~0xff;
+    Rune block = u & ~(uint)0xff;
     return (boxdraw && block == 0x2500 && boxdata[(uint8_t)u]) ||
            (boxdraw_braille && block == 0x2800);
 }
