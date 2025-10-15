@@ -844,10 +844,15 @@ x_set_color_name(int32 x, const char *name) {
  */
 void
 x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
-    XftDrawRect(x_window.draw,
-                &draw_context.col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT
-                                                                       : CONF_COLOR_INDEX_BACK],
-                x1, y1, (uint32)(x2 - x1), (uint32)(y2 - y1));
+    int32 color_index;
+    if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
+        color_index = CONF_COLOR_INDEX_FONT;
+    } else {
+        color_index = CONF_COLOR_INDEX_BACK;
+    }
+
+    XftDrawRect(x_window.draw, &draw_context.col[color_index], x1, y1, (uint32)(x2 - x1),
+                (uint32)(y2 - y1));
 }
 
 void
