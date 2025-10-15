@@ -229,7 +229,7 @@ static void term_scroll_down(int, int);
 static void term_reflow(int, int);
 static void rscrolldown(int);
 static void term_resize_def(int, int);
-static void tresizealt(int, int);
+static void term_resize_alt(int, int);
 static void term_set_attr(const int *, int);
 static void term_set_char(Rune, const Glyph *, int, int);
 static void term_set_dirt(int, int);
@@ -1244,7 +1244,7 @@ tloadaltscreen(int clear, int savecursor) {
         col = term.col, row = term.row;
         term_swap_screen();
         term.scr = 0;
-        tresizealt(col, row);
+        term_resize_alt(col, row);
     }
     if (clear) {
         term_clear_region(0, 0, term.col - 1, term.row - 1, 1);
@@ -2984,7 +2984,7 @@ term_resize(int col, int row) {
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-        tresizealt(col, row);
+        term_resize_alt(col, row);
     } else {
         term_resize_def(col, row);
     }
@@ -3033,7 +3033,7 @@ term_resize_def(int col, int row) {
 }
 
 void
-tresizealt(int col, int row) {
+term_resize_alt(int col, int row) {
     int i;
 
     /* return if dimensions haven't changed */
