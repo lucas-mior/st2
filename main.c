@@ -609,22 +609,22 @@ handler_selection_clear(XEvent *xevent) {
 void
 handler_selection_request(XEvent *xevent) {
     XSelectionRequestEvent *xsre;
-    XSelectionEvent xev;
+    XSelectionEvent xselection_event;
     Atom xa_targets, string, clipboard;
     char *seltext;
 
     xsre = (XSelectionRequestEvent *)xevent;
-    xev.type = SelectionNotify;
-    xev.requestor = xsre->requestor;
-    xev.selection = xsre->selection;
-    xev.target = xsre->target;
-    xev.time = xsre->time;
+    xselection_event.type = SelectionNotify;
+    xselection_event.requestor = xsre->requestor;
+    xselection_event.selection = xsre->selection;
+    xselection_event.target = xsre->target;
+    xselection_event.time = xsre->time;
     if (xsre->property == None) {
         xsre->property = xsre->target;
     }
 
     /* reject */
-    xev.property = None;
+    xselection_event.property = None;
 
     xa_targets = XInternAtom(x_window.display, "TARGETS", 0);
     if (xsre->target == xa_targets) {
@@ -632,7 +632,7 @@ handler_selection_request(XEvent *xevent) {
         string = xsel.xtarget;
         XChangeProperty(xsre->display, xsre->requestor, xsre->property, XA_ATOM, 32,
                         PropModeReplace, (uchar *)&string, 1);
-        xev.property = xsre->property;
+        xselection_event.property = xsre->property;
     } else if (xsre->target == xsel.xtarget || xsre->target == XA_STRING) {
         /*
          * xith XA_STRING non ascii characters may be incorrect in the
@@ -650,12 +650,12 @@ handler_selection_request(XEvent *xevent) {
         if (seltext != NULL) {
             XChangeProperty(xsre->display, xsre->requestor, xsre->property, xsre->target, 8,
                             PropModeReplace, (uchar *)seltext, (int32)(int64)strlen(seltext));
-            xev.property = xsre->property;
+            xselection_event.property = xsre->property;
         }
     }
 
     /* all done, send a notification to the listener */
-    if (!XSendEvent(xsre->display, xsre->requestor, 1, 0, (XEvent *)&xev)) {
+    if (!XSendEvent(xsre->display, xsre->requestor, 1, 0, (XEvent *)&xselection_event)) {
         fprintf(stderr, "Error sending SelectionNotify event\n");
     }
     return;
