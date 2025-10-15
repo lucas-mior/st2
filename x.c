@@ -175,7 +175,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
      * Uncomment if you want the selection to disappear when you select something
      * different in another window.
      */
-    /*	[SelectionClear] = handler_selection_clear, */
+    [SelectionClear] = handler_selection_clear,
     [SelectionNotify] = handler_selection_notify,
     /*
      * PropertyNotify is only turned on when there is some INCR transfer happening
@@ -225,8 +225,9 @@ static char *opt_title = NULL;
 static uint32 buttons; /* bit field of pressed buttons */
 
 void
-user_clipboard_copy(const Arg *dummy) {
+user_clipboard_copy(const Arg *arg) {
     Atom clipboard;
+    (void)arg;
 
     free(xsel.clipboard);
     xsel.clipboard = NULL;
@@ -239,15 +240,17 @@ user_clipboard_copy(const Arg *dummy) {
 }
 
 void
-user_clipboard_paste(const Arg *dummy) {
+user_clipboard_paste(const Arg *arg) {
     Atom clipboard;
+    (void)arg;
 
     clipboard = XInternAtom(x_window.dpy, "CLIPBOARD", 0);
     XConvertSelection(x_window.dpy, clipboard, xsel.xtarget, clipboard, x_window.win, CurrentTime);
 }
 
 void
-user_selection_paste(const Arg *dummy) {
+user_selection_paste(const Arg *arg) {
+    (void)arg;
     XConvertSelection(x_window.dpy, XA_PRIMARY, xsel.xtarget, XA_PRIMARY, x_window.win,
                       CurrentTime);
 }
@@ -269,7 +272,8 @@ user_change_alpha(const Arg *arg) {
 }
 
 void
-user_toggle_numlock(const Arg *dummy) {
+user_toggle_numlock(const Arg *arg) {
+    (void)arg;
     term_window.mode ^= WIN_MODE_NUMLOCK;
 }
 
@@ -294,6 +298,7 @@ zoom_abs(const Arg *arg) {
 void
 user_zoom_reset(const Arg *arg) {
     Arg larg;
+    (void)arg;
 
     if (defaultfontsize > 0) {
         larg.f = defaultfontsize;
@@ -586,6 +591,7 @@ x_clipboard_copy(void) {
 
 void
 handler_selection_clear(XEvent *e) {
+    (void)e;
     selection_clear();
 }
 
@@ -1164,6 +1170,7 @@ int32
 x_im_open(Display *dpy) {
     XIMCallback imdestroy = {.client_data = NULL, .callback = x_im_destroy};
     XICCallback icdestroy = {.client_data = NULL, .callback = x_ic_destroy};
+    (void)dpy;
 
     x_window.ime.xim = XOpenIM(x_window.dpy, NULL, NULL, NULL);
     if (x_window.ime.xim == NULL) {
@@ -1191,6 +1198,8 @@ x_im_open(Display *dpy) {
 
 void
 x_im_instantiate(Display *dpy, XPointer client, XPointer call) {
+    (void)client;
+    (void)call;
     if (x_im_open(dpy)) {
         XUnregisterIMInstantiateCallback(x_window.dpy, NULL, NULL, NULL, x_im_instantiate, NULL);
     }
@@ -1198,6 +1207,9 @@ x_im_instantiate(Display *dpy, XPointer client, XPointer call) {
 
 void
 x_im_destroy(XIM xim, XPointer client, XPointer call) {
+    (void)xim;
+    (void)client;
+    (void)call;
     x_window.ime.xim = NULL;
     XRegisterIMInstantiateCallback(x_window.dpy, NULL, NULL, NULL, x_im_instantiate, NULL);
     XFree(x_window.ime.spotlist);
@@ -1205,6 +1217,9 @@ x_im_destroy(XIM xim, XPointer client, XPointer call) {
 
 int32
 x_ic_destroy(XIC xim, XPointer client, XPointer call) {
+    (void)xim;
+    (void)client;
+    (void)call;
     x_window.ime.xic = NULL;
     return 1;
 }
@@ -1348,8 +1363,6 @@ int32
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len, int32 x, int32 y) {
     float winx = (float)(term_window.hborderpx + x * term_window.cw);
     float winy = (float)(term_window.vborderpx + y * term_window.ch);
-    float xp;
-    float yp;
     uint16 mode, prevmode = USHRT_MAX;
     Font *font = &draw_context.font;
     int32 frcflags = FRC_NORMAL;
@@ -1812,6 +1825,7 @@ x_xim_spot(int32 x, int32 y) {
 
 void
 handler_expose(XEvent *ev) {
+    (void)ev;
     redraw();
 }
 
@@ -1824,6 +1838,7 @@ handler_visibility(XEvent *ev) {
 
 void
 handler_unmap(XEvent *ev) {
+    (void)ev;
     term_window.mode &= ~WIN_MODE_VISIBLE;
 }
 
