@@ -771,7 +771,7 @@ die(const char *errstr, ...) {
 
 void
 exec_shell(char *cmd, char **args) {
-    char *sh, *prog, *arg;
+    char *sh, *program, *arg;
     const struct passwd *pw;
 
     errno = 0;
@@ -788,19 +788,19 @@ exec_shell(char *cmd, char **args) {
     }
 
     if (args) {
-        prog = args[0];
+        program = args[0];
         arg = NULL;
     } else if (scroll) {
-        prog = scroll;
+        program = scroll;
         arg = utmp ? utmp : sh;
     } else if (utmp) {
-        prog = utmp;
+        program = utmp;
         arg = NULL;
     } else {
-        prog = sh;
+        program = sh;
         arg = NULL;
     }
-    DEFAULT(args, ((char *[]){prog, arg, NULL}));
+    DEFAULT(args, ((char *[]){program, arg, NULL}));
 
     unsetenv("COLUMNS");
     unsetenv("LINES");
@@ -818,7 +818,7 @@ exec_shell(char *cmd, char **args) {
     signal(SIGTERM, SIG_DFL);
     signal(SIGALRM, SIG_DFL);
 
-    execvp(prog, args);
+    execvp(program, args);
     _exit(1);
 }
 
