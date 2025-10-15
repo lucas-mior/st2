@@ -138,7 +138,7 @@ index 8a16faa..220fc4f 100644
  void
  xunloadfont(Font *f)
  {
-@@ -1131,6 +1229,9 @@ xinit(int number_cols, int rows)
+@@ -1131,6 +1229,9 @@ xinit(int number_cols, int number_rows)
  	usedfont = (opt_font == NULL)? font : opt_font;
  	xloadfonts(usedfont, 0);
 
