@@ -252,7 +252,7 @@ static void draw_region(int, int, int, int);
 static void selection_normalize(void);
 static void selection_scroll(int, int, int);
 static void selection_move(int);
-static void selremove(void);
+static void selection_remove(void);
 static int regionselected(int, int, int, int);
 static void selection_snap(int *, int *, int);
 
@@ -760,12 +760,12 @@ selection_clear(void) {
     if (selection.ob.x == -1) {
         return;
     }
-    selremove();
+    selection_remove();
     term_set_dirt(selection.nb.y, selection.ne.y);
 }
 
 void
-selremove(void) {
+selection_remove(void) {
     selection.mode = SELECTION_IDLE;
     selection.ob.x = -1;
 }
@@ -1168,7 +1168,7 @@ term_reset(void) {
     memset(term.trantbl, CS_USA, sizeof(term.trantbl));
     term.charset = 0;
 
-    selremove();
+    selection_remove();
     for (uint i = 0; i < 2; i++) {
         term_cursor(CURSOR_SAVE); /* reset saved cursor */
         for (int y = 0; y < term.row; y++) {
@@ -1378,7 +1378,7 @@ term_scroll_up(int top, int bot, int n, int mode) {
         } else if (s > 0) {
             selection_move(-s);
             if (-term.scr + selection.nb.y < -term.histf) {
-                selremove();
+                selection_remove();
             }
         }
     }
@@ -1534,7 +1534,7 @@ void
 term_clear_region(int x1, int y1, int x2, int y2, int usecurattr) {
     /* regionselected() takes relative coordinates */
     if (regionselected(x1 + term.scr, y1 + term.scr, x2 + term.scr, y2 + term.scr)) {
-        selremove();
+        selection_remove();
     }
 
     for (int y = y1; y <= y2; y++) {
@@ -2999,7 +2999,7 @@ term_resize_def(int col, int row) {
     }
     if (col != term.col) {
         if (!selection.alt) {
-            selremove();
+            selection_remove();
         }
         term_reflow(col, row);
     } else {
@@ -3042,7 +3042,7 @@ term_resize_alt(int col, int row) {
         return;
     }
     if (selection.alt) {
-        selremove();
+        selection_remove();
     }
     /* slide screen up if otherwise cursor would get out of the screen */
     for (i = 0; i <= term.cursor.y - row; i++) {
