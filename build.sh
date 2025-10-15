@@ -15,9 +15,6 @@ X11LIB="/usr/X11R6/lib"
 
 PKG_CONFIG=${PKG_CONFIG:-pkg-config}
 
-SRC="st.c x.c boxdraw.c"
-OBJ=$(echo $SRC | sed 's/\.c/\.o/g')
-
 INCS="-I$X11INC \
   $($PKG_CONFIG --cflags fontconfig) \
   $($PKG_CONFIG --cflags freetype2)"
@@ -31,24 +28,14 @@ STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
 STLDFLAGS="$LIBS $LDFLAGS"
 
 CC=${CC:-cc}
+CC=clang
 
 echo "target=$target"
 
 case "$target" in
     clean)
         set -x
-        rm -f st $OBJ st-${VERSION}.tar.gz
-        ;;
-
-    dist)
-        set -x
-        rm -f st-${VERSION}.tar.gz
-        mkdir -p st-${VERSION}
-        cp -R FAQ LEGACY TODO LICENSE Makefile README config.mk \
-           config.def.h st.info st.1 arg.h st.h win.h $SRC \
-           st-${VERSION}
-        tar -cf - st-${VERSION} | gzip > st-${VERSION}.tar.gz
-        rm -rf st-${VERSION}
+        rm -f st st-${VERSION}.tar.gz
         ;;
 
     build|all)
