@@ -222,7 +222,7 @@ static int32 CONF_NUMBER_ROWS = 24;
  * Default colour and shape of the mouse cursor
  */
 static int32 CONF_MOUSE_SHAPE = XC_xterm;
-static int32 mouse_foreground = 7;
+static int32 CONF_MOUSE_COLOR_FG = 7;
 static int32 mouse_background = 0;
 
 /*
