@@ -165,7 +165,7 @@ extern wchar_t *WORD_DELIMITERS;
 extern int32 ALLOW_ALT_SCREEN;
 extern int32 ALLOW_WINDOW_OPS;
 extern char *CONF_TERM_NAME;
-extern int32 TAB_NSPACES;
+extern int32 CONF_TAB_NSPACES;
 extern int32 CONF_COLOR_INDEX_FONT;
 extern int32 CONF_COLOR_INDEX_BACK;
 extern int32 CONF_COLOR_INDEX_CURSOR;
