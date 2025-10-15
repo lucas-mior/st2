@@ -2,7 +2,8 @@
  * Copyright 2018 Avi Halachmi (:avih) avihpit@yahoo.com https://github.com/avih
  * MIT/X Consortium License
  */
-
+#ifndef BOXDRAW_DATA_H
+#define BOXDRAW_DATA_H
 /*
  * U+25XX codepoints data
  *
@@ -212,3 +213,4 @@ static const unsigned short boxdata[256] = {
 	/* U+2504 - U+250B, U+254C - U+254F: unsupported (dashes) */
 	/* U+2571 - U+2573: unsupported (diagonals) */
 };
+#endif /* BOXDRAW_DATA_H */

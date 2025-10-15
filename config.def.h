@@ -1,5 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 
+#ifndef CONFIG_DEF_H
+#define CONFIG_DEF_H
+
 /*
  * appearance
  *
@@ -534,3 +537,5 @@ static char ascii_printable[] =
 	" !\"#$%&'()*+,-./0123456789:;<=>?"
 	"@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
 	"`abcdefghijklmnopqrstuvwxyz{|}~";
+
+#endif /* CONFIG_DEF_H */

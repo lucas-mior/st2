@@ -1,4 +1,7 @@
 /* See LICENSE for license details. */
+#ifndef X_C
+#define X_C
+
 #include <errno.h>
 #include <math.h>
 #include <limits.h>
@@ -2262,3 +2265,5 @@ run:
 
 	return 0;
 }
+
+#endif  /* X_C */

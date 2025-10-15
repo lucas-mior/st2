@@ -3,6 +3,9 @@
  * MIT/X Consortium License
  */
 
+#ifndef BOXDRAW_C
+#define BOXDRAW_C
+
 #include <X11/Xft/Xft.h>
 #include "st.h"
 #include "boxdraw_data.h"
@@ -192,3 +195,5 @@ drawboxlines(int x, int y, int w, int h, XftColor *fg, ushort bd)
 		}
 	}
 }
+
+#endif /* BOXDRAW_C */

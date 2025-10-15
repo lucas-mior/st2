@@ -1,5 +1,8 @@
 /* See LICENSE for license details. */
 
+#ifndef WIN_H
+#define WIN_H
+
 enum win_mode {
 	WIN_MODE_VISIBLE     = 1 << 0,
 	WIN_MODE_FOCUSED     = 1 << 1,
@@ -39,3 +42,5 @@ void x_set_pointer_motion(int);
 void x_set_sel(char *);
 int x_start_draw(void);
 void x_xim_spot(int, int);
+
+#endif /* WIN_H */

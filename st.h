@@ -1,5 +1,8 @@
 /* See LICENSE for license details. */
 
+#ifndef ST_H
+#define ST_H
+
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -141,3 +144,5 @@ extern unsigned int default_background;
 extern unsigned int default_cursor;
 extern const int boxdraw, boxdraw_bold, boxdraw_braille;
 extern float alpha;
+
+#endif /* ST_H */

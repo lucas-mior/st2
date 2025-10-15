@@ -1,4 +1,8 @@
 /* See LICENSE for license details. */
+
+#ifndef ST_C
+#define ST_C
+
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -3223,3 +3227,5 @@ redraw(void)
 	term_full_dirt();
 	draw();
 }
+
+#endif /* ST_C */
