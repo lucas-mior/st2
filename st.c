@@ -3076,8 +3076,8 @@ term_resize(int32 col, int32 row) {
             return;
     } */
 
-    term.dirty = xrealloc(term.dirty, (int64)row*SIZEOF(*term.dirty));
-    term.tabs = xrealloc(term.tabs, (int64)col*SIZEOF(*term.tabs));
+    term.dirty = xrealloc(term.dirty, (int64)row*SIZEOF(*(term.dirty)));
+    term.tabs = xrealloc(term.tabs, (int64)col*SIZEOF(*(term.tabs)));
     if (col > term.col) {
         bp = term.tabs + term.col;
         memset(bp, 0, SIZEOF(*term.tabs)*(size_t)(col - term.col));
@@ -3119,7 +3119,7 @@ term_resize_def(int32 col, int32 row) {
         }
 
         /* handler_configure_notify to new height */
-        term.line = xrealloc(term.line, (int64)row*SIZEOF(Line));
+        term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
         /* allocate any new CONF_NUMBER_ROWS */
         for (int32 i = term.row; i < row; i++) {
             term.line[i] = xmalloc((int64)col*SIZEOF(Glyph));
@@ -3159,17 +3159,17 @@ term_resize_alt(int32 col, int32 row) {
     }
     if (i > 0) {
         /* ensure that both src and dst are not NULL */
-        memmove(term.line, term.line + i, (size_t)row*SIZEOF(Line));
+        memmove(term.line, term.line + i, (size_t)row*SIZEOF(*(term.line)));
         term.cursor.y = row - 1;
     }
     for (i += row; i < term.row; i++) {
         free(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    term.line = xrealloc(term.line, (int64)row*SIZEOF(Line));
+    term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
     /* handler_configure_notify to new width */
     for (i = 0; i < MIN(row, term.row); i++) {
-        term.line[i] = xrealloc(term.line[i], (int64)col*SIZEOF(Glyph));
+        term.line[i] = xrealloc(term.line[i], (int64)col*SIZEOF(*(term.line[i])));
         for (int32 j = term.col; j < col; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
@@ -3284,7 +3284,7 @@ term_reflow(int32 col, int32 row) {
         free(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    term.line = xrealloc(term.line, (int64)row*SIZEOF(Line));
+    term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
 
     bot = MIN(ny, row - 1);
     scr = MAX(row - term.row, 0);
@@ -3330,7 +3330,7 @@ term_reflow(int32 col, int32 row) {
     /* handler_configure_notify rest of the history lines */
     for (int32 k = -term.histf - 1; k >= -HISTORY_SIZE; k--) {
         int32 j = (term.histi + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-        term.hist[j] = xrealloc(term.hist[j], (int64)col*SIZEOF(Glyph));
+        term.hist[j] = xrealloc(term.hist[j], (int64)col*SIZEOF(*(term.hist[j])));
     }
     free(buffer);
     return;
