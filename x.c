@@ -1098,7 +1098,7 @@ x_load_spare_fonts(void) {
 
         if (defaultfontsize > 0) {
             sizeshift = (double)(usedfontsize - defaultfontsize);
-            if (fabs(sizeshift) < 0.001 != 0 &&
+            if ((fabs(sizeshift) < 0.001) != 0 &&
                 FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &fontval) == FcResultMatch) {
                 fontval += sizeshift;
                 FcPatternDel(pattern, FC_PIXEL_SIZE);

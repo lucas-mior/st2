@@ -4,7 +4,7 @@
 
 target="${1:-build}"
 CC=${CC:-cc}
-CC=clang
+CC=gcc
 
 VERSION="0.9.3"
 
