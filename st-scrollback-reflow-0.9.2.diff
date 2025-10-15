@@ -1052,7 +1052,7 @@ index 2478942..2b86d23 100644
  			case 2004: /* 2004: bracketed paste mode */
  				xsetmode(set, MODE_BRCKTPASTE);
 @@ -1659,7 +1832,7 @@ void
- csihandle(void)
+ control_seq_intro_handle(void)
  {
  	char buf[40];
 -	int len;
@@ -1060,7 +1060,7 @@ index 2478942..2b86d23 100644
  
  	switch (csiescseq.mode[0]) {
  	default:
-@@ -1757,19 +1930,29 @@ csihandle(void)
+@@ -1757,19 +1930,29 @@ control_seq_intro_handle(void)
  	case 'J': /* ED -- Clear screen */
  		switch (csiescseq.arg[0]) {
  		case 0: /* below */
@@ -1098,7 +1098,7 @@ index 2478942..2b86d23 100644
  			break;
  		default:
  			goto unknown;
-@@ -1778,25 +1961,25 @@ csihandle(void)
+@@ -1778,25 +1961,25 @@ control_seq_intro_handle(void)
  	case 'K': /* EL -- Clear line */
  		switch (csiescseq.arg[0]) {
  		case 0: /* right */
@@ -1130,7 +1130,7 @@ index 2478942..2b86d23 100644
  		break;
  	case 'L': /* IL -- Insert <n> blank lines */
  		DEFAULT(csiescseq.arg[0], 1);
-@@ -1810,9 +1993,11 @@ csihandle(void)
+@@ -1810,9 +1993,11 @@ control_seq_intro_handle(void)
  		tdeleteline(csiescseq.arg[0]);
  		break;
  	case 'X': /* ECH -- Erase <n> char */
@@ -1144,7 +1144,7 @@ index 2478942..2b86d23 100644
  		break;
  	case 'P': /* DCH -- Delete <n> char */
  		DEFAULT(csiescseq.arg[0], 1);
-@@ -1838,9 +2023,9 @@ csihandle(void)
+@@ -1838,9 +2023,9 @@ control_seq_intro_handle(void)
  			ttywrite("\033[0n", sizeof("\033[0n") - 1, 0);
  			break;
  		case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */

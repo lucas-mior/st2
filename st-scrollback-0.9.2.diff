@@ -259,7 +259,7 @@ index b9f66e7..2478942 100644
  }
  
  int32_t
-@@ -1730,11 +1792,11 @@ csihandle(void)
+@@ -1730,11 +1792,11 @@ control_seq_intro_handle(void)
  	case 'S': /* SU -- Scroll <n> line up */
  		if (csiescseq.priv) break;
  		DEFAULT(csiescseq.arg[0], 1);
