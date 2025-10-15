@@ -583,7 +583,7 @@ user_clipboard_copy(const Arg *arg) {
     Atom clipboard;
     (void)arg;
 
-    free(xsel.clipboard);
+    xfree(xsel.clipboard);
     xsel.clipboard = NULL;
 
     if (xsel.primary != NULL) {
@@ -1037,7 +1037,7 @@ selection_set(char *string, Time t) {
         return;
     }
 
-    free(xsel.primary);
+    xfree(xsel.primary);
     xsel.primary = string;
 
     XSetSelectionOwner(x_window.display, XA_PRIMARY, x_window.win, t);

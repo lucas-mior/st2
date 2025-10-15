@@ -143,6 +143,7 @@ char *selection_get(void);
 int64 utf8_encode(Rune, char *);
 
 void *xmalloc(int64);
+void xfree(void *);
 void *xrealloc(void *, int64);
 char *xstrdup(const char *);
 

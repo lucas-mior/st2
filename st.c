@@ -295,6 +295,14 @@ xwrite(int32 fd, const char *s, int64 len) {
     return (int64)len;
 }
 
+void
+xfree(void *pointer) {
+    static int64 free_count = 0;
+    free_count += 1;
+    free(pointer);
+    fprintf(stderr, "free_count=%ld\n", free_count);
+}
+
 void *
 xmalloc(int64 len) {
     static int64 malloc_count = 0;
@@ -2552,7 +2560,7 @@ term_dump_sel(void) {
 
     if ((ptr = selection_get())) {
         term_printer(ptr, (int64)strlen(ptr));
-        free(ptr);
+        xfree(ptr);
     }
     return;
 }
@@ -3120,7 +3128,7 @@ term_resize_def(int32 col, int32 row) {
             term.cursor.y = row - 1;
         }
         for (int32 i = row; i < term.row; i++) {
-            free(term.line[i]);
+            xfree(term.line[i]);
         }
 
         /* handler_configure_notify to new height */
@@ -3160,7 +3168,7 @@ term_resize_alt(int32 col, int32 row) {
     }
     /* slide screen up if otherwise cursor would get out of the screen */
     for (i = 0; i <= term.cursor.y - row; i++) {
-        free(term.line[i]);
+        xfree(term.line[i]);
     }
     if (i > 0) {
         /* ensure that both src and dst are not NULL */
@@ -3168,7 +3176,7 @@ term_resize_alt(int32 col, int32 row) {
         term.cursor.y = row - 1;
     }
     for (i += row; i < term.row; i++) {
-        free(term.line[i]);
+        xfree(term.line[i]);
     }
     /* handler_configure_notify to new height */
     term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
@@ -3289,9 +3297,9 @@ term_reflow(int32 col, int32 row) {
         }
     }
 
-    /* free extra lines */
+    /* xfree extra lines */
     for (i = row; i < term.row; i += 1) {
-        free(term.line[i]);
+        xfree(term.line[i]);
     }
     /* handler_configure_notify to new height */
     term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
@@ -3307,7 +3315,7 @@ term_reflow(int32 col, int32 row) {
         nce = MIN(nce + -term.cursor.y, bot);
         term.cursor.y += nce - j;
         while (term.cursor.y < 0) {
-            free(buffer[ny--]);
+            xfree(buffer[ny--]);
             term.cursor.y += 1;
         }
     }
@@ -3323,7 +3331,7 @@ term_reflow(int32 col, int32 row) {
         term.line[i] = buffer[ny];
     }
     for (/*i = term.row - 1 */; i >= 0; i--, ny--) {
-        free(term.line[i]);
+        xfree(term.line[i]);
         term.line[i] = buffer[ny];
     }
     /* fill lines in history buffer and update term.histf */
@@ -3331,7 +3339,7 @@ term_reflow(int32 col, int32 row) {
         int32 k;
         for (k = -1; ny >= 0 && k >= -HISTORY_SIZE; k--, ny--) {
             int32 j = (term.histi + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-            free(term.hist[j]);
+            xfree(term.hist[j]);
             term.hist[j] = buffer[ny];
         }
         term.histf = -k - 1;
@@ -3342,7 +3350,7 @@ term_reflow(int32 col, int32 row) {
         int32 j = (term.histi + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
         term.hist[j] = xrealloc(term.hist[j], (int64)col*SIZEOF(*(term.hist[j])));
     }
-    free(buffer);
+    xfree(buffer);
     return;
 }
 
