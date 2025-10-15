@@ -17,7 +17,6 @@
 
 #include "arg.h"
 #include "st.h"
-#include "win.h"
 #include "st.c"
 #include "boxdraw.c"
 

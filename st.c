@@ -22,7 +22,6 @@
 #include <wchar.h>
 
 #include "st.h"
-#include "win.h"
 #include "boxdraw.c"
 
 #if defined(__linux)
