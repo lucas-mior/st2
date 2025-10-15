@@ -303,7 +303,7 @@ user_zoom_reset(const Arg *arg) {
 
 void
 tty_send(const Arg *arg) {
-    tty_write(arg->s, strlen(arg->s), 1);
+    tty_write(arg->s, (int64)strlen(arg->s), 1);
 }
 
 int32
@@ -632,7 +632,7 @@ handler_selection_request(XEvent *e) {
         }
         if (seltext != NULL) {
             XChangeProperty(xsre->display, xsre->requestor, xsre->property, xsre->target, 8,
-                            PropModeReplace, (uchar *)seltext, (int32)strlen(seltext));
+                            PropModeReplace, (uchar *)seltext, (int32)(int64)strlen(seltext));
             xev.property = xsre->property;
         }
     }
@@ -949,7 +949,7 @@ x_load_font(Font *f, FcPattern *pattern) {
     }
 
     XftTextExtentsUtf8(x_window.dpy, f->match, (const FcChar8 *)ascii_printable,
-                       (int32)strlen(ascii_printable), &extents);
+                       (int32)(int64)strlen(ascii_printable), &extents);
 
     f->set = NULL;
     f->pattern = configured;
@@ -960,7 +960,7 @@ x_load_font(Font *f, FcPattern *pattern) {
     f->rbearing = (int16)f->match->max_advance_width;
 
     f->height = f->ascent + f->descent;
-    f->width = DIVCEIL(extents.xOff, (int32)strlen(ascii_printable));
+    f->width = DIVCEIL(extents.xOff, (int32)(int64)strlen(ascii_printable));
 
     return 0;
 }
@@ -1981,7 +1981,7 @@ handler_key_press(XEvent *ev) {
 
     /* 2. custom keys from config.def.h */
     if ((customkey = kmap(ksym, e->state))) {
-        tty_write(customkey, strlen(customkey), 1);
+        tty_write(customkey, (int64)strlen(customkey), 1);
         return;
     }
 

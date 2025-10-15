@@ -286,7 +286,7 @@ xwrite(int32 fd, const char *s, int64 len) {
     int64 left = (int64)len;
 
     while (left > 0) {
-        r = write(fd, s, len);
+        r = write(fd, s, (size_t)len);
         if (r < 0) {
             return r;
         }
@@ -304,7 +304,7 @@ xmalloc(int64 len) {
     if (len <= 0) {
         die("xmalloc: len <= 0.\n");
     }
-    if (!(p = malloc(len))) {
+    if (!(p = malloc((size_t)len))) {
         die("malloc: %s\n", strerror(errno));
     }
 
@@ -316,7 +316,7 @@ xrealloc(void *p, int64 len) {
     if (len <= 0) {
         die("realloc: len <= 0.\n");
     }
-    if ((p = realloc(p, len)) == NULL) {
+    if ((p = realloc(p, (size_t)len)) == NULL) {
         die("realloc: %s\n", strerror(errno));
     }
 
@@ -421,7 +421,7 @@ base64_decode_getc(const char **src) {
 
 char *
 base64_decode(const char *src) {
-    int64 in_len = strlen(src);
+    int64 in_len = (int64)strlen(src);
     char *result, *dst;
     static const char base64_digits[256] = {
         [43] = 62, 0,  0,  0,  63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0,  0,  0,  -1, 0,
@@ -886,14 +886,14 @@ stty(char **args) {
     int64 n;
     int64 siz;
 
-    if ((n = strlen(stty_args)) > sizeof(cmd) - 1) {
+    if ((n = (int64)strlen(stty_args)) > sizeof(cmd) - 1) {
         die("incorrect stty parameters\n");
     }
     memcpy(cmd, stty_args, n);
     q = cmd + n;
     siz = sizeof(cmd) - n;
     for (char **p = args; p && (s = *p); ++p) {
-        if ((n = strlen(s)) > siz - 1) {
+        if ((n = (int64)strlen(s)) > siz - 1) {
             die("stty parameter length too int64\n");
         }
         *q++ = ' ';
@@ -2005,7 +2005,7 @@ control_seq_intro_handle(void) {
         break;
     case 'c': /* DA -- Device Attributes */
         if (csiescseq.arg[0] == 0) {
-            tty_write(vtiden, strlen(vtiden), 0);
+            tty_write(vtiden, (int64)strlen(vtiden), 0);
         }
         break;
     case 'b': /* REP -- if last char is printable print it <n> more times */
@@ -2555,7 +2555,7 @@ term_dump_sel(void) {
     char *ptr;
 
     if ((ptr = get_sel())) {
-        term_printer(ptr, strlen(ptr));
+        term_printer(ptr, (int64)strlen(ptr));
         free(ptr);
     }
     return;
@@ -2736,7 +2736,7 @@ term_control_code(uchar ascii) {
     case 0x99: /* TODO: SGCI */
         break;
     case 0x9a: /* DECID -- Identify Terminal */
-        tty_write(vtiden, strlen(vtiden), 0);
+        tty_write(vtiden, (int64)strlen(vtiden), 0);
         break;
     case 0x9b: /* TODO: CSI */
     case 0x9c: /* TODO: ST */
@@ -2811,7 +2811,7 @@ eschandle(uchar ascii) {
         }
         break;
     case 'Z': /* DECID -- Identify Terminal */
-        tty_write(vtiden, strlen(vtiden), 0);
+        tty_write(vtiden, (int64)strlen(vtiden), 0);
         break;
     case 'c': /* RIS -- Reset to initial state */
         term_reset();
