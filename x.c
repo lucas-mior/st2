@@ -22,6 +22,8 @@ char *argv0;
 #include "arg.h"
 #include "st.h"
 #include "win.h"
+#include "st.c"
+#include "boxdraw.c"
 
 /* types used in config.def.h */
 typedef struct {
@@ -72,7 +74,7 @@ static void tty_send(const Arg *);
 #define XEMBED_FOCUS_OUT 5
 
 /* macros */
-#define IS_SET(flag)		((term_window.mode & (flag)) != 0)
+#define TERM_WINDOW_IS_SET(flag)		((term_window.mode & (flag)) != 0)
 #define TRUERED(x)		(((x) & 0xff0000) >> 8)
 #define TRUEGREEN(x)		(((x) & 0xff00))
 #define TRUEBLUE(x)		(((x) & 0xff) << 8)
@@ -397,10 +399,10 @@ mousereport(XEvent *e)
 	if (e->type == MotionNotify) {
 		if (x == ox && y == oy)
 			return;
-		if (!IS_SET(WIN_MODE_MOUSEMOTION) && !IS_SET(WIN_MODE_MOUSEMANY))
+		if (!TERM_WINDOW_IS_SET(WIN_MODE_MOUSEMOTION) && !TERM_WINDOW_IS_SET(WIN_MODE_MOUSEMANY))
 			return;
 		/* WIN_MODE_MOUSEMOTION: no reporting if no button is pressed */
-		if (IS_SET(WIN_MODE_MOUSEMOTION) && buttons == 0)
+		if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSEMOTION) && buttons == 0)
 			return;
 		/* Set btn to lowest-numbered pressed button, or 12 if no
 		 * buttons are pressed. */
@@ -414,7 +416,7 @@ mousereport(XEvent *e)
 			return;
 		if (e->type == ButtonRelease) {
 			/* WIN_MODE_MOUSEX10: no button release reporting */
-			if (IS_SET(WIN_MODE_MOUSEX10))
+			if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSEX10))
 				return;
 			/* Don't send release events for the scroll wheel */
 			if (btn == 4 || btn == 5)
@@ -428,7 +430,7 @@ mousereport(XEvent *e)
 
 	/* Encode btn into code. If no button is pressed for a motion event in
 	 * WIN_MODE_MOUSEMANY, then encode it as a release. */
-	if ((!IS_SET(WIN_MODE_MOUSESGR) && e->type == ButtonRelease) || btn == 12)
+	if ((!TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR) && e->type == ButtonRelease) || btn == 12)
 		code += 3;
 	else if (btn >= 8)
 		code += 128 + btn - 8;
@@ -437,13 +439,13 @@ mousereport(XEvent *e)
 	else
 		code += btn - 1;
 
-	if (!IS_SET(WIN_MODE_MOUSEX10)) {
+	if (!TERM_WINDOW_IS_SET(WIN_MODE_MOUSEX10)) {
 		code += ((state & ShiftMask  ) ?  4 : 0)
 		      + ((state & Mod1Mask   ) ?  8 : 0) /* meta key: alt */
 		      + ((state & ControlMask) ? 16 : 0);
 	}
 
-	if (IS_SET(WIN_MODE_MOUSESGR)) {
+	if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR)) {
 		len = snprintf(buf, sizeof(buf), "\033[<%d;%d;%d%c",
 				code, x+1, y+1,
 				e->type == ButtonRelease ? 'm' : 'M');
@@ -499,7 +501,7 @@ handler_button_press(XEvent *e)
 	if (1 <= btn && btn <= 11)
 		buttons |= 1 << (btn-1);
 
-	if (IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
+	if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
 		mousereport(e);
 		return;
 	}
@@ -611,10 +613,10 @@ handler_selection_notify(XEvent *e)
 			*repl++ = '\r';
 		}
 
-		if (IS_SET(WIN_MODE_BRCKTPASTE) && ofs == 0)
+		if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && ofs == 0)
 			tty_write("\033[200~", 6, 0);
 		tty_write((char *)data, nitems * format / 8, 1);
-		if (IS_SET(WIN_MODE_BRCKTPASTE) && rem == 0)
+		if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && rem == 0)
 			tty_write("\033[201~", 6, 0);
 		XFree(data);
 		/* number of 32-bit chunks returned */
@@ -726,7 +728,7 @@ handler_button_release(XEvent *e)
 	if (1 <= btn && btn <= 11)
 		buttons &= ~(1 << (btn-1));
 
-	if (IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
+	if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
 		mousereport(e);
 		return;
 	}
@@ -740,7 +742,7 @@ handler_button_release(XEvent *e)
 void
 handler_button_motion(XEvent *e)
 {
-	if (IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
+	if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE) && !(e->xbutton.state & force_mouse_mod)) {
 		mousereport(e);
 		return;
 	}
@@ -895,7 +897,7 @@ void
 x_clear(int x1, int y1, int x2, int y2)
 {
 	XftDrawRect(x_window.draw,
-			&draw_context.col[IS_SET(WIN_MODE_REVERSE)? default_foreground : default_background],
+			&draw_context.col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)? default_foreground : default_background],
 			x1, y1, x2-x1, y2-y1);
 }
 
@@ -1574,7 +1576,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int len, int 
 		bg = &draw_context.col[base.bg];
 	}
 
-	if (IS_SET(WIN_MODE_REVERSE)) {
+	if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
 		if (fg == &draw_context.col[default_foreground]) {
 			fg = &draw_context.col[default_background];
 		} else {
@@ -1694,7 +1696,7 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		og.mode |= ATTR_SELECTED;
 	x_draw_glyph(og, ox, oy);
 
-	if (IS_SET(WIN_MODE_HIDE))
+	if (TERM_WINDOW_IS_SET(WIN_MODE_HIDE))
 		return;
 
 	/*
@@ -1702,7 +1704,7 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	 */
 	g.mode &= ATTR_BOLD|ATTR_ITALIC|ATTR_UNDERLINE|ATTR_STRUCK|ATTR_WIDE|ATTR_BOXDRAW;
 
-	if (IS_SET(WIN_MODE_REVERSE)) {
+	if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
 		g.mode |= ATTR_REVERSE;
 		g.fg = default_cursor;
 		g.bg = default_foreground;
@@ -1714,7 +1716,7 @@ x_draw_cursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 	}
 
 	/* draw the new one */
-	if (IS_SET(WIN_MODE_FOCUSED)) {
+	if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUSED)) {
 		switch (term_window.cursor) {
 		case 7: /* st extension */
 			g.rune = 0x2603; /* snowman (U+2603) */
@@ -1806,7 +1808,7 @@ x_set_title(char *p)
 int
 x_start_draw(void)
 {
-	return IS_SET(WIN_MODE_VISIBLE);
+	return TERM_WINDOW_IS_SET(WIN_MODE_VISIBLE);
 }
 
 void
@@ -1846,7 +1848,7 @@ x_finish_draw(void)
 	XCopyArea(x_window.dpy, x_window.buf, x_window.win, draw_context.graphics, 0, 0, term_window.w,
 			term_window.h, 0, 0);
 	XSetForeground(x_window.dpy, draw_context.graphics,
-			draw_context.col[IS_SET(WIN_MODE_REVERSE)?
+			draw_context.col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)?
 				default_foreground : default_background].pixel);
 }
 
@@ -1920,7 +1922,7 @@ x_set_urgency(int add)
 void
 x_bell(void)
 {
-	if (!(IS_SET(WIN_MODE_FOCUSED)))
+	if (!(TERM_WINDOW_IS_SET(WIN_MODE_FOCUSED)))
 		x_set_urgency(1);
 	if (bellvolume)
 		XkbBell(x_window.dpy, x_window.win, bellvolume, (Atom)NULL);
@@ -1939,13 +1941,13 @@ handler_focus(XEvent *ev)
 			XSetICFocus(x_window.ime.xic);
 		term_window.mode |= WIN_MODE_FOCUSED;
 		x_set_urgency(0);
-		if (IS_SET(WIN_MODE_FOCUS))
+		if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUS))
 			tty_write("\033[I", 3, 0);
 	} else {
 		if (x_window.ime.xic)
 			XUnsetICFocus(x_window.ime.xic);
 		term_window.mode &= ~WIN_MODE_FOCUSED;
-		if (IS_SET(WIN_MODE_FOCUS))
+		if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUS))
 			tty_write("\033[O", 3, 0);
 	}
 }
@@ -1979,12 +1981,12 @@ kmap(KeySym k, uint state)
 		if (!match(kp->mask, state))
 			continue;
 
-		if (IS_SET(WIN_MODE_APPKEYPAD) ? kp->appkey < 0 : kp->appkey > 0)
+		if (TERM_WINDOW_IS_SET(WIN_MODE_APPKEYPAD) ? kp->appkey < 0 : kp->appkey > 0)
 			continue;
-		if (IS_SET(WIN_MODE_NUMLOCK) && kp->appkey == 2)
+		if (TERM_WINDOW_IS_SET(WIN_MODE_NUMLOCK) && kp->appkey == 2)
 			continue;
 
-		if (IS_SET(WIN_MODE_APPCURSOR) ? kp->appcursor < 0 : kp->appcursor > 0)
+		if (TERM_WINDOW_IS_SET(WIN_MODE_APPCURSOR) ? kp->appcursor < 0 : kp->appcursor > 0)
 			continue;
 
 		return kp->s;
@@ -2004,7 +2006,7 @@ handler_key_press(XEvent *ev)
 	Status status;
 	Shortcut *bp;
 
-	if (IS_SET(WIN_MODE_KBDLOCK))
+	if (TERM_WINDOW_IS_SET(WIN_MODE_KBDLOCK))
 		return;
 
 	if (x_window.ime.xic) {
@@ -2032,7 +2034,7 @@ handler_key_press(XEvent *ev)
 	if (len == 0)
 		return;
 	if (len == 1 && e->state & Mod1Mask) {
-		if (IS_SET(WIN_MODE_8BIT)) {
+		if (TERM_WINDOW_IS_SET(WIN_MODE_8BIT)) {
 			if (*buf < 0177) {
 				c = *buf | 0x80;
 				len = utf8_encode(c, buf);

@@ -53,10 +53,7 @@ case "$target" in
 
     build|all)
         set -x
-        for src in $SRC; do
-            $CC $STCFLAGS -c "$src"
-        done
-        $CC -o st $OBJ $STLDFLAGS
+        $CC -o st x.c $STCFLAGS $STLDFLAGS
         ;;
 
     install)

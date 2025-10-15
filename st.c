@@ -23,6 +23,7 @@
 
 #include "st.h"
 #include "win.h"
+#include "boxdraw.c"
 
 #if   defined(__linux)
  #include <pty.h>
@@ -43,7 +44,7 @@
 #define RESIZEBUFFER  1000
 
 /* macros */
-#define IS_SET(flag)		((term.mode & (flag)) != 0)
+#define TERM_MODE_IS_SET(flag)		((term.mode & (flag)) != 0)
 #define ISCONTROLC0(c)		(BETWEEN(c, 0, 0x1f) || (c) == 0x7f)
 #define ISCONTROLC1(c)		(BETWEEN(c, 0x80, 0x9f))
 #define ISCONTROL(c)		(ISCONTROLC0(c) || ISCONTROLC1(c))
@@ -513,7 +514,7 @@ selection_start(int col, int row, int snap)
 	selection_clear();
 	selection.mode = SELECTION_EMPTY;
 	selection.type = SELECTION_REGULAR;
-	selection.alt = IS_SET(TERM_MODE_ALTSCREEN);
+	selection.alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 	selection.snap = snap;
 	selection.oe.x = selection.ob.x = col;
 	selection.oe.y = selection.ob.y = row;
@@ -587,7 +588,7 @@ selection_normalize(void)
 regionselected(int x1, int y1, int x2, int y2)
 {
     if (selection.ob.x == -1 || selection.mode == SELECTION_EMPTY ||
-            selection.alt != IS_SET(TERM_MODE_ALTSCREEN) || selection.nb.y > y2 || selection.ne.y < y1)
+            selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) || selection.nb.y > y2 || selection.ne.y < y1)
         return 0;
 
     return (selection.type == SELECTION_RECTANGULAR) ? selection.nb.x <= x2 && selection.ne.x >= x1
@@ -610,7 +611,7 @@ selection_snap(int *x, int *y, int direction)
 	int delim, prevdelim;
 	const Glyph *gp, *prevgp;
 
-	if (!IS_SET(TERM_MODE_ALTSCREEN))
+	if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
 		rtop += -term.histf + term.scr, rbot += term.scr;
 
 	switch (selection.snap) {
@@ -682,7 +683,7 @@ get_sel(void)
 	int y, lastx, linelen;
 	const Glyph *gp, *lgp;
 
-	if (selection.ob.x == -1 || selection.alt != IS_SET(TERM_MODE_ALTSCREEN))
+	if (selection.ob.x == -1 || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
 		return NULL;
 
 	str = xmalloc((term.col + 1) * (selection.ne.y - selection.nb.y + 1) * UTF_SIZ);
@@ -948,10 +949,10 @@ tty_write(const char *s, size_t n, int may_echo)
 
     user_scroll_down(&((Arg){ .i = term.scr }));
 
-	if (may_echo && IS_SET(TERM_MODE_ECHO))
+	if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHO))
 		term_write(s, n, 1);
 
-	if (!IS_SET(TERM_MODE_CRLF)) {
+	if (!TERM_MODE_IS_SET(TERM_MODE_CRLF)) {
 		tty_write_raw(s, n);
 		return;
 	}
@@ -1101,7 +1102,7 @@ void
 term_cursor(int mode)
 {
 	static TCursor c[2];
-	int alt = IS_SET(TERM_MODE_ALTSCREEN);
+	int alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
 	if (mode == CURSOR_SAVE) {
 		c[alt] = term.cursor;
@@ -1186,7 +1187,7 @@ term_swap_screen(void)
 void
 tloaddefscreen(int clear, int loadcursor)
 {
-	int col, row, alt = IS_SET(TERM_MODE_ALTSCREEN);
+	int col, row, alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
 	if (alt) {
 		if (clear)
@@ -1203,7 +1204,7 @@ tloaddefscreen(int clear, int loadcursor)
 void
 tloadaltscreen(int clear, int savecursor)
 {
-	int col, row, def = !IS_SET(TERM_MODE_ALTSCREEN);
+	int col, row, def = !TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
 	if (savecursor)
 		term_cursor(CURSOR_SAVE);
@@ -1220,7 +1221,7 @@ tloadaltscreen(int clear, int savecursor)
 int
 tisaltscreen(void)
 {
-	return IS_SET(TERM_MODE_ALTSCREEN);
+	return TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 }
 
 
@@ -1229,7 +1230,7 @@ user_scroll_down(const Arg* a)
 {
     int n = a->i;
 
-    if (!term.scr || IS_SET(TERM_MODE_ALTSCREEN))
+    if (!term.scr || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
         return;
 
     if (n < 0)
@@ -1253,7 +1254,7 @@ user_scroll_up(const Arg* a)
 {
     int n = a->i;
 
-    if (!term.histf || IS_SET(TERM_MODE_ALTSCREEN))
+    if (!term.histf || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
         return;
 
     if (n < 0)
@@ -1291,7 +1292,7 @@ term_scroll_down(int top, int n)
         term.line[i-n] = temp;
     }
 
-    if (selection.ob.x != -1 && selection.alt == IS_SET(TERM_MODE_ALTSCREEN))
+    if (selection.ob.x != -1 && selection.alt == TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
         selection_scroll(top, bot, n);
 }
 
@@ -1299,7 +1300,7 @@ void
 term_scroll_up(int top, int bot, int n, int mode)
 {
     int i, j, s;
-    int alt = IS_SET(TERM_MODE_ALTSCREEN);
+    int alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
     int savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
     Line temp;
 
@@ -1982,7 +1983,7 @@ control_seq_intro_handle(void)
 			term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y, 1);
 			break;
         case 2: /* all */
-            if (IS_SET(TERM_MODE_ALTSCREEN)) {
+            if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
                 term_clear_region(0, 0, term.col-1, term.row-1, 1);
                 break;
             }
@@ -2541,7 +2542,7 @@ term_control_code(uchar ascii)
 	case '\v':   /* VT */
 	case '\n':   /* LF */
 		/* go to first col if the mode is set */
-		term_new_line(IS_SET(TERM_MODE_CRLF));
+		term_new_line(TERM_MODE_IS_SET(TERM_MODE_CRLF));
 		return;
 	case '\a':   /* BEL */
 		if (term.esc & ESC_STR_END) {
@@ -2718,7 +2719,7 @@ term_putc(Rune u)
 	Glyph *gp;
 
 	control = ISCONTROL(u);
-	if (u < 127 || !IS_SET(TERM_MODE_UTF8)) {
+	if (u < 127 || !TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
 		c[0] = u;
 		width = len = 1;
 	} else {
@@ -2727,7 +2728,7 @@ term_putc(Rune u)
 			width = 1;
 	}
 
-	if (IS_SET(TERM_MODE_PRINT))
+	if (TERM_MODE_IS_SET(TERM_MODE_PRINT))
 		term_printer(c, len);
 
 	/*
@@ -2777,7 +2778,7 @@ check_control_code:
 	 */
 	if (control) {
 		/* in UTF-8 mode ignore handling C1 control characters */
-		if (IS_SET(TERM_MODE_UTF8) && ISCONTROLC1(u))
+		if (TERM_MODE_IS_SET(TERM_MODE_UTF8) && ISCONTROLC1(u))
 			return;
 		term_control_code(u);
 		/*
@@ -2821,19 +2822,19 @@ check_control_code:
 		selection_clear();
 
 	gp = &term.line[term.cursor.y][term.cursor.x];
-	if (IS_SET(TERM_MODE_WRAP) && (term.cursor.state & CURSOR_WRAPNEXT)) {
+	if (TERM_MODE_IS_SET(TERM_MODE_WRAP) && (term.cursor.state & CURSOR_WRAPNEXT)) {
 		gp->mode |= ATTR_WRAP;
 		term_new_line(1);
 		gp = &term.line[term.cursor.y][term.cursor.x];
 	}
 
-	if (IS_SET(TERM_MODE_INSERT) && term.cursor.x+width < term.col) {
+	if (TERM_MODE_IS_SET(TERM_MODE_INSERT) && term.cursor.x+width < term.col) {
 		memmove(gp+width, gp, (term.col - term.cursor.x - width) * sizeof(Glyph));
 		gp->mode &= ~ATTR_WIDE;
 	}
 
 	if (term.cursor.x+width > term.col) {
-		if (IS_SET(TERM_MODE_WRAP))
+		if (TERM_MODE_IS_SET(TERM_MODE_WRAP))
 			term_new_line(1);
 		else
 			term_move_to(term.col - width, term.cursor.y);
@@ -2857,7 +2858,7 @@ check_control_code:
 	if (term.cursor.x+width < term.col) {
 		term_move_to(term.cursor.x+width, term.cursor.y);
 	} else {
-		term.wrapcwidth[IS_SET(TERM_MODE_ALTSCREEN)] = width;
+		term.wrapcwidth[TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)] = width;
 		term.cursor.state |= CURSOR_WRAPNEXT;
 	}
 }
@@ -2870,7 +2871,7 @@ term_write(const char *buf, int buflen, int show_ctrl)
 	int n;
 
 	for (n = 0; n < buflen; n += charsize) {
-		if (IS_SET(TERM_MODE_UTF8)) {
+		if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
 			/* process a complete utf8 char */
 			charsize = utf8_decode(buf + n, &u, buflen - n);
 			if (charsize == 0)
@@ -2901,7 +2902,7 @@ rscrolldown(int n)
     Line temp;
 
     /* can never be true as of now
-       if (IS_SET(TERM_MODE_ALTSCREEN))
+       if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
        return; */
 
     if ((n = MIN(n, term.histf)) <= 0)
@@ -2953,7 +2954,7 @@ term_resize(int col, int row)
  			*bp = 1;
  	}
 
-	if (IS_SET(TERM_MODE_ALTSCREEN))
+	if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
 		tresizealt(col, row);
 	else
 		tresizedef(col, row);
