@@ -70,8 +70,8 @@ int32 ALLOW_WINDOW_OPS = 0;
  * near LATENCY_MIN, but it waits longer for slow updates to avoid partial draw.
  * low LATENCY_MIN will tear/flicker more, as it can "detect" idle too early.
  */
-static float LATENCY_MIN = 2;
-static float LATENCY_MAX = 33;
+static const float LATENCY_MIN = 2;
+static const float LATENCY_MAX = 33;
 
 /*
  * blinking timeout (set to 0 to disable blinking) for the terminal blinking
