@@ -2190,7 +2190,7 @@ kmap(KeySym k, uint32 state) {
         }
     }
 
-    for (Key *kp = CONF_KEYS; kp < CONF_KEYS + LENGTH(CONF_KEYS); kp++) {
+    for (Key *kp = CONF_KEYS; kp < CONF_KEYS + LENGTH(CONF_KEYS); kp += 1) {
         if (kp->k != k) {
             continue;
         }
