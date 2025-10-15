@@ -285,7 +285,7 @@ run:
     term_new(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
 
     {
-        XGCValues x_gc_values;
+        XGCValues xgc_values;
         Cursor cursor;
         Window parent = 0;
         Window root;
@@ -354,10 +354,10 @@ run:
             XReparentWindow(x_window.display, x_window.win, parent, x_window.l, x_window.t);
         }
 
-        memset(&x_gc_values, 0, SIZEOF(x_gc_values));
-        x_gc_values.graphics_exposures = False;
+        memset(&xgc_values, 0, SIZEOF(xgc_values));
+        xgc_values.graphics_exposures = False;
         draw_context.graphics =
-            XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &x_gc_values);
+            XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &xgc_values);
         x_window.buf = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
                                      (uint32)term_window.h, (uint32)x_window.depth);
         XSetForeground(x_window.display, draw_context.graphics,
