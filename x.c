@@ -1791,8 +1791,8 @@ x_draw_line(Line line, int x1, int y1, int x2) {
 
 void
 x_finish_draw(void) {
-    XCopyArea(x_window.dpy, x_window.buf, x_window.win, draw_context.graphics, 0, 0, term_window.w,
-              term_window.h, 0, 0);
+    XCopyArea(x_window.dpy, x_window.buf, x_window.win, draw_context.graphics, 0, 0,
+              (uint)term_window.w, (uint)term_window.h, 0, 0);
     XSetForeground(
         x_window.dpy, draw_context.graphics,
         draw_context
@@ -1806,8 +1806,8 @@ x_xim_spot(int x, int y) {
         return;
     }
 
-    x_window.ime.spot.x = border_pixels + x * term_window.cw;
-    x_window.ime.spot.y = border_pixels + (y + 1) * term_window.ch;
+    x_window.ime.spot.x = (short)(border_pixels + x * term_window.cw);
+    x_window.ime.spot.y = (short)(border_pixels + (y + 1) * term_window.ch);
 
     XSetICValues(x_window.ime.xic, XNPreeditAttributes, x_window.ime.spotlist, NULL);
 }
@@ -1991,8 +1991,8 @@ handler_key_press(XEvent *ev) {
     if (len == 1 && e->state & Mod1Mask) {
         if (TERM_WINDOW_IS_SET(WIN_MODE_8BIT)) {
             if (*buf < 0177) {
-                c = *buf | 0x80;
-                len = utf8_encode(c, buf);
+                c = (Rune)(*buf | 0x80);
+                len = (int)utf8_encode(c, buf);
             }
         } else {
             buf[1] = buf[0];
@@ -2000,7 +2000,7 @@ handler_key_press(XEvent *ev) {
             len = 2;
         }
     }
-    tty_write(buf, len, 1);
+    tty_write(buf, (size_t)len, 1);
 }
 
 void
@@ -2113,7 +2113,7 @@ run(void) {
                 trigger = now;
                 drawing = 1;
             }
-            timeout = (maxlatency - TIMEDIFF(now, trigger)) / maxlatency * minlatency;
+            timeout = (maxlatency - (double)TIMEDIFF(now, trigger)) / maxlatency * minlatency;
             if (timeout > 0) {
                 continue; /* we have time, try to find idle */
             }
@@ -2122,7 +2122,7 @@ run(void) {
         /* idle detected or maxlatency exhausted -> draw */
         timeout = -1;
         if (blinktimeout && term_attr_set(ATTR_BLINK)) {
-            timeout = blinktimeout - TIMEDIFF(now, lastblink);
+            timeout = blinktimeout - (double)TIMEDIFF(now, lastblink);
             if (timeout <= 0) {
                 if (-timeout > blinktimeout) { /* start visible */
                     term_window.mode |= WIN_MODE_BLINK;
@@ -2157,7 +2157,7 @@ int
 main(int argc, char *argv[]) {
     x_window.l = x_window.t = 0;
     x_window.isfixed = False;
-    x_set_cursor(cursor_shape);
+    x_set_cursor((int)cursor_shape);
 
     ARGBEGIN {
     case 'a':
