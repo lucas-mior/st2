@@ -2951,8 +2951,6 @@ term_resize(int col, int row)
 void
 tresizedef(int col, int row)
 {
-	int i, j;
-
 	/* return if dimensions haven't changed */
 	if (term.col == col && term.row == row) {
 		term_full_dirt();
@@ -2968,15 +2966,15 @@ tresizedef(int col, int row)
 			term_scroll_up(0, term.row - 1, term.cursor.y - row + 1, SCROLL_RESIZE);
 			term.cursor.y = row - 1;
  		}
-		for (i = row; i < term.row; i++)
+		for (int i = row; i < term.row; i++)
 			free(term.line[i]);
 
 		/* handler_configure_notify to new height */
 		term.line = xrealloc(term.line, row * sizeof(Line));
 		/* allocate any new number_rows */
-		for (i = term.row; i < row; i++) {
+		for (int i = term.row; i < row; i++) {
 			term.line[i] = xmalloc(col * sizeof(Glyph));
-			for (j = 0; j < col; j++)
+			for (int j = 0; j < col; j++)
 				tclearglyph(&term.line[i][j], 0);
  		}
 		/* scroll down as much as height has increased */
