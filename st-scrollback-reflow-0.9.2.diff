@@ -133,7 +133,7 @@ index 2478942..2b86d23 100644
 +	return i + 1;
 +}
  
--	while (i > 0 && TLINE(y)[i - 1].u == ' ')
+-	while (i > 0 && TLINE(y)[i - 1].rune == ' ')
 -		--i;
 +int
 +tiswrapped(Line line)
@@ -151,7 +151,7 @@ index 2478942..2b86d23 100644
 +		if (gp->mode & ATTR_WDUMMY) {
 +			gp++;
 +		} else {
-+			buf += utf8_encode((gp++)->u, buf);
++			buf += utf8_encode((gp++)->rune, buf);
 +		}
 +	return buf;
 +}
@@ -297,11 +297,11 @@ index 2478942..2b86d23 100644
  				break;
  
  			gp = &TLINE(newy)[newx];
- 			delim = ISDELIM(gp->u);
+ 			delim = ISDELIM(gp->rune);
 -			if (!(gp->mode & ATTR_WDUMMY) && (delim != prevdelim
--					|| (delim && gp->u != prevgp->u)))
+-					|| (delim && gp->rune != prevgp->rune)))
 +			if (!(gp->mode & ATTR_WDUMMY) && (delim != prevdelim ||
-+			    (delim && !(gp->u == ' ' && prevgp->u == ' '))))
++			    (delim && !(gp->rune == ' ' && prevgp->rune == ' '))))
  				break;
  
  			*x = newx;
@@ -371,7 +371,7 @@ index 2478942..2b86d23 100644
  			lastx = (selection.ne.y == y) ? selection.ne.x : term.col-1;
  		}
 -		last = &TLINE(y)[MIN(lastx, linelen-1)];
--		while (last >= gp && last->u == ' ')
+-		while (last >= gp && last->rune == ' ')
 -			--last;
 +		lgp = &line[MIN(lastx, linelen-1)];
  
@@ -379,7 +379,7 @@ index 2478942..2b86d23 100644
 -			if (gp->mode & ATTR_WDUMMY)
 -				continue;
 -
--			ptr += utf8_encode(gp->u, ptr);
+-			ptr += utf8_encode(gp->rune, ptr);
 -		}
 +		ptr = tgetglyphs(ptr, gp, lgp);
  
@@ -839,11 +839,11 @@ index 2478942..2b86d23 100644
 -
 -	if (term.line[y][x].mode & ATTR_WIDE) {
 -		if (x+1 < term.col) {
--			term.line[y][x+1].u = ' ';
+-			term.line[y][x+1].rune = ' ';
 -			term.line[y][x+1].mode &= ~ATTR_WDUMMY;
 -		}
 -	} else if (term.line[y][x].mode & ATTR_WDUMMY) {
--		term.line[y][x-1].u = ' ';
+-		term.line[y][x-1].rune = ' ';
 -		term.line[y][x-1].mode &= ~ATTR_WIDE;
 -	}
 +    /*
@@ -855,20 +855,20 @@ index 2478942..2b86d23 100644
 +
 +    if (term.line[y][x].mode & ATTR_WIDE) {
 +        if (x+1 < term.col) {
-+            term.line[y][x+1].u = ' ';
++            term.line[y][x+1].rune = ' ';
 +            term.line[y][x+1].mode &= ~ATTR_WDUMMY;
 +        }
 +    } else if (term.line[y][x].mode & ATTR_WDUMMY) {
-+        term.line[y][x-1].u = ' ';
++        term.line[y][x-1].rune = ' ';
 +        term.line[y][x-1].mode &= ~ATTR_WIDE;
 +    }
  
 -	term.dirty[y] = 1;
 -	term.line[y][x] = *attr;
--	term.line[y][x].u = u;
+-	term.line[y][x].rune = u;
 +    term.dirty[y] = 1;
 +    term.line[y][x] = *attr;
-+    term.line[y][x].u = u;
++    term.line[y][x].rune = u;
 +    term.line[y][x].mode |= ATTR_SET;
  }
  
@@ -888,7 +888,7 @@ index 2478942..2b86d23 100644
 +		gp->bg = default_background;
 +	}
 +	gp->mode = ATTR_NULL;
-+	gp->u = ' ';
++	gp->rune = ' ';
 +}
  
 -	if (x1 > x2)
@@ -919,7 +919,7 @@ index 2478942..2b86d23 100644
 -			gp->fg = term.c.attr.fg;
 -			gp->bg = term.c.attr.bg;
 -			gp->mode = 0;
--			gp->u = ' ';
+-			gp->rune = ' ';
 -		}
 +		for (x = x1; x <= x2; x++)
 +			tclearglyph(&term.line[y][x], usecurattr);
@@ -1165,9 +1165,9 @@ index 2478942..2b86d23 100644
 -
 -	bp = &term.line[n][0];
 -	end = &bp[MIN(term_line_len(n), term.col) - 1];
--	if (bp != end || bp->u != ' ') {
+-	if (bp != end || bp->rune != ' ') {
 -		for ( ; bp <= end; ++bp)
--			term_printer(buf, utf8_encode(bp->u, buf));
+-			term_printer(buf, utf8_encode(bp->rune, buf));
 -	}
 -	term_printer("\n", 1);
 +    char str[(term.col + 1) * UTF_SIZ];
@@ -1308,7 +1308,7 @@ index 2478942..2b86d23 100644
 -		term.hist[i] = xrealloc(term.hist[i], col * sizeof(Glyph));
 -		for (j = mincol; j < col; j++) {
 -			term.hist[i][j] = term.c.attr;
--			term.hist[i][j].u = ' ';
+-			term.hist[i][j].rune = ' ';
 -		}
 -	}
 +	if (IS_SET(TERM_MODE_ALTSCREEN))

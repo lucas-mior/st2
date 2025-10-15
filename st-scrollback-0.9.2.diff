@@ -62,8 +62,8 @@ index b9f66e7..2478942 100644
 +	if (TLINE(y)[i - 1].mode & ATTR_WRAP)
  		return i;
  
--	while (i > 0 && term.line[y][i - 1].u == ' ')
-+	while (i > 0 && TLINE(y)[i - 1].u == ' ')
+-	while (i > 0 && term.line[y][i - 1].rune == ' ')
++	while (i > 0 && TLINE(y)[i - 1].rune == ' ')
  		--i;
  
  	return i;
@@ -73,7 +73,7 @@ index b9f66e7..2478942 100644
  		 */
 -		prevgp = &term.line[*y][*x];
 +		prevgp = &TLINE(*y)[*x];
- 		prevdelim = ISDELIM(prevgp->u);
+ 		prevdelim = ISDELIM(prevgp->rune);
  		for (;;) {
  			newx = *x + direction;
 @@ -536,14 +543,14 @@ sel_snap(int *x, int *y, int direction)
@@ -90,9 +90,9 @@ index b9f66e7..2478942 100644
  
 -			gp = &term.line[newy][newx];
 +			gp = &TLINE(newy)[newx];
- 			delim = ISDELIM(gp->u);
+ 			delim = ISDELIM(gp->rune);
  			if (!(gp->mode & ATTR_WDUMMY) && (delim != prevdelim
- 					|| (delim && gp->u != prevgp->u)))
+ 					|| (delim && gp->rune != prevgp->rune)))
 @@ -564,14 +571,14 @@ sel_snap(int *x, int *y, int direction)
  		*x = (direction < 0) ? 0 : term.col - 1;
  		if (direction < 0) {
@@ -124,7 +124,7 @@ index b9f66e7..2478942 100644
  		}
 -		last = &term.line[y][MIN(lastx, linelen-1)];
 +		last = &TLINE(y)[MIN(lastx, linelen-1)];
- 		while (last >= gp && last->u == ' ')
+ 		while (last >= gp && last->rune == ' ')
  			--last;
  
 @@ -844,6 +851,9 @@ void
@@ -308,7 +308,7 @@ index b9f66e7..2478942 100644
 +		term.hist[i] = xrealloc(term.hist[i], col * sizeof(Glyph));
 +		for (j = mincol; j < col; j++) {
 +			term.hist[i][j] = term.c.attr;
-+			term.hist[i][j].u = ' ';
++			term.hist[i][j].rune = ' ';
 +		}
 +	}
 +
