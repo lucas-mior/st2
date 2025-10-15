@@ -289,7 +289,7 @@ run:
         Cursor cursor;
         Window parent = 0;
         Window root;
-        pid_t thispid = getpid();
+        pid_t pid_this = getpid();
         XColor xmousefg, xmousebg;
         XWindowAttributes attr;
         XVisualInfo vis;
@@ -405,7 +405,7 @@ run:
 
         x_window.netwmpid = XInternAtom(x_window.display, "_NET_WM_PID", False);
         XChangeProperty(x_window.display, x_window.win, x_window.netwmpid, XA_CARDINAL, 32,
-                        PropModeReplace, (uchar *)&thispid, 1);
+                        PropModeReplace, (uchar *)&pid_this, 1);
 
         term_window.mode = WIN_MODE_NUMLOCK;
         reset_title();
