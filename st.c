@@ -282,19 +282,19 @@ static const Rune utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF
 
 ssize_t
 xwrite(int fd, const char *s, size_t len) {
-    size_t aux = len;
     ssize_t r;
+    ssize_t left = (ssize_t)len;
 
-    while (len > 0) {
+    while (left > 0) {
         r = write(fd, s, len);
         if (r < 0) {
             return r;
         }
-        len -= r;
+        left -= r;
         s += r;
     }
 
-    return aux;
+    return (ssize_t)len;
 }
 
 void *
