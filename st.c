@@ -611,17 +611,20 @@ selection_normalize(void) {
 
 int32
 selection_is_selected4(int32 x1, int32 y1, int32 x2, int32 y2) {
+    int32 is_selected;
+
     if (selection.ob.x == -1 || selection.mode == SELECTION_EMPTY
         || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) || selection.nb.y > y2
         || selection.ne.y < y1) {
         return 0;
     }
     if (selection.type == SELECTION_RECTANGULAR) {
-        return selection.nb.x <= x2 && selection.ne.x >= x1;
+        is_selected = selection.nb.x <= x2 && selection.ne.x >= x1;
     } else {
-        return (selection.nb.y != y2 || selection.nb.x <= x2)
-               && (selection.ne.y != y1 || selection.ne.x >= x1);
+        is_selected = (selection.nb.y != y2 || selection.nb.x <= x2)
+                      && (selection.ne.y != y1 || selection.ne.x >= x1);
     }
+    return is_selected;
 }
 
 int32
