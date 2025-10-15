@@ -103,7 +103,7 @@ typedef struct {
 /* Drawing Context */
 typedef struct {
     Color *col;
-    size_t collen;
+    int collen;
     Font font, bfont, ifont, ibfont;
     GC graphics;
 } DrawingContext;

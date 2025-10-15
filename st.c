@@ -1055,7 +1055,7 @@ tty_write_raw(const char *s, size_t n) {
             if ((r = write(cmdfd, s, (n < lim) ? n : lim)) < 0) {
                 goto write_error;
             }
-            if (r < n) {
+            if (r < (ssize_t)n) {
                 /*
                  * We weren't able to write out everything.
                  * This means the buffer is getting full
@@ -1176,7 +1176,7 @@ term_reset(void) {
     tresetcursor();
 
     memset(term.tabs, 0, term.col * sizeof(*term.tabs));
-    for (uint i = tabspaces; i < term.col; i += tabspaces) {
+    for (int i = tabspaces; i < term.col; i += tabspaces) {
         term.tabs[i] = 1;
     }
     term.top = 0;
@@ -2223,7 +2223,7 @@ osc_color_response(int num, int index, int is_osc4) {
 
     n = snprintf(buf, sizeof buf, "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
-    if (n < 0 || n >= sizeof(buf)) {
+    if (n < 0 || n >= (int)sizeof(buf)) {
         fprintf(stderr, "error: %s while printing %s response\n",
                 n < 0 ? "snprintf failed" : "truncation occurred", is_osc4 ? "osc4" : "osc");
     } else {
@@ -2542,7 +2542,7 @@ term_dump(void) {
 
 void
 term_put_tab(int n) {
-    uint x = term.cursor.x;
+    int x = term.cursor.x;
 
     if (n > 0) {
         while (x < term.col && n--) {
