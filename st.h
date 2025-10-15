@@ -170,7 +170,7 @@ extern int32 default_foreground;
 extern int32 default_background;
 extern int32 default_cursor;
 extern const int32 CONF_BOXDRAW, CONF_BOXDRAW_BOLD, CONF_BOXDRAW_BRAILLE;
-extern float alpha;
+extern float CONF_ALPHA;
 
 /* function definitions used in config.def.h */
 void user_clipboard_copy(const Arg *);

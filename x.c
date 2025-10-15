@@ -254,14 +254,14 @@ user_selection_paste(const Arg *arg) {
 
 void
 user_change_alpha(const Arg *arg) {
-    if ((alpha > 0 && arg->f < 0) || (alpha < 1 && arg->f > 0)) {
-        alpha += arg->f;
+    if ((CONF_ALPHA > 0 && arg->f < 0) || (CONF_ALPHA < 1 && arg->f > 0)) {
+        CONF_ALPHA += arg->f;
     }
-    if (alpha < 0) {
-        alpha = 0;
+    if (CONF_ALPHA < 0) {
+        CONF_ALPHA = 0;
     }
-    if (alpha > 1) {
-        alpha = 1;
+    if (CONF_ALPHA > 1) {
+        CONF_ALPHA = 1;
     }
 
     x_load_cols();
@@ -788,14 +788,14 @@ x_load_cols(void) {
         }
     }
 
-    draw_context.col[default_background].color.alpha = (uint16)(0xffff * alpha);
+    draw_context.col[default_background].color.alpha = (uint16)(0xffff * CONF_ALPHA);
     draw_context.col[default_background].pixel &= 0x00FFFFFF;
-    draw_context.col[default_background].pixel |= ((uint32)(0xFF * alpha) & 0xFF) << 24;
+    draw_context.col[default_background].pixel |= ((uint32)(0xFF * CONF_ALPHA) & 0xFF) << 24;
 
     for (int32 i = 16; i < 16 + trans_colors; i++) {
-        draw_context.col[i].color.alpha = (uint16)(0xffff * alpha);
+        draw_context.col[i].color.alpha = (uint16)(0xffff * CONF_ALPHA);
         draw_context.col[i].pixel &= 0x00FFFFFF;
-        draw_context.col[i].pixel |= ((uint32)(0xff * alpha) & 0xff) << 24;
+        draw_context.col[i].pixel |= ((uint32)(0xff * CONF_ALPHA) & 0xff) << 24;
     }
     loaded = 1;
 }
@@ -829,9 +829,9 @@ x_set_color_name(int32 x, const char *name) {
     draw_context.col[x] = ncolor;
 
     if (x == default_background) {
-        draw_context.col[default_background].color.alpha = (uint16)(0xffff * alpha);
+        draw_context.col[default_background].color.alpha = (uint16)(0xffff * CONF_ALPHA);
         draw_context.col[default_background].pixel &= 0x00FFFFFF;
-        draw_context.col[default_background].pixel |= ((uint32)(0xff * alpha) & 0xff) << 24;
+        draw_context.col[default_background].pixel |= ((uint32)(0xff * CONF_ALPHA) & 0xff) << 24;
     }
 
     return 0;
@@ -2182,8 +2182,8 @@ main(int32 argc, char *argv[]) {
         ALLOW_ALT_SCREEN = 0;
         break;
     case 'A':
-        alpha = strtof(EARGF(usage()), NULL);
-        LIMIT(alpha, 0.0f, 1.0f);
+        CONF_ALPHA = strtof(EARGF(usage()), NULL);
+        LIMIT(CONF_ALPHA, 0.0f, 1.0f);
         break;
     case 'c':
         opt_class = EARGF(usage());
