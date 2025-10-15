@@ -1163,10 +1163,10 @@ term_cursor(int32 mode) {
 void
 tresetcursor(void) {
     term.cursor = (TCursor){
-        .attr = {.mode = ATTR_NULL, .fg = CONF_COLOR_INDEX_FONT, .bg = CONF_COLOR_INDEX_BACK},
+        .attr = {.mode = ATTR_NULL, .fg = CONF_COLOR_INDEX_FONT, .bg = CONF_COLOR_INDEX_BACK,},
         .x = 0,
         .y = 0,
-        .state = CURSOR_DEFAULT};
+        .state = CURSOR_DEFAULT,};
     return;
 }
 
