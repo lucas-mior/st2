@@ -150,7 +150,7 @@ static void setsel(char *, Time);
 static void mouse_select(XEvent *, int32);
 static void mouse_report(XEvent *);
 static char *kmap(KeySym, uint32);
-static int32 match(uint32, uint32);
+static int32 match_mask_state(uint32, uint32);
 
 static void run(void) __attribute__((noreturn));
 static void usage(void) __attribute__((noreturn));
@@ -333,7 +333,7 @@ mouse_select(XEvent *xevent, int32 done) {
     uint32 state = xevent->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
 
     for (type = 1; type < LENGTH(CONF_SELECTION_MASKS); ++type) {
-        if (match(CONF_SELECTION_MASKS[type], state)) {
+        if (match_mask_state(CONF_SELECTION_MASKS[type], state)) {
             seltype = type;
             break;
         }
@@ -443,8 +443,8 @@ mouse_action(XEvent *xevent, uint32 release) {
          mouse_shortcut < CONF_MOUSE_SHORTCUTS + LENGTH(CONF_MOUSE_SHORTCUTS); mouse_shortcut++) {
         if (mouse_shortcut->release == release &&
             mouse_shortcut->button == xevent->xbutton.button &&
-            (match(mouse_shortcut->mod, state) || /* exact or forced */
-             match(mouse_shortcut->mod, state & ~CONF_FORCE_MOUSE_MOD))) {
+            (match_mask_state(mouse_shortcut->mod, state) || /* exact or forced */
+             match_mask_state(mouse_shortcut->mod, state & ~CONF_FORCE_MOUSE_MOD))) {
             mouse_shortcut->func(&(mouse_shortcut->arg));
             return 1;
         }
@@ -1983,7 +1983,7 @@ handler_focus(XEvent *xevent) {
 }
 
 int32
-match(uint32 mask, uint32 state) {
+match_mask_state(uint32 mask, uint32 state) {
     return mask == XK_ANY_MOD || mask == (state & ~CONF_IGNORE_MOD);
 }
 
@@ -2009,7 +2009,7 @@ kmap(KeySym k, uint32 state) {
             continue;
         }
 
-        if (!match(kp->mask, state)) {
+        if (!match_mask_state(kp->mask, state)) {
             continue;
         }
 
@@ -2055,7 +2055,7 @@ handler_key_press(XEvent *xevent) {
     /* 1. CONF_KEYBOARD_SHORTCUTS */
     for (bp = CONF_KEYBOARD_SHORTCUTS;
          bp < CONF_KEYBOARD_SHORTCUTS + LENGTH(CONF_KEYBOARD_SHORTCUTS); bp++) {
-        if (ksym == bp->keysym && match(bp->mod, e->state)) {
+        if (ksym == bp->keysym && match_mask_state(bp->mod, e->state)) {
             bp->func(&(bp->arg));
             return;
         }
