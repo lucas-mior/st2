@@ -25,6 +25,7 @@ typedef ssize_t isize;
 typedef uint_least32_t Rune;
 
 /* macros */
+#define SIZEOF(X) (int64)sizeof(X)
 #define MIN(a, b)		((a) < (b) ? (a) : (b))
 #define MAX(a, b)		((a) < (b) ? (b) : (a))
 #define LEN(a)			(int32)(sizeof(a) / sizeof(a)[0])
