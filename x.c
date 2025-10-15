@@ -1226,7 +1226,7 @@ x_init(int32 number_cols, int32 number_rows) {
     x_window.scr = XDefaultScreen(x_window.dpy);
 
     root = XRootWindow(x_window.dpy, x_window.scr);
-    if (!(opt_embed && (parent = (ulong)strtol(opt_embed, NULL, 0)))) {
+    if (!(opt_embed && (parent = (Window)strtol(opt_embed, NULL, 0)))) {
         parent = root;
     }
 
