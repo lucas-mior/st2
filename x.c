@@ -949,7 +949,7 @@ x_load_font(Font *f, FcPattern *pattern) {
     }
 
     XftTextExtentsUtf8(x_window.dpy, f->match, (const FcChar8 *)ascii_printable,
-                       strlen(ascii_printable), &extents);
+                       (int)strlen(ascii_printable), &extents);
 
     f->set = NULL;
     f->pattern = configured;
@@ -960,7 +960,7 @@ x_load_font(Font *f, FcPattern *pattern) {
     f->rbearing = (short)f->match->max_advance_width;
 
     f->height = f->ascent + f->descent;
-    f->width = DIVCEIL(extents.xOff, strlen(ascii_printable));
+    f->width = DIVCEIL(extents.xOff, (int)strlen(ascii_printable));
 
     return 0;
 }
@@ -987,7 +987,7 @@ x_load_fonts(const char *fontstr, float fontsize) {
         usedfontsize = fontsize;
     } else {
         if (FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &fontval) == FcResultMatch) {
-            usedfontsize = fontval;
+            usedfontsize = (float)fontval;
         } else if (FcPatternGetDouble(pattern, FC_SIZE, 0, &fontval) == FcResultMatch) {
             usedfontsize = -1;
         } else {
@@ -1007,15 +1007,15 @@ x_load_fonts(const char *fontstr, float fontsize) {
 
     if (usedfontsize < 0) {
         FcPatternGetDouble(draw_context.font.match->pattern, FC_PIXEL_SIZE, 0, &fontval);
-        usedfontsize = fontval;
-        if (fontsize == 0) {
-            defaultfontsize = fontval;
+        usedfontsize = (float)fontval;
+        if (fabsf(fontsize) <= 0) {
+            defaultfontsize = (float)fontval;
         }
     }
 
     /* Setting character width and height. */
-    term_window.cw = ceilf(draw_context.font.width * char_width_scale);
-    term_window.ch = ceilf(draw_context.font.height * char_height_scale);
+    term_window.cw = ceilf((float)(draw_context.font.width) * char_width_scale);
+    term_window.ch = ceilf((float)(draw_context.font.height) * char_height_scale);
 
     FcPatternDel(pattern, FC_SLANT);
     FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
@@ -1081,7 +1081,7 @@ xloadsparefonts(void) {
     /* Allocate memory for cache entries. */
     if (frccap < 4 * fc) {
         frccap += 4 * fc - frccap;
-        frc = xrealloc(frc, frccap * sizeof(Fontcache));
+        frc = xrealloc(frc, (size_t)frccap * sizeof(Fontcache));
     }
 
     for (fp = font2; fp - font2 < fc; ++fp) {
@@ -1097,8 +1097,8 @@ xloadsparefonts(void) {
         }
 
         if (defaultfontsize > 0) {
-            sizeshift = usedfontsize - defaultfontsize;
-            if (sizeshift != 0 &&
+            sizeshift = (double)(usedfontsize - defaultfontsize);
+            if (fabs(sizeshift) < 0.001 != 0 &&
                 FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &fontval) == FcResultMatch) {
                 fontval += sizeshift;
                 FcPatternDel(pattern, FC_PIXEL_SIZE);
@@ -1225,7 +1225,7 @@ x_init(int number_cols, int number_rows) {
     x_window.scr = XDefaultScreen(x_window.dpy);
 
     root = XRootWindow(x_window.dpy, x_window.scr);
-    if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0)))) {
+    if (!(opt_embed && (parent = (ulong)strtol(opt_embed, NULL, 0)))) {
         parent = root;
     }
 
@@ -1273,7 +1273,7 @@ x_init(int number_cols, int number_rows) {
     x_window.attrs.colormap = x_window.cmap;
 
     x_window.win = XCreateWindow(
-        x_window.dpy, parent, x_window.l, x_window.t, term_window.w, term_window.h, 0,
+        x_window.dpy, parent, x_window.l, x_window.t, (uint)term_window.w, (uint)term_window.h, 0,
         x_window.depth, InputOutput, x_window.vis,
         CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap, &x_window.attrs);
     if (parent != root) {
