@@ -295,17 +295,24 @@ xwrite(int32 fd, const char *s, int64 len) {
     return (int64)len;
 }
 
+static int64 free_count = 0;
+static int64 malloc_count = 0;
+
 void
 xfree(void *pointer) {
-    static int64 free_count = 0;
     free_count += 1;
     free(pointer);
-    fprintf(stderr, "free_count=%ld\n", free_count);
+    if (free_count < malloc_count) {
+        fprintf(stderr, "free=%ld < %ld=malloc\n", free_count, malloc_count);
+    } else if (free_count == malloc_count) {
+        fprintf(stderr, "free=%ld == %ld=malloc\n", free_count, malloc_count);
+    } else {
+        fprintf(stderr, "free=%ld > %ld=malloc\n", free_count, malloc_count);
+    }
 }
 
 void *
 xmalloc(int64 len) {
-    static int64 malloc_count = 0;
     void *p;
 
     malloc_count += 1;
@@ -317,7 +324,13 @@ xmalloc(int64 len) {
         die("malloc: %s\n", strerror(errno));
     }
 
-    fprintf(stderr, "malloc_count=%ld\n", malloc_count);
+    if (free_count < malloc_count) {
+        fprintf(stderr, "free=%ld < %ld=malloc\n", free_count, malloc_count);
+    } else if (free_count == malloc_count) {
+        fprintf(stderr, "free=%ld == %ld=malloc\n", free_count, malloc_count);
+    } else {
+        fprintf(stderr, "free=%ld > %ld=malloc\n", free_count, malloc_count);
+    }
 
     return p;
 }
