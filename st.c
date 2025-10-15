@@ -1361,7 +1361,7 @@ term_scroll_down(int32 top, int32 n) {
         term.line[i - n] = temp;
     }
 
-    if (selection.ob.x != -1 && selection.alt == TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if ((selection.ob.x != -1) && (selection.alt == TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))) {
         selection_scroll(top, bot, n);
     }
     return;
