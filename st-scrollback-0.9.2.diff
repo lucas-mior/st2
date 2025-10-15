@@ -43,7 +43,7 @@ index b9f66e7..2478942 100644
  	int *dirty;   /* dirtyness of lines */
  	TCursor c;    /* cursor */
  	int ocx;      /* old cursor col */
-@@ -185,8 +192,8 @@ static void tnewline(int);
+@@ -185,8 +192,8 @@ static void term_new_line(int);
  static void tputtab(int);
  static void tputc(Rune);
  static void treset(void);
@@ -233,7 +233,7 @@ index b9f66e7..2478942 100644
  }
  
  void
-@@ -1120,7 +1182,7 @@ tnewline(int first_col)
+@@ -1120,7 +1182,7 @@ term_new_line(int first_col)
  	int y = term.c.y;
  
  	if (y == term.bot) {
