@@ -504,7 +504,7 @@ index 519b9bd..07a7c66 100644
  extern char *utmp;
  extern char *scroll;
 @@ -126,3 +135,4 @@ extern unsigned int tabspaces;
- extern unsigned int defaultfg;
+ extern unsigned int default_foreground;
  extern unsigned int default_background;
  extern unsigned int default_cursor;
 +extern const int boxdraw, boxdraw_bold, boxdraw_braille;
