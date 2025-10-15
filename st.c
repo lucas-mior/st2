@@ -166,8 +166,8 @@ typedef struct {
 /* CSI Escape sequence structs */
 /* ESC '[' [[ [<priv>] <arg> [;]] <mode> [<mode>]] */
 typedef struct {
-    char buf[ESC_BUF_SIZ]; /* raw string */
-    int64 len;             /* raw string length */
+    char buffer[ESC_BUF_SIZ]; /* raw string */
+    int64 len;                /* raw string length */
     char priv;
     int32 arg[ESC_ARG_SIZ];
     int32 narg; /* nb of args */
@@ -177,10 +177,10 @@ typedef struct {
 /* STR Escape sequence structs */
 /* ESC type [[ [<priv>] <arg> [;]] <mode>] ESC '\' */
 typedef struct {
-    char type;  /* ESC type ... */
-    char *buf;  /* allocated raw string */
-    uint64 siz; /* allocation size */
-    uint64 len; /* raw string length */
+    char type;    /* ESC type ... */
+    char *buffer; /* allocated raw string */
+    uint64 siz;   /* allocation size */
+    uint64 len;   /* raw string length */
     char *args[STR_ARG_SIZ];
     int32 narg; /* nb of args */
 } STREscape;
@@ -473,30 +473,30 @@ tiswrapped(Line line) {
 }
 
 char *
-term_get_glyphs(char *buf, const Glyph *gp, const Glyph *lgp) {
+term_get_glyphs(char *buffer, const Glyph *gp, const Glyph *lgp) {
     while (gp <= lgp) {
         if (gp->mode & ATTR_WDUMMY) {
             gp++;
         } else {
-            buf += utf8_encode((gp++)->rune, buf);
+            buffer += utf8_encode((gp++)->rune, buffer);
         }
     }
-    return buf;
+    return buffer;
 }
 
 int64
-tgetline(char *buf, const Glyph *fgp) {
+tgetline(char *buffer, const Glyph *fgp) {
     char *ptr;
     const Glyph *lgp = &fgp[term.col - 1];
 
     while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
         lgp--;
     }
-    ptr = term_get_glyphs(buf, fgp, lgp);
+    ptr = term_get_glyphs(buffer, fgp, lgp);
     if (!(lgp->mode & ATTR_WRAP)) {
         *(ptr++) = '\n';
     }
-    return (int64)(ptr - buf);
+    return (int64)(ptr - buffer);
 }
 
 static int32
@@ -963,13 +963,13 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
 
 int64
 tty_read(void) {
-    static char buf[BUFSIZ];
+    static char buffer[BUFSIZ];
     static int32 buflen = 0;
     int32 ret;
     int32 written;
 
     /* append read bytes to unprocessed bytes */
-    ret = (int32)read(cmdfd, buf + buflen, (size_t)(LENGTH(buf) - buflen));
+    ret = (int32)read(cmdfd, buffer + buflen, (size_t)(LENGTH(buffer) - buflen));
 
     switch (ret) {
     case 0:
@@ -978,11 +978,11 @@ tty_read(void) {
         die("couldn't read from CONF_SHELl: %s\n", strerror(errno));
     default:
         buflen += ret;
-        written = term_write(buf, buflen, 0);
+        written = term_write(buffer, buflen, 0);
         buflen -= written;
         /* keep any incomplete UTF-8 byte sequence for the next call */
         if (buflen > 0) {
-            memmove(buf, buf + written, (size_t)buflen);
+            memmove(buffer, buffer + written, (size_t)buflen);
         }
         return (int64)ret;
     }
@@ -1463,7 +1463,7 @@ term_new_line(int32 first_col) {
 
 void
 control_seq_intro_parse(void) {
-    char *p = csiescseq.buf, *np;
+    char *p = csiescseq.buffer, *np;
     int64 v;
     int32 sep = ';'; /* colon or semi-colon, but not both */
 
@@ -1473,8 +1473,8 @@ control_seq_intro_parse(void) {
         p++;
     }
 
-    csiescseq.buf[csiescseq.len] = '\0';
-    while (p < csiescseq.buf + csiescseq.len) {
+    csiescseq.buffer[csiescseq.len] = '\0';
+    while (p < csiescseq.buffer + csiescseq.len) {
         np = NULL;
         v = strtol(p, &np, 10);
         if (np == p) {
@@ -1494,7 +1494,7 @@ control_seq_intro_parse(void) {
         p++;
     }
     csiescseq.mode[0] = *p++;
-    csiescseq.mode[1] = (p < csiescseq.buf + csiescseq.len) ? *p : '\0';
+    csiescseq.mode[1] = (p < csiescseq.buffer + csiescseq.len) ? *p : '\0';
     return;
 }
 
@@ -1949,7 +1949,7 @@ term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
 
 void
 control_seq_intro_handle(void) {
-    char buf[40];
+    char buffer[40];
     int32 n;
     int32 x;
 
@@ -2157,8 +2157,9 @@ control_seq_intro_handle(void) {
             tty_write("\033[0n", SIZEOF("\033[0n") - 1, 0);
             break;
         case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
-            n = snprintf(buf, SIZEOF(buf), "\033[%i;%iR", term.cursor.y + 1, term.cursor.x + 1);
-            tty_write(buf, (int64)n, 0);
+            n = snprintf(buffer, SIZEOF(buffer), "\033[%i;%iR", term.cursor.y + 1,
+                         term.cursor.x + 1);
+            tty_write(buffer, (int64)n, 0);
             break;
         default:
             goto unknown;
@@ -2205,7 +2206,7 @@ control_seq_intro_dump(void) {
 
     fprintf(stderr, "ESC[");
     for (int64 i = 0; i < csiescseq.len; i++) {
-        c = csiescseq.buf[i] & 0xff;
+        c = csiescseq.buffer[i] & 0xff;
         if (isprint(c)) {
             putc((int32)c, stderr);
         } else if (c == '\n') {
@@ -2231,7 +2232,7 @@ control_seq_intro_reset(void) {
 void
 osc_color_response(int32 num, int32 index, int32 is_osc4) {
     int32 n;
-    char buf[32];
+    char buffer[32];
     uchar r, g, b;
 
     if (x_get_color(is_osc4 ? num : index, &r, &g, &b)) {
@@ -2240,13 +2241,13 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
         return;
     }
 
-    n = snprintf(buf, SIZEOF(buf), "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
+    n = snprintf(buffer, SIZEOF(buffer), "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
-    if (n < 0 || n >= (int32)SIZEOF(buf)) {
+    if (n < 0 || n >= (int32)SIZEOF(buffer)) {
         fprintf(stderr, "error: %s while printing %s response\n",
                 n < 0 ? "snprintf failed" : "truncation occurred", is_osc4 ? "osc4" : "osc");
     } else {
-        tty_write(buf, (int64)n, 1);
+        tty_write(buffer, (int64)n, 1);
     }
     return;
 }
@@ -2267,10 +2268,10 @@ string_handle(void) {
     term.esc &= ~(ESC_STR_END | ESC_STR);
     {
         int32 c;
-        char *p2 = strescseq.buf;
+        char *p2 = strescseq.buffer;
 
         strescseq.narg = 0;
-        strescseq.buf[strescseq.len] = '\0';
+        strescseq.buffer[strescseq.len] = '\0';
 
         if (*p2 == '\0') {
             return;
@@ -2404,7 +2405,7 @@ string_handle(void) {
 void
 externalpipe(const Arg *arg) {
     int32 to[2];
-    char buf[UTF_SIZ];
+    char buffer[UTF_SIZ];
     void (*oldsigpipe)(int32);
     Glyph *bp, *end;
     int32 lastpos;
@@ -2447,7 +2448,7 @@ externalpipe(const Arg *arg) {
         }
         end = &bp[lastpos + 1];
         for (; bp < end; ++bp) {
-            if (xwrite(to[1], buf, utf8_encode(bp->rune, buf)) < 0) {
+            if (xwrite(to[1], buffer, utf8_encode(bp->rune, buffer)) < 0) {
                 break;
             }
         }
@@ -2474,7 +2475,7 @@ string_dump(void) {
 
     fprintf(stderr, "ESC%c", strescseq.type);
     for (uint64 i = 0; i < strescseq.len; i++) {
-        c = strescseq.buf[i] & 0xff;
+        c = strescseq.buffer[i] & 0xff;
         if (c == '\0') {
             putc('\n', stderr);
             return;
@@ -2497,7 +2498,7 @@ string_dump(void) {
 void
 string_reset(void) {
     strescseq = (STREscape){
-        .buf = xrealloc(strescseq.buf, STR_BUF_SIZ),
+        .buffer = xrealloc(strescseq.buffer, STR_BUF_SIZ),
         .siz = STR_BUF_SIZ,
     };
     return;
@@ -2891,10 +2892,10 @@ term_putc(Rune u) {
                 return;
             }
             strescseq.siz *= 2;
-            strescseq.buf = xrealloc(strescseq.buf, (int64)strescseq.siz);
+            strescseq.buffer = xrealloc(strescseq.buffer, (int64)strescseq.siz);
         }
 
-        memmove(&strescseq.buf[strescseq.len], c, (size_t)len);
+        memmove(&strescseq.buffer[strescseq.len], c, (size_t)len);
         strescseq.len += (uint64)len;
         return;
     }
@@ -2920,8 +2921,8 @@ check_control_code:
         return;
     } else if (term.esc & ESC_START) {
         if (term.esc & ESC_CSI) {
-            csiescseq.buf[csiescseq.len++] = (char)u;
-            if (BETWEEN(u, 0x40, 0x7E) || csiescseq.len >= SIZEOF(csiescseq.buf) - 1) {
+            csiescseq.buffer[csiescseq.len++] = (char)u;
+            if (BETWEEN(u, 0x40, 0x7E) || csiescseq.len >= SIZEOF(csiescseq.buffer) - 1) {
                 term.esc = 0;
                 control_seq_intro_parse();
                 control_seq_intro_handle();
@@ -2997,7 +2998,7 @@ check_control_code:
 }
 
 int32
-term_write(const char *buf, int32 buflen, int32 show_ctrl) {
+term_write(const char *buffer, int32 buflen, int32 show_ctrl) {
     int32 charsize;
     Rune u;
     int32 n;
@@ -3005,12 +3006,12 @@ term_write(const char *buf, int32 buflen, int32 show_ctrl) {
     for (n = 0; n < buflen; n += charsize) {
         if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
             /* process a complete utf8 char */
-            charsize = (int32)utf8_decode(buf + n, &u, (int64)(buflen - n));
+            charsize = (int32)utf8_decode(buffer + n, &u, (int64)(buflen - n));
             if (charsize == 0) {
                 break;
             }
         } else {
-            u = buf[n] & 0xFF;
+            u = buffer[n] & 0xFF;
             charsize = 1;
         }
         if (show_ctrl && ISCONTROL(u)) {
@@ -3209,7 +3210,7 @@ term_reflow(int32 col, int32 row) {
     int32 len = 0;
     int32 cy = -1; /* proxy for new y coordinate of cursor */
     int32 nlines;
-    Line *buf;
+    Line *buffer;
     Line line = 0;
 
     /* y coordinate of cursor line end */
@@ -3226,10 +3227,10 @@ term_reflow(int32 col, int32 row) {
             oy = -(nlines / j - oce - 1);
         }
     }
-    buf = xmalloc((int64)nlines*SIZEOF(Line));
+    buffer = xmalloc((int64)nlines*SIZEOF(Line));
     do {
         if (!nx) {
-            buf[++ny] = xmalloc((int64)col*SIZEOF(Glyph));
+            buffer[++ny] = xmalloc((int64)col*SIZEOF(Glyph));
         }
         if (!ox) {
             line = TLINEABS(oy);
@@ -3246,35 +3247,35 @@ term_reflow(int32 col, int32 row) {
                 UPDATE_WRAP_NEXT(0, col);
             }
         }
-        /* get reflowed lines in buf */
+        /* get reflowed lines in buffer */
         if (col - nx > len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (size_t)(len - ox)*SIZEOF(Glyph));
+            memcpy(&buffer[ny][nx], &line[ox], (size_t)(len - ox)*SIZEOF(Glyph));
             nx += len - ox;
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
                 for (int32 j = nx; j < col; j++) {
-                    term_clear_glyph(&buf[ny][j], 0);
+                    term_clear_glyph(&buffer[ny][j], 0);
                 }
                 nx = 0;
             } else if (nx > 0) {
-                buf[ny][nx - 1].mode &= ~ATTR_WRAP;
+                buffer[ny][nx - 1].mode &= ~ATTR_WRAP;
             }
             ox = 0;
             oy++;
         } else if (col - nx == len - ox) {
-            memcpy(&buf[ny][nx], &line[ox], (size_t)(col - nx)*SIZEOF(Glyph));
+            memcpy(&buffer[ny][nx], &line[ox], (size_t)(col - nx)*SIZEOF(Glyph));
             ox = 0;
             oy++;
             nx = 0;
         } else /* if (col - nx < len - ox) */ {
-            memcpy(&buf[ny][nx], &line[ox], (size_t)(col - nx)*SIZEOF(Glyph));
+            memcpy(&buffer[ny][nx], &line[ox], (size_t)(col - nx)*SIZEOF(Glyph));
             ox += col - nx;
-            buf[ny][col - 1].mode |= ATTR_WRAP;
+            buffer[ny][col - 1].mode |= ATTR_WRAP;
             nx = 0;
         }
     } while (oy <= oce);
     if (nx) {
         for (int32 j = nx; j < col; j++) {
-            term_clear_glyph(&buf[ny][j], 0);
+            term_clear_glyph(&buffer[ny][j], 0);
         }
     }
 
@@ -3296,7 +3297,7 @@ term_reflow(int32 col, int32 row) {
         nce = MIN(nce + -term.cursor.y, bot);
         term.cursor.y += nce - j;
         while (term.cursor.y < 0) {
-            free(buf[ny--]);
+            free(buffer[ny--]);
             term.cursor.y++;
         }
     }
@@ -3309,11 +3310,11 @@ term_reflow(int32 col, int32 row) {
     }
     /* fill visible area */
     for (/*i = nce */; i >= term.row; i--, ny--) {
-        term.line[i] = buf[ny];
+        term.line[i] = buffer[ny];
     }
     for (/*i = term.row - 1 */; i >= 0; i--, ny--) {
         free(term.line[i]);
-        term.line[i] = buf[ny];
+        term.line[i] = buffer[ny];
     }
     /* fill lines in history buffer and update term.histf */
     {
@@ -3321,7 +3322,7 @@ term_reflow(int32 col, int32 row) {
         for (k = -1; ny >= 0 && k >= -HISTSIZE; k--, ny--) {
             int32 j = (term.histi + k + 1 + HISTSIZE) % HISTSIZE;
             free(term.hist[j]);
-            term.hist[j] = buf[ny];
+            term.hist[j] = buffer[ny];
         }
         term.histf = -k - 1;
     }
@@ -3331,7 +3332,7 @@ term_reflow(int32 col, int32 row) {
         int32 j = (term.histi + k + 1 + HISTSIZE) % HISTSIZE;
         term.hist[j] = xrealloc(term.hist[j], (int64)col*SIZEOF(Glyph));
     }
-    free(buf);
+    free(buffer);
     return;
 }
 

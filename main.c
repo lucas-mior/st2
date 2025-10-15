@@ -54,7 +54,7 @@ typedef struct {
     Display *display;
     Colormap cmap;
     Window win;
-    Drawable buf;
+    Drawable buffer;
     GlyphFontSpec *specbuf; /* font spec buffer used for rendering */
     Atom xembed, wmdeletewin, netwmname, netwmiconname, netwmpid;
     struct {
@@ -358,18 +358,19 @@ run:
         xgc_values.graphics_exposures = False;
         draw_context.graphics
             = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &xgc_values);
-        x_window.buf = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
-                                     (uint32)term_window.h, (uint32)x_window.depth);
+        x_window.buffer = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
+                                        (uint32)term_window.h, (uint32)x_window.depth);
         XSetForeground(x_window.display, draw_context.graphics,
                        draw_context.col[CONF_COLOR_INDEX_BACK].pixel);
-        XFillRectangle(x_window.display, x_window.buf, draw_context.graphics, 0, 0,
+        XFillRectangle(x_window.display, x_window.buffer, draw_context.graphics, 0, 0,
                        (uint32)term_window.w, (uint32)term_window.h);
 
         /* font spec buffer */
         x_window.specbuf = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(GlyphFontSpec));
 
         /* Xft rendering context */
-        x_window.draw = XftDrawCreate(x_window.display, x_window.buf, x_window.vis, x_window.cmap);
+        x_window.draw
+            = XftDrawCreate(x_window.display, x_window.buffer, x_window.vis, x_window.cmap);
 
         /* input methods */
         if (!x_im_open(x_window.display)) {
@@ -428,10 +429,10 @@ run:
     }
 
     {
-        char buf[SIZEOF(int64)*8 + 1];
+        char buffer[SIZEOF(int64)*8 + 1];
 
-        snprintf(buf, SIZEOF(buf), "%lu", x_window.win);
-        setenv("WINDOWID", buf, 1);
+        snprintf(buffer, SIZEOF(buffer), "%lu", x_window.win);
+        setenv("WINDOWID", buffer, 1);
     }
     selection.mode = SELECTION_IDLE;
     selection.snap = 0;
@@ -686,7 +687,7 @@ mouse_report(XEvent *xevent) {
     int32 len, btn, code;
     int32 x = xevent_col(xevent), y = xevent_row(xevent);
     int32 state = (int32)xevent->xbutton.state;
-    char buf[40];
+    char buffer[40];
     static int32 ox, oy;
 
     if (xevent->type == MotionNotify) {
@@ -746,15 +747,15 @@ mouse_report(XEvent *xevent) {
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR)) {
-        len = snprintf(buf, SIZEOF(buf), "\033[<%d;%d;%d%c", code, x + 1, y + 1,
+        len = snprintf(buffer, SIZEOF(buffer), "\033[<%d;%d;%d%c", code, x + 1, y + 1,
                        xevent->type == ButtonRelease ? 'm' : 'M');
     } else if (x < 223 && y < 223) {
-        len = snprintf(buf, SIZEOF(buf), "\033[M%c%c%c", 32 + code, 32 + x + 1, 32 + y + 1);
+        len = snprintf(buffer, SIZEOF(buffer), "\033[M%c%c%c", 32 + code, 32 + x + 1, 32 + y + 1);
     } else {
         return;
     }
 
-    tty_write(buf, (int64)len, 0);
+    tty_write(buffer, (int64)len, 0);
     return;
 }
 
@@ -1086,10 +1087,10 @@ x_resize(int32 col, int32 row) {
     term_window.tty_width = col*term_window.cw;
     term_window.tty_height = row*term_window.ch;
 
-    XFreePixmap(x_window.display, x_window.buf);
-    x_window.buf = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
-                                 (uint32)term_window.h, (uint32)x_window.depth);
-    XftDrawChange(x_window.draw, x_window.buf);
+    XFreePixmap(x_window.display, x_window.buffer);
+    x_window.buffer = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
+                                    (uint32)term_window.h, (uint32)x_window.depth);
+    XftDrawChange(x_window.draw, x_window.buffer);
     x_clear(0, 0, term_window.w, term_window.h);
 
     /* handler_configure_notify to new width */
@@ -2047,7 +2048,7 @@ x_draw_line(Line line, int32 x1, int32 y1, int32 x2) {
 
 void
 x_finish_draw(void) {
-    XCopyArea(x_window.display, x_window.buf, x_window.win, draw_context.graphics, 0, 0,
+    XCopyArea(x_window.display, x_window.buffer, x_window.win, draw_context.graphics, 0, 0,
               (uint32)term_window.w, (uint32)term_window.h, 0, 0);
     XSetForeground(x_window.display, draw_context.graphics,
                    draw_context
@@ -2220,7 +2221,7 @@ void
 handler_key_press(XEvent *xevent) {
     XKeyEvent *e = &xevent->xkey;
     KeySym ksym = NoSymbol;
-    char buf[64], *customkey;
+    char buffer[64], *customkey;
     int32 len;
     Rune c;
     Status status;
@@ -2231,12 +2232,12 @@ handler_key_press(XEvent *xevent) {
     }
 
     if (x_window.ime.xic) {
-        len = XmbLookupString(x_window.ime.xic, e, buf, SIZEOF(buf), &ksym, &status);
+        len = XmbLookupString(x_window.ime.xic, e, buffer, SIZEOF(buffer), &ksym, &status);
         if (status == XBufferOverflow) {
             return;
         }
     } else {
-        len = XLookupString(e, buf, SIZEOF(buf), &ksym, NULL);
+        len = XLookupString(e, buffer, SIZEOF(buffer), &ksym, NULL);
     }
     /* 1. CONF_KEYBOARD_SHORTCUTS */
     for (bp = CONF_KEYBOARD_SHORTCUTS;
@@ -2259,17 +2260,17 @@ handler_key_press(XEvent *xevent) {
     }
     if (len == 1 && e->state & Mod1Mask) {
         if (TERM_WINDOW_IS_SET(WIN_MODE_8BIT)) {
-            if (*buf < 0177) {
-                c = (Rune)(*buf | 0x80);
-                len = (int32)utf8_encode(c, buf);
+            if (*buffer < 0177) {
+                c = (Rune)(*buffer | 0x80);
+                len = (int32)utf8_encode(c, buffer);
             }
         } else {
-            buf[1] = buf[0];
-            buf[0] = '\033';
+            buffer[1] = buffer[0];
+            buffer[0] = '\033';
             len = 2;
         }
     }
-    tty_write(buf, (int64)len, 1);
+    tty_write(buffer, (int64)len, 1);
     return;
 }
 
