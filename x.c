@@ -93,8 +93,8 @@ typedef struct {
     int descent;
     int badslant;
     int badweight;
-    short lbearing;
-    short rbearing;
+    int16 lbearing;
+    int16 rbearing;
     XftFont *match;
     FcFontSet *set;
     FcPattern *pattern;
@@ -957,7 +957,7 @@ x_load_font(Font *f, FcPattern *pattern) {
     f->ascent = f->match->ascent;
     f->descent = f->match->descent;
     f->lbearing = 0;
-    f->rbearing = (short)f->match->max_advance_width;
+    f->rbearing = (int16)f->match->max_advance_width;
 
     f->height = f->ascent + f->descent;
     f->width = DIVCEIL(extents.xOff, (int)strlen(ascii_printable));
@@ -1404,8 +1404,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, i
         if (glyphidx) {
             specs[numspecs].font = font->match;
             specs[numspecs].glyph = glyphidx;
-            specs[numspecs].x = (short)xp;
-            specs[numspecs].y = (short)yp;
+            specs[numspecs].x = (int16)xp;
+            specs[numspecs].y = (int16)yp;
             xp += runewidth;
             numspecs++;
             continue;
@@ -1474,8 +1474,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, i
 
         specs[numspecs].font = frc[f].font;
         specs[numspecs].glyph = glyphidx;
-        specs[numspecs].x = (short)xp;
-        specs[numspecs].y = (short)yp;
+        specs[numspecs].x = (int16)xp;
+        specs[numspecs].y = (int16)yp;
         xp += runewidth;
         numspecs++;
     }
@@ -1807,8 +1807,8 @@ x_xim_spot(int x, int y) {
         return;
     }
 
-    x_window.ime.spot.x = (short)(border_pixels + x * term_window.cw);
-    x_window.ime.spot.y = (short)(border_pixels + (y + 1) * term_window.ch);
+    x_window.ime.spot.x = (int16)(border_pixels + x * term_window.cw);
+    x_window.ime.spot.y = (int16)(border_pixels + (y + 1) * term_window.ch);
 
     XSetICValues(x_window.ime.xic, XNPreeditAttributes, x_window.ime.spotlist, NULL);
 }
