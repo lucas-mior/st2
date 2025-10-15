@@ -489,7 +489,11 @@ run:
 
             seltv.tv_sec = timeout / 1E3f;
             seltv.tv_nsec = 1E6f*(timeout - 1E3f*(float)seltv.tv_sec);
-            tv = timeout >= 0 ? &seltv : NULL;
+            if (timeout >= 0) {
+                tv = &seltv;
+            } else {
+                tv = NULL;
+            }
 
             if (pselect(MAX(xfd, ttyfd) + 1, &read_fd, NULL, NULL, tv, NULL) < 0) {
                 if (errno == EINTR) {
