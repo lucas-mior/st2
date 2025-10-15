@@ -297,7 +297,10 @@ xwrite(int32 fd, const char *s, int64 len) {
 
 void *
 xmalloc(int64 len) {
+    static int64 malloc_count = 0;
     void *p;
+
+    malloc_count += 1;
 
     if (len <= 0) {
         die("xmalloc: len <= 0.\n");
@@ -305,6 +308,8 @@ xmalloc(int64 len) {
     if (!(p = malloc((size_t)len))) {
         die("malloc: %s\n", strerror(errno));
     }
+
+    fprintf(stderr, "malloc_count=%ld\n", malloc_count);
 
     return p;
 }
