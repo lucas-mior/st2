@@ -136,7 +136,6 @@ void tty_write(const char *, int64, int32);
 void reset_title(void);
 
 void selection_clear(void);
-void selection_init(void);
 void selection_start(int32, int32, int32);
 void selection_extend(int32, int32, int32, int32);
 int32 selected(int32, int32);

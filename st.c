@@ -457,14 +457,6 @@ base64_decode(const char *src) {
     return result;
 }
 
-void
-selection_init(void) {
-    selection.mode = SELECTION_IDLE;
-    selection.snap = 0;
-    selection.ob.x = -1;
-    return;
-}
-
 int32
 term_line_len(Line line) {
     int32 i = term.col - 1;

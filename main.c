@@ -292,7 +292,9 @@ run:
         snprintf(buf, SIZEOF(buf), "%lu", x_window.win);
         setenv("WINDOWID", buf, 1);
     }
-    selection_init();
+    selection.mode = SELECTION_IDLE;
+    selection.snap = 0;
+    selection.ob.x = -1;
 
     {
         XEvent xevent;
