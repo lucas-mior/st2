@@ -120,7 +120,7 @@ char *termname = "st-256color";
  *
  *	stty tabs
  */
-unsigned int tabspaces = 4;
+int tabspaces = 4;
 
 /* bg opacity */
 float alpha = 0.85f;
@@ -192,12 +192,12 @@ static const int trans_colors = 26;
  * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor, selection
  */
-unsigned int default_foreground = 7;
-unsigned int default_background = 0;
-unsigned int default_cursor = 256;
-static unsigned int default_reverse_cursor = 257;
-unsigned int selectionbg = 259;
-unsigned int selectionfg = 7;
+int default_foreground = 7;
+int default_background = 0;
+int default_cursor = 256;
+static int default_reverse_cursor = 257;
+int selectionbg = 259;
+int selectionfg = 7;
 /* If 0 use selectionfg as foreground in order to have a uniform foreground-color */
 /* Else if 1 keep original foreground-color of each cell => more colors :) */
 static int ignoreselfg = 1;

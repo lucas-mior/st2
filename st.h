@@ -152,10 +152,10 @@ extern wchar_t *worddelimiters;
 extern int allowaltscreen;
 extern int allowwindowops;
 extern char *termname;
-extern unsigned int tabspaces;
-extern unsigned int default_foreground;
-extern unsigned int default_background;
-extern unsigned int default_cursor;
+extern int tabspaces;
+extern int default_foreground;
+extern int default_background;
+extern int default_cursor;
 extern const int boxdraw, boxdraw_bold, boxdraw_braille;
 extern float alpha;
 
