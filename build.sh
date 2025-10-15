@@ -1,0 +1,83 @@
+#!/bin/sh
+
+# shellcheck disable=SC2086
+
+target="${1:-build}"
+
+VERSION="0.9.3"
+
+PREFIX="${PREFIX:-/usr/local}"
+DESTDIR="${DESTDIR:-/}"
+MANPREFIX="${MANPREFIX:-$PREFIX/share/man}"
+
+X11INC="/usr/X11R6/include"
+X11LIB="/usr/X11R6/lib"
+
+PKG_CONFIG=${PKG_CONFIG:-pkg-config}
+
+SRC="st.c x.c boxdraw.c"
+OBJ=$(echo $SRC | sed 's/\.c/\.o/g')
+
+INCS="-I$X11INC \
+  $($PKG_CONFIG --cflags fontconfig) \
+  $($PKG_CONFIG --cflags freetype2)"
+
+LIBS="-L$X11LIB -lm -lrt -lX11 -lutil -lXft \
+  $($PKG_CONFIG --libs fontconfig) \
+  $($PKG_CONFIG --libs freetype2)"
+
+STCPPFLAGS="-DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
+STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
+STLDFLAGS="$LIBS $LDFLAGS"
+
+CC=${CC:-cc}
+
+echo "target=$target"
+
+case "$target" in
+    clean)
+        set -x
+        rm -f st $OBJ st-${VERSION}.tar.gz
+        ;;
+
+    dist)
+        set -x
+        rm -f st-${VERSION}.tar.gz
+        mkdir -p st-${VERSION}
+        cp -R FAQ LEGACY TODO LICENSE Makefile README config.mk \
+           config.def.h st.info st.1 arg.h st.h win.h $SRC \
+           st-${VERSION}
+        tar -cf - st-${VERSION} | gzip > st-${VERSION}.tar.gz
+        rm -rf st-${VERSION}
+        ;;
+
+    build|all)
+        set -x
+        for src in $SRC; do
+            $CC $STCFLAGS -c "$src"
+        done
+        $CC -o st $OBJ $STLDFLAGS
+        ;;
+
+    install)
+        [ ! -f st ] && "$0" build
+        set -x
+        mkdir -p ${DESTDIR}${PREFIX}/bin
+        install -Dm755 st ${DESTDIR}${PREFIX}/bin/st
+        mkdir -p ${DESTDIR}${MANPREFIX}/man1
+        sed "s/VERSION/${VERSION}/g" < st.1 > ${DESTDIR}${MANPREFIX}/man1/st.1
+        chmod 644 ${DESTDIR}${MANPREFIX}/man1/st.1
+        tic -sx st.info
+        echo "Please see the README regarding the terminfo entry of st."
+        ;;
+
+    uninstall)
+        set -x
+        rm -f ${DESTDIR}${PREFIX}/bin/st
+        rm -f ${DESTDIR}${MANPREFIX}/man1/st.1
+        ;;
+
+    *)
+        echo "usage: $0 [ build | all | install | uninstall | clean | dist ]"
+        ;;
+esac
