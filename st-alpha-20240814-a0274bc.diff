@@ -33,7 +33,7 @@ index d73152b..f32fd6c 100644
  	XftDrawChange(xw.draw, xw.buf);
  	x_clear(0, 0, win.w, win.h);
  
-@@ -812,6 +813,10 @@ xloadcols(void)
+@@ -812,6 +813,10 @@ x_load_cols(void)
  			else
  				die("could not allocate color %d\n", i);
  		}
@@ -90,7 +90,7 @@ index d73152b..f32fd6c 100644
  	/* colors */
 -	xw.cmap = XDefaultColormap(xw.dpy, xw.scr);
 +	xw.cmap = XCreateColormap(xw.dpy, parent, xw.vis, None);
- 	xloadcols();
+ 	x_load_cols();
  
  	/* adjust fixed window geometry */
 @@ -1168,11 +1193,8 @@ x_init(int number_cols, int number_rows)
