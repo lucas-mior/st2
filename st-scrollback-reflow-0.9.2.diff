@@ -105,7 +105,7 @@ index 2478942..2b86d23 100644
  static void term_set_mode(int, int, const int *, int);
  static int twrite(const char *, int, int);
  static void term_full_dirt(void);
-@@ -212,7 +243,10 @@ static void tstrsequence(uchar);
+@@ -212,7 +243,10 @@ static void term_str_sequence(uchar);
  static void draw_region(int, int, int, int);
  
  static void sel_normalize(void);
