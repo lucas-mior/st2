@@ -102,7 +102,7 @@ index 2478942..2b86d23 100644
  static void tswapscreen(void);
 +static void tloaddefscreen(int, int);
 +static void tloadaltscreen(int, int);
- static void tsetmode(int, int, const int *, int);
+ static void term_set_mode(int, int, const int *, int);
  static int twrite(const char *, int, int);
  static void term_full_dirt(void);
 @@ -212,7 +243,10 @@ static void tstrsequence(uchar);
@@ -1007,14 +1007,14 @@ index 2478942..2b86d23 100644
  int32_t
 @@ -1528,7 +1707,7 @@ tsetscroll(int t, int b)
  void
- tsetmode(int priv, int set, const int *args, int narg)
+ term_set_mode(int priv, int set, const int *args, int narg)
  {
 -	int alt; const int *lim;
 +	const int *lim;
  
  	for (lim = args + narg; args < lim; ++args) {
  		if (priv) {
-@@ -1589,26 +1768,20 @@ tsetmode(int priv, int set, const int *args, int narg)
+@@ -1589,26 +1768,20 @@ term_set_mode(int priv, int set, const int *args, int narg)
  				xsetmode(set, WIN_MODE_8BIT);
  				break;
  			case 1049: /* swap screen & set/restore cursor as xterm */
