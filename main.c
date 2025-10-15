@@ -147,7 +147,7 @@ static void handler_selection_notify(XEvent *);
 static void handler_selection_clear(XEvent *);
 static void handler_selection_request(XEvent *);
 static void setsel(char *, Time);
-static void mousesel(XEvent *, int32);
+static void mouse_select(XEvent *, int32);
 static void mousereport(XEvent *);
 static char *kmap(KeySym, uint32);
 static int32 match(uint32, uint32);
@@ -328,7 +328,7 @@ xevent_row(XEvent *e) {
 }
 
 void
-mousesel(XEvent *e, int32 done) {
+mouse_select(XEvent *e, int32 done) {
     int32 type, seltype = SELECTION_REGULAR;
     uint32 state = e->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
 
@@ -699,7 +699,7 @@ handler_button_release(XEvent *e) {
         return;
     }
     if (btn == Button1) {
-        mousesel(e, 1);
+        mouse_select(e, 1);
     }
     return;
 }
@@ -711,7 +711,7 @@ handler_button_motion(XEvent *e) {
         return;
     }
 
-    mousesel(e, 0);
+    mouse_select(e, 0);
     return;
 }
 
