@@ -251,7 +251,7 @@ static void selection_normalize(void);
 static void selection_scroll(int32, int32, int32);
 static void selection_move(int32);
 static void selection_remove(void);
-static int32 selection_region(int32, int32, int32, int32);
+static int32 selection_is_selected4(int32, int32, int32, int32);
 static void selection_snap(int32 *, int32 *, int32);
 
 static int64 utf8_decode(const char *, Rune *, int64);
@@ -610,7 +610,7 @@ selection_normalize(void) {
 }
 
 int32
-selection_region(int32 x1, int32 y1, int32 x2, int32 y2) {
+selection_is_selected4(int32 x1, int32 y1, int32 x2, int32 y2) {
     if (selection.ob.x == -1 || selection.mode == SELECTION_EMPTY
         || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) || selection.nb.y > y2
         || selection.ne.y < y1) {
@@ -626,7 +626,7 @@ selection_region(int32 x1, int32 y1, int32 x2, int32 y2) {
 
 int32
 selected(int32 x, int32 y) {
-    return selection_region(x, y, x, y);
+    return selection_is_selected4(x, y, x, y);
 }
 
 void
@@ -1592,8 +1592,8 @@ term_clear_glyph(Glyph *gp, int32 usecurattr) {
 
 void
 term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, int32 usecurattr) {
-    /* selection_region() takes relative coordinates */
-    if (selection_region(x1 + term.scr, y1 + term.scr, x2 + term.scr, y2 + term.scr)) {
+    /* selection_is_selected4() takes relative coordinates */
+    if (selection_is_selected4(x1 + term.scr, y1 + term.scr, x2 + term.scr, y2 + term.scr)) {
         selection_remove();
     }
 
