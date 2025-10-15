@@ -34,8 +34,8 @@ boxdraw_xinit(Display *display, Colormap cmap, XftDraw *draw, Visual *vis) {
 int32
 isboxdraw(Rune u) {
     Rune block = u & ~(uint32)0xff;
-    return (CONF_BOXDRAW && block == 0x2500 && boxdata[(uint8_t)u]) ||
-           (CONF_BOXDRAW_BRAILLE && block == 0x2800);
+    return (CONF_BOXDRAW && block == 0x2500 && boxdata[(uint8_t)u])
+           || (CONF_BOXDRAW_BRAILLE && block == 0x2800);
 }
 
 /* the "index" is actually the entire shape data encoded as uint16 */

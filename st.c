@@ -421,11 +421,11 @@ char *
 base64_decode(const char *src) {
     int64 in_len = (int64)strlen(src);
     char *result, *dst;
-    static const char base64_digits[256] = {
-        [43] = 62, 0,  0,  0,  63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0,  0,  0,  -1, 0,
-        0,         0,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17,
-        18,        19, 20, 21, 22, 23, 24, 25, 0,  0,  0,  0,  0,  0,  26, 27, 28, 29, 30, 31,
-        32,        33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+    static const char base64_digits[256]
+        = {[43] = 62, 0,  0,  0,  63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0,  0,  0,  -1, 0,
+           0,         0,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17,
+           18,        19, 20, 21, 22, 23, 24, 25, 0,  0,  0,  0,  0,  0,  26, 27, 28, 29, 30, 31,
+           32,        33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
 
     if (in_len % 4) {
         in_len += 4 - (in_len % 4);
@@ -559,8 +559,8 @@ selection_extend(int32 col, int32 row, int32 type, int32 done) {
     selection.type = type;
     selection_normalize();
 
-    if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type ||
-        selection.mode == SELECTION_EMPTY) {
+    if (oldey != selection.oe.y || oldex != selection.oe.x || oldtype != selection.type
+        || selection.mode == SELECTION_EMPTY) {
         term_set_dirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
     }
 
@@ -602,16 +602,16 @@ selection_normalize(void) {
 
 int32
 selection_region(int32 x1, int32 y1, int32 x2, int32 y2) {
-    if (selection.ob.x == -1 || selection.mode == SELECTION_EMPTY ||
-        selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) || selection.nb.y > y2 ||
-        selection.ne.y < y1) {
+    if (selection.ob.x == -1 || selection.mode == SELECTION_EMPTY
+        || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) || selection.nb.y > y2
+        || selection.ne.y < y1) {
         return 0;
     }
 
     return (selection.type == SELECTION_RECTANGULAR)
                ? selection.nb.x <= x2 && selection.ne.x >= x1
-               : (selection.nb.y != y2 || selection.nb.x <= x2) &&
-                     (selection.ne.y != y1 || selection.ne.x >= x1);
+               : (selection.nb.y != y2 || selection.nb.x <= x2)
+                     && (selection.ne.y != y1 || selection.ne.x >= x1);
 }
 
 int32
@@ -671,8 +671,8 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
 
             gp = &TLINE(newy)[newx];
             delim = ISDELIM(gp->rune);
-            if (!(gp->mode & ATTR_WDUMMY) &&
-                (delim != prevdelim || (delim && !(gp->rune == ' ' && prevgp->rune == ' ')))) {
+            if (!(gp->mode & ATTR_WDUMMY)
+                && (delim != prevdelim || (delim && !(gp->rune == ' ' && prevgp->rune == ' ')))) {
                 break;
             }
 
@@ -753,8 +753,8 @@ selection_get(void) {
          * st.
          * FIXME: Fix the computer world.
          */
-        if ((y < selection.ne.y || lastx >= linelen) &&
-            (!(lgp->mode & ATTR_WRAP) || selection.type == SELECTION_RECTANGULAR)) {
+        if ((y < selection.ne.y || lastx >= linelen)
+            && (!(lgp->mode & ATTR_WRAP) || selection.type == SELECTION_RECTANGULAR)) {
             *ptr++ = '\n';
         }
     }
@@ -1708,8 +1708,8 @@ term_set_attr(const int32 *attr, int32 l) {
     for (int32 i = 0; i < l; i++) {
         switch (attr[i]) {
         case 0:
-            term.cursor.attr.mode &= ~(ATTR_BOLD | ATTR_FAINT | ATTR_ITALIC | ATTR_UNDERLINE |
-                                       ATTR_BLINK | ATTR_REVERSE | ATTR_INVISIBLE | ATTR_STRUCK);
+            term.cursor.attr.mode &= ~(ATTR_BOLD | ATTR_FAINT | ATTR_ITALIC | ATTR_UNDERLINE
+                                       | ATTR_BLINK | ATTR_REVERSE | ATTR_INVISIBLE | ATTR_STRUCK);
             term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
             term.cursor.attr.bg = CONF_COLOR_INDEX_BACK;
             break;
