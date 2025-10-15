@@ -8,7 +8,7 @@ CC=gcc
 
 VERSION="0.9.3"
 
-CFLAGS="$CFLAGS -Wall -Wextra"
+CFLAGS="$CFLAGS -Wall -Wextra -Werror -fmax-errors=1"
 CFLAGS="$CFLAGS -Wno-unused-parameter"
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything"
