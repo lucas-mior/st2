@@ -275,7 +275,7 @@ static pid_t pid;
 
 static const uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
 static const uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
-static const Rune utfmin[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
+static const Rune utf8_min[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
 static const Rune utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
 int64
@@ -400,7 +400,7 @@ utf8_encode_byte(Rune u, int64 i) {
 
 int64
 utf8_validate(Rune *u, int64 i) {
-    if (!BETWEEN(*u, utfmin[i], utfmax[i]) || BETWEEN(*u, 0xD800, 0xDFFF)) {
+    if (!BETWEEN(*u, utf8_min[i], utfmax[i]) || BETWEEN(*u, 0xD800, 0xDFFF)) {
         *u = UTF_INVALID;
     }
     for (i = 1; *u > utfmax[i]; ++i)
