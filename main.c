@@ -2114,7 +2114,8 @@ handler_configure_notify(XEvent *xevent) {
 void
 run(void) {
     XEvent xevent;
-    int32 w = term_window.w, h = term_window.h;
+    int32 w = term_window.w;
+    int32 h = term_window.h;
     fd_set rfd;
     int32 xfd = XConnectionNumber(x_window.display), ttyfd, xev, drawing;
     struct timespec seltv, *tv, now, lastblink, trigger;
