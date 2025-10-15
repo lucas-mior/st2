@@ -96,7 +96,7 @@ index fd3b0d8..754cd08 100644
  void draw(void);
  
 +void externalpipe(const Arg *);
- void printscreen(const Arg *);
+ void user_print_screen(const Arg *);
  void printsel(const Arg *);
  void sendbreak(const Arg *);
 -- 
