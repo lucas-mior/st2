@@ -34,7 +34,7 @@ index 2478942..2b86d23 100644
 +} while (0);
  
  enum term_mode {
- 	MODE_WRAP        = 1 << 0,
+ 	TERM_MODE_WRAP        = 1 << 0,
 @@ -57,6 +70,12 @@ enum term_mode {
  	TERM_MODE_UTF8        = 1 << 6,
  };
@@ -476,7 +476,7 @@ index 2478942..2b86d23 100644
 +	term.histf = 0;
 +	term.scr = 0;
  	term.bot = term.row - 1;
- 	term.mode = MODE_WRAP|TERM_MODE_UTF8;
+ 	term.mode = TERM_MODE_WRAP|TERM_MODE_UTF8;
  	memset(term.trantbl, CS_USA, sizeof(term.trantbl));
  	term.charset = 0;
  

@@ -32,7 +32,7 @@ index b9f66e7..2478942 100644
 +            term.line[(y) - term.scr])
  
  enum term_mode {
- 	MODE_WRAP        = 1 << 0,
+ 	TERM_MODE_WRAP        = 1 << 0,
 @@ -115,6 +119,9 @@ typedef struct {
  	int col;      /* nb col */
  	Line *line;   /* screen */
