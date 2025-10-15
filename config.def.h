@@ -44,7 +44,7 @@ char *vtiden = "\033[?6c";
 
 /* Kerning / character bounding-box multipliers */
 static float CONF_CHAR_WIDTH_SCALE = 1.0;
-static float char_height_scale = 1.0;
+static float CONF_CHAR_HEIGHT_SCALE = 1.0;
 
 /*
  * word delimiter string

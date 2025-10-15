@@ -1018,7 +1018,7 @@ x_load_fonts(const char *fontstr, float fontsize) {
 
     /* Setting character width and height. */
     term_window.cw = ceilf((float)(draw_context.font.width) * CONF_CHAR_WIDTH_SCALE);
-    term_window.ch = ceilf((float)(draw_context.font.height) * char_height_scale);
+    term_window.ch = ceilf((float)(draw_context.font.height) * CONF_CHAR_HEIGHT_SCALE);
 
     FcPatternDel(pattern, FC_SLANT);
     FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
@@ -1629,13 +1629,14 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
     /* Render underline and strikethrough. */
     if (base.mode & ATTR_UNDERLINE) {
         XftDrawRect(x_window.draw, fg, winx,
-                    winy + (int32)((float)draw_context.font.ascent * char_height_scale) + 1,
+                    winy + (int32)((float)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE) + 1,
                     (uint32)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
         XftDrawRect(x_window.draw, fg, winx,
-                    winy + 2 * (int32)((float)draw_context.font.ascent * char_height_scale / 3),
+                    winy +
+                        2 * (int32)((float)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE / 3),
                     (uint32)width, 1);
     }
 
