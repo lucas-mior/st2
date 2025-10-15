@@ -346,14 +346,14 @@ mouse_select(XEvent *xevent, int32 done) {
 }
 
 void
-mouse_report(XEvent *e) {
+mouse_report(XEvent *xevent) {
     int32 len, btn, code;
-    int32 x = xevent_col(e), y = xevent_row(e);
-    int32 state = (int32)e->xbutton.state;
+    int32 x = xevent_col(xevent), y = xevent_row(xevent);
+    int32 state = (int32)xevent->xbutton.state;
     char buf[40];
     static int32 ox, oy;
 
-    if (e->type == MotionNotify) {
+    if (xevent->type == MotionNotify) {
         if (x == ox && y == oy) {
             return;
         }
@@ -370,12 +370,12 @@ mouse_report(XEvent *e) {
             ;
         code = 32;
     } else {
-        btn = (int32)e->xbutton.button;
+        btn = (int32)xevent->xbutton.button;
         /* Only buttons 1 through 11 can be encoded */
         if (btn < 1 || btn > 11) {
             return;
         }
-        if (e->type == ButtonRelease) {
+        if (xevent->type == ButtonRelease) {
             /* WIN_MODE_MOUSEX10: no button release reporting */
             if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSEX10)) {
                 return;
@@ -393,7 +393,7 @@ mouse_report(XEvent *e) {
 
     /* Encode btn into code. If no button is pressed for a motion event in
      * WIN_MODE_MOUSEMANY, then encode it as a release. */
-    if ((!TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR) && e->type == ButtonRelease) || btn == 12) {
+    if ((!TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR) && xevent->type == ButtonRelease) || btn == 12) {
         code += 3;
     } else if (btn >= 8) {
         code += 128 + btn - 8;
@@ -411,7 +411,7 @@ mouse_report(XEvent *e) {
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR)) {
         len = snprintf(buf, SIZEOF(buf), "\033[<%d;%d;%d%c", code, x + 1, y + 1,
-                       e->type == ButtonRelease ? 'm' : 'M');
+                       xevent->type == ButtonRelease ? 'm' : 'M');
     } else if (x < 223 && y < 223) {
         len = snprintf(buf, SIZEOF(buf), "\033[M%c%c%c", 32 + code, 32 + x + 1, 32 + y + 1);
     } else {
