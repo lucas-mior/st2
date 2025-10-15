@@ -3,8 +3,8 @@
 - selectioncolors
 - bold is not bright
 - delkey
-- externalpipe-eternal
-- externalpipe
+- ~~externalpipe-eternal~~
+- ~~externalpipe~~
 - ~~font2~~
 - ~~alpha~~
 - ~~scrollback~~
