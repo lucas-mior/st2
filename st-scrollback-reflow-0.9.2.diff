@@ -66,7 +66,7 @@ index 2478942..2b86d23 100644
 @@ -179,26 +199,37 @@ static void tprinter(char *, size_t);
  static void term_dump_sel(void);
  static void term_dump_line(int);
- static void tdump(void);
+ static void term_dump(void);
 -static void term_clear_region(int, int, int, int);
 +static void term_clear_region(int, int, int, int, int);
  static void term_cursor(int);
