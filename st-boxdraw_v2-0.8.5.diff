@@ -490,7 +490,7 @@ index 519b9bd..07a7c66 100644
  
 @@ -113,6 +114,14 @@ char *xstrdup(const char *);
  
- int xgetcolor(int x, unsigned char *r, unsigned char *g, unsigned char *b);
+ int x_get_color(int x, unsigned char *r, unsigned char *g, unsigned char *b);
  
 +int isboxdraw(Rune);
 +ushort boxdrawindex(const Glyph *);
