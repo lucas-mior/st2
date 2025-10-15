@@ -38,9 +38,9 @@ index d73152b..f32fd6c 100644
  				die("could not allocate color %d\n", i);
  		}
 +
-+	draw_context.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
-+	draw_context.col[defaultbg].pixel &= 0x00FFFFFF;
-+	draw_context.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
++	draw_context.col[default_background].color.alpha = (unsigned short)(0xffff * alpha);
++	draw_context.col[default_background].pixel &= 0x00FFFFFF;
++	draw_context.col[default_background].pixel |= (unsigned char)(0xff * alpha) << 24;
  	loaded = 1;
  }
  
@@ -48,10 +48,10 @@ index d73152b..f32fd6c 100644
  	XftColorFree(xw.dpy, xw.vis, xw.cmap, &draw_context.col[x]);
  	draw_context.col[x] = ncolor;
  
-+	if (x == defaultbg) {
-+		draw_context.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
-+		draw_context.col[defaultbg].pixel &= 0x00FFFFFF;
-+		draw_context.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
++	if (x == default_background) {
++		draw_context.col[default_background].color.alpha = (unsigned short)(0xffff * alpha);
++		draw_context.col[default_background].pixel &= 0x00FFFFFF;
++		draw_context.col[default_background].pixel |= (unsigned char)(0xff * alpha) << 24;
 +	}
 +
  	return 0;
@@ -113,7 +113,7 @@ index d73152b..f32fd6c 100644
  	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
 -			DefaultDepth(xw.dpy, xw.scr));
 +			xw.depth);
- 	XSetForeground(xw.dpy, draw_context.gc, draw_context.col[defaultbg].pixel);
+ 	XSetForeground(xw.dpy, draw_context.gc, draw_context.col[default_background].pixel);
  	XFillRectangle(xw.dpy, xw.buf, draw_context.gc, 0, 0, win.w, win.h);
  
 @@ -2047,6 +2069,10 @@ main(int argc, char *argv[])
