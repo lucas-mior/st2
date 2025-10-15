@@ -414,7 +414,12 @@ base64_decode_getc(const char **src) {
     while (**src && !isprint((uchar)**src)) {
         (*src)++;
     }
-    return **src ? *((*src)++) : '='; /* emulate padding if string ends */
+    /* emulate padding if string ends */
+    if (**src) {
+        return *((*src)++);
+    } else {
+        return '=';
+    }
 }
 
 char *
