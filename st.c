@@ -267,7 +267,7 @@ static int64 xwrite(int32, const char *, int64);
 /* Globals */
 static Term term;
 static Selection selection;
-static CSIEscape csiescseq;
+static CSIEscape csi_escape_seq;
 static STREscape strescseq;
 static int32 iofd = 1;
 static int32 cmdfd;
@@ -1464,18 +1464,18 @@ term_new_line(int32 first_col) {
 
 void
 control_seq_intro_parse(void) {
-    char *p = csiescseq.buffer, *np;
+    char *p = csi_escape_seq.buffer, *np;
     int64 v;
     int32 sep = ';'; /* colon or semi-colon, but not both */
 
-    csiescseq.narg = 0;
+    csi_escape_seq.narg = 0;
     if (*p == '?') {
-        csiescseq.priv = 1;
+        csi_escape_seq.priv = 1;
         p++;
     }
 
-    csiescseq.buffer[csiescseq.len] = '\0';
-    while (p < csiescseq.buffer + csiescseq.len) {
+    csi_escape_seq.buffer[csi_escape_seq.len] = '\0';
+    while (p < csi_escape_seq.buffer + csi_escape_seq.len) {
         np = NULL;
         v = strtol(p, &np, 10);
         if (np == p) {
@@ -1484,18 +1484,18 @@ control_seq_intro_parse(void) {
         if (v == LONG_MAX || v == LONG_MIN) {
             v = -1;
         }
-        csiescseq.arg[csiescseq.narg++] = (int32)v;
+        csi_escape_seq.arg[csi_escape_seq.narg++] = (int32)v;
         p = np;
         if (sep == ';' && *p == ':') {
             sep = ':'; /* allow override to colon once */
         }
-        if (*p != sep || csiescseq.narg == ESC_ARG_SIZ) {
+        if (*p != sep || csi_escape_seq.narg == ESC_ARG_SIZ) {
             break;
         }
         p++;
     }
-    csiescseq.mode[0] = *p++;
-    csiescseq.mode[1] = (p < csiescseq.buffer + csiescseq.len) ? *p : '\0';
+    csi_escape_seq.mode[0] = *p++;
+    csi_escape_seq.mode[1] = (p < csi_escape_seq.buffer + csi_escape_seq.len) ? *p : '\0';
     return;
 }
 
@@ -1954,7 +1954,7 @@ control_seq_intro_handle(void) {
     int32 n;
     int32 x;
 
-    switch (csiescseq.mode[0]) {
+    switch (csi_escape_seq.mode[0]) {
     default:
     unknown:
         fprintf(stderr, "erresc: unknown csi ");
@@ -1962,20 +1962,20 @@ control_seq_intro_handle(void) {
         /* die(""); */
         break;
     case '@': /* ICH -- Insert <n> blank char */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_insert_blank(csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_insert_blank(csi_escape_seq.arg[0]);
         break;
     case 'A': /* CUU -- Cursor <n> Up */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_move_to(term.cursor.x, term.cursor.y - csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_move_to(term.cursor.x, term.cursor.y - csi_escape_seq.arg[0]);
         break;
     case 'B': /* CUD -- Cursor <n> Down */
     case 'e': /* VPR --Cursor <n> Down */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_move_to(term.cursor.x, term.cursor.y + csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_move_to(term.cursor.x, term.cursor.y + csi_escape_seq.arg[0]);
         break;
     case 'i': /* MC -- Media Copy */
-        switch (csiescseq.arg[0]) {
+        switch (csi_escape_seq.arg[0]) {
         case 0:
             term_dump();
             break;
@@ -1997,37 +1997,37 @@ control_seq_intro_handle(void) {
         }
         break;
     case 'c': /* DA -- Device Attributes */
-        if (csiescseq.arg[0] == 0) {
+        if (csi_escape_seq.arg[0] == 0) {
             tty_write(CONF_VTIDEN, (int64)strlen(CONF_VTIDEN), 0);
         }
         break;
     case 'b': /* REP -- if last char is printable print it <n> more times */
-        LIMIT(csiescseq.arg[0], 1, 65535);
+        LIMIT(csi_escape_seq.arg[0], 1, 65535);
         if (term.lastc) {
-            while (csiescseq.arg[0]-- > 0) {
+            while (csi_escape_seq.arg[0]-- > 0) {
                 term_putc(term.lastc);
             }
         }
         break;
     case 'C': /* CUF -- Cursor <n> Forward */
     case 'a': /* HPR -- Cursor <n> Forward */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_move_to(term.cursor.x + csiescseq.arg[0], term.cursor.y);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_move_to(term.cursor.x + csi_escape_seq.arg[0], term.cursor.y);
         break;
     case 'D': /* CUB -- Cursor <n> Backward */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_move_to(term.cursor.x - csiescseq.arg[0], term.cursor.y);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_move_to(term.cursor.x - csi_escape_seq.arg[0], term.cursor.y);
         break;
     case 'E': /* CNL -- Cursor <n> Down and first col */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_move_to(0, term.cursor.y + csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_move_to(0, term.cursor.y + csi_escape_seq.arg[0]);
         break;
     case 'F': /* CPL -- Cursor <n> Up and first col */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_move_to(0, term.cursor.y - csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_move_to(0, term.cursor.y - csi_escape_seq.arg[0]);
         break;
     case 'g': /* TBC -- Tabulation clear */
-        switch (csiescseq.arg[0]) {
+        switch (csi_escape_seq.arg[0]) {
         case 0: /* clear current tab stop */
             term.tabs[term.cursor.x] = 0;
             break;
@@ -2040,21 +2040,21 @@ control_seq_intro_handle(void) {
         break;
     case 'G': /* CHA -- Move to <col> */
     case '`': /* HPA */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_move_to(csiescseq.arg[0] - 1, term.cursor.y);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_move_to(csi_escape_seq.arg[0] - 1, term.cursor.y);
         break;
     case 'H': /* CUP -- Move to <row> <col> */
     case 'f': /* HVP */
-        DEFAULT(csiescseq.arg[0], 1);
-        DEFAULT(csiescseq.arg[1], 1);
-        term_move_abs_to(csiescseq.arg[1] - 1, csiescseq.arg[0] - 1);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        DEFAULT(csi_escape_seq.arg[1], 1);
+        term_move_abs_to(csi_escape_seq.arg[1] - 1, csi_escape_seq.arg[0] - 1);
         break;
     case 'I': /* CHT -- Cursor Forward Tabulation <n> tab stops */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_put_tab(csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_put_tab(csi_escape_seq.arg[0]);
         break;
     case 'J': /* ED -- Clear screen */
-        switch (csiescseq.arg[0]) {
+        switch (csi_escape_seq.arg[0]) {
         case 0: /* below */
             term_clear_region(term.cursor.x, term.cursor.y, term.col - 1, term.cursor.y, 1);
             if (term.cursor.y < term.row - 1) {
@@ -2088,7 +2088,7 @@ control_seq_intro_handle(void) {
         }
         break;
     case 'K': /* EL -- Clear line */
-        switch (csiescseq.arg[0]) {
+        switch (csi_escape_seq.arg[0]) {
         case 0: /* right */
             term_clear_region(term.cursor.x, term.cursor.y, term.col - 1, term.cursor.y, 1);
             break;
@@ -2104,56 +2104,56 @@ control_seq_intro_handle(void) {
         }
         break;
     case 'S': /* SU -- Scroll <n> line up */
-        if (csiescseq.priv) {
+        if (csi_escape_seq.priv) {
             break;
         }
-        DEFAULT(csiescseq.arg[0], 1);
+        DEFAULT(csi_escape_seq.arg[0], 1);
         /* xterm, urxvt, alacritty save this in history */
-        term_scroll_up(term.top, term.bot, csiescseq.arg[0], SCROLL_SAVEHIST);
+        term_scroll_up(term.top, term.bot, csi_escape_seq.arg[0], SCROLL_SAVEHIST);
         break;
     case 'T': /* SD -- Scroll <n> line down */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_scroll_down(term.top, csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_scroll_down(term.top, csi_escape_seq.arg[0]);
         break;
     case 'L': /* IL -- Insert <n> blank lines */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_insert_blank_line(csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_insert_blank_line(csi_escape_seq.arg[0]);
         break;
     case 'l': /* RM -- Reset Mode */
-        term_set_mode(csiescseq.priv, 0, csiescseq.arg, csiescseq.narg);
+        term_set_mode(csi_escape_seq.priv, 0, csi_escape_seq.arg, csi_escape_seq.narg);
         break;
     case 'M': /* DL -- Delete <n> lines */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_delete_line(csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_delete_line(csi_escape_seq.arg[0]);
         break;
     case 'X': /* ECH -- Erase <n> char */
-        if (csiescseq.arg[0] < 0) {
+        if (csi_escape_seq.arg[0] < 0) {
             return;
         }
-        DEFAULT(csiescseq.arg[0], 1);
-        x = MIN(term.cursor.x + csiescseq.arg[0], term.col) - 1;
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        x = MIN(term.cursor.x + csi_escape_seq.arg[0], term.col) - 1;
         term_clear_region(term.cursor.x, term.cursor.y, x, term.cursor.y, 1);
         break;
     case 'P': /* DCH -- Delete <n> char */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_delete_char(csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_delete_char(csi_escape_seq.arg[0]);
         break;
     case 'Z': /* CBT -- Cursor Backward Tabulation <n> tab stops */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_put_tab(-csiescseq.arg[0]);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_put_tab(-csi_escape_seq.arg[0]);
         break;
     case 'd': /* VPA -- Move to <row> */
-        DEFAULT(csiescseq.arg[0], 1);
-        term_move_abs_to(term.cursor.x, csiescseq.arg[0] - 1);
+        DEFAULT(csi_escape_seq.arg[0], 1);
+        term_move_abs_to(term.cursor.x, csi_escape_seq.arg[0] - 1);
         break;
     case 'h': /* SM -- Set terminal mode */
-        term_set_mode(csiescseq.priv, 1, csiescseq.arg, csiescseq.narg);
+        term_set_mode(csi_escape_seq.priv, 1, csi_escape_seq.arg, csi_escape_seq.narg);
         break;
     case 'm': /* SGR -- Terminal attribute (color) */
-        term_set_attr(csiescseq.arg, csiescseq.narg);
+        term_set_attr(csi_escape_seq.arg, csi_escape_seq.narg);
         break;
     case 'n': /* DSR -- Device Status Report */
-        switch (csiescseq.arg[0]) {
+        switch (csi_escape_seq.arg[0]) {
         case 5: /* Status Report "OK" `0n` */
             tty_write("\033[0n", SIZEOF("\033[0n") - 1, 0);
             break;
@@ -2167,12 +2167,12 @@ control_seq_intro_handle(void) {
         }
         break;
     case 'r': /* DECSTBM -- Set Scrolling Region */
-        if (csiescseq.priv) {
+        if (csi_escape_seq.priv) {
             goto unknown;
         } else {
-            DEFAULT(csiescseq.arg[0], 1);
-            DEFAULT(csiescseq.arg[1], term.row);
-            term_set_scroll(csiescseq.arg[0] - 1, csiescseq.arg[1] - 1);
+            DEFAULT(csi_escape_seq.arg[0], 1);
+            DEFAULT(csi_escape_seq.arg[1], term.row);
+            term_set_scroll(csi_escape_seq.arg[0] - 1, csi_escape_seq.arg[1] - 1);
             term_move_abs_to(0, 0);
         }
         break;
@@ -2180,16 +2180,16 @@ control_seq_intro_handle(void) {
         term_cursor(CURSOR_SAVE);
         break;
     case 'u': /* DECRC -- Restore cursor position (ANSI.SYS) */
-        if (csiescseq.priv) {
+        if (csi_escape_seq.priv) {
             goto unknown;
         } else {
             term_cursor(CURSOR_LOAD);
         }
         break;
     case ' ':
-        switch (csiescseq.mode[1]) {
+        switch (csi_escape_seq.mode[1]) {
         case 'q': /* DECSCUSR -- Set Cursor Style */
-            if (x_set_cursor(csiescseq.arg[0])) {
+            if (x_set_cursor(csi_escape_seq.arg[0])) {
                 goto unknown;
             }
             break;
@@ -2206,8 +2206,8 @@ control_seq_intro_dump(void) {
     uint32 c;
 
     fprintf(stderr, "ESC[");
-    for (int64 i = 0; i < csiescseq.len; i++) {
-        c = csiescseq.buffer[i] & 0xff;
+    for (int64 i = 0; i < csi_escape_seq.len; i++) {
+        c = csi_escape_seq.buffer[i] & 0xff;
         if (isprint(c)) {
             putc((int32)c, stderr);
         } else if (c == '\n') {
@@ -2226,7 +2226,7 @@ control_seq_intro_dump(void) {
 
 void
 control_seq_intro_reset(void) {
-    memset(&csiescseq, 0, SIZEOF(csiescseq));
+    memset(&csi_escape_seq, 0, SIZEOF(csi_escape_seq));
     return;
 }
 
@@ -2922,8 +2922,8 @@ check_control_code:
         return;
     } else if (term.esc & ESC_START) {
         if (term.esc & ESC_CSI) {
-            csiescseq.buffer[csiescseq.len++] = (char)u;
-            if (BETWEEN(u, 0x40, 0x7E) || csiescseq.len >= SIZEOF(csiescseq.buffer) - 1) {
+            csi_escape_seq.buffer[csi_escape_seq.len++] = (char)u;
+            if (BETWEEN(u, 0x40, 0x7E) || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
                 term.esc = 0;
                 control_seq_intro_parse();
                 control_seq_intro_handle();
