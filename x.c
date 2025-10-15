@@ -20,7 +20,7 @@ char *argv0;
 #include "st.h"
 #include "win.h"
 
-/* types used in config.h */
+/* types used in config.def.h */
 typedef struct {
 	uint mod;
 	KeySym keysym;
@@ -50,7 +50,7 @@ typedef struct {
 #define XK_NO_MOD     0
 #define XK_SWITCH_MOD (1<<13|1<<14)
 
-/* function definitions used in config.h */
+/* function definitions used in config.def.h */
 static void user_clipboard_copy(const Arg *);
 static void user_clipboard_paste(const Arg *);
 static void user_toggle_numlock(const Arg *);
@@ -60,8 +60,8 @@ static void zoom_abs(const Arg *);
 static void user_zoom_reset(const Arg *);
 static void tty_send(const Arg *);
 
-/* config.h for applying patches and the configuration. */
-#include "config.h"
+/* config.def.h for applying patches and the configuration. */
+#include "config.def.h"
 
 /* XEMBED messages */
 #define XEMBED_FOCUS_IN  4
@@ -1997,7 +1997,7 @@ handler_key_press(XEvent *ev)
 		}
 	}
 
-	/* 2. custom keys from config.h */
+	/* 2. custom keys from config.def.h */
 	if ((customkey = kmap(ksym, e->state))) {
 		tty_write(customkey, strlen(customkey), 1);
 		return;
