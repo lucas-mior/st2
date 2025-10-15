@@ -215,7 +215,7 @@ static void term_insert_blank(int32);
 static void term_insert_blank_line(int32);
 static int32 term_line_len(Line len);
 static int32 tiswrapped(Line line);
-static char *tgetglyphs(char *, const Glyph *, const Glyph *);
+static char *term_get_glyphs(char *, const Glyph *, const Glyph *);
 static int64 tgetline(char *, const Glyph *);
 static void term_move_to(int32, int32);
 static void term_move_abs_to(int32, int32);
@@ -474,7 +474,7 @@ tiswrapped(Line line) {
 }
 
 char *
-tgetglyphs(char *buf, const Glyph *gp, const Glyph *lgp) {
+term_get_glyphs(char *buf, const Glyph *gp, const Glyph *lgp) {
     while (gp <= lgp) {
         if (gp->mode & ATTR_WDUMMY) {
             gp++;
@@ -493,7 +493,7 @@ tgetline(char *buf, const Glyph *fgp) {
     while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
         lgp--;
     }
-    ptr = tgetglyphs(buf, fgp, lgp);
+    ptr = term_get_glyphs(buf, fgp, lgp);
     if (!(lgp->mode & ATTR_WRAP)) {
         *(ptr++) = '\n';
     }
@@ -743,7 +743,7 @@ selection_get(void) {
         }
         lgp = &line[MIN(lastx, linelen - 1)];
 
-        ptr = tgetglyphs(ptr, gp, lgp);
+        ptr = term_get_glyphs(ptr, gp, lgp);
 
         /*
          * Copy and pasting of line endings is inconsistent
