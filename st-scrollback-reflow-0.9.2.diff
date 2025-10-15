@@ -426,7 +426,7 @@ index 2478942..2b86d23 100644
  
  	if (may_echo && IS_SET(TERM_MODE_ECHO))
  		twrite(s, n, 1);
-@@ -990,7 +1058,7 @@ tsetdirtattr(int attr)
+@@ -990,7 +1058,7 @@ term_set_dirt_attr(int attr)
  	for (i = 0; i < term.row-1; i++) {
  		for (j = 0; j < term.col-1; j++) {
  			if (term.line[i][j].mode & attr) {
@@ -435,7 +435,7 @@ index 2478942..2b86d23 100644
  				break;
  			}
  		}
-@@ -1000,7 +1068,8 @@ tsetdirtattr(int attr)
+@@ -1000,7 +1068,8 @@ term_set_dirt_attr(int attr)
  void
  term_full_dirt(void)
  {
@@ -1622,5 +1622,5 @@ index 818a6f8..514ec08 100644
  void term_new(int, int);
 +int tisaltscreen(void);
  void term_resize(int, int);
- void tsetdirtattr(int);
+ void term_set_dirt_attr(int);
  void ttyhangup(void);
