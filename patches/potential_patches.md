@@ -2,7 +2,7 @@
 - anysize
 - selectioncolors
 - bold is not bright
-- delkey
+- ~~delkey~~
 - ~~externalpipe-eternal~~
 - ~~externalpipe~~
 - ~~font2~~
