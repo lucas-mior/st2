@@ -3348,6 +3348,7 @@ term_reflow(int32 col, int32 row) {
 void
 reset_title(void) {
     x_set_title(NULL);
+    return;
 }
 
 void
@@ -3360,6 +3361,7 @@ draw_region(int32 x1, int32 y1, int32 x2, int32 y2) {
         term.dirty[y] = 0;
         x_draw_line(TLINE(y), x1, y, x2);
     }
+    return;
 }
 
 void
@@ -3389,12 +3391,14 @@ draw(void) {
     if (ocx != term.ocx || ocy != term.ocy) {
         x_xim_spot(term.ocx, term.ocy);
     }
+    return;
 }
 
 void
 redraw(void) {
     term_full_dirt();
     draw();
+    return;
 }
 
 #endif /* ST_C */
