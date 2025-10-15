@@ -3260,10 +3260,10 @@ term_reflow(int32 col, int32 row) {
             oy = -(nlines / j - oce - 1);
         }
     }
-    buffer = xmalloc((int64)nlines*SIZEOF(Line));
+    buffer = xmalloc((int64)nlines*SIZEOF(*buffer));
     do {
         if (!nx) {
-            buffer[++ny] = xmalloc((int64)col*SIZEOF(Glyph));
+            buffer[++ny] = xmalloc((int64)col*SIZEOF(*(buffer[ny])));
         }
         if (!ox) {
             line = TERM_LINE_ABS(oy);
