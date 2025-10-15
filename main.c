@@ -206,7 +206,7 @@ static char *opt_class = NULL;
 static char **opt_cmd = NULL;
 static char *opt_embed = NULL;
 static char *opt_font = NULL;
-static char *opt_io = NULL;
+static char *opt_iofile = NULL;
 static char *opt_line = NULL;
 static char *opt_name = NULL;
 static char *opt_title = NULL;
@@ -247,7 +247,7 @@ main(int32 argc, char *argv[]) {
         x_window.isfixed = 1;
         break;
     case 'o':
-        opt_io = EARGF(usage());
+        opt_iofile = EARGF(usage());
         break;
     case 'l':
         opt_line = EARGF(usage());
@@ -461,7 +461,7 @@ run:
             }
         } while (xevent.type != MapNotify);
 
-        ttyfd = tty_new(opt_line, CONF_SHELl, opt_io, opt_cmd);
+        ttyfd = tty_new(opt_line, CONF_SHELl, opt_iofile, opt_cmd);
         cresize(w, h);
 
         timeout = -1;
