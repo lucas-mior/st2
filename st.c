@@ -301,6 +301,9 @@ void *
 xmalloc(int64 len) {
     void *p;
 
+    if (len <= 0) {
+        die("xmalloc: len <= 0.\n");
+    }
     if (!(p = malloc(len))) {
         die("malloc: %s\n", strerror(errno));
     }

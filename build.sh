@@ -35,6 +35,8 @@ STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
 STLDFLAGS="$LIBS $LDFLAGS"
 
 echo "target=$target"
+ctags --kinds-C=+l+d ./*.h ./*.c 2> /dev/null || true
+vtags.sed tags > .tags.vim 2> /dev/null || true
 
 case "$target" in
     clean)
