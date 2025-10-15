@@ -54,7 +54,7 @@ static float char_height_scale = 1.0;
 wchar_t *worddelimiters = L" ";
 
 /* selection timeouts (in milliseconds) */
-static uint32 doubleclicktimeout = 300;
+static uint32 double_click_timeout = 300;
 static uint32 tripleclicktimeout = 600;
 
 /* alt screens */
