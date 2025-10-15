@@ -47,7 +47,7 @@
 #define ISCONTROLC0(c) (BETWEEN(c, 0, 0x1f) || (c) == 0x7f)
 #define ISCONTROLC1(c) (BETWEEN(c, 0x80, 0x9f))
 #define ISCONTROL(c) (ISCONTROLC0(c) || ISCONTROLC1(c))
-#define ISDELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
+#define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
 #define TLINE(y)                                                                                   \
     ((y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTORY_SIZE) % HISTORY_SIZE]   \
                     : term.line[(y) - term.scr])
@@ -643,7 +643,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
          * beginning of a line.
          */
         prevgp = &TLINE(*y)[*x];
-        prevdelim = ISDELIM(prevgp->rune);
+        prevdelim = IS_DELIM(prevgp->rune);
         while (1) {
             newx = *x + direction;
             newy = *y;
@@ -671,7 +671,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
             }
 
             gp = &TLINE(newy)[newx];
-            delim = ISDELIM(gp->rune);
+            delim = IS_DELIM(gp->rune);
             if (!(gp->mode & ATTR_WDUMMY)
                 && (delim != prevdelim || (delim && !(gp->rune == ' ' && prevgp->rune == ' ')))) {
                 break;
