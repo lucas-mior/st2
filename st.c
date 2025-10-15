@@ -3132,7 +3132,7 @@ term_resize_def(int32 col, int32 row) {
 
         /* handler_configure_notify to new height */
         term.line = xrealloc(term.line, (int64)row * SIZEOF(Line));
-        /* allocate any new NUMBER_ROWS */
+        /* allocate any new CONF_NUMBER_ROWS */
         for (int32 i = term.row; i < row; i++) {
             term.line[i] = xmalloc((int64)col * SIZEOF(Glyph));
             for (int32 j = 0; j < col; j++) {
@@ -3186,7 +3186,7 @@ term_resize_alt(int32 col, int32 row) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
-    /* allocate any new NUMBER_ROWS */
+    /* allocate any new CONF_NUMBER_ROWS */
     for (/*i = MIN(row, term.row) */; i < row; i++) {
         term.line[i] = xmalloc((int64)col * SIZEOF(Glyph));
         for (int32 j = 0; j < col; j++) {
@@ -3313,7 +3313,7 @@ term_reflow(int32 col, int32 row) {
             term.cursor.y++;
         }
     }
-    /* allocate new NUMBER_ROWS */
+    /* allocate new CONF_NUMBER_ROWS */
     for (i = row - 1; i > nce; i--) {
         term.line[i] = xmalloc((int64)col * SIZEOF(Glyph));
         for (int32 j = 0; j < col; j++) {
