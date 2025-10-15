@@ -820,8 +820,8 @@ exec_shell(char *cmd, char **args) {
     if (args) {
         program = args[0];
         arg = NULL;
-    } else if (utmp) {
-        program = utmp;
+    } else if (CONF_UTMP) {
+        program = CONF_UTMP;
         arg = NULL;
     } else {
         program = sh;

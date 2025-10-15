@@ -28,13 +28,13 @@ static int32 CONF_BORDER_PIXELS = 2;
 /*
  * What program is execed by st depends of these precedence rules:
  * 1: program passed with -e
- * 2: scroll and/or utmp
+ * 2: scroll and/or CONF_UTMP
  * 3: SHELL environment variable
  * 4: value of CONF_SHELl in /etc/passwd
  * 5: value of CONF_SHELl in config.def.h
  */
 static char *CONF_SHELl = "/bin/sh";
-char *utmp = NULL;
+char *CONF_UTMP = NULL;
 char *CONF_STTY_ARGS = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 
 /* identification sequence returned in DA and DECID */
