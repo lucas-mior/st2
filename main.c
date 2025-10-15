@@ -114,7 +114,6 @@ static int32 x_im_open(Display *);
 static void x_im_instantiate(Display *, XPointer, XPointer);
 static void x_im_destroy(XIM, XPointer, XPointer);
 static int32 x_ic_destroy(XIC, XPointer, XPointer);
-static void x_init(int32, int32);
 static void cresize(int32, int32);
 static void x_resize(int32, int32);
 static void x_hints(void);
@@ -284,7 +283,147 @@ run:
     CONF_NUMBER_COLS = MAX(CONF_NUMBER_COLS, 1);
     CONF_NUMBER_ROWS = MAX(CONF_NUMBER_ROWS, 1);
     term_new(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
-    x_init(CONF_NUMBER_COLS, CONF_NUMBER_ROWS);
+
+    {
+        XGCValues gcvalues;
+        Cursor cursor;
+        Window parent = 0;
+        Window root;
+        pid_t thispid = getpid();
+        XColor xmousefg, xmousebg;
+        XWindowAttributes attr;
+        XVisualInfo vis;
+
+        if (!(x_window.display = XOpenDisplay(NULL))) {
+            die("can't open display\n");
+        }
+        x_window.scr = XDefaultScreen(x_window.display);
+
+        root = XRootWindow(x_window.display, x_window.scr);
+        if (!(opt_embed && (parent = (Window)strtol(opt_embed, NULL, 0)))) {
+            parent = root;
+        }
+
+        if (XMatchVisualInfo(x_window.display, x_window.scr, 32, TrueColor, &vis) != 0) {
+            x_window.vis = vis.visual;
+            x_window.depth = vis.depth;
+        } else {
+            XGetWindowAttributes(x_window.display, parent, &attr);
+            x_window.vis = attr.visual;
+            x_window.depth = attr.depth;
+        }
+
+        if (!FcInit()) {
+            die("could not init fontconfig.\n");
+        }
+
+        usedfont = (opt_font == NULL) ? CONF_FONT : opt_font;
+        x_load_fonts(usedfont, 0);
+
+        x_load_spare_fonts();
+
+        x_window.cmap = XCreateColormap(x_window.display, parent, x_window.vis, None);
+        x_load_cols();
+
+        /* adjust fixed window geometry */
+        term_window.w =
+            2 * term_window.hborderpx + 2 * CONF_BORDER_PIXELS + CONF_NUMBER_COLS * term_window.cw;
+        term_window.h =
+            2 * term_window.vborderpx + 2 * CONF_BORDER_PIXELS + CONF_NUMBER_ROWS * term_window.ch;
+        if (x_window.gm & XNegative) {
+            x_window.l += DisplayWidth(x_window.display, x_window.scr) - term_window.w - 2;
+        }
+        if (x_window.gm & YNegative) {
+            x_window.t += DisplayHeight(x_window.display, x_window.scr) - term_window.h - 2;
+        }
+
+        /* Events */
+        x_window.attrs.background_pixel = draw_context.col[CONF_COLOR_INDEX_BACK].pixel;
+        x_window.attrs.border_pixel = draw_context.col[CONF_COLOR_INDEX_BACK].pixel;
+        x_window.attrs.bit_gravity = NorthWestGravity;
+        x_window.attrs.event_mask = FocusChangeMask | KeyPressMask | KeyReleaseMask | ExposureMask |
+                                    VisibilityChangeMask | StructureNotifyMask | ButtonMotionMask |
+                                    ButtonPressMask | ButtonReleaseMask;
+        x_window.attrs.colormap = x_window.cmap;
+
+        x_window.win = XCreateWindow(
+            x_window.display, parent, x_window.l, x_window.t, (uint32)term_window.w,
+            (uint32)term_window.h, 0, x_window.depth, InputOutput, x_window.vis,
+            CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap, &x_window.attrs);
+        if (parent != root) {
+            XReparentWindow(x_window.display, x_window.win, parent, x_window.l, x_window.t);
+        }
+
+        memset(&gcvalues, 0, SIZEOF(gcvalues));
+        gcvalues.graphics_exposures = False;
+        draw_context.graphics =
+            XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &gcvalues);
+        x_window.buf = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
+                                     (uint32)term_window.h, (uint32)x_window.depth);
+        XSetForeground(x_window.display, draw_context.graphics,
+                       draw_context.col[CONF_COLOR_INDEX_BACK].pixel);
+        XFillRectangle(x_window.display, x_window.buf, draw_context.graphics, 0, 0,
+                       (uint32)term_window.w, (uint32)term_window.h);
+
+        /* font spec buffer */
+        x_window.specbuf = xmalloc((int64)CONF_NUMBER_COLS * SIZEOF(GlyphFontSpec));
+
+        /* Xft rendering context */
+        x_window.draw = XftDrawCreate(x_window.display, x_window.buf, x_window.vis, x_window.cmap);
+
+        /* input methods */
+        if (!x_im_open(x_window.display)) {
+            XRegisterIMInstantiateCallback(x_window.display, NULL, NULL, NULL, x_im_instantiate,
+                                           NULL);
+        }
+
+        /* white cursor, black outline */
+        cursor = XCreateFontCursor(x_window.display, (uint32)CONF_MOUSE_SHAPE);
+        XDefineCursor(x_window.display, x_window.win, cursor);
+
+        if (XParseColor(x_window.display, x_window.cmap, CONF_COLORS[CONF_MOUSE_COLOR_FG],
+                        &xmousefg) == 0) {
+            xmousefg.red = 0xffff;
+            xmousefg.green = 0xffff;
+            xmousefg.blue = 0xffff;
+        }
+
+        if (XParseColor(x_window.display, x_window.cmap, CONF_COLORS[CONF_MOUSE_COLOR_BG],
+                        &xmousebg) == 0) {
+            xmousebg.red = 0x0000;
+            xmousebg.green = 0x0000;
+            xmousebg.blue = 0x0000;
+        }
+
+        XRecolorCursor(x_window.display, cursor, &xmousefg, &xmousebg);
+
+        x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
+        x_window.wmdeletewin = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
+        x_window.netwmname = XInternAtom(x_window.display, "_NET_WM_NAME", False);
+        x_window.netwmiconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
+        XSetWMProtocols(x_window.display, x_window.win, &x_window.wmdeletewin, 1);
+
+        x_window.netwmpid = XInternAtom(x_window.display, "_NET_WM_PID", False);
+        XChangeProperty(x_window.display, x_window.win, x_window.netwmpid, XA_CARDINAL, 32,
+                        PropModeReplace, (uchar *)&thispid, 1);
+
+        term_window.mode = WIN_MODE_NUMLOCK;
+        reset_title();
+        x_hints();
+        XMapWindow(x_window.display, x_window.win);
+        XSync(x_window.display, False);
+
+        clock_gettime(CLOCK_MONOTONIC, &xsel.tclick1);
+        clock_gettime(CLOCK_MONOTONIC, &xsel.tclick2);
+        xsel.primary = NULL;
+        xsel.clipboard = NULL;
+        xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
+        if (xsel.xtarget == None) {
+            xsel.xtarget = XA_STRING;
+        }
+
+        boxdraw_xinit(x_window.display, x_window.cmap, x_window.draw, x_window.vis);
+    }
 
     {
         char buf[SIZEOF(int64) * 8 + 1];
@@ -1457,146 +1596,6 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
     (void)call;
     x_window.ime.xic = NULL;
     return 1;
-}
-
-void
-x_init(int32 ncols, int32 nrows) {
-    XGCValues gcvalues;
-    Cursor cursor;
-    Window parent = 0;
-    Window root;
-    pid_t thispid = getpid();
-    XColor xmousefg, xmousebg;
-    XWindowAttributes attr;
-    XVisualInfo vis;
-
-    if (!(x_window.display = XOpenDisplay(NULL))) {
-        die("can't open display\n");
-    }
-    x_window.scr = XDefaultScreen(x_window.display);
-
-    root = XRootWindow(x_window.display, x_window.scr);
-    if (!(opt_embed && (parent = (Window)strtol(opt_embed, NULL, 0)))) {
-        parent = root;
-    }
-
-    if (XMatchVisualInfo(x_window.display, x_window.scr, 32, TrueColor, &vis) != 0) {
-        x_window.vis = vis.visual;
-        x_window.depth = vis.depth;
-    } else {
-        XGetWindowAttributes(x_window.display, parent, &attr);
-        x_window.vis = attr.visual;
-        x_window.depth = attr.depth;
-    }
-
-    if (!FcInit()) {
-        die("could not init fontconfig.\n");
-    }
-
-    usedfont = (opt_font == NULL) ? CONF_FONT : opt_font;
-    x_load_fonts(usedfont, 0);
-
-    x_load_spare_fonts();
-
-    x_window.cmap = XCreateColormap(x_window.display, parent, x_window.vis, None);
-    x_load_cols();
-
-    /* adjust fixed window geometry */
-    term_window.w = 2 * term_window.hborderpx + 2 * CONF_BORDER_PIXELS + ncols * term_window.cw;
-    term_window.h = 2 * term_window.vborderpx + 2 * CONF_BORDER_PIXELS + nrows * term_window.ch;
-    if (x_window.gm & XNegative) {
-        x_window.l += DisplayWidth(x_window.display, x_window.scr) - term_window.w - 2;
-    }
-    if (x_window.gm & YNegative) {
-        x_window.t += DisplayHeight(x_window.display, x_window.scr) - term_window.h - 2;
-    }
-
-    /* Events */
-    x_window.attrs.background_pixel = draw_context.col[CONF_COLOR_INDEX_BACK].pixel;
-    x_window.attrs.border_pixel = draw_context.col[CONF_COLOR_INDEX_BACK].pixel;
-    x_window.attrs.bit_gravity = NorthWestGravity;
-    x_window.attrs.event_mask = FocusChangeMask | KeyPressMask | KeyReleaseMask | ExposureMask |
-                                VisibilityChangeMask | StructureNotifyMask | ButtonMotionMask |
-                                ButtonPressMask | ButtonReleaseMask;
-    x_window.attrs.colormap = x_window.cmap;
-
-    x_window.win = XCreateWindow(
-        x_window.display, parent, x_window.l, x_window.t, (uint32)term_window.w,
-        (uint32)term_window.h, 0, x_window.depth, InputOutput, x_window.vis,
-        CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap, &x_window.attrs);
-    if (parent != root) {
-        XReparentWindow(x_window.display, x_window.win, parent, x_window.l, x_window.t);
-    }
-
-    memset(&gcvalues, 0, SIZEOF(gcvalues));
-    gcvalues.graphics_exposures = False;
-    draw_context.graphics =
-        XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &gcvalues);
-    x_window.buf = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
-                                 (uint32)term_window.h, (uint32)x_window.depth);
-    XSetForeground(x_window.display, draw_context.graphics,
-                   draw_context.col[CONF_COLOR_INDEX_BACK].pixel);
-    XFillRectangle(x_window.display, x_window.buf, draw_context.graphics, 0, 0,
-                   (uint32)term_window.w, (uint32)term_window.h);
-
-    /* font spec buffer */
-    x_window.specbuf = xmalloc((int64)ncols * SIZEOF(GlyphFontSpec));
-
-    /* Xft rendering context */
-    x_window.draw = XftDrawCreate(x_window.display, x_window.buf, x_window.vis, x_window.cmap);
-
-    /* input methods */
-    if (!x_im_open(x_window.display)) {
-        XRegisterIMInstantiateCallback(x_window.display, NULL, NULL, NULL, x_im_instantiate, NULL);
-    }
-
-    /* white cursor, black outline */
-    cursor = XCreateFontCursor(x_window.display, (uint32)CONF_MOUSE_SHAPE);
-    XDefineCursor(x_window.display, x_window.win, cursor);
-
-    if (XParseColor(x_window.display, x_window.cmap, CONF_COLORS[CONF_MOUSE_COLOR_FG], &xmousefg) ==
-        0) {
-        xmousefg.red = 0xffff;
-        xmousefg.green = 0xffff;
-        xmousefg.blue = 0xffff;
-    }
-
-    if (XParseColor(x_window.display, x_window.cmap, CONF_COLORS[CONF_MOUSE_COLOR_BG], &xmousebg) ==
-        0) {
-        xmousebg.red = 0x0000;
-        xmousebg.green = 0x0000;
-        xmousebg.blue = 0x0000;
-    }
-
-    XRecolorCursor(x_window.display, cursor, &xmousefg, &xmousebg);
-
-    x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
-    x_window.wmdeletewin = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
-    x_window.netwmname = XInternAtom(x_window.display, "_NET_WM_NAME", False);
-    x_window.netwmiconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
-    XSetWMProtocols(x_window.display, x_window.win, &x_window.wmdeletewin, 1);
-
-    x_window.netwmpid = XInternAtom(x_window.display, "_NET_WM_PID", False);
-    XChangeProperty(x_window.display, x_window.win, x_window.netwmpid, XA_CARDINAL, 32,
-                    PropModeReplace, (uchar *)&thispid, 1);
-
-    term_window.mode = WIN_MODE_NUMLOCK;
-    reset_title();
-    x_hints();
-    XMapWindow(x_window.display, x_window.win);
-    XSync(x_window.display, False);
-
-    clock_gettime(CLOCK_MONOTONIC, &xsel.tclick1);
-    clock_gettime(CLOCK_MONOTONIC, &xsel.tclick2);
-    xsel.primary = NULL;
-    xsel.clipboard = NULL;
-    xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
-    if (xsel.xtarget == None) {
-        xsel.xtarget = XA_STRING;
-    }
-
-    boxdraw_xinit(x_window.display, x_window.cmap, x_window.draw, x_window.vis);
-    return;
 }
 
 int32
