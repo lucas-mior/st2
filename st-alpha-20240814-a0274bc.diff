@@ -31,7 +31,7 @@ index d73152b..f32fd6c 100644
 -			DefaultDepth(xw.dpy, xw.scr));
 +			xw.depth);
  	XftDrawChange(xw.draw, xw.buf);
- 	xclear(0, 0, win.w, win.h);
+ 	x_clear(0, 0, win.w, win.h);
  
 @@ -812,6 +813,10 @@ xloadcols(void)
  			else
