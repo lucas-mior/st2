@@ -198,7 +198,6 @@ static void control_seq_intro_parse(void);
 static void control_seq_intro_reset(void);
 static void osc_color_response(int32, int32, int32);
 static int32 eschandle(uchar);
-static void string_dump(void);
 static void string_handle(void);
 
 static void term_printer(char *, int64);
@@ -2430,7 +2429,30 @@ string_handle(void) {
     }
 
     fprintf(stderr, "erresc: unknown string ");
-    string_dump();
+    {
+        uint32 c;
+
+        fprintf(stderr, "ESC%c", str_escape_seq.type);
+        for (uint64 i = 0; i < str_escape_seq.len; i++) {
+            c = str_escape_seq.buffer[i] & 0xff;
+            if (c == '\0') {
+                putc('\n', stderr);
+                return;
+            } else if (isprint(c)) {
+                putc((int32)c, stderr);
+            } else if (c == '\n') {
+                fprintf(stderr, "(\\n)");
+            } else if (c == '\r') {
+                fprintf(stderr, "(\\r)");
+            } else if (c == 0x1b) {
+                fprintf(stderr, "(\\e)");
+            } else {
+                fprintf(stderr, "(%02x)", c);
+            }
+        }
+        fprintf(stderr, "ESC\\\n");
+        return;
+    }
     return;
 }
 
@@ -2498,32 +2520,6 @@ externalpipe(const Arg *arg) {
     close(to[1]);
     /* restore */
     signal(SIGPIPE, oldsigpipe);
-    return;
-}
-
-void
-string_dump(void) {
-    uint32 c;
-
-    fprintf(stderr, "ESC%c", str_escape_seq.type);
-    for (uint64 i = 0; i < str_escape_seq.len; i++) {
-        c = str_escape_seq.buffer[i] & 0xff;
-        if (c == '\0') {
-            putc('\n', stderr);
-            return;
-        } else if (isprint(c)) {
-            putc((int32)c, stderr);
-        } else if (c == '\n') {
-            fprintf(stderr, "(\\n)");
-        } else if (c == '\r') {
-            fprintf(stderr, "(\\r)");
-        } else if (c == 0x1b) {
-            fprintf(stderr, "(\\e)");
-        } else {
-            fprintf(stderr, "(%02x)", c);
-        }
-    }
-    fprintf(stderr, "ESC\\\n");
     return;
 }
 
