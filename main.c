@@ -144,7 +144,7 @@ static uint32 buttons; /* bit field of pressed buttons */
 int32
 main(int32 argc, char *argv[]) {
     x_window.l = x_window.t = 0;
-    x_window.isfixed = False;
+    x_window.is_fixed = False;
     x_set_cursor((int32)CONF_CURSOR_SHAPE);
 
     ARGBEGIN {
@@ -173,7 +173,7 @@ main(int32 argc, char *argv[]) {
                              (uint32 *)&CONF_NUMBER_ROWS);
         break;
     case 'i':
-        x_window.isfixed = 1;
+        x_window.is_fixed = 1;
         break;
     case 'o':
         opt_iofile = EARGF(usage());
@@ -1209,7 +1209,7 @@ x_hints(void) {
     sizeh->base_width = 2*CONF_BORDER_PIXELS;
     sizeh->min_height = term_window.ch + 2*CONF_BORDER_PIXELS;
     sizeh->min_width = term_window.cw + 2*CONF_BORDER_PIXELS;
-    if (x_window.isfixed) {
+    if (x_window.is_fixed) {
         sizeh->flags |= PMaxSize;
         sizeh->min_width = sizeh->max_width = term_window.w;
         sizeh->min_height = sizeh->max_height = term_window.h;
