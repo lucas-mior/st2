@@ -252,7 +252,7 @@ static void selection_scroll(int32, int32, int32);
 static void selection_move(int32);
 static void selection_remove(void);
 static int32 selection_is_selected4(int32, int32, int32, int32);
-static void selection_snap(int32 *, int32 *, int32);
+static void SelectionSnap(int32 *, int32 *, int32);
 
 static int64 utf8_decode(const char *, Rune *, int64);
 static Rune utf8_decode_byte(char, int64 *);
@@ -602,8 +602,8 @@ selection_normalize(void) {
     selection.nb.y = MIN(selection.ob.y, selection.oe.y);
     selection.ne.y = MAX(selection.ob.y, selection.oe.y);
 
-    selection_snap(&selection.nb.x, &selection.nb.y, -1);
-    selection_snap(&selection.ne.x, &selection.ne.y, +1);
+    SelectionSnap(&selection.nb.x, &selection.nb.y, -1);
+    SelectionSnap(&selection.ne.x, &selection.ne.y, +1);
 
     /* expand selection over line breaks */
     if (selection.type == SELECTION_RECTANGULAR) {
@@ -655,7 +655,7 @@ selection_is_selected(int32 x, int32 y) {
 }
 
 void
-selection_snap(int32 *x, int32 *y, int32 direction) {
+SelectionSnap(int32 *x, int32 *y, int32 direction) {
     int32 newx;
     int32 newy;
     int32 xt;
@@ -740,7 +740,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
         }
         break;
     default:
-        fprintf(stderr, "selection_snap: did not match.\n");
+        fprintf(stderr, "SelectionSnap: did not match.\n");
         break;
     }
     return;

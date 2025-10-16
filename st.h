@@ -86,7 +86,7 @@ enum SelectionType {
 	SELECTION_RECTANGULAR = 2
 };
 
-enum selection_snap {
+enum SelectionSnap {
 	SELECTION_SNAP_WORD = 1,
 	SELECTION_SNAP_LINE = 2
 };
