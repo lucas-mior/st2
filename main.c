@@ -526,7 +526,7 @@ run:
             /* error("charset = %d\n", term.charset); */
             /* error("icharset = %d\n", term.icharset); */
             /* error("tabs[0] = %d\n", term.tabs[0]); */
-            /* error("Rune lastc = %u\n\n", term.lastc); */
+            /* error("Rune last_char = %u\n\n", term.last_char); */
 
             XFlush(x_window.display);
             drawing = 0;

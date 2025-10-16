@@ -166,7 +166,7 @@ typedef struct {
     int32 charset;             /* current charset */
     int32 icharset;            /* selection_is_selected charset for sequence */
     int32 *tabs;
-    Rune lastc; /* last printed char outside of sequence, 0 if control */
+    Rune last_char; /* last printed char outside of sequence, 0 if control */
 } Term;
 
 /* CSI Escape sequence structs */
@@ -2023,9 +2023,9 @@ control_seq_intro_handle(void) {
         break;
     case 'b': /* REP -- if last char is printable print it <n> more times */
         LIMIT(csi_escape_seq.arg[0], 1, 65535);
-        if (term.lastc) {
+        if (term.last_char) {
             while (csi_escape_seq.arg[0]-- > 0) {
-                term_putc(term.lastc);
+                term_putc(term.last_char);
             }
         }
         break;
@@ -2953,7 +2953,7 @@ check_control_code:
          * control codes are not shown ever
          */
         if (!term.esc) {
-            term.lastc = 0;
+            term.last_char = 0;
         }
         return;
     } else if (term.esc & ESC_START) {
@@ -3013,7 +3013,7 @@ check_control_code:
     }
 
     term_set_char(u, &term.cursor.attr, term.cursor.x, term.cursor.y);
-    term.lastc = u;
+    term.last_char = u;
 
     if (width == 2) {
         glyph->mode |= ATTR_WIDE;
