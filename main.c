@@ -1100,7 +1100,7 @@ x_load_cols(void) {
         draw_context.color = xmalloc((uint16)draw_context.collen*SIZEOF(Color));
     }
 
-    for (int32 i = 0; i < draw_context.collen; i++) {
+    for (int32 i = 0; i < draw_context.collen; i += 1) {
         if (!x_load_color(i, NULL, &draw_context.color[i])) {
             if (CONF_COLORS[i]) {
                 die("could not allocate color '%s'\n", CONF_COLORS[i]);
@@ -1114,7 +1114,7 @@ x_load_cols(void) {
     draw_context.color[CONF_COLOR_INDEX_BACK].pixel &= 0x00FFFFFF;
     draw_context.color[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xFF*CONF_ALPHA) & 0xFF) << 24;
 
-    for (int32 i = 16; i < 16 + CONF_NTRANSPARENT_COLORS; i++) {
+    for (int32 i = 16; i < 16 + CONF_NTRANSPARENT_COLORS; i += 1) {
         draw_context.color[i].color.alpha = (uint16)(0xffff*CONF_ALPHA);
         draw_context.color[i].pixel &= 0x00FFFFFF;
         draw_context.color[i].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff) << 24;
