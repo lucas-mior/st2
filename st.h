@@ -163,7 +163,6 @@ void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, const XftGlyp
 
 /* config.def.h globals */
 extern char *CONF_UTMP;
-extern char *scroll;
 extern char *CONF_STTY_ARGS;
 extern char *CONF_VTIDEN;
 extern wchar_t *CONF_WORD_DELIMITERS;
