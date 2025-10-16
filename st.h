@@ -49,6 +49,8 @@ typedef uint_least32_t Rune;
 #define TRUECOLOR(r,g,b)	(1 << 24 | (r) << 16 | (g) << 8 | (b))
 #define IS_TRUECOL(x)		(1 << 24 & (x))
 
+#define error(...) fprintf(stderr, __VA_ARGS__)
+
 /* X modifiers */
 #define XK_ANY_MOD UINT_MAX
 #define XK_NO_MOD 0
