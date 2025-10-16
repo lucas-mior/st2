@@ -271,7 +271,7 @@ static Selection selection;
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 static int32 iofd = 1;
-static int32 cmdfd;
+static int32 command_fd;
 static pid_t pid;
 
 static const uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
@@ -962,12 +962,12 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
     }
 
     if (line) {
-        if ((cmdfd = open(line, O_RDWR)) < 0) {
+        if ((command_fd = open(line, O_RDWR)) < 0) {
             die("open line '%s' failed: %s\n", line, strerror(errno));
         }
-        dup2(cmdfd, 0);
+        dup2(command_fd, 0);
         stty(args);
-        return cmdfd;
+        return command_fd;
     }
 
     /* seems to work fine on linux, openbsd and freebsd */
@@ -1006,11 +1006,11 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
         }
 #endif
         close(aslave);
-        cmdfd = amaster;
+        command_fd = amaster;
         signal(SIGCHLD, handler_sigchld);
         break;
     }
-    return cmdfd;
+    return command_fd;
 }
 
 int64
@@ -1021,7 +1021,7 @@ tty_read(void) {
     int32 written;
 
     /* append read bytes to unprocessed bytes */
-    ret = (int32)read(cmdfd, buffer + copied, (size_t)(LENGTH(buffer) - copied));
+    ret = (int32)read(command_fd, buffer + copied, (size_t)(LENGTH(buffer) - copied));
 
     switch (ret) {
     case 0:
@@ -1085,24 +1085,24 @@ tty_write_raw(const char *s, int64 n) {
     while (n > 0) {
         FD_ZERO(&write_fd);
         FD_ZERO(&read_fd);
-        FD_SET(cmdfd, &write_fd);
-        FD_SET(cmdfd, &read_fd);
+        FD_SET(command_fd, &write_fd);
+        FD_SET(command_fd, &read_fd);
 
         /* Check if we can write. */
-        if (pselect(cmdfd + 1, &read_fd, &write_fd, NULL, NULL, NULL) < 0) {
+        if (pselect(command_fd + 1, &read_fd, &write_fd, NULL, NULL, NULL) < 0) {
             if (errno == EINTR) {
                 continue;
             }
             die("select failed: %s\n", strerror(errno));
         }
-        if (FD_ISSET(cmdfd, &write_fd)) {
+        if (FD_ISSET(command_fd, &write_fd)) {
             /*
              * Only write the bytes written by tty_write() or the
              * default of 256. This seems to be a reasonable value
              * for a serial line. Bigger values might clog the I/O.
              */
             size_t size = (size_t)((n < lim) ? n : lim);
-            if ((r = write(cmdfd, s, size)) < 0) {
+            if ((r = write(command_fd, s, size)) < 0) {
                 goto write_error;
             }
             if (r < n) {
@@ -1121,7 +1121,7 @@ tty_write_raw(const char *s, int64 n) {
                 break;
             }
         }
-        if (FD_ISSET(cmdfd, &read_fd)) {
+        if (FD_ISSET(command_fd, &read_fd)) {
             lim = tty_read();
         }
     }
@@ -1140,7 +1140,7 @@ tty_resize(int32 tty_width, int32 tty_height) {
     winsize.ws_col = (uint16)term.ncols;
     winsize.ws_xpixel = (uint16)tty_width;
     winsize.ws_ypixel = (uint16)tty_height;
-    if (ioctl(cmdfd, TIOCSWINSZ, &winsize) < 0) {
+    if (ioctl(command_fd, TIOCSWINSZ, &winsize) < 0) {
         fprintf(stderr, "Couldn't set window size: %s\n", strerror(errno));
     }
     return;
@@ -2541,7 +2541,7 @@ externalpipe(const Arg *arg) {
 
 void
 user_send_break(const Arg *arg) {
-    if (tcsendbreak(cmdfd, 0)) {
+    if (tcsendbreak(command_fd, 0)) {
         perror("Error sending break");
     }
     (void)arg;
