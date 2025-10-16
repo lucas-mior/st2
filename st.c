@@ -3287,8 +3287,6 @@ term_reflow(int32 ncols, int32 nrows) {
 
     /* --- reflow old lines into buffer --- */
     do {
-        int32 space_left;
-        int32 chars_left;
         if (!new_x_offset) {
             /* error("allocating ncols=%d new_y_index=%d\n", ncols, new_y_index); */
             new_y_index += 1;
@@ -3314,8 +3312,8 @@ term_reflow(int32 ncols, int32 nrows) {
         }
 
         /* copy data to new buffer */
-        space_left = ncols - new_x_offset;
-        chars_left = len - old_x_offset;
+        int32 space_left = ncols - new_x_offset;
+        int32 chars_left = len - old_x_offset;
 
         if (space_left > chars_left) {
             memcpy(&buffer[new_y_index][new_x_offset], &line[old_x_offset],
