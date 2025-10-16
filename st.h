@@ -272,7 +272,7 @@ typedef struct {
     XftDraw *draw;
     Visual *visual;
     XSetWindowAttributes attrs;
-    int32 scr;
+    int32 screen;
     int32 isfixed; /* is fixed geometry? */
     int32 depth;   /* bit depth */
     int32 l, t;    /* left and top offset */

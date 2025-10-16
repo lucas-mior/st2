@@ -245,14 +245,14 @@ run:
         if (!(x_window.display = XOpenDisplay(NULL))) {
             die("can't open display\n");
         }
-        x_window.scr = XDefaultScreen(x_window.display);
+        x_window.screen = XDefaultScreen(x_window.display);
 
-        root = XRootWindow(x_window.display, x_window.scr);
+        root = XRootWindow(x_window.display, x_window.screen);
         if (!(opt_embed && (parent = (Window)strtol(opt_embed, NULL, 0)))) {
             parent = root;
         }
 
-        if (XMatchVisualInfo(x_window.display, x_window.scr, 32, TrueColor, &visual) != 0) {
+        if (XMatchVisualInfo(x_window.display, x_window.screen, 32, TrueColor, &visual) != 0) {
             x_window.visual = visual.visual;
             x_window.depth = visual.depth;
         } else {
@@ -283,10 +283,10 @@ run:
         term_window.h = 2*term_window.vborderpx + 2*CONF_BORDER_PIXELS
                         + CONF_NUMBER_ROWS*term_window.ch;
         if (x_window.geo_mask & XNegative) {
-            x_window.l += DisplayWidth(x_window.display, x_window.scr) - term_window.w - 2;
+            x_window.l += DisplayWidth(x_window.display, x_window.screen) - term_window.w - 2;
         }
         if (x_window.geo_mask & YNegative) {
-            x_window.t += DisplayHeight(x_window.display, x_window.scr) - term_window.h - 2;
+            x_window.t += DisplayHeight(x_window.display, x_window.screen) - term_window.h - 2;
         }
 
         /* Events */
@@ -1262,7 +1262,7 @@ x_load_font(Font *f, FcPattern *pattern) {
     }
 
     FcConfigSubstitute(NULL, configured, FcMatchPattern);
-    XftDefaultSubstitute(x_window.display, x_window.scr, configured);
+    XftDefaultSubstitute(x_window.display, x_window.screen, configured);
 
     match = FcFontMatch(NULL, configured, &result);
     if (!match) {
@@ -1459,7 +1459,7 @@ x_load_spare_fonts(void) {
         FcPatternAddBool(pattern, FC_SCALABLE, 1);
 
         FcConfigSubstitute(NULL, pattern, FcMatchPattern);
-        XftDefaultSubstitute(x_window.display, x_window.scr, pattern);
+        XftDefaultSubstitute(x_window.display, x_window.screen, pattern);
 
         if (xloadsparefont(pattern, FRC_NORMAL)) {
             die("can't open spare font %s\n", *fp);
