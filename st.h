@@ -263,7 +263,7 @@ typedef struct {
     Drawable drawable;
     GlyphFontSpec *specbuf; /* font spec buffer used for rendering */
     Atom xembed;
-	Atom wmdeletewin;
+	Atom wm_delete_win;
 	Atom netwmname;
 	Atom netwmiconname;
 	Atom netwmpid;

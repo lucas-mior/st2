@@ -357,10 +357,10 @@ run:
         XRecolorCursor(x_window.display, cursor, &xmouse_fg, &xmouse_bg);
 
         x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
-        x_window.wmdeletewin = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
+        x_window.wm_delete_win = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
         x_window.netwmname = XInternAtom(x_window.display, "_NET_WM_NAME", False);
         x_window.netwmiconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
-        XSetWMProtocols(x_window.display, x_window.win, &x_window.wmdeletewin, 1);
+        XSetWMProtocols(x_window.display, x_window.win, &x_window.wm_delete_win, 1);
 
         x_window.netwmpid = XInternAtom(x_window.display, "_NET_WM_PID", False);
         XChangeProperty(x_window.display, x_window.win, x_window.netwmpid, XA_CARDINAL, 32,
@@ -2277,7 +2277,7 @@ handler_client_message(XEvent *xevent) {
         } else if (xevent->xclient.data.l[1] == XEMBED_FOCUS_OUT) {
             term_window.mode &= ~WIN_MODE_FOCUSED;
         }
-    } else if (xevent->xclient.data.l[0] == (int64)x_window.wmdeletewin) {
+    } else if (xevent->xclient.data.l[0] == (int64)x_window.wm_delete_win) {
         tty_hangup();
         exit(0);
     }
