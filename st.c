@@ -158,7 +158,7 @@ typedef struct {
     TCursor cursor;            /* cursor */
     int32 old_cursor_x;        /* old cursor col */
     int32 old_cursor_y;        /* old cursor row */
-    int32 top;                 /* top    scroll limit */
+    int32 top_scroll_limit;    /* top    scroll limit */
     int32 bot;                 /* bottom scroll limit */
     int32 mode;                /* terminal mode flags */
     int32 esc;                 /* escape state flags */
@@ -1235,7 +1235,7 @@ term_reset(void) {
     for (int32 i = CONF_TAB_NSPACES; i < term.ncols; i += CONF_TAB_NSPACES) {
         term.tabs[i] = 1;
     }
-    term.top = 0;
+    term.top_scroll_limit = 0;
     term.n_hist = 0;
     term.lines_scrolled_up = 0;
     term.bot = term.nrows - 1;
@@ -1489,7 +1489,7 @@ term_new_line(int32 first_col) {
     int32 y = term.cursor.y;
 
     if (y == term.bot) {
-        term_scroll_up(term.top, term.bot, 1, SCROLL_SAVEHIST);
+        term_scroll_up(term.top_scroll_limit, term.bot, 1, SCROLL_SAVEHIST);
     } else {
         y++;
     }
@@ -1537,7 +1537,7 @@ control_seq_intro_parse(void) {
 /* for absolute user moves, when decom is set */
 void
 term_move_abs_to(int32 x, int32 y) {
-    term_move_to(x, y + ((term.cursor.state & CURSOR_ORIGIN) ? term.top : 0));
+    term_move_to(x, y + ((term.cursor.state & CURSOR_ORIGIN) ? term.top_scroll_limit : 0));
     return;
 }
 
@@ -1547,7 +1547,7 @@ term_move_to(int32 x, int32 y) {
     int32 maxy;
 
     if (term.cursor.state & CURSOR_ORIGIN) {
-        miny = term.top;
+        miny = term.top_scroll_limit;
         maxy = term.bot;
     } else {
         miny = 0;
@@ -1681,7 +1681,7 @@ term_insert_blank(int32 n) {
 
 void
 term_insert_blank_line(int32 n) {
-    if (BETWEEN(term.cursor.y, term.top, term.bot)) {
+    if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot)) {
         term_scroll_down(term.cursor.y, n);
     }
     return;
@@ -1689,7 +1689,7 @@ term_insert_blank_line(int32 n) {
 
 void
 term_delete_line(int32 n) {
-    if (BETWEEN(term.cursor.y, term.top, term.bot)) {
+    if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot)) {
         term_scroll_up(term.cursor.y, term.bot, n, SCROLL_NOSAVEHIST);
     }
     return;
@@ -2129,11 +2129,11 @@ control_seq_intro_handle(void) {
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
         /* xterm, urxvt, alacritty save this in history */
-        term_scroll_up(term.top, term.bot, csi_escape_seq.arg[0], SCROLL_SAVEHIST);
+        term_scroll_up(term.top_scroll_limit, term.bot, csi_escape_seq.arg[0], SCROLL_SAVEHIST);
         break;
     case 'T': /* SD -- Scroll <n> line down */
         DEFAULT(csi_escape_seq.arg[0], 1);
-        term_scroll_down(term.top, csi_escape_seq.arg[0]);
+        term_scroll_down(term.top_scroll_limit, csi_escape_seq.arg[0]);
         break;
     case 'L': /* IL -- Insert <n> blank lines */
         DEFAULT(csi_escape_seq.arg[0], 1);
@@ -2203,7 +2203,7 @@ control_seq_intro_handle(void) {
                     t = b;
                     b = temp;
                 }
-                term.top = t;
+                term.top_scroll_limit = t;
                 term.bot = b;
             }
             term_move_abs_to(0, 0);
@@ -2823,7 +2823,7 @@ eschandle(uchar ascii) {
         return 0;
     case 'D': /* IND -- Linefeed */
         if (term.cursor.y == term.bot) {
-            term_scroll_up(term.top, term.bot, 1, SCROLL_SAVEHIST);
+            term_scroll_up(term.top_scroll_limit, term.bot, 1, SCROLL_SAVEHIST);
         } else {
             term_move_to(term.cursor.x, term.cursor.y + 1);
         }
@@ -2835,8 +2835,8 @@ eschandle(uchar ascii) {
         term.tabs[term.cursor.x] = 1;
         break;
     case 'M': /* RI -- Reverse index */
-        if (term.cursor.y == term.top) {
-            term_scroll_down(term.top, 1);
+        if (term.cursor.y == term.top_scroll_limit) {
+            term_scroll_down(term.top_scroll_limit, 1);
         } else {
             term_move_to(term.cursor.x, term.cursor.y - 1);
         }
@@ -3173,7 +3173,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
     term.ncols = new_ncols;
     term.nrows = new_nrows;
     /* reset scrolling region */
-    term.top = 0;
+    term.top_scroll_limit = 0;
     term.bot = new_nrows - 1;
     /* dirty all lines */
     term_full_dirt();
@@ -3232,7 +3232,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     term.ncols = new_ncols;
     term.nrows = new_nrows;
     /* reset scrolling region */
-    term.top = 0;
+    term.top_scroll_limit = 0;
     term.bot = new_nrows - 1;
     /* dirty all lines */
     term_full_dirt();
