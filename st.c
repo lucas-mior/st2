@@ -1410,7 +1410,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     int32 s = 0;
     int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
     int32 savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
-    Glyph *temp = xmalloc((int64)term.ncols*SIZEOF(*temp));
+    Glyph *temp;
 
     if (n <= 0) {
         return;
@@ -1420,12 +1420,12 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     if (savehist) {
         for (int32 i = 0; i < n; i++) {
             term.histi = (term.histi + 1) % HISTORY_SIZE;
-            memmove(temp, term.hist[term.histi], (size_t)term.ncols*sizeof(*temp));
+            temp = term.hist[term.histi];
             for (int32 j = 0; j < term.ncols; j++) {
                 term_clear_glyph(&temp[j], 1);
             }
-            memmove(term.hist[term.histi], term.line[i], (size_t)term.ncols*sizeof(*temp));
-            memmove(term.line[i], temp, (size_t)term.ncols*sizeof(*temp));
+            term.hist[term.histi] = term.line[i];
+            term.line[i] = temp;
         }
         term.histf = MIN(term.histf + n, HISTORY_SIZE);
         s = n;
@@ -1443,12 +1443,10 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     }
 
     for (int32 i = top; i <= bot - n; i++) {
-        memmove(temp, term.line[i], (size_t)term.ncols*sizeof(*temp));
-        memmove(term.line[i], term.line[i + n], (size_t)term.ncols*sizeof(*temp));
-        memmove(term.line[i + n], temp, (size_t)term.ncols*sizeof(*temp));
+        temp = term.line[i];
+        term.line[i] = term.line[i + n];
+        term.line[i + n] = temp;
     }
-
-    xfree(temp);
 
     if (selection.ob.x != -1 && selection.alt == alt) {
         if (!savehist) {
@@ -3070,7 +3068,7 @@ term_write(const char *buffer, int32 buflen, int32 show_ctrl) {
 void
 reflow_scroll_down(int32 n) {
     int32 j;
-    Glyph *temp = xmalloc((int64)term.ncols*SIZEOF(*temp));
+    Glyph *temp;
 
     /* can never be true as of now
        if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
@@ -3081,14 +3079,14 @@ reflow_scroll_down(int32 n) {
     }
 
     for (int32 i = term.cursor.y + n; i >= n; i--) {
-        memmove(temp, term.line[i], (size_t)term.ncols*sizeof(*temp));
-        memmove(term.line[i], term.line[i - n], (size_t)term.ncols*sizeof(*temp));
-        memmove(term.line[i - n], temp, (size_t)term.ncols*sizeof(*temp));
+        temp = term.line[i];
+        term.line[i] = term.line[i - n];
+        term.line[i - n] = temp;
     }
     for (int32 i = n - 1; i >= 0; i--) {
-        memmove(temp, term.line[i], (size_t)term.ncols*sizeof(*temp));
-        memmove(term.line[i], term.hist[term.histi], (size_t)term.ncols*sizeof(*temp));
-        memmove(term.hist[term.histi], temp, (size_t)term.ncols*sizeof(*temp));
+        temp = term.line[i];
+        term.line[i] = term.hist[term.histi];
+        term.hist[term.histi] = temp;
         term.histi = (term.histi - 1 + HISTORY_SIZE) % HISTORY_SIZE;
     }
     term.cursor.y += n;
@@ -3153,7 +3151,7 @@ term_resize_def(int32 ncols, int32 nrows) {
             term.cursor.y = nrows - 1;
         }
         for (int32 i = nrows; i < term.nrows; i++) {
-            term.line[i] = NULL;
+            /* xfree(term.line[i]); */
         }
 
         /* resize to new height */
@@ -3197,7 +3195,7 @@ term_resize_alt(int32 ncols, int32 nrows) {
     }
     /* slide screen up if otherwise cursor would get out of the screen */
     for (i = 0; i <= term.cursor.y - nrows; i++) {
-        term.line[i] = NULL;
+        /* xfree(term.line[i]); */
     }
     if (i > 0) {
         /* ensure that both src and dst are not NULL */
@@ -3205,7 +3203,7 @@ term_resize_alt(int32 ncols, int32 nrows) {
         term.cursor.y = nrows - 1;
     }
     for (i += nrows; i < term.nrows; i++) {
-        term.line[i] = NULL;
+        /* xfree(term.line[i]); */
     }
     /* resize to new height */
     /* term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line))); */
@@ -3361,7 +3359,7 @@ term_reflow(int32 ncols, int32 nrows) {
 
     /* --- release unused old lines --- */
     for (i = nrows; i < term.nrows; i++) {
-        term.line[i] = NULL;
+        /* xfree(term.line[i]); */
     }
 
     /* term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line))); */
@@ -3397,11 +3395,12 @@ term_reflow(int32 ncols, int32 nrows) {
 
     /* --- populate visible lines --- */
     for (; i >= term.nrows; i--, new_y_index--) {
-        memmove(&term.line[i], &buffer[new_y_index], sizeof(term.line[i]));
+        term.line[i] = buffer[new_y_index];
     }
 
     for (; i >= 0; i--, new_y_index--) {
-        memmove(&term.line[i], &buffer[new_y_index], sizeof(term.line[i]));
+        /* xfree(term.line[i]); */
+        term.line[i] = buffer[new_y_index];
     }
 
     /* --- update history buffer --- */
