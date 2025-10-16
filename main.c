@@ -930,7 +930,7 @@ handler_selection_notify(XEvent *xevent) {
 
         /*
          * As seen in selection_get:
-         * Line endings are inconsistent in the terminal and GUI world
+         * Glyph*endings are inconsistent in the terminal and GUI world
          * copy and pasting. When receiving some selection data,
          * replace all '\n' with '\r'.
          * FIXME: Fix the computer world.
@@ -2043,7 +2043,7 @@ x_start_draw(void) {
 }
 
 void
-x_draw_line(Line line, int32 x1, int32 y1, int32 x2) {
+x_draw_line(Glyph *line, int32 x1, int32 y1, int32 x2) {
     int32 i, x, ox, numspecs;
     Glyph base = {0}, new = {0};
     XftGlyphFontSpec *specs = x_window.specbuf;

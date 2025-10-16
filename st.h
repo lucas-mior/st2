@@ -92,8 +92,6 @@ typedef struct {
 	int32 bg;      /* background  */
 } Glyph;
 
-typedef Glyph *Line;
-
 typedef union {
 	int32 i;
 	uint32 ui;
@@ -223,7 +221,7 @@ enum win_mode {
 
 void x_bell(void);
 void x_draw_cursor(int32, int32, Glyph, int32, int32, Glyph);
-void x_draw_line(Line, int32, int32, int32);
+void x_draw_line(Glyph *, int32, int32, int32);
 void x_finish_draw(void);
 void x_load_cols(void);
 int32 x_set_color_name(int32, const char *);

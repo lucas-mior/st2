@@ -142,25 +142,25 @@ typedef struct {
 
 /* Internal representation of the screen */
 typedef struct {
-    int32 nrows;             /* nb row */
-    int32 ncols;             /* nb col */
-    Line *line;              /* screen */
-    Line hist[HISTORY_SIZE]; /* history buffer */
-    int32 histi;             /* history index */
-    int32 histf;             /* nb history available */
-    int32 scr;               /* scroll back */
-    int32 wrapcwidth[2];     /* used in updating WRAPNEXT when resizing */
-    int32 *dirty;            /* dirtyness of lines */
-    TCursor cursor;          /* cursor */
-    int32 ocx;               /* old cursor col */
-    int32 ocy;               /* old cursor row */
-    int32 top;               /* top    scroll limit */
-    int32 bot;               /* bottom scroll limit */
-    int32 mode;              /* terminal mode flags */
-    int32 esc;               /* escape state flags */
-    char trantbl[4];         /* charset table translation */
-    int32 charset;           /* current charset */
-    int32 icharset;          /* selection_is_selected charset for sequence */
+    int32 nrows;               /* nb row */
+    int32 ncols;               /* nb col */
+    Glyph **line;              /* screen */
+    Glyph *hist[HISTORY_SIZE]; /* history buffer */
+    int32 histi;               /* history index */
+    int32 histf;               /* nb history available */
+    int32 scr;                 /* scroll back */
+    int32 wrapcwidth[2];       /* used in updating WRAPNEXT when resizing */
+    int32 *dirty;              /* dirtyness of lines */
+    TCursor cursor;            /* cursor */
+    int32 ocx;                 /* old cursor col */
+    int32 ocy;                 /* old cursor row */
+    int32 top;                 /* top    scroll limit */
+    int32 bot;                 /* bottom scroll limit */
+    int32 mode;                /* terminal mode flags */
+    int32 esc;                 /* escape state flags */
+    char trantbl[4];           /* charset table translation */
+    int32 charset;             /* current charset */
+    int32 icharset;            /* selection_is_selected charset for sequence */
     int32 *tabs;
     Rune lastc; /* last printed char outside of sequence, 0 if control */
 } Term;
@@ -212,8 +212,8 @@ static void term_delete_char(int32);
 static void term_delete_line(int32);
 static void term_insert_blank(int32);
 static void term_insert_blank_line(int32);
-static int32 term_line_len(Line len);
-static int32 term_is_wrapped(Line line);
+static int32 term_line_len(Glyph *len);
+static int32 term_is_wrapped(Glyph *line);
 static char *term_get_glyphs(char *, const Glyph *, const Glyph *);
 static int64 tgetline(char *, const Glyph *);
 static void term_move_to(int32, int32);
@@ -486,7 +486,7 @@ base64_decode(const char *src) {
 }
 
 int32
-term_line_len(Line line) {
+term_line_len(Glyph *line) {
     int32 i = term.ncols - 1;
 
     for (; i >= 0 && !(line[i].mode & (ATTR_SET | ATTR_WRAP)); i--)
@@ -495,7 +495,7 @@ term_line_len(Line line) {
 }
 
 int32
-term_is_wrapped(Line line) {
+term_is_wrapped(Glyph *line) {
     int32 len = term_line_len(line);
 
     return len > 0 && (line[len - 1].mode & ATTR_WRAP);
@@ -775,7 +775,7 @@ selection_get(void) {
 
     /* append every set & selection_is_selected glyph to the selection */
     for (int32 y = selection.nb.y; y <= selection.ne.y; y++) {
-        Line line = TERM_LINE(y);
+        Glyph *line = TERM_LINE(y);
 
         if ((line_len = term_line_len(line)) == 0) {
             *ptr++ = '\n';
@@ -1257,9 +1257,9 @@ term_reset(void) {
 /* handle it with care */
 void
 term_swap_screen(void) {
-    static Line *altline;
+    static Glyph **altline;
     static int32 altcol, altrow;
-    Line *tmpline = term.line;
+    Glyph **tmpline = term.line;
     int32 tmpcol = term.ncols, tmprow = term.nrows;
 
     term.line = altline;
@@ -1374,7 +1374,7 @@ user_scroll_up(const Arg *a) {
 void
 term_scroll_down(int32 top, int32 n) {
     int32 bot = term.bot;
-    Line temp;
+    Glyph *temp;
 
     if (n <= 0) {
         return;
@@ -1401,7 +1401,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     int32 s = 0;
     int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
     int32 savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
-    Line temp;
+    Glyph *temp;
 
     if (n <= 0) {
         return;
@@ -1630,7 +1630,7 @@ term_delete_char(int32 n) {
     int32 src;
     int32 dst;
     int32 size;
-    Line line;
+    Glyph *line;
 
     if (n <= 0) {
         return;
@@ -1656,7 +1656,7 @@ term_insert_blank(int32 n) {
     int32 src;
     int32 dst;
     int32 size;
-    Line line;
+    Glyph *line;
 
     if (n <= 0) {
         return;
@@ -3054,7 +3054,7 @@ term_write(const char *buffer, int32 buflen, int32 show_ctrl) {
 void
 reflow_scroll_down(int32 n) {
     int32 j;
-    Line temp;
+    Glyph *temp;
 
     /* can never be true as of now
        if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
@@ -3237,8 +3237,8 @@ term_reflow(int32 ncols, int32 nrows) {
     int32 len = 0;
     int32 new_cursor_y_proxy = -1; /* proxy for new y coordinate of cursor */
     int32 nlines;
-    static Line *buffer = NULL;
-    Line line = 0;
+    static Glyph **buffer = NULL;
+    Glyph *line = 0;
 
     /* --- determine end of current cursor line --- */
     old_cursor_end_line = term.cursor.y;
