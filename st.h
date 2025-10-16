@@ -242,7 +242,6 @@ void x_xim_spot(int32, int32);
 
 void selection_set(char *, Time);
 
-typedef XftDraw *Draw;
 typedef XftColor Color;
 typedef XftGlyphFontSpec GlyphFontSpec;
 
@@ -270,7 +269,7 @@ typedef struct {
         XPoint spot;
         XVaNestedList spotlist;
     } ime;
-    Draw draw;
+    XftDraw *draw;
     Visual *vis;
     XSetWindowAttributes attrs;
     int32 scr;
