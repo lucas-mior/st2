@@ -309,11 +309,11 @@ run:
         xgc_values.graphics_exposures = False;
         draw_context.graphics
             = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &xgc_values);
-        x_window.buffer = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
-                                        (uint32)term_window.h, (uint32)x_window.depth);
+        x_window.drawable = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
+                                          (uint32)term_window.h, (uint32)x_window.depth);
         XSetForeground(x_window.display, draw_context.graphics,
                        draw_context.color[CONF_COLOR_BG].pixel);
-        XFillRectangle(x_window.display, x_window.buffer, draw_context.graphics, 0, 0,
+        XFillRectangle(x_window.display, x_window.drawable, draw_context.graphics, 0, 0,
                        (uint32)term_window.w, (uint32)term_window.h);
 
         /* font spec buffer */
@@ -321,7 +321,7 @@ run:
 
         /* Xft rendering context */
         x_window.draw
-            = XftDrawCreate(x_window.display, x_window.buffer, x_window.vis, x_window.color_map);
+            = XftDrawCreate(x_window.display, x_window.drawable, x_window.vis, x_window.color_map);
 
         /* input methods */
         if (!x_im_open(x_window.display)) {
@@ -1066,10 +1066,10 @@ x_resize(int32 col, int32 row) {
     term_window.tty_width = col*term_window.cw;
     term_window.tty_height = row*term_window.ch;
 
-    XFreePixmap(x_window.display, x_window.buffer);
-    x_window.buffer = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
-                                    (uint32)term_window.h, (uint32)x_window.depth);
-    XftDrawChange(x_window.draw, x_window.buffer);
+    XFreePixmap(x_window.display, x_window.drawable);
+    x_window.drawable = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
+                                      (uint32)term_window.h, (uint32)x_window.depth);
+    XftDrawChange(x_window.draw, x_window.drawable);
     x_clear(0, 0, term_window.w, term_window.h);
 
     /* handler_configure_notify to new width */
@@ -2020,7 +2020,7 @@ x_draw_line(Glyph *line, int32 x1, int32 y1, int32 x2) {
 
 void
 x_finish_draw(void) {
-    XCopyArea(x_window.display, x_window.buffer, x_window.win, draw_context.graphics, 0, 0,
+    XCopyArea(x_window.display, x_window.drawable, x_window.win, draw_context.graphics, 0, 0,
               (uint32)term_window.w, (uint32)term_window.h, 0, 0);
     XSetForeground(
         x_window.display, draw_context.graphics,

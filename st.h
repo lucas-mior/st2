@@ -261,7 +261,7 @@ typedef struct {
     Display *display;
     Colormap color_map;
     Window win;
-    Drawable buffer;
+    Drawable drawable;
     GlyphFontSpec *specbuf; /* font spec buffer used for rendering */
     Atom xembed, wmdeletewin, netwmname, netwmiconname, netwmpid;
     struct {
