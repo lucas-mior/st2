@@ -3156,12 +3156,7 @@ term_resize_def(int32 ncols, int32 nrows) {
         }
 
         /* handler_configure_notify to new height */
-        void *old_line = term.line;
-
         term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
-        if (old_line != term.line) {
-            error("ADRESS CHANGED FROM %p to %p.\n", old_line, term.line);
-        }
 
         /* allocate any new rows */
         for (int32 i = term.nrows; i < nrows; i++) {
@@ -3209,13 +3204,8 @@ term_resize_alt(int32 col, int32 row) {
         xfree(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    void *old_line = term.line;
-
     term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
 
-    if (old_line != term.line) {
-        error("ADRESS CHANGED FROM %p to %p.\n", old_line, term.line);
-    }
     /* handler_configure_notify to new width */
     for (i = 0; i < MIN(row, term.nrows); i++) {
         term.line[i] = xrealloc(term.line[i], (int64)col*SIZEOF(*(term.line[i])));
@@ -3366,13 +3356,7 @@ term_reflow(int32 ncols, int32 nrows) {
         xfree(term.line[i]);
     }
 
-    void *old_line = term.line;
-
     term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
-
-    if (old_line != term.line) {
-        error("ADRESS CHANGED FROM %p to %p.\n", old_line, term.line);
-    }
 
     /* --- adjust cursor and visible region --- */
     bottom_visible_line = MIN(new_y_index, nrows - 1);
