@@ -3151,21 +3151,18 @@ term_resize_def(int32 ncols, int32 nrows) {
             term.cursor.y = nrows - 1;
         }
         for (int32 i = nrows; i < term.nrows; i++) {
-            /* xfree(term.line[i]); */
+            xfree(term.line[i]);
         }
 
         /* resize to new height */
-        /* term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line))); */
+        term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
 
         /* allocate any new rows */
         for (int32 i = term.nrows; i < nrows; i++) {
-            term.line[i] = &term.line_buffer[i*ncols];
+            term.line[i] = xmalloc((int64)ncols*SIZEOF(Glyph));
             for (int32 j = 0; j < ncols; j++) {
                 term_clear_glyph(&term.line[i][j], 0);
             }
-        }
-        for (int32 j = nrows; j < MAX_NROWS; j++) {
-            term.line[j] = NULL;
         }
         /* scroll down as much as height has increased */
         reflow_scroll_down(nrows - term.nrows);
@@ -3195,7 +3192,7 @@ term_resize_alt(int32 ncols, int32 nrows) {
     }
     /* slide screen up if otherwise cursor would get out of the screen */
     for (i = 0; i <= term.cursor.y - nrows; i++) {
-        /* xfree(term.line[i]); */
+        xfree(term.line[i]);
     }
     if (i > 0) {
         /* ensure that both src and dst are not NULL */
@@ -3203,27 +3200,24 @@ term_resize_alt(int32 ncols, int32 nrows) {
         term.cursor.y = nrows - 1;
     }
     for (i += nrows; i < term.nrows; i++) {
-        /* xfree(term.line[i]); */
+        xfree(term.line[i]);
     }
     /* resize to new height */
-    /* term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line))); */
+    term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
 
     /* resize to new width */
     for (i = 0; i < MIN(nrows, term.nrows); i++) {
-        term.line[i] = &term.line_buffer[i*ncols];
+        term.line[i] = xrealloc(term.line[i], (int64)ncols*SIZEOF(*(term.line[i])));
         for (int32 j = term.ncols; j < ncols; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* allocate any new rows */
     for (/*i = MIN(nrows, term.nrows) */; i < nrows; i++) {
-        term.line[i] = &term.line_buffer[i*ncols];
+        term.line[i] = xmalloc((int64)ncols*SIZEOF(Glyph));
         for (int32 j = 0; j < ncols; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
-    }
-    for (int32 j = nrows; j < MAX_NROWS; j++) {
-        term.line[j] = NULL;
     }
     /* update cursor */
     if (term.cursor.x >= ncols) {
@@ -3359,10 +3353,10 @@ term_reflow(int32 ncols, int32 nrows) {
 
     /* --- release unused old lines --- */
     for (i = nrows; i < term.nrows; i++) {
-        /* xfree(term.line[i]); */
+        xfree(term.line[i]);
     }
 
-    /* term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line))); */
+    term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
 
     /* --- adjust cursor and visible region --- */
     bottom_visible_line = MIN(new_y_index, nrows - 1);
@@ -3384,13 +3378,10 @@ term_reflow(int32 ncols, int32 nrows) {
 
     /* --- allocate additional rows if needed --- */
     for (i = nrows - 1; i > new_cursor_end_line; i--) {
-        term.line[i] = &term.line_buffer[i*ncols];
+        term.line[i] = xmalloc((int64)ncols*SIZEOF(Glyph));
         for (int32 j = 0; j < ncols; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
-    }
-    for (int32 j = nrows; j < MAX_NROWS; j++) {
-        term.line[j] = NULL;
     }
 
     /* --- populate visible lines --- */
@@ -3399,7 +3390,7 @@ term_reflow(int32 ncols, int32 nrows) {
     }
 
     for (; i >= 0; i--, new_y_index--) {
-        /* xfree(term.line[i]); */
+        xfree(term.line[i]);
         term.line[i] = buffer[new_y_index];
     }
 

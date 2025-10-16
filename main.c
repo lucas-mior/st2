@@ -216,21 +216,12 @@ run:
     CONF_NUMBER_ROWS = MAX(CONF_NUMBER_ROWS, 1);
 
     for (int32 i = 0; i < 2; i++) {
+        term.line = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*(term.line)));
+        for (int32 j = 0; j < CONF_NUMBER_ROWS; j++) {
+            term.line[j] = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(*(term.line[j])));
+        }
         term.ncols = CONF_NUMBER_COLS;
         term.nrows = CONF_NUMBER_ROWS;
-
-        term.line_buffer = xmalloc((int64)MAX_NROWS*MAX_NCOLS * SIZEOF(Glyph));
-        memset(term.line_buffer, 0, (size_t)MAX_NROWS*MAX_NCOLS * sizeof(Glyph));
-
-        term.line = xmalloc((int64)MAX_NROWS*SIZEOF(*(term.line)));
-        memset(term.line, 0, (size_t)MAX_NROWS*sizeof(*(term.line)));
-
-        for (int32 j = 0; j < term.nrows; j++) {
-            term.line[j] = &term.line_buffer[j*term.ncols];
-        }
-        for (int32 j = term.nrows; j < MAX_NROWS; j++) {
-            term.line[j] = NULL;
-        }
         term_swap_screen();
     }
     term.dirty = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*term.dirty));
