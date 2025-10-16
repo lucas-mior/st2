@@ -155,7 +155,7 @@ typedef struct {
     int32 *dirty;              /* dirtyness of lines */
     TCursor cursor;            /* cursor */
     int32 old_cursor_x;        /* old cursor col */
-    int32 ocy;                 /* old cursor row */
+    int32 old_cursor_y;        /* old cursor row */
     int32 top;                 /* top    scroll limit */
     int32 bot;                 /* bottom scroll limit */
     int32 mode;                /* terminal mode flags */
@@ -3414,7 +3414,7 @@ reset_title(void) {
 
 void
 draw(void) {
-    int32 cx = term.cursor.x, old_cursor_x = term.old_cursor_x, ocy = term.ocy;
+    int32 cx = term.cursor.x, old_cursor_x = term.old_cursor_x, old_cursor_y = term.old_cursor_y;
 
     if (!x_start_draw()) {
         return;
@@ -3422,8 +3422,8 @@ draw(void) {
 
     /* adjust cursor position */
     LIMIT(term.old_cursor_x, 0, term.ncols - 1);
-    LIMIT(term.ocy, 0, term.nrows - 1);
-    if (term.line[term.ocy][term.old_cursor_x].mode & ATTR_WDUMMY) {
+    LIMIT(term.old_cursor_y, 0, term.nrows - 1);
+    if (term.line[term.old_cursor_y][term.old_cursor_x].mode & ATTR_WDUMMY) {
         term.old_cursor_x--;
     }
     if (term.line[term.cursor.y][cx].mode & ATTR_WDUMMY) {
@@ -3439,13 +3439,13 @@ draw(void) {
         x_draw_line(TERM_LINE(y), 0, y, term.ncols);
     }
 
-    x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx], term.old_cursor_x, term.ocy,
-                  term.line[term.ocy][term.old_cursor_x]);
+    x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx], term.old_cursor_x,
+                  term.old_cursor_y, term.line[term.old_cursor_y][term.old_cursor_x]);
     term.old_cursor_x = cx;
-    term.ocy = term.cursor.y;
+    term.old_cursor_y = term.cursor.y;
     x_finish_draw();
-    if (old_cursor_x != term.old_cursor_x || ocy != term.ocy) {
-        x_xim_spot(term.old_cursor_x, term.ocy);
+    if (old_cursor_x != term.old_cursor_x || old_cursor_y != term.old_cursor_y) {
+        x_xim_spot(term.old_cursor_x, term.old_cursor_y);
     }
     return;
 }
