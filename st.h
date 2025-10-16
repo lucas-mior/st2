@@ -270,7 +270,7 @@ typedef struct {
         XVaNestedList spotlist;
     } ime;
     XftDraw *draw;
-    Visual *vis;
+    Visual *visual;
     XSetWindowAttributes attrs;
     int32 scr;
     int32 isfixed; /* is fixed geometry? */

@@ -239,7 +239,7 @@ run:
         pid_t pid_this = getpid();
         XColor xmouse_fg, xmouse_bg;
         XWindowAttributes attr;
-        XVisualInfo vis;
+        XVisualInfo visual;
 
         if (!(x_window.display = XOpenDisplay(NULL))) {
             die("can't open display\n");
@@ -251,12 +251,12 @@ run:
             parent = root;
         }
 
-        if (XMatchVisualInfo(x_window.display, x_window.scr, 32, TrueColor, &vis) != 0) {
-            x_window.vis = vis.visual;
-            x_window.depth = vis.depth;
+        if (XMatchVisualInfo(x_window.display, x_window.scr, 32, TrueColor, &visual) != 0) {
+            x_window.visual = visual.visual;
+            x_window.depth = visual.depth;
         } else {
             XGetWindowAttributes(x_window.display, parent, &attr);
-            x_window.vis = attr.visual;
+            x_window.visual = attr.visual;
             x_window.depth = attr.depth;
         }
 
@@ -273,7 +273,7 @@ run:
 
         x_load_spare_fonts();
 
-        x_window.color_map = XCreateColormap(x_window.display, parent, x_window.vis, None);
+        x_window.color_map = XCreateColormap(x_window.display, parent, x_window.visual, None);
         x_load_cols();
 
         /* adjust fixed window geometry */
@@ -299,7 +299,7 @@ run:
 
         x_window.win = XCreateWindow(
             x_window.display, parent, x_window.l, x_window.t, (uint32)term_window.w,
-            (uint32)term_window.h, 0, x_window.depth, InputOutput, x_window.vis,
+            (uint32)term_window.h, 0, x_window.depth, InputOutput, x_window.visual,
             CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap, &x_window.attrs);
         if (parent != root) {
             XReparentWindow(x_window.display, x_window.win, parent, x_window.l, x_window.t);
@@ -320,8 +320,8 @@ run:
         x_window.specbuf = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(GlyphFontSpec));
 
         /* Xft rendering context */
-        x_window.draw
-            = XftDrawCreate(x_window.display, x_window.drawable, x_window.vis, x_window.color_map);
+        x_window.draw = XftDrawCreate(x_window.display, x_window.drawable, x_window.visual,
+                                      x_window.color_map);
 
         /* input methods */
         if (!x_im_open(x_window.display)) {
@@ -376,7 +376,7 @@ run:
             xsel.xtarget = XA_STRING;
         }
 
-        boxdraw_xinit(x_window.display, x_window.color_map, x_window.draw, x_window.vis);
+        boxdraw_xinit(x_window.display, x_window.color_map, x_window.draw, x_window.visual);
     }
 
     {
@@ -1102,14 +1102,14 @@ x_load_color(int32 i, const char *name, Color *ncolor) {
                 color.red = (uint16)(0x0808 + 0x0a0a*(i - (6*6 * 6 + 16)));
                 color.green = color.blue = color.red;
             }
-            return XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &color,
+            return XftColorAllocValue(x_window.display, x_window.visual, x_window.color_map, &color,
                                       ncolor);
         } else {
             name = CONF_COLORS[i];
         }
     }
 
-    return XftColorAllocName(x_window.display, x_window.vis, x_window.color_map, name, ncolor);
+    return XftColorAllocName(x_window.display, x_window.visual, x_window.color_map, name, ncolor);
 }
 
 void
@@ -1119,7 +1119,7 @@ x_load_cols(void) {
 
     if (loaded) {
         for (cp = draw_context.color; cp < &draw_context.color[draw_context.collen]; ++cp) {
-            XftColorFree(x_window.display, x_window.vis, x_window.color_map, cp);
+            XftColorFree(x_window.display, x_window.visual, x_window.color_map, cp);
         }
     } else {
         draw_context.collen = MAX(LENGTH(CONF_COLORS), 256);
@@ -1161,7 +1161,7 @@ x_set_color_name(int32 x, const char *name) {
         return 1;
     }
 
-    XftColorFree(x_window.display, x_window.vis, x_window.color_map, &draw_context.color[x]);
+    XftColorFree(x_window.display, x_window.visual, x_window.color_map, &draw_context.color[x]);
     draw_context.color[x] = ncolor;
 
     if (x == CONF_COLOR_BG) {
@@ -1733,7 +1733,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         colfg.red = TRUE_RED(base.fg);
         colfg.green = TRUE_GREEN(base.fg);
         colfg.blue = TRUE_BLUE(base.fg);
-        XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colfg, &truefg);
+        XftColorAllocValue(x_window.display, x_window.visual, x_window.color_map, &colfg, &truefg);
         fg = &truefg;
     } else {
         fg = &draw_context.color[base.fg];
@@ -1744,7 +1744,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         colbg.green = TRUE_GREEN(base.bg);
         colbg.red = TRUE_RED(base.bg);
         colbg.blue = TRUE_BLUE(base.bg);
-        XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colbg, &truebg);
+        XftColorAllocValue(x_window.display, x_window.visual, x_window.color_map, &colbg, &truebg);
         bg = &truebg;
     } else {
         bg = &draw_context.color[base.bg];
@@ -1758,7 +1758,8 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
             colfg.green = ~fg->color.green;
             colfg.blue = ~fg->color.blue;
             colfg.alpha = fg->color.alpha;
-            XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colfg, &revfg);
+            XftColorAllocValue(x_window.display, x_window.visual, x_window.color_map, &colfg,
+                               &revfg);
             fg = &revfg;
         }
 
@@ -1769,7 +1770,8 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
             colbg.green = ~bg->color.green;
             colbg.blue = ~bg->color.blue;
             colbg.alpha = bg->color.alpha;
-            XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colbg, &revbg);
+            XftColorAllocValue(x_window.display, x_window.visual, x_window.color_map, &colbg,
+                               &revbg);
             bg = &revbg;
         }
     }
@@ -1779,7 +1781,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         colfg.green = fg->color.green / 2;
         colfg.blue = fg->color.blue / 2;
         colfg.alpha = fg->color.alpha;
-        XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colfg, &revfg);
+        XftColorAllocValue(x_window.display, x_window.visual, x_window.color_map, &colfg, &revfg);
         fg = &revfg;
     }
 
