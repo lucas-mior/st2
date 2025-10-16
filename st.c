@@ -246,8 +246,6 @@ static int32_t term_def_color(const int32 *, int32 *, int32);
 static void term_def_tran(char);
 static void term_str_sequence(uchar);
 
-static void draw_region(int32, int32, int32, int32);
-
 static void selection_normalize(void);
 static void selection_scroll(int32, int32, int32);
 static void selection_move(int32);
@@ -3410,19 +3408,6 @@ reset_title(void) {
 }
 
 void
-draw_region(int32 x1, int32 y1, int32 x2, int32 y2) {
-    for (int32 y = y1; y < y2; y++) {
-        if (!term.dirty[y]) {
-            continue;
-        }
-
-        term.dirty[y] = 0;
-        x_draw_line(TERM_LINE(y), x1, y, x2);
-    }
-    return;
-}
-
-void
 draw(void) {
     int32 cx = term.cursor.x, ocx = term.ocx, ocy = term.ocy;
 
@@ -3440,7 +3425,15 @@ draw(void) {
         cx--;
     }
 
-    draw_region(0, 0, term.ncols, term.nrows);
+    for (int32 y = 0; y < term.nrows; y += 1) {
+        if (!term.dirty[y]) {
+            continue;
+        }
+
+        term.dirty[y] = 0;
+        x_draw_line(TERM_LINE(y), 0, y, term.ncols);
+    }
+
     x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx], term.ocx, term.ocy,
                   term.line[term.ocy][term.ocx]);
     term.ocx = cx;
