@@ -362,20 +362,20 @@ int64
 utf8_decode(const char *c, Rune *u, int64 clen) {
     int64 len;
     int64 type;
-    Rune udecoded;
+    Rune rune_decoded;
 
     *u = UTF_INVALID;
     if (!clen) {
         return 0;
     }
-    udecoded = utf8_decode_byte(c[0], &len);
+    rune_decoded = utf8_decode_byte(c[0], &len);
     if (!BETWEEN(len, 1, UTF_SIZ)) {
         return 1;
     }
     {
         int64 j = 1;
         for (int64 i = 1; i < clen && j < len; i += 1, j += 1) {
-            udecoded = (udecoded << 6) | utf8_decode_byte(c[i], &type);
+            rune_decoded = (rune_decoded << 6) | utf8_decode_byte(c[i], &type);
             if (type != 0) {
                 return j;
             }
@@ -384,7 +384,7 @@ utf8_decode(const char *c, Rune *u, int64 clen) {
             return 0;
         }
     }
-    *u = udecoded;
+    *u = rune_decoded;
     utf8_validate(u, len);
 
     return len;
