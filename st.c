@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include <limits.h>
 #include <pwd.h>
 #include <stdarg.h>
@@ -152,7 +153,7 @@ typedef struct {
     int32 histf;               /* nb history available */
     int32 lines_scrolled_up;   /* scroll back */
     int32 wrapcwidth[2];       /* used in updating WRAPNEXT when resizing */
-    int32 *dirty;              /* dirtyness of lines */
+    bool *dirty;               /* dirtyness of lines */
     TCursor cursor;            /* cursor */
     int32 old_cursor_x;        /* old cursor col */
     int32 old_cursor_y;        /* old cursor row */
