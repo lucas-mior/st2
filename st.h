@@ -56,9 +56,6 @@ typedef uint_least32_t Rune;
 #define XK_NO_MOD 0
 #define XK_SWITCH_MOD (1 << 13 | 1 << 14)
 
-#define MAX_NROWS 150
-#define MAX_NCOLS 200
-
 enum glyph_attribute {
 	ATTR_NULL       = 0,
 	ATTR_SET        = 1 << 0,
