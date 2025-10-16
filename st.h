@@ -259,7 +259,7 @@ typedef struct {
 
 typedef struct {
     Display *display;
-    Colormap cmap;
+    Colormap color_map;
     Window win;
     Drawable buffer;
     GlyphFontSpec *specbuf; /* font spec buffer used for rendering */

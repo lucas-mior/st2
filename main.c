@@ -273,7 +273,7 @@ run:
 
         x_load_spare_fonts();
 
-        x_window.cmap = XCreateColormap(x_window.display, parent, x_window.vis, None);
+        x_window.color_map = XCreateColormap(x_window.display, parent, x_window.vis, None);
         x_load_cols();
 
         /* adjust fixed window geometry */
@@ -295,7 +295,7 @@ run:
         x_window.attrs.event_mask = FocusChangeMask | KeyPressMask | KeyReleaseMask | ExposureMask
                                     | VisibilityChangeMask | StructureNotifyMask | ButtonMotionMask
                                     | ButtonPressMask | ButtonReleaseMask;
-        x_window.attrs.colormap = x_window.cmap;
+        x_window.attrs.colormap = x_window.color_map;
 
         x_window.win = XCreateWindow(
             x_window.display, parent, x_window.l, x_window.t, (uint32)term_window.w,
@@ -321,7 +321,7 @@ run:
 
         /* Xft rendering context */
         x_window.draw
-            = XftDrawCreate(x_window.display, x_window.buffer, x_window.vis, x_window.cmap);
+            = XftDrawCreate(x_window.display, x_window.buffer, x_window.vis, x_window.color_map);
 
         /* input methods */
         if (!x_im_open(x_window.display)) {
@@ -333,7 +333,7 @@ run:
         cursor = XCreateFontCursor(x_window.display, (uint32)CONF_MOUSE_SHAPE);
         XDefineCursor(x_window.display, x_window.win, cursor);
 
-        if (XParseColor(x_window.display, x_window.cmap, CONF_COLORS[CONF_MOUSE_COLOR_FG],
+        if (XParseColor(x_window.display, x_window.color_map, CONF_COLORS[CONF_MOUSE_COLOR_FG],
                         &xmouse_fg)
             == 0) {
             xmouse_fg.red = 0xffff;
@@ -341,7 +341,7 @@ run:
             xmouse_fg.blue = 0xffff;
         }
 
-        if (XParseColor(x_window.display, x_window.cmap, CONF_COLORS[CONF_MOUSE_COLOR_BG],
+        if (XParseColor(x_window.display, x_window.color_map, CONF_COLORS[CONF_MOUSE_COLOR_BG],
                         &xmouse_bg)
             == 0) {
             xmouse_bg.red = 0x0000;
@@ -376,7 +376,7 @@ run:
             xsel.xtarget = XA_STRING;
         }
 
-        boxdraw_xinit(x_window.display, x_window.cmap, x_window.draw, x_window.vis);
+        boxdraw_xinit(x_window.display, x_window.color_map, x_window.draw, x_window.vis);
     }
 
     {
@@ -1102,14 +1102,14 @@ x_load_color(int32 i, const char *name, Color *ncolor) {
                 color.red = (uint16)(0x0808 + 0x0a0a*(i - (6*6 * 6 + 16)));
                 color.green = color.blue = color.red;
             }
-            return XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &color,
+            return XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &color,
                                       ncolor);
         } else {
             name = CONF_COLORS[i];
         }
     }
 
-    return XftColorAllocName(x_window.display, x_window.vis, x_window.cmap, name, ncolor);
+    return XftColorAllocName(x_window.display, x_window.vis, x_window.color_map, name, ncolor);
 }
 
 void
@@ -1119,7 +1119,7 @@ x_load_cols(void) {
 
     if (loaded) {
         for (cp = draw_context.color; cp < &draw_context.color[draw_context.collen]; ++cp) {
-            XftColorFree(x_window.display, x_window.vis, x_window.cmap, cp);
+            XftColorFree(x_window.display, x_window.vis, x_window.color_map, cp);
         }
     } else {
         draw_context.collen = MAX(LENGTH(CONF_COLORS), 256);
@@ -1161,7 +1161,7 @@ x_set_color_name(int32 x, const char *name) {
         return 1;
     }
 
-    XftColorFree(x_window.display, x_window.vis, x_window.cmap, &draw_context.color[x]);
+    XftColorFree(x_window.display, x_window.vis, x_window.color_map, &draw_context.color[x]);
     draw_context.color[x] = ncolor;
 
     if (x == CONF_COLOR_BG) {
@@ -1733,7 +1733,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         colfg.red = TRUE_RED(base.fg);
         colfg.green = TRUE_GREEN(base.fg);
         colfg.blue = TRUE_BLUE(base.fg);
-        XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &colfg, &truefg);
+        XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colfg, &truefg);
         fg = &truefg;
     } else {
         fg = &draw_context.color[base.fg];
@@ -1744,7 +1744,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         colbg.green = TRUE_GREEN(base.bg);
         colbg.red = TRUE_RED(base.bg);
         colbg.blue = TRUE_BLUE(base.bg);
-        XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &colbg, &truebg);
+        XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colbg, &truebg);
         bg = &truebg;
     } else {
         bg = &draw_context.color[base.bg];
@@ -1758,7 +1758,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
             colfg.green = ~fg->color.green;
             colfg.blue = ~fg->color.blue;
             colfg.alpha = fg->color.alpha;
-            XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &colfg, &revfg);
+            XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colfg, &revfg);
             fg = &revfg;
         }
 
@@ -1769,7 +1769,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
             colbg.green = ~bg->color.green;
             colbg.blue = ~bg->color.blue;
             colbg.alpha = bg->color.alpha;
-            XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &colbg, &revbg);
+            XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colbg, &revbg);
             bg = &revbg;
         }
     }
@@ -1779,7 +1779,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         colfg.green = fg->color.green / 2;
         colfg.blue = fg->color.blue / 2;
         colfg.alpha = fg->color.alpha;
-        XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &colfg, &revfg);
+        XftColorAllocValue(x_window.display, x_window.vis, x_window.color_map, &colfg, &revfg);
         fg = &revfg;
     }
 
