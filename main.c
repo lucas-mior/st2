@@ -1532,7 +1532,7 @@ x_im_open(Display *display) {
                         "Could not set XNDestroyCallback.\n");
     }
 
-    x_window.ime.spotlist = XVaCreateNestedList(0, XNSpotLocation, &x_window.ime.spot, NULL);
+    x_window.ime.spotlist = XVaCreateNestedList(0, XNSpotLocation, &x_window.ime.point, NULL);
 
     if (x_window.ime.xic == NULL) {
         x_window.ime.xic
@@ -2043,8 +2043,8 @@ x_xim_spot(int32 x, int32 y) {
         return;
     }
 
-    x_window.ime.spot.x = (int16)(CONF_BORDER_PIXELS + x*term_window.cw);
-    x_window.ime.spot.y = (int16)(CONF_BORDER_PIXELS + (y + 1)*term_window.ch);
+    x_window.ime.point.x = (int16)(CONF_BORDER_PIXELS + x*term_window.cw);
+    x_window.ime.point.y = (int16)(CONF_BORDER_PIXELS + (y + 1)*term_window.ch);
 
     XSetICValues(x_window.ime.xic, XNPreeditAttributes, x_window.ime.spotlist, NULL);
     return;

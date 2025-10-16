@@ -266,7 +266,7 @@ typedef struct {
     struct {
         XIM xim;
         XIC xic;
-        XPoint spot;
+        XPoint point;
         XVaNestedList spotlist;
     } ime;
     XftDraw *draw;
