@@ -219,7 +219,6 @@ static void term_insert_blank_line(int32);
 static int32 term_line_len(Glyph *len);
 static int32 term_is_wrapped(Glyph *line);
 static char *term_get_glyphs(char *, const Glyph *, const Glyph *);
-static int64 tgetline(char *, const Glyph *);
 static void term_move_to(int32, int32);
 static void term_move_abs_to(int32, int32);
 static void term_new_line(int32);
@@ -514,21 +513,6 @@ term_get_glyphs(char *buffer, const Glyph *gp, const Glyph *lgp) {
         }
     }
     return buffer;
-}
-
-int64
-tgetline(char *buffer, const Glyph *fgp) {
-    char *ptr;
-    const Glyph *lgp = &fgp[term.ncols - 1];
-
-    while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
-        lgp--;
-    }
-    ptr = term_get_glyphs(buffer, fgp, lgp);
-    if (!(lgp->mode & ATTR_WRAP)) {
-        *(ptr++) = '\n';
-    }
-    return (int64)(ptr - buffer);
 }
 
 static int32
@@ -2593,7 +2577,24 @@ term_dump_sel(void) {
 void
 term_dump_line(int32 n) {
     char *string = xmalloc((int64)((term.ncols + 1)*UTF_SIZ) * SIZEOF(*string));
-    term_printer(string, tgetline(string, &term.line[n][0]));
+    char *buffer = string;
+
+    const Glyph *fgp = &term.line[n][0];
+    const Glyph *lgp = &fgp[term.ncols - 1];
+    int n2;
+    char *ptr;
+
+    while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
+        lgp--;
+    }
+    ptr = term_get_glyphs(buffer, fgp, lgp);
+
+    if (!(lgp->mode & ATTR_WRAP)) {
+        *(ptr++) = '\n';
+    }
+    n2 = ptr - buffer;
+
+    term_printer(string, n2);
     return;
 }
 
