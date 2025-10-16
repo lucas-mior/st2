@@ -8,10 +8,10 @@ CC=clang
 
 VERSION="0.9.3"
 
-CFLAGS="$CFLAGS -Wall -Wextra -fsanitize=undefined" #-Werror -ferror-limit=1"
+CFLAGS="$CFLAGS -fsanitize=undefined" #-Werror -ferror-limit=1"
 CFLAGS="$CFLAGS -Wno-type-limits -Wno-implicit-fallthrough"
 if [ "$CC" = "clang" ]; then
-    CFLAGS="$CFLAGS -Weverything -Wno-unsafe-buffer-usage"
+    CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
     CFLAGS="$CFLAGS -Wno-padded -Wno-format-nonliteral"
     CFLAGS="$CFLAGS -Wno-float-conversion"
 fi

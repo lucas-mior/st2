@@ -98,7 +98,7 @@ typedef struct {
 
 /* Drawing Context */
 typedef struct {
-    Color *col;
+    Color *color;
     int32 collen;
     Font font, bfont, ifont, ibfont;
     GC graphics;
@@ -359,8 +359,8 @@ run:
         }
 
         /* Events */
-        x_window.attrs.background_pixel = draw_context.col[CONF_COLOR_INDEX_BACK].pixel;
-        x_window.attrs.border_pixel = draw_context.col[CONF_COLOR_INDEX_BACK].pixel;
+        x_window.attrs.background_pixel = draw_context.color[CONF_COLOR_INDEX_BACK].pixel;
+        x_window.attrs.border_pixel = draw_context.color[CONF_COLOR_INDEX_BACK].pixel;
         x_window.attrs.bit_gravity = NorthWestGravity;
         x_window.attrs.event_mask = FocusChangeMask | KeyPressMask | KeyReleaseMask | ExposureMask
                                     | VisibilityChangeMask | StructureNotifyMask | ButtonMotionMask
@@ -382,7 +382,7 @@ run:
         x_window.buffer = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
                                         (uint32)term_window.h, (uint32)x_window.depth);
         XSetForeground(x_window.display, draw_context.graphics,
-                       draw_context.col[CONF_COLOR_INDEX_BACK].pixel);
+                       draw_context.color[CONF_COLOR_INDEX_BACK].pixel);
         XFillRectangle(x_window.display, x_window.buffer, draw_context.graphics, 0, 0,
                        (uint32)term_window.w, (uint32)term_window.h);
 
@@ -1162,16 +1162,16 @@ x_load_cols(void) {
     Color *cp;
 
     if (loaded) {
-        for (cp = draw_context.col; cp < &draw_context.col[draw_context.collen]; ++cp) {
+        for (cp = draw_context.color; cp < &draw_context.color[draw_context.collen]; ++cp) {
             XftColorFree(x_window.display, x_window.vis, x_window.cmap, cp);
         }
     } else {
         draw_context.collen = MAX(LENGTH(CONF_COLORS), 256);
-        draw_context.col = xmalloc((uint16)draw_context.collen*SIZEOF(Color));
+        draw_context.color = xmalloc((uint16)draw_context.collen*SIZEOF(Color));
     }
 
     for (int32 i = 0; i < draw_context.collen; i++) {
-        if (!x_load_color(i, NULL, &draw_context.col[i])) {
+        if (!x_load_color(i, NULL, &draw_context.color[i])) {
             if (CONF_COLORS[i]) {
                 die("could not allocate color '%s'\n", CONF_COLORS[i]);
             } else {
@@ -1180,14 +1180,14 @@ x_load_cols(void) {
         }
     }
 
-    draw_context.col[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff*CONF_ALPHA);
-    draw_context.col[CONF_COLOR_INDEX_BACK].pixel &= 0x00FFFFFF;
-    draw_context.col[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xFF*CONF_ALPHA) & 0xFF) << 24;
+    draw_context.color[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff*CONF_ALPHA);
+    draw_context.color[CONF_COLOR_INDEX_BACK].pixel &= 0x00FFFFFF;
+    draw_context.color[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xFF*CONF_ALPHA) & 0xFF) << 24;
 
     for (int32 i = 16; i < 16 + CONF_NTRANSPARENT_COLORS; i++) {
-        draw_context.col[i].color.alpha = (uint16)(0xffff*CONF_ALPHA);
-        draw_context.col[i].pixel &= 0x00FFFFFF;
-        draw_context.col[i].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff) << 24;
+        draw_context.color[i].color.alpha = (uint16)(0xffff*CONF_ALPHA);
+        draw_context.color[i].pixel &= 0x00FFFFFF;
+        draw_context.color[i].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff) << 24;
     }
     loaded = 1;
     return;
@@ -1199,9 +1199,9 @@ x_get_color(int32 x, uchar *r, uchar *g, uchar *b) {
         return 1;
     }
 
-    *r = draw_context.col[x].color.red >> 8;
-    *g = draw_context.col[x].color.green >> 8;
-    *b = draw_context.col[x].color.blue >> 8;
+    *r = draw_context.color[x].color.red >> 8;
+    *g = draw_context.color[x].color.green >> 8;
+    *b = draw_context.color[x].color.blue >> 8;
 
     return 0;
 }
@@ -1218,13 +1218,14 @@ x_set_color_name(int32 x, const char *name) {
         return 1;
     }
 
-    XftColorFree(x_window.display, x_window.vis, x_window.cmap, &draw_context.col[x]);
-    draw_context.col[x] = ncolor;
+    XftColorFree(x_window.display, x_window.vis, x_window.cmap, &draw_context.color[x]);
+    draw_context.color[x] = ncolor;
 
     if (x == CONF_COLOR_INDEX_BACK) {
-        draw_context.col[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff*CONF_ALPHA);
-        draw_context.col[CONF_COLOR_INDEX_BACK].pixel &= 0x00FFFFFF;
-        draw_context.col[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff) << 24;
+        draw_context.color[CONF_COLOR_INDEX_BACK].color.alpha = (uint16)(0xffff*CONF_ALPHA);
+        draw_context.color[CONF_COLOR_INDEX_BACK].pixel &= 0x00FFFFFF;
+        draw_context.color[CONF_COLOR_INDEX_BACK].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff)
+                                                           << 24;
     }
 
     return 0;
@@ -1242,7 +1243,7 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
         color_index = CONF_COLOR_INDEX_BACK;
     }
 
-    XftDrawRect(x_window.draw, &draw_context.col[color_index], x1, y1, (uint32)(x2 - x1),
+    XftDrawRect(x_window.draw, &draw_context.color[color_index], x1, y1, (uint32)(x2 - x1),
                 (uint32)(y2 - y1));
     return;
 }
@@ -1793,7 +1794,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &colfg, &truefg);
         fg = &truefg;
     } else {
-        fg = &draw_context.col[base.fg];
+        fg = &draw_context.color[base.fg];
     }
 
     if (IS_TRUECOL(base.bg)) {
@@ -1804,12 +1805,12 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
         XftColorAllocValue(x_window.display, x_window.vis, x_window.cmap, &colbg, &truebg);
         bg = &truebg;
     } else {
-        bg = &draw_context.col[base.bg];
+        bg = &draw_context.color[base.bg];
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
-        if (fg == &draw_context.col[CONF_COLOR_INDEX_FONT]) {
-            fg = &draw_context.col[CONF_COLOR_INDEX_BACK];
+        if (fg == &draw_context.color[CONF_COLOR_INDEX_FONT]) {
+            fg = &draw_context.color[CONF_COLOR_INDEX_BACK];
         } else {
             colfg.red = ~fg->color.red;
             colfg.green = ~fg->color.green;
@@ -1819,8 +1820,8 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
             fg = &revfg;
         }
 
-        if (bg == &draw_context.col[CONF_COLOR_INDEX_BACK]) {
-            bg = &draw_context.col[CONF_COLOR_INDEX_FONT];
+        if (bg == &draw_context.color[CONF_COLOR_INDEX_BACK]) {
+            bg = &draw_context.color[CONF_COLOR_INDEX_FONT];
         } else {
             colbg.red = ~bg->color.red;
             colbg.green = ~bg->color.green;
@@ -1847,9 +1848,9 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
     }
 
     if (base.mode & ATTR_SELECTED) {
-        bg = &draw_context.col[CONF_COLOR_INDEX_SELECTION_BACK];
+        bg = &draw_context.color[CONF_COLOR_INDEX_SELECTION_BACK];
         if (!CONF_COLOR_IGNORE_SELECTION_FONT_COLOR) {
-            fg = &draw_context.col[CONF_COLOR_INDEX_SELECTION_FONT];
+            fg = &draw_context.color[CONF_COLOR_INDEX_SELECTION_FONT];
         }
     }
 
@@ -1951,11 +1952,11 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
         g.mode |= ATTR_REVERSE;
         g.fg = CONF_COLOR_INDEX_CURSOR;
         g.bg = CONF_COLOR_INDEX_FONT;
-        drawcol = draw_context.col[CONF_COLOR_INDEX_REVCURSOR];
+        drawcol = draw_context.color[CONF_COLOR_INDEX_REVCURSOR];
     } else {
         g.fg = CONF_COLOR_INDEX_BACK;
         g.bg = CONF_COLOR_INDEX_CURSOR;
-        drawcol = draw_context.col[CONF_COLOR_INDEX_CURSOR];
+        drawcol = draw_context.color[CONF_COLOR_INDEX_CURSOR];
     }
 
     /* draw the new one */
@@ -2081,8 +2082,8 @@ x_finish_draw(void) {
               (uint32)term_window.w, (uint32)term_window.h, 0, 0);
     XSetForeground(x_window.display, draw_context.graphics,
                    draw_context
-                       .col[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT
-                                                                 : CONF_COLOR_INDEX_BACK]
+                       .color[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT
+                                                                   : CONF_COLOR_INDEX_BACK]
                        .pixel);
     return;
 }
