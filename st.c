@@ -2461,7 +2461,8 @@ externalpipe(const Arg *arg) {
     int32 to[2];
     char buffer[UTF_SIZ];
     void (*oldsigpipe)(int32);
-    Glyph *bp, *end;
+    Glyph *bp;
+    Glyph *end;
     int32 lastpos;
     int32 newline;
     char *const *argv = arg->v;
