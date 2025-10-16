@@ -3276,9 +3276,9 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     /* --- allocate reflow buffer --- */
-    assert(nlines <= HISTORY_SIZE);
+    assert(nlines <= 2*HISTORY_SIZE);
     if (buffer == NULL) {
-        buffer = xmalloc((int64)HISTORY_SIZE*SIZEOF(*buffer));
+        buffer = xmalloc((int64)2*HISTORY_SIZE * SIZEOF(*buffer));
     }
 
     /* --- reflow old lines into buffer --- */
