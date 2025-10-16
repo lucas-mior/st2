@@ -502,6 +502,30 @@ run:
             }
 
             draw();
+            error("Terminal:\n");
+            error("nrows = %d\n", term.nrows);
+            error("ncols = %d\n", term.ncols);
+            error("line = %p\n", term.line);
+            error("hist = %p\n", term.hist);
+            error("histi = %d\n", term.histi);
+            error("histf = %d\n", term.histf);
+            error("lines_scrolled_up = %d\n", term.lines_scrolled_up);
+            error("wrapcwidth[2] = [%d, %d]\n", term.wrapcwidth[0], term.wrapcwidth[1]);
+            error("dirty[0] = %d\n", term.dirty[0]);
+            error("TCursor.xy = (%d, term.%d)\n", term.cursor.x, term.cursor.y);
+            error("old_cursor_x = %d\n", term.old_cursor_x);
+            error("old_cursor_y = %d\n", term.old_cursor_y);
+            error("top = %d\n", term.top);
+            error("bot = %d\n", term.bot);
+            error("mode = %d\n", term.mode);
+            error("esc = %d\n", term.esc);
+            error("trantbl[4] = %c %c %c %c\n", term.trantbl[0], term.trantbl[1], term.trantbl[2],
+                  term.trantbl[3]);
+            error("charset = %d\n", term.charset);
+            error("icharset = %d\n", term.icharset);
+            error("tabs[0] = %d\n", term.tabs[0]);
+            error("Rune lastc = %u\n\n", term.lastc);
+
             XFlush(x_window.display);
             drawing = 0;
         }
