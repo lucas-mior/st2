@@ -2581,7 +2581,6 @@ term_dump_line(int32 n) {
 
     const Glyph *fgp = &term.line[n][0];
     const Glyph *lgp = &fgp[term.ncols - 1];
-    int n2;
     char *ptr;
 
     while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
@@ -2592,9 +2591,8 @@ term_dump_line(int32 n) {
     if (!(lgp->mode & ATTR_WRAP)) {
         *(ptr++) = '\n';
     }
-    n2 = ptr - buffer;
 
-    term_printer(string, n2);
+    term_printer(string, ptr - buffer);
     return;
 }
 
