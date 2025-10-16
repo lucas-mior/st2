@@ -50,8 +50,10 @@
 #define IS_CONTROl(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
 #define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
 #define TERM_LINE(y)                                                                               \
-    ((y) < term.scr ? term.hist[(term.histi + (y) - term.scr + 1 + HISTORY_SIZE) % HISTORY_SIZE]   \
-                    : term.line[(y) - term.scr])
+    ((y) < term.lines_scrolled_up                                                                  \
+         ? term.hist[(term.histi + (y) - term.lines_scrolled_up + 1 + HISTORY_SIZE)                \
+                     % HISTORY_SIZE]                                                               \
+         : term.line[(y) - term.lines_scrolled_up])
 
 #define TERM_LINE_ABS(y)                                                                           \
     ((y) < 0 ? term.hist[(term.histi + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] : term.line[(y)])
@@ -148,7 +150,7 @@ typedef struct {
     Glyph *hist[HISTORY_SIZE]; /* history buffer */
     int32 histi;               /* history index */
     int32 histf;               /* nb history available */
-    int32 scr;                 /* scroll back */
+    int32 lines_scrolled_up;   /* scroll back */
     int32 wrapcwidth[2];       /* used in updating WRAPNEXT when resizing */
     int32 *dirty;              /* dirtyness of lines */
     TCursor cursor;            /* cursor */
@@ -680,8 +682,8 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
     const Glyph *gp, *prevgp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-        rtop += term.scr - term.histf;
-        rbot += term.scr;
+        rtop += term.lines_scrolled_up - term.histf;
+        rbot += term.lines_scrolled_up;
     }
 
     switch (selection.snap) {
@@ -1041,7 +1043,7 @@ void
 tty_write(const char *s, int64 n, int32 may_echo) {
     const char *next;
 
-    user_scroll_down(&((Arg){.i = term.scr}));
+    user_scroll_down(&((Arg){.i = term.lines_scrolled_up}));
 
     if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHO)) {
         term_write(s, (int32)n, 1);
@@ -1234,7 +1236,7 @@ term_reset(void) {
     }
     term.top = 0;
     term.histf = 0;
-    term.scr = 0;
+    term.lines_scrolled_up = 0;
     term.bot = term.nrows - 1;
     term.mode = TERM_MODE_WRAP | TERM_MODE_UTF8;
     memset(term.trantbl, CS_USA, SIZEOF(term.trantbl));
@@ -1309,7 +1311,7 @@ term_load_alt_screen(int32 clear, int32 savecursor) {
         col = term.ncols;
         row = term.nrows;
         term_swap_screen();
-        term.scr = 0;
+        term.lines_scrolled_up = 0;
         term_resize_alt(col, row);
     }
     if (clear) {
@@ -1327,7 +1329,7 @@ void
 user_scroll_down(const Arg *a) {
     int32 n = a->i;
 
-    if (!term.scr || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (!term.lines_scrolled_up || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         return;
     }
 
@@ -1335,14 +1337,14 @@ user_scroll_down(const Arg *a) {
         n = MAX(term.nrows / -n, 1);
     }
 
-    if (n <= term.scr) {
-        term.scr -= n;
+    if (n <= term.lines_scrolled_up) {
+        term.lines_scrolled_up -= n;
     } else {
-        n = term.scr;
-        term.scr = 0;
+        n = term.lines_scrolled_up;
+        term.lines_scrolled_up = 0;
     }
     if (selection.ob.x != -1 && !selection.alt) {
-        selection_move(-n); /* negate change in term.scr */
+        selection_move(-n); /* negate change in term.lines_scrolled_up */
     }
     term_full_dirt();
     return;
@@ -1360,15 +1362,15 @@ user_scroll_up(const Arg *a) {
         n = MAX(term.nrows / -n, 1);
     }
 
-    if (term.scr + n <= term.histf) {
-        term.scr += n;
+    if (term.lines_scrolled_up + n <= term.histf) {
+        term.lines_scrolled_up += n;
     } else {
-        n = term.histf - term.scr;
-        term.scr = term.histf;
+        n = term.histf - term.lines_scrolled_up;
+        term.lines_scrolled_up = term.histf;
     }
 
     if (selection.ob.x != -1 && !selection.alt) {
-        selection_move(n); /* negate change in term.scr */
+        selection_move(n); /* negate change in term.lines_scrolled_up */
     }
     term_full_dirt();
     return;
@@ -1423,10 +1425,10 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
         }
         term.histf = MIN(term.histf + n, HISTORY_SIZE);
         s = n;
-        if (term.scr) {
-            int32 j = term.scr;
-            term.scr = MIN(j + n, HISTORY_SIZE);
-            s = j + n - term.scr;
+        if (term.lines_scrolled_up) {
+            int32 j = term.lines_scrolled_up;
+            term.lines_scrolled_up = MIN(j + n, HISTORY_SIZE);
+            s = j + n - term.lines_scrolled_up;
         }
         if (mode != SCROLL_RESIZE) {
             term_full_dirt();
@@ -1447,7 +1449,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
             selection_scroll(top, bot, -n);
         } else if (s > 0) {
             selection_move(-s);
-            if (-term.scr + selection.nb.y < -term.histf) {
+            if (-term.lines_scrolled_up + selection.nb.y < -term.histf) {
                 selection_remove();
             }
         }
@@ -1467,8 +1469,8 @@ selection_move(int32 n) {
 void
 selection_scroll(int32 top, int32 bot, int32 n) {
     /* turn absolute coordinates into relative */
-    top += term.scr;
-    bot += term.scr;
+    top += term.lines_scrolled_up;
+    bot += term.lines_scrolled_up;
 
     if (BETWEEN(selection.nb.y, top, bot) != BETWEEN(selection.ne.y, top, bot)) {
         selection_clear();
@@ -1615,7 +1617,8 @@ term_clear_glyph(Glyph *gp, int32 usecurattr) {
 void
 term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, int32 usecurattr) {
     /* selection_is_selected4() takes relative coordinates */
-    if (selection_is_selected4(x1 + term.scr, y1 + term.scr, x2 + term.scr, y2 + term.scr)) {
+    if (selection_is_selected4(x1 + term.lines_scrolled_up, y1 + term.lines_scrolled_up,
+                               x2 + term.lines_scrolled_up, y2 + term.lines_scrolled_up)) {
         selection_remove();
     }
 
@@ -2975,7 +2978,8 @@ check_control_code:
     }
 
     /* selection_is_selected() takes relative coordinates */
-    if (selection_is_selected(term.cursor.x + term.scr, term.cursor.y + term.scr)) {
+    if (selection_is_selected(term.cursor.x + term.lines_scrolled_up,
+                              term.cursor.y + term.lines_scrolled_up)) {
         selection_clear();
     }
 
@@ -3081,10 +3085,10 @@ reflow_scroll_down(int32 n) {
     }
     term.cursor.y += n;
     term.histf -= n;
-    if ((j = term.scr - n) >= 0) {
-        term.scr = j;
+    if ((j = term.lines_scrolled_up - n) >= 0) {
+        term.lines_scrolled_up = j;
     } else {
-        term.scr = 0;
+        term.lines_scrolled_up = 0;
         if (selection.ob.x != -1 && !selection.alt) {
             selection_move(-j);
         }
@@ -3394,7 +3398,7 @@ term_reflow(int32 ncols, int32 nrows) {
         term.histf = -k - 1;
     }
 
-    term.scr = MIN(term.scr, term.histf);
+    term.lines_scrolled_up = MIN(term.lines_scrolled_up, term.histf);
 
     /* --- reallocate remaining history lines --- */
     for (int32 k = -term.histf - 1; k >= -HISTORY_SIZE; k--) {
