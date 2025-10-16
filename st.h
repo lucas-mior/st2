@@ -273,7 +273,7 @@ typedef struct {
         XPoint point;
         XVaNestedList spotlist;
     } ime;
-    XftDraw *draw;
+    XftDraw *xft_draw;
     Visual *visual;
     XSetWindowAttributes attrs;
     int32 screen;

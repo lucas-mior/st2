@@ -325,8 +325,8 @@ run:
         x_window.specbuf = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(GlyphFontSpec));
 
         /* Xft rendering context */
-        x_window.draw = XftDrawCreate(x_window.display, x_window.drawable, x_window.visual,
-                                      x_window.color_map);
+        x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable, x_window.visual,
+                                          x_window.color_map);
 
         /* input methods */
         if (!x_im_open(x_window.display)) {
@@ -381,7 +381,7 @@ run:
             xsel.xtarget = XA_STRING;
         }
 
-        boxdraw_xinit(x_window.display, x_window.color_map, x_window.draw, x_window.visual);
+        boxdraw_xinit(x_window.display, x_window.color_map, x_window.xft_draw, x_window.visual);
     }
 
     {
@@ -1074,7 +1074,7 @@ x_resize(int32 col, int32 row) {
     XFreePixmap(x_window.display, x_window.drawable);
     x_window.drawable = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
                                       (uint32)term_window.h, (uint32)x_window.depth);
-    XftDrawChange(x_window.draw, x_window.drawable);
+    XftDrawChange(x_window.xft_draw, x_window.drawable);
     x_clear(0, 0, term_window.w, term_window.h);
 
     /* handler_configure_notify to new width */
@@ -1190,7 +1190,7 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
         color_index = CONF_COLOR_BG;
     }
 
-    XftDrawRect(x_window.draw, &draw_context.color[color_index], x1, y1, (uint32)(x2 - x1),
+    XftDrawRect(x_window.xft_draw, &draw_context.color[color_index], x1, y1, (uint32)(x2 - x1),
                 (uint32)(y2 - y1));
     return;
 }
@@ -1833,38 +1833,38 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len, in
     }
 
     /* Clean up the region we want to draw to. */
-    XftDrawRect(x_window.draw, bg, winx, winy, (uint32)width, (uint32)term_window.ch);
+    XftDrawRect(x_window.xft_draw, bg, winx, winy, (uint32)width, (uint32)term_window.ch);
 
     /* Set the clip region because Xft is sometimes dirty. */
     r.x = 0;
     r.y = 0;
     r.height = (uint16)term_window.ch;
     r.width = (uint16)width;
-    XftDrawSetClipRectangles(x_window.draw, winx, winy, &r, 1);
+    XftDrawSetClipRectangles(x_window.xft_draw, winx, winy, &r, 1);
 
     if (base.mode & ATTR_BOXDRAW) {
         drawboxes(winx, winy, width / len, term_window.ch, fg, bg, specs, len);
     } else {
         /* Render the glyphs. */
-        XftDrawGlyphFontSpec(x_window.draw, fg, specs, len);
+        XftDrawGlyphFontSpec(x_window.xft_draw, fg, specs, len);
     }
 
     /* Render underline and strikethrough. */
     if (base.mode & ATTR_UNDERLINE) {
-        XftDrawRect(x_window.draw, fg, winx,
+        XftDrawRect(x_window.xft_draw, fg, winx,
                     winy + (int32)((float)draw_context.font.ascent*CONF_CHAR_HEIGHT_SCALE) + 1,
                     (uint32)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
-        XftDrawRect(x_window.draw, fg, winx,
+        XftDrawRect(x_window.xft_draw, fg, winx,
                     winy
                         + 2*(int32)((float)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE / 3),
                     (uint32)width, 1);
     }
 
     /* Reset clip to none. */
-    XftDrawSetClip(x_window.draw, 0);
+    XftDrawSetClip(x_window.xft_draw, 0);
     return;
 }
 
@@ -1921,14 +1921,14 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
             break;
         case 3: /* Blinking Underline */
         case 4: /* Steady Underline */
-            XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+            XftDrawRect(x_window.xft_draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
                         term_window.vborderpx + (cy + 1)*term_window.ch
                             - (int32)CONF_CURSOR_THICKNESS,
                         (uint32)term_window.cw, (uint32)CONF_CURSOR_THICKNESS);
             break;
         case 5: /* Blinking bar */
         case 6: /* Steady bar */
-            XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+            XftDrawRect(x_window.xft_draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
                         term_window.vborderpx + cy*term_window.ch, CONF_CURSOR_THICKNESS,
                         (uint32)term_window.ch);
             break;
@@ -1937,13 +1937,14 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
             break;
         }
     } else {
-        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+        XftDrawRect(x_window.xft_draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
                     term_window.vborderpx + cy*term_window.ch, (uint32)(term_window.cw - 1), 1);
-        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+        XftDrawRect(x_window.xft_draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
                     term_window.vborderpx + cy*term_window.ch, 1, (uint32)(term_window.ch - 1));
-        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + (cx + 1)*term_window.cw - 1,
+        XftDrawRect(x_window.xft_draw, &drawcol,
+                    term_window.hborderpx + (cx + 1)*term_window.cw - 1,
                     term_window.vborderpx + cy*term_window.ch, 1, (uint32)(term_window.ch - 1));
-        XftDrawRect(x_window.draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
+        XftDrawRect(x_window.xft_draw, &drawcol, term_window.hborderpx + cx*term_window.cw,
                     term_window.vborderpx + (cy + 1)*term_window.ch - 1, (uint32)term_window.cw,
                     1);
     }
