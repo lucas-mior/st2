@@ -8,7 +8,7 @@ CC=clang
 
 VERSION="0.9.3"
 
-CFLAGS="$CFLAGS -Wall -Wextra -fsanitize=undefined -g" #-Werror -ferror-limit=1"
+CFLAGS="$CFLAGS -Wall -Wextra -fsanitize=undefined" #-Werror -ferror-limit=1"
 CFLAGS="$CFLAGS -Wno-type-limits -Wno-implicit-fallthrough"
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything -Wno-unsafe-buffer-usage"
