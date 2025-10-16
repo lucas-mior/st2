@@ -2285,7 +2285,8 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
 
 void
 string_handle(void) {
-    char *p = NULL, *dec;
+    char *p = NULL;
+    char *dec;
     int32 j;
     int32 narg;
     int32 par;
