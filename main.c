@@ -362,8 +362,8 @@ run:
         x_window.net_wm_iconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
         XSetWMProtocols(x_window.display, x_window.win, &x_window.wm_delete_win, 1);
 
-        x_window.netwmpid = XInternAtom(x_window.display, "_NET_WM_PID", False);
-        XChangeProperty(x_window.display, x_window.win, x_window.netwmpid, XA_CARDINAL, 32,
+        x_window.net_wm_pid = XInternAtom(x_window.display, "_NET_WM_PID", False);
+        XChangeProperty(x_window.display, x_window.win, x_window.net_wm_pid, XA_CARDINAL, 32,
                         PropModeReplace, (uchar *)&pid_this, 1);
 
         term_window.mode = WIN_MODE_NUMLOCK;
