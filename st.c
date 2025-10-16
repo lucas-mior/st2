@@ -150,7 +150,7 @@ typedef struct {
     Glyph **line;              /* screen */
     Glyph *hist[HISTORY_SIZE]; /* history buffer */
     int32 histi;               /* history index */
-    int32 histf;               /* nb history available */
+    int32 n_hist;              /* nb history available */
     int32 lines_scrolled_up;   /* scroll back */
     int32 wrapcwidth[2];       /* used in updating WRAPNEXT when resizing */
     bool *dirty;               /* dirtyness of lines */
@@ -682,7 +682,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
     const Glyph *gp, *prevgp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-        rtop += term.lines_scrolled_up - term.histf;
+        rtop += term.lines_scrolled_up - term.n_hist;
         rbot += term.lines_scrolled_up;
     }
 
@@ -1235,7 +1235,7 @@ term_reset(void) {
         term.tabs[i] = 1;
     }
     term.top = 0;
-    term.histf = 0;
+    term.n_hist = 0;
     term.lines_scrolled_up = 0;
     term.bot = term.nrows - 1;
     term.mode = TERM_MODE_WRAP | TERM_MODE_UTF8;
@@ -1354,7 +1354,7 @@ void
 user_scroll_up(const Arg *a) {
     int32 n = a->i;
 
-    if (!term.histf || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (!term.n_hist || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         return;
     }
 
@@ -1362,11 +1362,11 @@ user_scroll_up(const Arg *a) {
         n = MAX(term.nrows / -n, 1);
     }
 
-    if (term.lines_scrolled_up + n <= term.histf) {
+    if (term.lines_scrolled_up + n <= term.n_hist) {
         term.lines_scrolled_up += n;
     } else {
-        n = term.histf - term.lines_scrolled_up;
-        term.lines_scrolled_up = term.histf;
+        n = term.n_hist - term.lines_scrolled_up;
+        term.lines_scrolled_up = term.n_hist;
     }
 
     if (selection.ob.x != -1 && !selection.alt) {
@@ -1423,7 +1423,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
             term.hist[term.histi] = term.line[i];
             term.line[i] = temp;
         }
-        term.histf = MIN(term.histf + n, HISTORY_SIZE);
+        term.n_hist = MIN(term.n_hist + n, HISTORY_SIZE);
         s = n;
         if (term.lines_scrolled_up) {
             int32 j = term.lines_scrolled_up;
@@ -1449,7 +1449,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
             selection_scroll(top, bot, -n);
         } else if (s > 0) {
             selection_move(-s);
-            if (-term.lines_scrolled_up + selection.nb.y < -term.histf) {
+            if (-term.lines_scrolled_up + selection.nb.y < -term.n_hist) {
                 selection_remove();
             }
         }
@@ -3075,7 +3075,7 @@ reflow_scroll_down(int32 n) {
        if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
        return; */
 
-    if ((n = MIN(n, term.histf)) <= 0) {
+    if ((n = MIN(n, term.n_hist)) <= 0) {
         return;
     }
 
@@ -3091,7 +3091,7 @@ reflow_scroll_down(int32 n) {
         term.histi = (term.histi - 1 + HISTORY_SIZE) % HISTORY_SIZE;
     }
     term.cursor.y += n;
-    term.histf -= n;
+    term.n_hist -= n;
     if ((j = term.lines_scrolled_up - n) >= 0) {
         term.lines_scrolled_up = j;
     } else {
@@ -3246,7 +3246,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 bottom_visible_line;
     int32 scroll_offset;
     int32 old_x_offset = 0;
-    int32 old_y_index = -term.histf;
+    int32 old_y_index = -term.n_hist;
     int32 new_x_offset = 0;
     int32 new_y_index = -1;
     int32 len = 0;
@@ -3263,7 +3263,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     /* --- compute required number of lines --- */
-    nlines = term.histf + old_cursor_end_line + 1;
+    nlines = term.n_hist + old_cursor_end_line + 1;
     if (new_ncols < term.ncols) {
         int32 lines_per_old_line = (term.ncols + new_ncols - 1) / new_ncols;
         nlines = lines_per_old_line*nlines;
@@ -3404,13 +3404,13 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             xfree(term.hist[j]);
             term.hist[j] = buffer[new_y_index];
         }
-        term.histf = -k - 1;
+        term.n_hist = -k - 1;
     }
 
-    term.lines_scrolled_up = MIN(term.lines_scrolled_up, term.histf);
+    term.lines_scrolled_up = MIN(term.lines_scrolled_up, term.n_hist);
 
     /* --- reallocate remaining history lines --- */
-    for (int32 k = -term.histf - 1; k >= -HISTORY_SIZE; k--) {
+    for (int32 k = -term.n_hist - 1; k >= -HISTORY_SIZE; k--) {
         int32 j = (term.histi + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
         term.hist[j] = xrealloc(term.hist[j], (int64)new_ncols*SIZEOF(*(term.hist[j])));
     }

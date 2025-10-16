@@ -508,7 +508,7 @@ run:
             /* error("line = %p\n", term.line); */
             /* error("hist = %p\n", term.hist); */
             /* error("histi = %d\n", term.histi); */
-            /* error("histf = %d\n", term.histf); */
+            /* error("n_hist = %d\n", term.n_hist); */
             /* error("lines_scrolled_up = %d\n", term.lines_scrolled_up); */
             /* error("wrapcwidth[2] = [%d, %d]\n", term.wrapcwidth[0], term.wrapcwidth[1]); */
             /* error("dirty[0] = %d\n", term.dirty[0]); */
