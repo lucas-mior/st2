@@ -270,7 +270,7 @@ static Term term;
 static Selection selection;
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
-static int32 iofd = 1;
+static int32 io_fd = 1;
 static int32 command_fd;
 static pid_t pid;
 
@@ -955,8 +955,8 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
 
     if (out) {
         term.mode |= TERM_MODE_PRINT;
-        iofd = (!strcmp(out, "-")) ? 1 : open(out, O_WRONLY | O_CREAT, 0666);
-        if (iofd < 0) {
+        io_fd = (!strcmp(out, "-")) ? 1 : open(out, O_WRONLY | O_CREAT, 0666);
+        if (io_fd < 0) {
             fprintf(stderr, "Error opening %s:%s\n", out, strerror(errno));
         }
     }
@@ -980,7 +980,7 @@ tty_new(const char *line, char *cmd, const char *out, char **args) {
         die("fork failed: %s\n", strerror(errno));
         break;
     case 0:
-        close(iofd);
+        close(io_fd);
         close(amaster);
         setsid();
         dup2(aslave, 0);
@@ -2550,10 +2550,10 @@ user_send_break(const Arg *arg) {
 
 void
 term_printer(char *s, int64 len) {
-    if (iofd != -1 && xwrite(iofd, s, len) < 0) {
+    if (io_fd != -1 && xwrite(io_fd, s, len) < 0) {
         perror("Error writing to output file");
-        close(iofd);
-        iofd = -1;
+        close(io_fd);
+        io_fd = -1;
     }
     return;
 }
