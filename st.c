@@ -3396,11 +3396,15 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     /* --- populate visible lines --- */
     for (; i >= term.nrows; i--, new_y_index--) {
-        memmove(&term.line[i], &buffer[new_y_index], sizeof(term.line[i]));
+        error("term.line before:%p\n", term.line[i]);
+        memmove(term.line[i], buffer[new_y_index], (size_t)new_ncols*sizeof(term.line[i]));
+        error("term.line after:%p\n", term.line[i]);
     }
 
     for (; i >= 0; i--, new_y_index--) {
-        memmove(&term.line[i], &buffer[new_y_index], sizeof(term.line[i]));
+        error("term.line before2:%p\n", term.line[i]);
+        memmove(term.line[i], buffer[new_y_index], (size_t)new_ncols*sizeof(term.line[i]));
+        error("term.line after2:%p\n", term.line[i]);
     }
 
     /* --- update history buffer --- */
