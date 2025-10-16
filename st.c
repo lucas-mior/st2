@@ -243,6 +243,7 @@ static int32 term_write(const char *, int32, int32);
 static void term_full_dirt(void);
 static void term_control_code(uchar);
 static void term_dec_test(char);
+static void term_def_utf8(char);
 static int32_t term_def_color(const int32 *, int32 *, int32);
 static void term_def_tran(char);
 static void term_str_sequence(uchar);
@@ -2627,6 +2628,16 @@ term_put_tab(int32 n) {
 }
 
 void
+term_def_utf8(char ascii) {
+    if (ascii == 'G') {
+        term.mode |= TERM_MODE_UTF8;
+    } else if (ascii == '@') {
+        term.mode &= ~TERM_MODE_UTF8;
+    }
+    return;
+}
+
+void
 term_def_tran(char ascii) {
     static char cs[] = "0B";
     static int32 vcs[] = {CS_GRAPHIC0, CS_USA};
@@ -2959,12 +2970,7 @@ check_control_code:
             }
             return;
         } else if (term.esc & ESC_UTF8) {
-            char ascii = u;
-            if (ascii == 'G') {
-                term.mode |= TERM_MODE_UTF8;
-            } else if (ascii == '@') {
-                term.mode &= ~TERM_MODE_UTF8;
-            }
+            term_def_utf8((char)u);
         } else if (term.esc & ESC_ALTCHARSET) {
             term_def_tran((char)u);
         } else if (term.esc & ESC_TEST) {
