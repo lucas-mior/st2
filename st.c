@@ -148,6 +148,7 @@ typedef struct {
     int32 nrows;               /* nb row */
     int32 ncols;               /* nb col */
     Glyph **line;              /* screen */
+    Glyph *line_buffer;        /* screen */
     Glyph *hist[HISTORY_SIZE]; /* history buffer */
     int32 histi;               /* history index */
     int32 histf;               /* nb history available */
@@ -1260,15 +1261,19 @@ term_reset(void) {
 void
 term_swap_screen(void) {
     static Glyph **altline;
+    static Glyph *altbuffer;
     static int32 altcol;
     static int32 altrow;
     Glyph **tmpline = term.line;
+    Glyph *tmpbuffer = term.line_buffer;
     int32 tmpcol = term.ncols, tmprow = term.nrows;
 
     term.line = altline;
+    term.line_buffer = altbuffer;
     term.ncols = altcol;
     term.nrows = altrow;
     altline = tmpline;
+    altbuffer = tmpbuffer;
     altcol = tmpcol;
     altrow = tmprow;
     term.mode ^= TERM_MODE_ALTSCREEN;
