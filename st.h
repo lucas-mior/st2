@@ -75,7 +75,7 @@ enum GlyphAttribute {
 	ATTR_BOLD_FAINT = ATTR_BOLD | ATTR_FAINT,
 };
 
-enum selection_mode {
+enum SelectionMode {
 	SELECTION_IDLE = 0,
 	SELECTION_EMPTY = 1,
 	SELECTION_READY = 2
