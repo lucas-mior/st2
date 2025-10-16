@@ -265,7 +265,7 @@ typedef struct {
     Atom xembed;
 	Atom wm_delete_win;
 	Atom net_wm_name;
-	Atom netwmiconname;
+	Atom net_wm_iconname;
 	Atom netwmpid;
     struct {
         XIM xim;
