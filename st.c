@@ -3290,7 +3290,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     do {
         int32 space_left;
         int32 chars_left;
-
         if (!new_x_offset) {
             new_y_index += 1;
             reflow_lines[new_y_index]
@@ -3398,11 +3397,11 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     /* --- populate visible lines --- */
     for (; i >= term.nrows; i--, new_y_index--) {
-        term.line[i] = reflow_lines[new_y_index];
+        memmove(term.line[i], reflow_lines[new_y_index], (size_t)new_ncols*sizeof(term.line[i]));
     }
 
     for (; i >= 0; i--, new_y_index--) {
-        term.line[i] = reflow_lines[new_y_index];
+        memmove(term.line[i], reflow_lines[new_y_index], (size_t)new_ncols*sizeof(term.line[i]));
     }
 
     /* --- update history reflow_lines --- */
