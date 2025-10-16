@@ -3283,7 +3283,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     /* --- reflow old lines into buffer --- */
     do {
         if (!new_x_offset) {
-            /* error("allocating new_ncols=%d new_y_index=%d\n", new_ncols, new_y_index); */
             new_y_index += 1;
             buffer[new_y_index] = xmalloc((int64)new_ncols*SIZEOF(*(buffer[new_y_index])));
         }
