@@ -915,8 +915,7 @@ handler_sigchld(int32 unused) {
     } else if (WIFSIGNALED(stat)) {
         die("child terminated due to signal %d\n", WTERMSIG(stat));
     }
-    _exit(0);
-    return;
+    exit(0);
 }
 
 void

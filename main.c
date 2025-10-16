@@ -141,6 +141,26 @@ static char *opt_title = NULL;
 
 static uint32 buttons; /* bit field of pressed buttons */
 
+#define FREE_NAME(NAME) free_name(#NAME, NAME)
+
+static void
+free_name(char *name, void *pointer) {
+    error("Freeing %s = %p\n", name, pointer);
+    free(pointer);
+    return;
+}
+
+static void
+free_allocations(void) {
+    FREE_NAME(term.dirty);
+    FREE_NAME(term.tabs);
+    FREE_NAME(term.line);
+    FREE_NAME(term.line_buffer);
+
+    /* term.hist[i] = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(Glyph)); */
+    return;
+}
+
 int32
 main(int32 argc, char *argv[]) {
     x_window.l = x_window.t = 0;
@@ -238,6 +258,7 @@ run:
     for (int32 i = 0; i < HISTORY_SIZE; i++) {
         term.hist[i] = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(Glyph));
     }
+    atexit(free_allocations);
     term_reset();
 
     {
