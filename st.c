@@ -2869,7 +2869,7 @@ term_putc(Rune u) {
     int32 control;
     int32 width = 0;
     int32 len;
-    Glyph *gp;
+    Glyph *glyph;
 
     control = IS_CONTROl(u);
     if (u < 127 || !TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
@@ -2978,16 +2978,16 @@ check_control_code:
         selection_clear();
     }
 
-    gp = &term.line[term.cursor.y][term.cursor.x];
+    glyph = &term.line[term.cursor.y][term.cursor.x];
     if (TERM_MODE_IS_SET(TERM_MODE_WRAP) && (term.cursor.state & CURSOR_WRAPNEXT)) {
-        gp->mode |= ATTR_WRAP;
+        glyph->mode |= ATTR_WRAP;
         term_new_line(1);
-        gp = &term.line[term.cursor.y][term.cursor.x];
+        glyph = &term.line[term.cursor.y][term.cursor.x];
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_INSERT) && term.cursor.x + width < term.ncols) {
-        memmove(gp + width, gp, (size_t)(term.ncols - term.cursor.x - width)*SIZEOF(Glyph));
-        gp->mode &= ~ATTR_WIDE;
+        memmove(glyph + width, glyph, (size_t)(term.ncols - term.cursor.x - width)*SIZEOF(Glyph));
+        glyph->mode &= ~ATTR_WIDE;
     }
 
     if (term.cursor.x + width > term.ncols) {
@@ -2996,21 +2996,21 @@ check_control_code:
         } else {
             term_move_to(term.ncols - width, term.cursor.y);
         }
-        gp = &term.line[term.cursor.y][term.cursor.x];
+        glyph = &term.line[term.cursor.y][term.cursor.x];
     }
 
     term_set_char(u, &term.cursor.attr, term.cursor.x, term.cursor.y);
     term.lastc = u;
 
     if (width == 2) {
-        gp->mode |= ATTR_WIDE;
+        glyph->mode |= ATTR_WIDE;
         if (term.cursor.x + 1 < term.ncols) {
-            if (gp[1].mode == ATTR_WIDE && term.cursor.x + 2 < term.ncols) {
-                gp[2].rune = ' ';
-                gp[2].mode &= ~ATTR_WDUMMY;
+            if (glyph[1].mode == ATTR_WIDE && term.cursor.x + 2 < term.ncols) {
+                glyph[2].rune = ' ';
+                glyph[2].mode &= ~ATTR_WDUMMY;
             }
-            gp[1].rune = '\0';
-            gp[1].mode = ATTR_WDUMMY;
+            glyph[1].rune = '\0';
+            glyph[1].mode = ATTR_WDUMMY;
         }
     }
     if (term.cursor.x + width < term.ncols) {
