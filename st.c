@@ -1297,7 +1297,9 @@ term_load_def_screen(int32 clear, int32 loadcursor) {
 
 void
 term_load_alt_screen(int32 clear, int32 savecursor) {
-    int32 col, row, def = !TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    int32 col;
+    int32 row;
+    int32 def = !TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
     if (savecursor) {
         term_cursor(CURSOR_SAVE);
