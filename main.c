@@ -168,8 +168,9 @@ main(int32 argc, char *argv[]) {
         opt_font = EARGF(usage());
         break;
     case 'g':
-        x_window.gm = XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t,
-                                     (uint32 *)&CONF_NUMBER_COLS, (uint32 *)&CONF_NUMBER_ROWS);
+        x_window.geo_mask
+            = XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t, (uint32 *)&CONF_NUMBER_COLS,
+                             (uint32 *)&CONF_NUMBER_ROWS);
         break;
     case 'i':
         x_window.isfixed = 1;
@@ -281,10 +282,10 @@ run:
                         + CONF_NUMBER_COLS*term_window.cw;
         term_window.h = 2*term_window.vborderpx + 2*CONF_BORDER_PIXELS
                         + CONF_NUMBER_ROWS*term_window.ch;
-        if (x_window.gm & XNegative) {
+        if (x_window.geo_mask & XNegative) {
             x_window.l += DisplayWidth(x_window.display, x_window.scr) - term_window.w - 2;
         }
-        if (x_window.gm & YNegative) {
+        if (x_window.geo_mask & YNegative) {
             x_window.t += DisplayHeight(x_window.display, x_window.scr) - term_window.h - 2;
         }
 
@@ -1213,11 +1214,11 @@ x_hints(void) {
         sizeh->min_width = sizeh->max_width = term_window.w;
         sizeh->min_height = sizeh->max_height = term_window.h;
     }
-    if (x_window.gm & (XValue | YValue)) {
+    if (x_window.geo_mask & (XValue | YValue)) {
         sizeh->flags |= USPosition | PWinGravity;
         sizeh->x = x_window.l;
         sizeh->y = x_window.t;
-        sizeh->win_gravity = x_geom_mask_to_gravity(x_window.gm);
+        sizeh->win_gravity = x_geom_mask_to_gravity(x_window.geo_mask);
     }
 
     XSetWMProperties(x_window.display, x_window.win, NULL, NULL, NULL, 0, sizeh, &wm, &class);

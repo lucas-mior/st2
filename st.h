@@ -276,7 +276,7 @@ typedef struct {
     int32 isfixed; /* is fixed geometry? */
     int32 depth;   /* bit depth */
     int32 l, t;    /* left and top offset */
-    int32 gm;      /* geometry mask */
+    int32 geo_mask;      /* geometry mask */
 } XWindow;
 
 #define Font Font_
