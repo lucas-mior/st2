@@ -2959,7 +2959,7 @@ check_control_code:
             }
             return;
         } else if (term.esc & ESC_UTF8) {
-            char ascii = (char)u;
+            char ascii = u;
             if (ascii == 'G') {
                 term.mode |= TERM_MODE_UTF8;
             } else if (ascii == '@') {
