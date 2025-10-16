@@ -159,7 +159,7 @@ typedef struct {
     int32 old_cursor_x;        /* old cursor col */
     int32 old_cursor_y;        /* old cursor row */
     int32 top_scroll_limit;    /* top    scroll limit */
-    int32 bot;                 /* bottom scroll limit */
+    int32 bot_scroll_limit;    /* bottom scroll limit */
     int32 mode;                /* terminal mode flags */
     int32 esc;                 /* escape state flags */
     char trantbl[4];           /* charset table translation */
@@ -1238,7 +1238,7 @@ term_reset(void) {
     term.top_scroll_limit = 0;
     term.n_hist = 0;
     term.lines_scrolled_up = 0;
-    term.bot = term.nrows - 1;
+    term.bot_scroll_limit = term.nrows - 1;
     term.mode = TERM_MODE_WRAP | TERM_MODE_UTF8;
     memset(term.trantbl, CS_USA, SIZEOF(term.trantbl));
     term.charset = 0;
@@ -1379,7 +1379,7 @@ user_scroll_up(const Arg *a) {
 
 void
 term_scroll_down(int32 top, int32 n) {
-    int32 bot = term.bot;
+    int32 bot = term.bot_scroll_limit;
     Glyph *temp;
 
     if (n <= 0) {
@@ -1488,8 +1488,8 @@ void
 term_new_line(int32 first_col) {
     int32 y = term.cursor.y;
 
-    if (y == term.bot) {
-        term_scroll_up(term.top_scroll_limit, term.bot, 1, SCROLL_SAVEHIST);
+    if (y == term.bot_scroll_limit) {
+        term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit, 1, SCROLL_SAVEHIST);
     } else {
         y++;
     }
@@ -1548,7 +1548,7 @@ term_move_to(int32 x, int32 y) {
 
     if (term.cursor.state & CURSOR_ORIGIN) {
         miny = term.top_scroll_limit;
-        maxy = term.bot;
+        maxy = term.bot_scroll_limit;
     } else {
         miny = 0;
         maxy = term.nrows - 1;
@@ -1681,7 +1681,7 @@ term_insert_blank(int32 n) {
 
 void
 term_insert_blank_line(int32 n) {
-    if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot)) {
+    if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot_scroll_limit)) {
         term_scroll_down(term.cursor.y, n);
     }
     return;
@@ -1689,8 +1689,8 @@ term_insert_blank_line(int32 n) {
 
 void
 term_delete_line(int32 n) {
-    if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot)) {
-        term_scroll_up(term.cursor.y, term.bot, n, SCROLL_NOSAVEHIST);
+    if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot_scroll_limit)) {
+        term_scroll_up(term.cursor.y, term.bot_scroll_limit, n, SCROLL_NOSAVEHIST);
     }
     return;
 }
@@ -2129,7 +2129,8 @@ control_seq_intro_handle(void) {
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
         /* xterm, urxvt, alacritty save this in history */
-        term_scroll_up(term.top_scroll_limit, term.bot, csi_escape_seq.arg[0], SCROLL_SAVEHIST);
+        term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit, csi_escape_seq.arg[0],
+                       SCROLL_SAVEHIST);
         break;
     case 'T': /* SD -- Scroll <n> line down */
         DEFAULT(csi_escape_seq.arg[0], 1);
@@ -2204,7 +2205,7 @@ control_seq_intro_handle(void) {
                     b = temp;
                 }
                 term.top_scroll_limit = t;
-                term.bot = b;
+                term.bot_scroll_limit = b;
             }
             term_move_abs_to(0, 0);
         }
@@ -2822,8 +2823,8 @@ eschandle(uchar ascii) {
         term.esc |= ESC_ALTCHARSET;
         return 0;
     case 'D': /* IND -- Linefeed */
-        if (term.cursor.y == term.bot) {
-            term_scroll_up(term.top_scroll_limit, term.bot, 1, SCROLL_SAVEHIST);
+        if (term.cursor.y == term.bot_scroll_limit) {
+            term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit, 1, SCROLL_SAVEHIST);
         } else {
             term_move_to(term.cursor.x, term.cursor.y + 1);
         }
@@ -3174,7 +3175,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
     term.nrows = new_nrows;
     /* reset scrolling region */
     term.top_scroll_limit = 0;
-    term.bot = new_nrows - 1;
+    term.bot_scroll_limit = new_nrows - 1;
     /* dirty all lines */
     term_full_dirt();
     return;
@@ -3233,7 +3234,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     term.nrows = new_nrows;
     /* reset scrolling region */
     term.top_scroll_limit = 0;
-    term.bot = new_nrows - 1;
+    term.bot_scroll_limit = new_nrows - 1;
     /* dirty all lines */
     term_full_dirt();
     return;
