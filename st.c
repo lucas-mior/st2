@@ -3386,12 +3386,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     /* --- allocate additional rows if needed --- */
-    for (int ii = 0; ii < new_nrows; ii += 1) {
-        term.line[ii] = &term.line_buffer[ii*new_ncols];
-        for (int32 j = term.ncols; j < new_ncols; j++) {
-            term_clear_glyph(&term.line[ii][j], 0);
-        }
-    }
     for (i = new_nrows - 1; i > new_cursor_end_line; i--) {
         term.line[i] = &term.line_buffer[i*new_ncols];
         for (int32 j = 0; j < new_ncols; j++) {
