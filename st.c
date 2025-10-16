@@ -3180,11 +3180,11 @@ term_resize_def(int32 ncols, int32 nrows) {
 }
 
 void
-term_resize_alt(int32 col, int32 row) {
+term_resize_alt(int32 ncols, int32 nrows) {
     int32 i;
 
     /* return if dimensions haven't changed */
-    if (term.ncols == col && term.nrows == row) {
+    if (term.ncols == ncols && term.nrows == nrows) {
         term_full_dirt();
         return;
     }
@@ -3192,47 +3192,47 @@ term_resize_alt(int32 col, int32 row) {
         selection_remove();
     }
     /* slide screen up if otherwise cursor would get out of the screen */
-    for (i = 0; i <= term.cursor.y - row; i++) {
+    for (i = 0; i <= term.cursor.y - nrows; i++) {
         xfree(term.line[i]);
     }
     if (i > 0) {
         /* ensure that both src and dst are not NULL */
-        memmove(term.line, term.line + i, (size_t)row*SIZEOF(*(term.line)));
-        term.cursor.y = row - 1;
+        memmove(term.line, term.line + i, (size_t)nrows*SIZEOF(*(term.line)));
+        term.cursor.y = nrows - 1;
     }
-    for (i += row; i < term.nrows; i++) {
+    for (i += nrows; i < term.nrows; i++) {
         xfree(term.line[i]);
     }
     /* handler_configure_notify to new height */
-    term.line = xrealloc(term.line, (int64)row*SIZEOF(*(term.line)));
+    term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
 
     /* handler_configure_notify to new width */
-    for (i = 0; i < MIN(row, term.nrows); i++) {
-        term.line[i] = xrealloc(term.line[i], (int64)col*SIZEOF(*(term.line[i])));
-        for (int32 j = term.ncols; j < col; j++) {
+    for (i = 0; i < MIN(nrows, term.nrows); i++) {
+        term.line[i] = xrealloc(term.line[i], (int64)ncols*SIZEOF(*(term.line[i])));
+        for (int32 j = term.ncols; j < ncols; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* allocate any new rows */
-    for (/*i = MIN(row, term.nrows) */; i < row; i++) {
-        term.line[i] = xmalloc((int64)col*SIZEOF(Glyph));
-        for (int32 j = 0; j < col; j++) {
+    for (/*i = MIN(nrows, term.nrows) */; i < nrows; i++) {
+        term.line[i] = xmalloc((int64)ncols*SIZEOF(Glyph));
+        for (int32 j = 0; j < ncols; j++) {
             term_clear_glyph(&term.line[i][j], 0);
         }
     }
     /* update cursor */
-    if (term.cursor.x >= col) {
+    if (term.cursor.x >= ncols) {
         term.cursor.state &= ~CURSOR_WRAPNEXT;
-        term.cursor.x = col - 1;
+        term.cursor.x = ncols - 1;
     } else {
-        UPDATE_WRAP_NEXT(1, col);
+        UPDATE_WRAP_NEXT(1, ncols);
     }
     /* update terminal size */
-    term.ncols = col;
-    term.nrows = row;
+    term.ncols = ncols;
+    term.nrows = nrows;
     /* reset scrolling region */
     term.top = 0;
-    term.bot = row - 1;
+    term.bot = nrows - 1;
     /* dirty all lines */
     term_full_dirt();
     return;
