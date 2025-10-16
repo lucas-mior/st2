@@ -1258,7 +1258,8 @@ term_reset(void) {
 void
 term_swap_screen(void) {
     static Glyph **altline;
-    static int32 altcol, altrow;
+    static int32 altcol;
+    static int32 altrow;
     Glyph **tmpline = term.line;
     int32 tmpcol = term.ncols, tmprow = term.nrows;
 
