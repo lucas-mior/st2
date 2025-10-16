@@ -3134,46 +3134,46 @@ term_resize(int32 col, int32 row) {
 }
 
 void
-term_resize_def(int32 ncols, int32 nrows) {
+term_resize_def(int32 new_ncols, int32 new_nrows) {
     /* return if dimensions haven't changed */
-    if (term.ncols == ncols && term.nrows == nrows) {
+    if (term.ncols == new_ncols && term.nrows == new_nrows) {
         term_full_dirt();
         return;
     }
-    if (ncols != term.ncols) {
+    if (new_ncols != term.ncols) {
         if (!selection.alt) {
             selection_remove();
         }
-        term_reflow(ncols, nrows);
+        term_reflow(new_ncols, new_nrows);
     } else {
         /* slide screen up if otherwise cursor would get out of the screen */
-        if (term.cursor.y >= nrows) {
-            term_scroll_up(0, term.nrows - 1, term.cursor.y - nrows + 1, SCROLL_RESIZE);
-            term.cursor.y = nrows - 1;
+        if (term.cursor.y >= new_nrows) {
+            term_scroll_up(0, term.nrows - 1, term.cursor.y - new_nrows + 1, SCROLL_RESIZE);
+            term.cursor.y = new_nrows - 1;
         }
-        for (int32 i = nrows; i < term.nrows; i++) {
+        for (int32 i = new_nrows; i < term.nrows; i++) {
             xfree(term.line[i]);
         }
 
         /* resize to new height */
-        term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
+        term.line = xrealloc(term.line, (int64)new_nrows*SIZEOF(*(term.line)));
 
         /* allocate any new rows */
-        for (int32 i = term.nrows; i < nrows; i++) {
-            term.line[i] = xmalloc((int64)ncols*SIZEOF(Glyph));
-            for (int32 j = 0; j < ncols; j++) {
+        for (int32 i = term.nrows; i < new_nrows; i++) {
+            term.line[i] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
+            for (int32 j = 0; j < new_ncols; j++) {
                 term_clear_glyph(&term.line[i][j], 0);
             }
         }
         /* scroll down as much as height has increased */
-        reflow_scroll_down(nrows - term.nrows);
+        reflow_scroll_down(new_nrows - term.nrows);
     }
     /* update terminal size */
-    term.ncols = ncols;
-    term.nrows = nrows;
+    term.ncols = new_ncols;
+    term.nrows = new_nrows;
     /* reset scrolling region */
     term.top = 0;
-    term.bot = nrows - 1;
+    term.bot = new_nrows - 1;
     /* dirty all lines */
     term_full_dirt();
     return;
