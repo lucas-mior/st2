@@ -3154,7 +3154,7 @@ term_resize_def(int32 ncols, int32 nrows) {
             xfree(term.line[i]);
         }
 
-        /* handler_configure_notify to new height */
+        /* resize to new height */
         term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
 
         /* allocate any new rows */
@@ -3202,10 +3202,10 @@ term_resize_alt(int32 ncols, int32 nrows) {
     for (i += nrows; i < term.nrows; i++) {
         xfree(term.line[i]);
     }
-    /* handler_configure_notify to new height */
+    /* resize to new height */
     term.line = xrealloc(term.line, (int64)nrows*SIZEOF(*(term.line)));
 
-    /* handler_configure_notify to new width */
+    /* resize to new width */
     for (i = 0; i < MIN(nrows, term.nrows); i++) {
         term.line[i] = xrealloc(term.line[i], (int64)ncols*SIZEOF(*(term.line[i])));
         for (int32 j = term.ncols; j < ncols; j++) {
