@@ -64,8 +64,9 @@
 
 #define UPDATE_WRAP_NEXT(alt, col)                                                                 \
     do {                                                                                           \
-        if ((term.cursor.state & CURSOR_WRAPNEXT) && term.cursor.x + term.wrapcwidth[alt] < col) { \
-            term.cursor.x += term.wrapcwidth[alt];                                                 \
+        if ((term.cursor.state & CURSOR_WRAPNEXT)                                                  \
+            && term.cursor.x + term.wrap_char_width[alt] < col) {                                  \
+            term.cursor.x += term.wrap_char_width[alt];                                            \
             term.cursor.state &= ~CURSOR_WRAPNEXT;                                                 \
         }                                                                                          \
     } while (0)
@@ -152,7 +153,7 @@ typedef struct {
     int32 i_hist;              /* history index */
     int32 n_hist;              /* nb history available */
     int32 lines_scrolled_up;   /* scroll back */
-    int32 wrapcwidth[2];       /* used in updating WRAPNEXT when resizing */
+    int32 wrap_char_width[2];  /* used in updating WRAPNEXT when resizing */
     bool *dirty;               /* dirtyness of lines */
     TCursor cursor;            /* cursor */
     int32 old_cursor_x;        /* old cursor col */
@@ -3028,7 +3029,7 @@ check_control_code:
     if (term.cursor.x + width < term.ncols) {
         term_move_to(term.cursor.x + width, term.cursor.y);
     } else {
-        term.wrapcwidth[TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)] = width;
+        term.wrap_char_width[TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)] = width;
         term.cursor.state |= CURSOR_WRAPNEXT;
     }
     return;

@@ -510,7 +510,8 @@ run:
             /* error("i_hist = %d\n", term.i_hist); */
             /* error("n_hist = %d\n", term.n_hist); */
             /* error("lines_scrolled_up = %d\n", term.lines_scrolled_up); */
-            /* error("wrapcwidth[2] = [%d, %d]\n", term.wrapcwidth[0], term.wrapcwidth[1]); */
+            /* error("wrap_char_width[2] = [%d, %d]\n", term.wrap_char_width[0],
+             * term.wrap_char_width[1]); */
             /* error("dirty[0] = %d\n", term.dirty[0]); */
             /* error("TCursor.xy = (%d, term.%d)\n", term.cursor.x, term.cursor.y); */
             /* error("old_cursor_x = %d\n", term.old_cursor_x); */
