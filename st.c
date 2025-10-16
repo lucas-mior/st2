@@ -2193,12 +2193,11 @@ control_seq_intro_handle(void) {
             {
                 int32 t = csi_escape_seq.arg[0] - 1;
                 int32 b = csi_escape_seq.arg[1] - 1;
-                int32 temp;
 
                 LIMIT(t, 0, term.nrows - 1);
                 LIMIT(b, 0, term.nrows - 1);
                 if (t > b) {
-                    temp = t;
+                    int32 temp = t;
                     t = b;
                     b = temp;
                 }
