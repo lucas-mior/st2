@@ -3330,14 +3330,12 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
             old_x_offset = 0;
             old_y_index++;
-
         } else if (space_left == chars_left) {
             memcpy(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset],
                    (size_t)space_left*SIZEOF(Glyph));
             old_x_offset = 0;
             old_y_index++;
             new_x_offset = 0;
-
         } else { /* space_left < chars_left */
             memcpy(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset],
                    (size_t)space_left*SIZEOF(Glyph));
