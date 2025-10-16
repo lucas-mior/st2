@@ -143,7 +143,7 @@ static uint32 buttons; /* bit field of pressed buttons */
 
 int32
 main(int32 argc, char *argv[]) {
-    x_window.l = x_window.t = 0;
+    x_window.left_offset = x_window.top_offset = 0;
     x_window.is_fixed = False;
     x_set_cursor((int32)CONF_CURSOR_SHAPE);
 
@@ -169,8 +169,8 @@ main(int32 argc, char *argv[]) {
         break;
     case 'g':
         x_window.geo_mask
-            = XParseGeometry(EARGF(usage()), &x_window.l, &x_window.t, (uint32 *)&CONF_NUMBER_COLS,
-                             (uint32 *)&CONF_NUMBER_ROWS);
+            = XParseGeometry(EARGF(usage()), &x_window.left_offset, &x_window.top_offset,
+                             (uint32 *)&CONF_NUMBER_COLS, (uint32 *)&CONF_NUMBER_ROWS);
         break;
     case 'i':
         x_window.is_fixed = 1;
@@ -283,10 +283,12 @@ run:
         term_window.h = 2*term_window.vborderpx + 2*CONF_BORDER_PIXELS
                         + CONF_NUMBER_ROWS*term_window.ch;
         if (x_window.geo_mask & XNegative) {
-            x_window.l += DisplayWidth(x_window.display, x_window.screen) - term_window.w - 2;
+            x_window.left_offset
+                += DisplayWidth(x_window.display, x_window.screen) - term_window.w - 2;
         }
         if (x_window.geo_mask & YNegative) {
-            x_window.t += DisplayHeight(x_window.display, x_window.screen) - term_window.h - 2;
+            x_window.top_offset
+                += DisplayHeight(x_window.display, x_window.screen) - term_window.h - 2;
         }
 
         /* Events */
@@ -299,11 +301,13 @@ run:
         x_window.attrs.colormap = x_window.color_map;
 
         x_window.win = XCreateWindow(
-            x_window.display, parent, x_window.l, x_window.t, (uint32)term_window.w,
-            (uint32)term_window.h, 0, x_window.depth, InputOutput, x_window.visual,
-            CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap, &x_window.attrs);
+            x_window.display, parent, x_window.left_offset, x_window.top_offset,
+            (uint32)term_window.w, (uint32)term_window.h, 0, x_window.depth, InputOutput,
+            x_window.visual, CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap,
+            &x_window.attrs);
         if (parent != root) {
-            XReparentWindow(x_window.display, x_window.win, parent, x_window.l, x_window.t);
+            XReparentWindow(x_window.display, x_window.win, parent, x_window.left_offset,
+                            x_window.top_offset);
         }
 
         memset(&xgc_values, 0, SIZEOF(xgc_values));
@@ -1216,8 +1220,8 @@ x_hints(void) {
     }
     if (x_window.geo_mask & (XValue | YValue)) {
         sizeh->flags |= USPosition | PWinGravity;
-        sizeh->x = x_window.l;
-        sizeh->y = x_window.t;
+        sizeh->x = x_window.left_offset;
+        sizeh->y = x_window.top_offset;
         sizeh->win_gravity = x_geom_mask_to_gravity(x_window.geo_mask);
     }
 
