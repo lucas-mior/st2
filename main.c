@@ -35,75 +35,6 @@
 #define TRUE_GREEN(x) (uint16)(((x) & 0xff00))
 #define TRUE_BLUE(x) (uint16)(((x) & 0xff) << 8)
 
-typedef XftDraw *Draw;
-typedef XftColor Color;
-typedef XftGlyphFontSpec GlyphFontSpec;
-
-/* Purely graphic info */
-typedef struct {
-    int32 tty_width, tty_height; /* tty width and height */
-    int32 w, h;                  /* window width and height */
-    int32 hborderpx, vborderpx;
-    int32 ch;     /* char height */
-    int32 cw;     /* char width  */
-    int32 mode;   /* window state/mode flags */
-    int32 cursor; /* cursor style */
-} TermWindow;
-
-typedef struct {
-    Display *display;
-    Colormap cmap;
-    Window win;
-    Drawable buffer;
-    GlyphFontSpec *specbuf; /* font spec buffer used for rendering */
-    Atom xembed, wmdeletewin, netwmname, netwmiconname, netwmpid;
-    struct {
-        XIM xim;
-        XIC xic;
-        XPoint spot;
-        XVaNestedList spotlist;
-    } ime;
-    Draw draw;
-    Visual *vis;
-    XSetWindowAttributes attrs;
-    int32 scr;
-    int32 isfixed; /* is fixed geometry? */
-    int32 depth;   /* bit depth */
-    int32 l, t;    /* left and top offset */
-    int32 gm;      /* geometry mask */
-} XWindow;
-
-typedef struct {
-    Atom xtarget;
-    char *primary, *clipboard;
-    struct timespec tclick1;
-    struct timespec tclick2;
-} XSelection;
-
-/* Font structure */
-#define Font Font_
-typedef struct {
-    int32 height;
-    int32 width;
-    int32 ascent;
-    int32 descent;
-    int32 badslant;
-    int32 badweight;
-    int16 lbearing;
-    int16 rbearing;
-    XftFont *match;
-    FcFontSet *set;
-    FcPattern *pattern;
-} Font;
-
-/* Drawing Context */
-typedef struct {
-    Color *color;
-    int32 collen;
-    Font font, bfont, ifont, ibfont;
-    GC graphics;
-} DrawingContext;
-
 static inline uint16 sixd_to_16bit(int32);
 static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, const Glyph *, int32, int32, int32);
 static void x_draw_glyph_font_specs(const XftGlyphFontSpec *, Glyph, int32, int32, int32);
@@ -173,7 +104,6 @@ static void (*handler[LASTEvent])(XEvent *) = {
 };
 
 /* Globals */
-static DrawingContext draw_context;
 static XWindow x_window;
 static XSelection xsel;
 static TermWindow term_window;
@@ -1191,19 +1121,6 @@ x_load_cols(void) {
     }
     loaded = 1;
     return;
-}
-
-int32
-x_get_color(int32 x, uchar *r, uchar *g, uchar *b) {
-    if (!BETWEEN(x, 0, draw_context.collen - 1)) {
-        return 1;
-    }
-
-    *r = draw_context.color[x].color.red >> 8;
-    *g = draw_context.color[x].color.green >> 8;
-    *b = draw_context.color[x].color.blue >> 8;
-
-    return 0;
 }
 
 int32

@@ -7,6 +7,12 @@
 #include <stddef.h>
 #include <sys/types.h>
 #include <X11/X.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/cursorfont.h>
+#include <X11/keysym.h>
+#include <X11/Xft/Xft.h>
+#include <X11/XKBlib.h>
 
 typedef unsigned char uchar;
 typedef unsigned long ulong;
@@ -225,7 +231,6 @@ void x_draw_line(Glyph *, int32, int32, int32);
 void x_finish_draw(void);
 void x_load_cols(void);
 int32 x_set_color_name(int32, const char *);
-int32 x_get_color(int32, uchar *, uchar *, uchar *);
 void x_set_icon_title(char *);
 void x_set_title(char *);
 int32 x_set_cursor(int32);
@@ -235,5 +240,74 @@ int32 x_start_draw(void);
 void x_xim_spot(int32, int32);
 
 void selection_set(char *, Time);
+
+typedef XftDraw *Draw;
+typedef XftColor Color;
+typedef XftGlyphFontSpec GlyphFontSpec;
+
+/* Purely graphic info */
+typedef struct {
+    int32 tty_width, tty_height; /* tty width and height */
+    int32 w, h;                  /* window width and height */
+    int32 hborderpx, vborderpx;
+    int32 ch;     /* char height */
+    int32 cw;     /* char width  */
+    int32 mode;   /* window state/mode flags */
+    int32 cursor; /* cursor style */
+} TermWindow;
+
+typedef struct {
+    Display *display;
+    Colormap cmap;
+    Window win;
+    Drawable buffer;
+    GlyphFontSpec *specbuf; /* font spec buffer used for rendering */
+    Atom xembed, wmdeletewin, netwmname, netwmiconname, netwmpid;
+    struct {
+        XIM xim;
+        XIC xic;
+        XPoint spot;
+        XVaNestedList spotlist;
+    } ime;
+    Draw draw;
+    Visual *vis;
+    XSetWindowAttributes attrs;
+    int32 scr;
+    int32 isfixed; /* is fixed geometry? */
+    int32 depth;   /* bit depth */
+    int32 l, t;    /* left and top offset */
+    int32 gm;      /* geometry mask */
+} XWindow;
+
+#define Font Font_
+typedef struct {
+    int32 height;
+    int32 width;
+    int32 ascent;
+    int32 descent;
+    int32 badslant;
+    int32 badweight;
+    int16 lbearing;
+    int16 rbearing;
+    XftFont *match;
+    FcFontSet *set;
+    FcPattern *pattern;
+} Font;
+
+typedef struct {
+    Color *color;
+    int32 collen;
+    Font font, bfont, ifont, ibfont;
+    GC graphics;
+} DrawingContext;
+
+typedef struct {
+    Atom xtarget;
+    char *primary, *clipboard;
+    struct timespec tclick1;
+    struct timespec tclick2;
+} XSelection;
+
+static DrawingContext draw_context;
 
 #endif /* ST_H */

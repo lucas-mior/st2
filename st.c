@@ -2266,12 +2266,22 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
     int32 n;
     char buffer[32];
     uchar r, g, b;
+    int32 x;
 
-    if (x_get_color(is_osc4 ? num : index, &r, &g, &b)) {
+    if (is_osc4) {
+        x = num;
+    } else {
+        x = index;
+    }
+
+    if (!BETWEEN(x, 0, draw_context.collen - 1)) {
         fprintf(stderr, "erresc: failed to fetch %s color %d\n", is_osc4 ? "osc4" : "osc",
                 is_osc4 ? num : index);
-        return;
     }
+
+    r = draw_context.color[x].color.red >> 8;
+    g = draw_context.color[x].color.green >> 8;
+    b = draw_context.color[x].color.blue >> 8;
 
     n = snprintf(buffer, SIZEOF(buffer), "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
