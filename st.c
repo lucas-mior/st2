@@ -233,7 +233,6 @@ static void term_resize_alt(int32, int32);
 static void term_set_attr(const int32 *, int32);
 static void term_set_char(Rune, const Glyph *, int32, int32);
 static void term_set_dirt(int32, int32);
-static void term_set_scroll(int32, int32);
 static void term_swap_screen(void);
 static void term_load_def_screen(int32, int32);
 static void term_load_alt_screen(int32, int32);
@@ -1842,22 +1841,6 @@ term_set_attr(const int32 *attr, int32 l) {
 }
 
 void
-term_set_scroll(int32 t, int32 b) {
-    int32 temp;
-
-    LIMIT(t, 0, term.nrows - 1);
-    LIMIT(b, 0, term.nrows - 1);
-    if (t > b) {
-        temp = t;
-        t = b;
-        b = temp;
-    }
-    term.top = t;
-    term.bot = b;
-    return;
-}
-
-void
 term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
     for (const int32 *lim = args + narg; args < lim; ++args) {
         if (priv) {
@@ -2207,7 +2190,21 @@ control_seq_intro_handle(void) {
         } else {
             DEFAULT(csi_escape_seq.arg[0], 1);
             DEFAULT(csi_escape_seq.arg[1], term.nrows);
-            term_set_scroll(csi_escape_seq.arg[0] - 1, csi_escape_seq.arg[1] - 1);
+            {
+                int32 t = csi_escape_seq.arg[0] - 1;
+                int32 b = csi_escape_seq.arg[1] - 1;
+                int32 temp;
+
+                LIMIT(t, 0, term.nrows - 1);
+                LIMIT(b, 0, term.nrows - 1);
+                if (t > b) {
+                    temp = t;
+                    t = b;
+                    b = temp;
+                }
+                term.top = t;
+                term.bot = b;
+            }
             term_move_abs_to(0, 0);
         }
         break;
