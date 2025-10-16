@@ -264,7 +264,7 @@ typedef struct {
     GlyphFontSpec *specbuf; /* font spec buffer used for rendering */
     Atom xembed;
 	Atom wm_delete_win;
-	Atom netwmname;
+	Atom net_wm_name;
 	Atom netwmiconname;
 	Atom netwmpid;
     struct {

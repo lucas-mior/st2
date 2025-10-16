@@ -358,7 +358,7 @@ run:
 
         x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
         x_window.wm_delete_win = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
-        x_window.netwmname = XInternAtom(x_window.display, "_NET_WM_NAME", False);
+        x_window.net_wm_name = XInternAtom(x_window.display, "_NET_WM_NAME", False);
         x_window.netwmiconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
         XSetWMProtocols(x_window.display, x_window.win, &x_window.wm_delete_win, 1);
 
@@ -1981,7 +1981,7 @@ x_set_title(char *p) {
         return;
     }
     XSetWMName(x_window.display, x_window.win, &prop);
-    XSetTextProperty(x_window.display, x_window.win, &prop, x_window.netwmname);
+    XSetTextProperty(x_window.display, x_window.win, &prop, x_window.net_wm_name);
     XFree(prop.value);
     return;
 }
