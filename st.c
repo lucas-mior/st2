@@ -154,7 +154,7 @@ typedef struct {
     int32 wrapcwidth[2];       /* used in updating WRAPNEXT when resizing */
     int32 *dirty;              /* dirtyness of lines */
     TCursor cursor;            /* cursor */
-    int32 ocx;                 /* old cursor col */
+    int32 old_cursor_x;        /* old cursor col */
     int32 ocy;                 /* old cursor row */
     int32 top;                 /* top    scroll limit */
     int32 bot;                 /* bottom scroll limit */
@@ -3414,17 +3414,17 @@ reset_title(void) {
 
 void
 draw(void) {
-    int32 cx = term.cursor.x, ocx = term.ocx, ocy = term.ocy;
+    int32 cx = term.cursor.x, old_cursor_x = term.old_cursor_x, ocy = term.ocy;
 
     if (!x_start_draw()) {
         return;
     }
 
     /* adjust cursor position */
-    LIMIT(term.ocx, 0, term.ncols - 1);
+    LIMIT(term.old_cursor_x, 0, term.ncols - 1);
     LIMIT(term.ocy, 0, term.nrows - 1);
-    if (term.line[term.ocy][term.ocx].mode & ATTR_WDUMMY) {
-        term.ocx--;
+    if (term.line[term.ocy][term.old_cursor_x].mode & ATTR_WDUMMY) {
+        term.old_cursor_x--;
     }
     if (term.line[term.cursor.y][cx].mode & ATTR_WDUMMY) {
         cx--;
@@ -3439,13 +3439,13 @@ draw(void) {
         x_draw_line(TERM_LINE(y), 0, y, term.ncols);
     }
 
-    x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx], term.ocx, term.ocy,
-                  term.line[term.ocy][term.ocx]);
-    term.ocx = cx;
+    x_draw_cursor(cx, term.cursor.y, term.line[term.cursor.y][cx], term.old_cursor_x, term.ocy,
+                  term.line[term.ocy][term.old_cursor_x]);
+    term.old_cursor_x = cx;
     term.ocy = term.cursor.y;
     x_finish_draw();
-    if (ocx != term.ocx || ocy != term.ocy) {
-        x_xim_spot(term.ocx, term.ocy);
+    if (old_cursor_x != term.old_cursor_x || ocy != term.ocy) {
+        x_xim_spot(term.old_cursor_x, term.ocy);
     }
     return;
 }
