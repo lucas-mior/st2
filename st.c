@@ -3258,7 +3258,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 len = 0;
     int32 new_cursor_y_proxy = -1; /* proxy for new y coordinate of cursor */
     int32 nlines;
-    static Glyph **reflow_lines = NULL;
+    static Glyph **buffer = NULL;
     Glyph *line = 0;
 
     /* --- determine end of current cursor line --- */
@@ -3280,20 +3280,19 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         }
     }
 
-    /* --- allocate reflow reflow_lines --- */
+    /* --- allocate reflow buffer --- */
     assert(nlines <= HISTORY_SIZE*2);
-    if (reflow_lines == NULL) {
-        reflow_lines = xmalloc((int64)HISTORY_SIZE*2 * SIZEOF(*reflow_lines));
+    if (buffer == NULL) {
+        buffer = xmalloc((int64)HISTORY_SIZE*2 * SIZEOF(*buffer));
     }
 
-    /* --- reflow old lines into reflow_lines --- */
+    /* --- reflow old lines into buffer --- */
     do {
         int32 space_left;
         int32 chars_left;
         if (!new_x_offset) {
             new_y_index += 1;
-            reflow_lines[new_y_index]
-                = xmalloc((int64)new_ncols*SIZEOF(*(reflow_lines[new_y_index])));
+            buffer[new_y_index] = xmalloc((int64)new_ncols*SIZEOF(*(buffer[new_y_index])));
         }
 
         if (!old_x_offset) {
@@ -3314,39 +3313,39 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             }
         }
 
-        /* copy data to new reflow_lines */
+        /* copy data to new buffer */
         space_left = new_ncols - new_x_offset;
         chars_left = len - old_x_offset;
 
         if (space_left > chars_left) {
-            memcpy(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset],
+            memcpy(&buffer[new_y_index][new_x_offset], &line[old_x_offset],
                    (size_t)chars_left*SIZEOF(Glyph));
             new_x_offset += chars_left;
 
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
                 for (int32 j = new_x_offset; j < new_ncols; j++) {
-                    term_clear_glyph(&reflow_lines[new_y_index][j], 0);
+                    term_clear_glyph(&buffer[new_y_index][j], 0);
                 }
                 new_x_offset = 0;
             } else if (new_x_offset > 0) {
-                reflow_lines[new_y_index][new_x_offset - 1].mode &= ~ATTR_WRAP;
+                buffer[new_y_index][new_x_offset - 1].mode &= ~ATTR_WRAP;
             }
 
             old_x_offset = 0;
             old_y_index++;
 
         } else if (space_left == chars_left) {
-            memcpy(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset],
+            memcpy(&buffer[new_y_index][new_x_offset], &line[old_x_offset],
                    (size_t)space_left*SIZEOF(Glyph));
             old_x_offset = 0;
             old_y_index++;
             new_x_offset = 0;
 
         } else { /* space_left < chars_left */
-            memcpy(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset],
+            memcpy(&buffer[new_y_index][new_x_offset], &line[old_x_offset],
                    (size_t)space_left*SIZEOF(Glyph));
             old_x_offset += space_left;
-            reflow_lines[new_y_index][new_ncols - 1].mode |= ATTR_WRAP;
+            buffer[new_y_index][new_ncols - 1].mode |= ATTR_WRAP;
             new_x_offset = 0;
         }
 
@@ -3355,7 +3354,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     /* --- finalize last partially filled line --- */
     if (new_x_offset) {
         for (int32 j = new_x_offset; j < new_ncols; j++) {
-            term_clear_glyph(&reflow_lines[new_y_index][j], 0);
+            term_clear_glyph(&buffer[new_y_index][j], 0);
         }
     }
 
@@ -3379,7 +3378,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         term.cursor.y += new_cursor_end_line - j;
 
         while (term.cursor.y < 0) {
-            xfree(reflow_lines[new_y_index--]);
+            xfree(buffer[new_y_index--]);
             term.cursor.y++;
         }
     }
@@ -3397,20 +3396,20 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     /* --- populate visible lines --- */
     for (; i >= term.nrows; i--, new_y_index--) {
-        memmove(term.line[i], reflow_lines[new_y_index], (size_t)new_ncols*sizeof(term.line[i]));
+        memmove(term.line[i], buffer[new_y_index], (size_t)new_ncols*sizeof(term.line[i]));
     }
 
     for (; i >= 0; i--, new_y_index--) {
-        memmove(term.line[i], reflow_lines[new_y_index], (size_t)new_ncols*sizeof(term.line[i]));
+        memmove(term.line[i], buffer[new_y_index], (size_t)new_ncols*sizeof(term.line[i]));
     }
 
-    /* --- update history reflow_lines --- */
+    /* --- update history buffer --- */
     {
         int32 k;
         for (k = -1; new_y_index >= 0 && k >= -HISTORY_SIZE; k--, new_y_index--) {
             int32 j = (term.histi + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
             xfree(term.hist[j]);
-            term.hist[j] = reflow_lines[new_y_index];
+            term.hist[j] = buffer[new_y_index];
         }
         term.histf = -k - 1;
     }
