@@ -162,7 +162,7 @@ typedef struct {
     int32 bot_scroll_limit;    /* bottom scroll limit */
     int32 mode;                /* terminal mode flags */
     int32 esc;                 /* escape state flags */
-    char trantbl[4];           /* charset table translation */
+    char translation_table[4]; /* charset table translation */
     int32 charset;             /* current charset */
     int32 icharset;            /* selection_is_selected charset for sequence */
     int32 *tabs;
@@ -1224,7 +1224,7 @@ term_reset(void) {
     term.lines_scrolled_up = 0;
     term.bot_scroll_limit = term.nrows - 1;
     term.mode = TERM_MODE_WRAP | TERM_MODE_UTF8;
-    memset(term.trantbl, CS_USA, SIZEOF(term.trantbl));
+    memset(term.translation_table, CS_USA, SIZEOF(term.translation_table));
     term.charset = 0;
 
     selection_remove();
@@ -1560,7 +1560,8 @@ term_set_char(Rune u, const Glyph *attr, int32 x, int32 y) {
     /*
      * The table is proudly stolen from rxvt.
      */
-    if (term.trantbl[term.charset] == CS_GRAPHIC0 && BETWEEN(u, 0x41, 0x7e) && vt100_0[u - 0x41]) {
+    if (term.translation_table[term.charset] == CS_GRAPHIC0 && BETWEEN(u, 0x41, 0x7e)
+        && vt100_0[u - 0x41]) {
         utf8_decode(vt100_0[u - 0x41], &u, UTF_SIZ);
     }
 
@@ -2642,7 +2643,7 @@ term_def_tran(char ascii) {
     if ((p = strchr(cs, ascii)) == NULL) {
         fprintf(stderr, "esc unhandled charset: ESC ( %c\n", ascii);
     } else {
-        term.trantbl[term.icharset] = (char)vcs[p - cs];
+        term.translation_table[term.icharset] = (char)vcs[p - cs];
     }
     return;
 }

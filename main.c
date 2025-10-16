@@ -525,9 +525,9 @@ run:
             /* error("bot = %d\n", term.bot); */
             /* error("mode = %d\n", term.mode); */
             /* error("esc = %d\n", term.esc); */
-            /* error("trantbl[4] = %c %c %c %c\n", term.trantbl[0], term.trantbl[1],
-             * term.trantbl[2], */
-            /*       term.trantbl[3]); */
+            /* error("translation_table[4] = %c %c %c %c\n", term.translation_table[0],
+             * term.translation_table[1], term.translation_table[2], */
+            /*       term.translation_table[3]); */
             /* error("charset = %d\n", term.charset); */
             /* error("icharset = %d\n", term.icharset); */
             /* error("tabs[0] = %d\n", term.tabs[0]); */
