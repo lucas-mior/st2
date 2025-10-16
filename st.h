@@ -81,7 +81,7 @@ enum SelectionMode {
 	SELECTION_READY = 2
 };
 
-enum selection_type {
+enum SelectionType {
 	SELECTION_REGULAR = 1,
 	SELECTION_RECTANGULAR = 2
 };
