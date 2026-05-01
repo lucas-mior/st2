@@ -50,11 +50,11 @@ PKG_CONFIG=${PKG_CONFIG:-pkg-config}
 INCS="$($PKG_CONFIG --cflags fontconfig) \
   $($PKG_CONFIG --cflags freetype2)"
 
-LIBS="-lm -lrt -lX11 -lutil -lXft $($PKG_CONFIG --libs fontconfig) $($PKG_CONFIG --libs freetype2)"
+LIBS="-lm -lrt -lX11 -lutil -lXft -lImlib2 $($PKG_CONFIG --libs fontconfig) $($PKG_CONFIG --libs freetype2)"
 
 STCPPFLAGS="-DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
 STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
-STLDFLAGS="$LIBS $LDFLAGS -lImlib2"
+STLDFLAGS="$LIBS $LDFLAGS"
 
 echo "target=$target"
 ctags --kinds-C=+l+d ./*.h ./*.c 2> /dev/null || true
