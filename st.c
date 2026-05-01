@@ -3480,8 +3480,15 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         int32 j = (term.i_hist + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
         term.hist[j] = xrealloc(term.hist[j],
                                 (int64)new_ncols*SIZEOF(*(term.hist[j])));
+        if (new_ncols > term.ncols) {
+            for (int32 c = term.ncols; c < new_ncols; c += 1) {
+                term_clear_glyph(&term.hist[j][c], 0);
+            }
+        }
     }
+    return;
 }
+
 void
 reset_title(void) {
     x_set_title(NULL);
