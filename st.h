@@ -270,6 +270,7 @@ void die(const char *, ...) __attribute__((noreturn));
 void redraw(void);
 void draw(void);
 
+void dcshandle(void);
 void user_scroll_down(const Arg *);
 void user_scroll_up(const Arg *);
 void externalpipe(const Arg *);
@@ -310,6 +311,79 @@ uint16 boxdrawindex(const Glyph *);
 void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
 void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, const XftGlyphFontSpec *, int32);
 #endif
+
+static void exec_shell(char *, char **) __attribute__((noreturn));
+static void stty(char **);
+static void handler_sigchld(int32);
+static void tty_write_raw(const char *, int64);
+
+static void control_seq_intro_dump(void);
+static void control_seq_intro_handle(void);
+static void control_seq_intro_parse(void);
+static void control_seq_intro_reset(void);
+static void osc_color_response(int32, int32, int32);
+static int32 eschandle(uchar);
+static void string_handle(void);
+
+static void term_printer(char *, int64);
+static void term_dump_sel(void);
+static void term_dump_line(int32);
+static void term_dump(void);
+static void term_clear_region(int32, int32, int32, int32, int32);
+static void term_cursor(int32);
+static void term_clear_glyph(Glyph *, int32);
+static void term_reset_cursor(void);
+static void term_delete_char(int32);
+static void term_delete_line(int32);
+static void term_insert_blank(int32);
+static void term_insert_blank_line(int32);
+static int32 term_line_len(Glyph *len);
+static int32 term_is_wrapped(Glyph *line);
+static char *term_get_glyphs(char *, const Glyph *, const Glyph *);
+static void term_move_to(int32, int32);
+static void term_move_abs_to(int32, int32);
+static void term_new_line(int32);
+static void term_put_tab(int32);
+static void term_putc(uint32);
+static void term_reset(void);
+static void term_scroll_up(int32, int32, int32, int32);
+static void term_scroll_down(int32, int32);
+static void term_reflow(int32, int32);
+static void reflow_scroll_down(int32);
+static void term_resize_def(int32, int32);
+static void term_resize_alt(int32, int32);
+static void term_set_attr(const int32 *, int32);
+static void term_set_char(uint32, const Glyph *, int32, int32);
+static void term_set_dirt(int32, int32);
+static void term_swap_screen(void);
+static void term_load_def_screen(int32, int32);
+static void term_load_alt_screen(int32, int32);
+static void term_set_mode(int32, int32, const int32 *, int32);
+static int32 term_write(const char *, int32, int32);
+static void term_full_dirt(void);
+static void term_control_code(uchar);
+static void term_dec_test(char);
+static void term_def_utf8(char);
+static int32_t term_def_color(const int32 *, int32 *, int32);
+static void term_def_tran(char);
+static void term_str_sequence(uchar);
+
+static void selection_normalize(void);
+static void selection_scroll(int32, int32, int32);
+static void selection_move(int32);
+static void selection_remove(void);
+static int32 selection_is_selected4(int32, int32, int32, int32);
+static void SelectionSnap(int32 *, int32 *, int32);
+
+static int64 utf8_decode(const char *, uint32 *, int64);
+static uint32 utf8_decode_byte(char, int64 *);
+static char utf8_encode_byte(uint32, int64);
+static int64 utf8_validate(uint32 *, int64);
+
+static char *base64_decode(const char *);
+static char base64_decode_getc(const char **);
+
+static int64 xwrite(int32, const char *, int64);
 
 /* config.def.h globals */
 extern char *CONF_UTMP;
@@ -464,5 +538,8 @@ typedef struct {
 static XSelection xsel;
 
 static DrawingContext draw_context;
+
+#include "sixel.h"
+sixel_state_t sixel_st;
 
 #endif /* ST_H */

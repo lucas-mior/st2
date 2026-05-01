@@ -3,6 +3,9 @@
 // (https://github.com/saitoha/sixel/blob/master/fromsixel.c) Licensed under the
 // terms of the GNU General Public License v3 or later.
 
+#if !defined(SIXEL_C)
+#define SIXEL_C
+
 #include <stdlib.h>
 #include <string.h> /* memcpy */
 
@@ -721,7 +724,10 @@ sixel_create_clipmask(char *pixels, int width, int height) {
         }
     }
 
-    clipmask = XCreateBitmapFromData(x_window.display, x_window.win, clipdata, width, height);
+    clipmask = XCreateBitmapFromData(x_window.display, x_window.win, clipdata,
+                                     width, height);
     free(clipdata);
     return clipmask;
 }
+
+#endif /* SIXEL_C */

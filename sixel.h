@@ -1,6 +1,8 @@
 #ifndef SIXEL_H
 #define SIXEL_H
 
+#include "st.h"
+
 #define DECSIXEL_PARAMS_MAX 16
 #define DECSIXEL_PALETTE_MAX 1024
 #define DECSIXEL_PARAMVALUE_MAX 65535

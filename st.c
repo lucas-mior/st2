@@ -62,79 +62,6 @@
         }                                                                                          \
     } while (0)
 
-static void exec_shell(char *, char **) __attribute__((noreturn));
-static void stty(char **);
-static void handler_sigchld(int32);
-static void tty_write_raw(const char *, int64);
-
-static void control_seq_intro_dump(void);
-static void control_seq_intro_handle(void);
-static void control_seq_intro_parse(void);
-static void control_seq_intro_reset(void);
-static void osc_color_response(int32, int32, int32);
-static int32 eschandle(uchar);
-static void string_handle(void);
-
-static void term_printer(char *, int64);
-static void term_dump_sel(void);
-static void term_dump_line(int32);
-static void term_dump(void);
-static void term_clear_region(int32, int32, int32, int32, int32);
-static void term_cursor(int32);
-static void term_clear_glyph(Glyph *, int32);
-static void term_reset_cursor(void);
-static void term_delete_char(int32);
-static void term_delete_line(int32);
-static void term_insert_blank(int32);
-static void term_insert_blank_line(int32);
-static int32 term_line_len(Glyph *len);
-static int32 term_is_wrapped(Glyph *line);
-static char *term_get_glyphs(char *, const Glyph *, const Glyph *);
-static void term_move_to(int32, int32);
-static void term_move_abs_to(int32, int32);
-static void term_new_line(int32);
-static void term_put_tab(int32);
-static void term_putc(uint32);
-static void term_reset(void);
-static void term_scroll_up(int32, int32, int32, int32);
-static void term_scroll_down(int32, int32);
-static void term_reflow(int32, int32);
-static void reflow_scroll_down(int32);
-static void term_resize_def(int32, int32);
-static void term_resize_alt(int32, int32);
-static void term_set_attr(const int32 *, int32);
-static void term_set_char(uint32, const Glyph *, int32, int32);
-static void term_set_dirt(int32, int32);
-static void term_swap_screen(void);
-static void term_load_def_screen(int32, int32);
-static void term_load_alt_screen(int32, int32);
-static void term_set_mode(int32, int32, const int32 *, int32);
-static int32 term_write(const char *, int32, int32);
-static void term_full_dirt(void);
-static void term_control_code(uchar);
-static void term_dec_test(char);
-static void term_def_utf8(char);
-static int32_t term_def_color(const int32 *, int32 *, int32);
-static void term_def_tran(char);
-static void term_str_sequence(uchar);
-
-static void selection_normalize(void);
-static void selection_scroll(int32, int32, int32);
-static void selection_move(int32);
-static void selection_remove(void);
-static int32 selection_is_selected4(int32, int32, int32, int32);
-static void SelectionSnap(int32 *, int32 *, int32);
-
-static int64 utf8_decode(const char *, uint32 *, int64);
-static uint32 utf8_decode_byte(char, int64 *);
-static char utf8_encode_byte(uint32, int64);
-static int64 utf8_validate(uint32 *, int64);
-
-static char *base64_decode(const char *);
-static char base64_decode_getc(const char **);
-
-static int64 xwrite(int32, const char *, int64);
-
 /* Globals */
 static Selection selection;
 static CSIEscape csi_escape_seq;
@@ -1101,7 +1028,7 @@ term_reset_cursor(void) {
 
 void
 term_reset(void) {
-	ImageList *im = term.images;
+    ImageList *im = term.images;
     while (im) {
         ImageList *next = im->next;
         xfree(im->pixels);
@@ -1280,13 +1207,13 @@ term_scroll_down(int32 top, int32 n) {
         && (selection.alt == TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))) {
         selection_scroll(top, bot, n);
     }
-	ImageList *im = term.images;
-	while (im) {
-		if (im->y >= top && im->y <= bot) {
-			im->y += n;
-		}
-		im = im->next;
-	}
+    ImageList *im = term.images;
+    while (im) {
+        if (im->y >= top && im->y <= bot) {
+            im->y += n;
+        }
+        im = im->next;
+    }
     return;
 }
 
@@ -1343,7 +1270,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
             }
         }
     }
-	ImageList **pim = &term.images;
+    ImageList **pim = &term.images;
     while (*pim) {
         ImageList *im = *pim;
         if (im->y >= top && im->y <= bot) {
@@ -2862,8 +2789,10 @@ term_putc(uint32 u) {
         if (u == '\a' || u == 030 || u == 032 || u == 033 || IS_CONTROL_C1(u)) {
             if (term.esc & ESC_SIXEL) {
                 ImageList *new_images = NULL;
-                sixel_parser_finalize(&term.sixel_st, &new_images, term.cursor.x, term.cursor.y, term_window.cw, term_window.ch);
-                
+                sixel_parser_finalize(&sixel_st, &new_images, term.cursor.x,
+                                      term.cursor.y, term_window.cw,
+                                      term_window.ch);
+
                 if (new_images != NULL) {
                     if (term.images == NULL) {
                         term.images = new_images;
@@ -2885,7 +2814,7 @@ term_putc(uint32 u) {
 
         if (term.esc & ESC_SIXEL) {
             uchar sixel_char = (uchar)u;
-            sixel_parser_parse(&term.sixel_st, &sixel_char, 1);
+            sixel_parser_parse(&sixel_st, &sixel_char, 1);
             return;
         }
 
@@ -2905,15 +2834,18 @@ term_putc(uint32 u) {
         if (str_escape_seq.type == 'P' && u == 'q') {
             int32 is_sixel = 1;
             for (uint32 i = 0; i < str_escape_seq.len - 1; i += 1) {
-                if (str_escape_seq.buffer[i] != ';' && !isdigit((uchar)str_escape_seq.buffer[i])) {
+                if (str_escape_seq.buffer[i] != ';'
+                    && !isdigit((uchar)str_escape_seq.buffer[i])) {
                     is_sixel = 0;
                     break;
                 }
             }
             if (is_sixel) {
                 term.esc |= ESC_SIXEL;
-                /* Note: Adjust the foreground/background color arguments as needed for your setup */
-                sixel_parser_init(&term.sixel_st, 1, 0, 0, 1, term_window.cw, term_window.ch);
+                /* Note: Adjust the foreground/background color arguments as
+                 * needed for your setup */
+                sixel_parser_init(&sixel_st, 1, 0, 0, 1, term_window.cw,
+                                  term_window.ch);
                 str_escape_seq.len = 0;
             }
         }
@@ -3093,11 +3025,11 @@ reflow_scroll_down(int32 n) {
             selection_move(-j);
         }
     }
-	ImageList *im = term.images;
-	while (im) {
-		im->y += n;
-		im = im->next;
-	}
+    ImageList *im = term.images;
+    while (im) {
+        im->y += n;
+        im = im->next;
+    }
     return;
 }
 
