@@ -1034,6 +1034,17 @@ term_reset_cursor(void) {
 }
 
 void
+tdeleteimages(void)
+{
+	ImageList *im, *next;
+
+	for (im = term.images; im; im = next) {
+		next = im->next;
+		delete_image(im);
+	}
+}
+
+void
 term_reset(void) {
     ImageList *im = term.images;
     while (im) {
@@ -1065,6 +1076,7 @@ term_reset(void) {
                 term_clear_glyph(&term.line[y][x], 0);
             }
         }
+		tdeleteimages();
         term_swap_screen();
     }
     term_full_dirt();
@@ -1787,6 +1799,12 @@ term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
                           and can be mistaken for other control
                           codes. */
                 break;
+			case 80: /* DECSDM -- Sixel Display Mode */
+				MODBIT(term.mode, set, TERM_MODE_SIXEL_SDM);
+				break;
+			case 8452: /* sixel scrolling leaves cursor to right of graphic */
+				MODBIT(term.mode, set, TERM_MODE_SIXEL_CUR_RT);
+				break;
             default:
                 fprintf(stderr, "erresc: unknown private set/reset mode %d\n",
                         *args);
@@ -1821,6 +1839,10 @@ void
 control_seq_intro_handle(void) {
     char buffer[40];
     int32 n;
+	ImageList *im;
+	ImageList *next;
+	int pi;
+	int pa;
     int32 x;
 
     switch (csi_escape_seq.mode[0]) {
@@ -1943,6 +1965,7 @@ control_seq_intro_handle(void) {
         case 2: /* all */
             if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
                 term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, 1);
+				tdeleteimages();
                 break;
             }
             /* vte does this:
@@ -1952,12 +1975,19 @@ control_seq_intro_handle(void) {
             for (n = term.nrows - 1; n >= 0 && term_line_len(term.line[n]) == 0;
                  n--)
                 ;
+			for (im = term.images; im; im = im->next)
+				n = MAX(im->y - term.lines_scrolled_up, n);
             if (n >= 0) {
                 term_scroll_up(0, term.nrows - 1, n + 1, SCROLL_SAVEHIST);
             }
             term_scroll_up(0, term.nrows - 1, term.nrows - n - 1,
                            SCROLL_NOSAVEHIST);
+			tdeleteimages();
             break;
+		case 6: /* sixels */
+			tdeleteimages();
+			term_full_dirt();
+			break;
         default:
             goto unknown;
         }
@@ -1984,7 +2014,29 @@ control_seq_intro_handle(void) {
         break;
     case 'S': /* SU -- Scroll <n> line up */
         if (csi_escape_seq.priv) {
-            break;
+			if (csi_escape_seq.narg > 1) {
+				/* XTSMGRAPHICS */
+				pi = csi_escape_seq.arg[0];
+				pa = csi_escape_seq.arg[1];
+				if (pi == 1 && (pa == 1 || pa == 2 || pa == 4)) {
+					/* number of sixel color registers */
+					/* (read, reset and read the maximum value give the same response) */
+					n = snprintf(buffer, sizeof buffer, "\033[?1;0;%dS", DECSIXEL_PALETTE_MAX);
+					tty_write(buffer, n, 1);
+					break;
+				} else if (pi == 2 && (pa == 1 || pa == 2 || pa == 4)) {
+					/* sixel graphics geometry (in pixels) */
+					/* (read, reset and read the maximum value give the same response) */
+					n = snprintf(buffer, sizeof buffer, "\033[?2;0;%d;%dS",
+					             MIN(term.ncols * term_window.cw, DECSIXEL_WIDTH_MAX),
+					             MIN(term.nrows * term_window.ch, DECSIXEL_HEIGHT_MAX));
+					tty_write(buffer, n, 1);
+					break;
+				}
+				/* the number of color registers and sixel geometry can't be changed */
+				n = snprintf(buffer, sizeof buffer, "\033[?%d;3;0S", pi); /* failure */
+				tty_write(buffer, n, 1);
+			}
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
         /* xterm, urxvt, alacritty save this in history */
@@ -2048,6 +2100,25 @@ control_seq_intro_handle(void) {
             goto unknown;
         }
         break;
+	case '$': /* DECRQM -- DEC Request Mode (private) */
+		if (csi_escape_seq.mode[1] == 'p' && csi_escape_seq.priv) {
+			switch (csi_escape_seq.arg[0]) {
+			case 80:
+				/* Sixel Display Mode  */
+				tty_write(TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? "\033[?80;1$y"
+				                                 : "\033[?80;2$y", 9, 0);
+				break;
+			case 8452:
+				/* Sixel scrolling leaves cursor to right of graphic */
+				tty_write(TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT) ? "\033[?8452;1$y"
+				                                   : "\033[?8452;2$y", 11, 0);
+				break;
+			default:
+				goto unknown;
+			}
+			break;
+		}
+		goto unknown;
     case 'r': /* DECSTBM -- Set Scrolling Region */
         if (csi_escape_seq.priv) {
             goto unknown;
@@ -2074,6 +2145,27 @@ control_seq_intro_handle(void) {
     case 's': /* DECSC -- Save cursor position (ANSI.SYS) */
         term_cursor(CURSOR_SAVE);
         break;
+	case 't':
+		switch (csi_escape_seq.arg[0]) {
+		case 14: /* text area size in pixels */
+			if (csi_escape_seq.narg > 1)
+				goto unknown;
+			n = snprintf(buffer, sizeof buffer, "\033[4;%d;%dt",
+			             term.nrows * term_window.ch, term.ncols * term_window.cw);
+			tty_write(buffer, n, 1);
+			break;
+		case 16: /* character cell size in pixels */
+			n = snprintf(buffer, sizeof buffer, "\033[6;%d;%dt", term_window.ch, term_window.cw);
+			tty_write(buffer, n, 1);
+			break;
+		case 18: /* size of the text area in characters */
+			n = snprintf(buffer, sizeof buffer, "\033[8;%d;%dt", term.nrows, term.ncols);
+			tty_write(buffer, n, 1);
+			break;
+		default:
+			goto unknown;
+		}
+		break;
     case 'u': /* DECRC -- Restore cursor position (ANSI.SYS) */
         if (csi_escape_seq.priv) {
             goto unknown;
