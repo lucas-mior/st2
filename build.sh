@@ -54,7 +54,7 @@ LIBS="-lm -lrt -lX11 -lutil -lXft $($PKG_CONFIG --libs fontconfig) $($PKG_CONFIG
 
 STCPPFLAGS="-DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
 STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
-STLDFLAGS="$LIBS $LDFLAGS"
+STLDFLAGS="$LIBS $LDFLAGS -limlib2"
 
 echo "target=$target"
 ctags --kinds-C=+l+d ./*.h ./*.c 2> /dev/null || true

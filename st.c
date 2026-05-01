@@ -2863,7 +2863,7 @@ term_putc(uint32 u) {
     if (term.esc & ESC_STR) {
         if (u == '\a' || u == 030 || u == 032 || u == 033 || IS_CONTROL_C1(u)) {
             if (term.esc & ESC_SIXEL) {
-                sixel_parser_finalize(&term.images, term.cursor.x, term.cursor.y, term_window.cw, term_window.ch);
+                sixel_parser_finalize(term.images, term.cursor.x, term.cursor.y, term_window.cw, term_window.ch);
                 term.esc &= ~ESC_SIXEL;
             }
             term.esc &= ~(ESC_START | ESC_STR);
