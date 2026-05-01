@@ -125,8 +125,8 @@ typedef struct {
     uint32 release;
 } MouseShortcut;
 
-typedef struct _ImageList {
-	struct _ImageList *next, *prev;
+typedef struct ImageList {
+	struct ImageList *next, *prev;
 	unsigned char *pixels;
 	void *pixmap;
 	void *clipmask;
@@ -142,13 +142,16 @@ typedef struct _ImageList {
 } ImageList;
 
 enum term_mode {
-    TERM_MODE_WRAP = 1 << 0,
-    TERM_MODE_INSERT = 1 << 1,
-    TERM_MODE_ALTSCREEN = 1 << 2,
-    TERM_MODE_CRLF = 1 << 3,
-    TERM_MODE_ECHO = 1 << 4,
-    TERM_MODE_PRINT = 1 << 5,
-    TERM_MODE_UTF8 = 1 << 6,
+    TERM_MODE_WRAP         = 1 << 0,
+    TERM_MODE_INSERT       = 1 << 1,
+    TERM_MODE_ALTSCREEN    = 1 << 2,
+    TERM_MODE_CRLF         = 1 << 3,
+    TERM_MODE_ECHO         = 1 << 4,
+    TERM_MODE_PRINT        = 1 << 5,
+    TERM_MODE_UTF8         = 1 << 6,
+	TERM_MODE_SIXEL        = 1 << 7,
+	TERM_MODE_SIXEL_CUR_RT = 1 << 8,
+	TERM_MODE_SIXEL_SDM    = 1 << 9
 };
 
 enum scroll_mode {

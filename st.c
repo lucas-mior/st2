@@ -2836,11 +2836,15 @@ term_putc(uint32 u) {
     control = IS_CONTROl(u);
     if (u < 127 || !TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
         c[0] = (char)u;
-        width = len = 1;
+        width = 1;
+        len = 1;
     } else {
         len = (int32)utf8_encode(u, c);
-        if (!control && (width = wcwidth((wchar_t)u)) == -1) {
-            width = 1;
+        if (!control) {
+            width = wcwidth((wchar_t)u);
+            if (width == -1) {
+                width = 1;
+            }
         }
     }
 
@@ -2854,16 +2858,24 @@ term_putc(uint32 u) {
      * receives a ESC, a SUB, a ST or any other C1 control
      * character.
      */
-/*
-     * STR sequence must be checked before anything else
-     * because it uses all following characters until it
-     * receives a ESC, a SUB, a ST or any other C1 control
-     * character.
-     */
     if (term.esc & ESC_STR) {
         if (u == '\a' || u == 030 || u == 032 || u == 033 || IS_CONTROL_C1(u)) {
             if (term.esc & ESC_SIXEL) {
-                sixel_parser_finalize(term.images, term.cursor.x, term.cursor.y, term_window.cw, term_window.ch);
+                ImageList *new_images = NULL;
+                sixel_parser_finalize(&term.sixel_st, &new_images, term.cursor.x, term.cursor.y, term_window.cw, term_window.ch);
+                
+                if (new_images != NULL) {
+                    if (term.images == NULL) {
+                        term.images = new_images;
+                    } else {
+                        ImageList *tail = term.images;
+                        while (tail->next != NULL) {
+                            tail = tail->next;
+                        }
+                        tail->next = new_images;
+                        new_images->prev = tail;
+                    }
+                }
                 term.esc &= ~ESC_SIXEL;
             }
             term.esc &= ~(ESC_START | ESC_STR);
@@ -2872,7 +2884,8 @@ term_putc(uint32 u) {
         }
 
         if (term.esc & ESC_SIXEL) {
-            sixel_parser_parse((uchar)u);
+            uchar sixel_char = (uchar)u;
+            sixel_parser_parse(&term.sixel_st, &sixel_char, 1);
             return;
         }
 
@@ -2899,7 +2912,8 @@ term_putc(uint32 u) {
             }
             if (is_sixel) {
                 term.esc |= ESC_SIXEL;
-                sixel_parser_init();
+                /* Note: Adjust the foreground/background color arguments as needed for your setup */
+                sixel_parser_init(&term.sixel_st, 1, 0, 0, 1, term_window.cw, term_window.ch);
                 str_escape_seq.len = 0;
             }
         }
@@ -3002,7 +3016,12 @@ check_control_code:
     if (term.cursor.x + width < term.ncols) {
         term_move_to(term.cursor.x + width, term.cursor.y);
     } else {
-        term.wrap_char_width[TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)] = width;
+        int32 is_alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+        if (is_alt) {
+            term.wrap_char_width[1] = width;
+        } else {
+            term.wrap_char_width[0] = width;
+        }
         term.cursor.state |= CURSOR_WRAPNEXT;
     }
     return;
