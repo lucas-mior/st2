@@ -2259,6 +2259,12 @@ string_handle(void) {
     int32 j;
     int32 narg;
     int32 par;
+	ImageList *im, *newimages, *next, *tail = NULL;
+	int i, x1, y1, x2, y2, y, numimages;
+	int cx, cy;
+	Glyph *line;
+	int scr = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) ? 0 : term.lines_scrolled_up;
+
     const struct {
         int32 idx;
         char *string;
@@ -2393,6 +2399,96 @@ string_handle(void) {
         x_set_title(str_escape_seq.args[0]);
         return;
     case 'P': /* DCS -- Device Control String */
+		if (TERM_MODE_IS_SET(TERM_MODE_SIXEL)) {
+			term.mode &= ~TERM_MODE_SIXEL;
+			if (!sixel_st.image.data) {
+				sixel_parser_deinit(&sixel_st);
+				return;
+			}
+			cx = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.x;
+			cy = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.y;
+			if ((numimages = sixel_parser_finalize(&sixel_st, &newimages,
+					cx, cy + scr, term_window.cw, term_window.ch)) <= 0) {
+				sixel_parser_deinit(&sixel_st);
+				perror("sixel_parser_finalize() failed");
+				return;
+			}
+			sixel_parser_deinit(&sixel_st);
+			x1 = newimages->x;
+			y1 = newimages->y;
+			x2 = x1 + newimages->cols;
+			y2 = y1 + numimages;
+			/* Delete the old images that are covered by the new image(s). We also need
+			 * to check if they have already been deleted before adding the new ones. */
+			if (term.images) {
+				char transparent[numimages];
+				for (i = 0, im = newimages; im; im = im->next, i++) {
+					transparent[i] = im->transparent;
+				}
+				for (im = term.images; im; im = next) {
+					next = im->next;
+					if (im->y >= y1 && im->y < y2) {
+						y = im->y - scr;
+						if (y >= 0 && y < term.nrows && term.dirty[y]) {
+							line = term.line[y];
+							j = MIN(im->x + im->cols, term.ncols);
+							for (i = im->x; i < j; i++) {
+								if (line[i].mode & ATTR_SIXEL)
+									break;
+							}
+							if (i == j) {
+								delete_image(im);
+								continue;
+							}
+						}
+						if (im->x >= x1 && im->x + im->cols <= x2 && !transparent[im->y - y1]) {
+							delete_image(im);
+							continue;
+						}
+					}
+					tail = im;
+				}
+			}
+			if (tail) {
+				tail->next = newimages;
+				newimages->prev = tail;
+			} else {
+				term.images = newimages;
+			}
+			x2 = MIN(x2, term.ncols) - 1;
+			if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+				/* Sixel display mode: put the sixel in the upper left corner of
+				 * the screen, disable scrolling (the sixel will be truncated if
+				 * it is too long) and do not change the cursor position. */
+				for (i = 0, im = newimages; im; im = next, i++) {
+					next = im->next;
+					if (i >= term.nrows) {
+						delete_image(im);
+						continue;
+					}
+					im->y = i + scr;
+					tsetsixelattr(term.line[i], x1, x2);
+					term.dirty[MIN(im->y, term.nrows-1)] = 1;
+				}
+			} else {
+				for (i = 0, im = newimages; im; im = next, i++) {
+					next = im->next;
+					scr = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) ? 0 : term.lines_scrolled_up;
+					im->y = term.cursor.y + scr;
+					tsetsixelattr(term.line[term.cursor.y], x1, x2);
+					term.dirty[MIN(im->y, term.nrows-1)] = 1;
+					if (i < numimages-1) {
+						im->next = NULL;
+						term_new_line(0);
+						im->next = next;
+					}
+				}
+				/* if mode 8452 is set, sixel scrolling leaves cursor to right of graphic */
+				if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT))
+					term.cursor.x = MIN(term.cursor.x + newimages->cols, term.ncols-1);
+			}
+		}
+		return;
     case '_': /* APC -- Application Program Command */
     case '^': /* PM -- Privacy Message */
         return;
