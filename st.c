@@ -25,6 +25,7 @@
 
 #include "st.h"
 #include "boxdraw.c"
+#include "sixel.c"
 
 #if defined(__linux)
 #include <pty.h>
@@ -33,16 +34,6 @@
 #elif defined(__FreeBSD__) || defined(__DragonFly__)
 #include <libutil.h>
 #endif
-
-/* Arbitrary sizes */
-#define UTF_INVALID 0xFFFD
-#define UTF_SIZ 4
-#define ESC_BUF_SIZ (128*UTF_SIZ)
-#define ESC_ARG_SIZ 16
-#define STR_BUF_SIZ ESC_BUF_SIZ
-#define STR_ARG_SIZ ESC_ARG_SIZ
-#define HISTORY_SIZE 2000
-#define RESIZE_BUFFER 1000
 
 /* macros */
 #define TERM_MODE_IS_SET(flag) ((term.mode & (flag)) != 0)
@@ -70,126 +61,6 @@
             term.cursor.state &= ~CURSOR_WRAPNEXT;                                                 \
         }                                                                                          \
     } while (0)
-
-enum term_mode {
-    TERM_MODE_WRAP = 1 << 0,
-    TERM_MODE_INSERT = 1 << 1,
-    TERM_MODE_ALTSCREEN = 1 << 2,
-    TERM_MODE_CRLF = 1 << 3,
-    TERM_MODE_ECHO = 1 << 4,
-    TERM_MODE_PRINT = 1 << 5,
-    TERM_MODE_UTF8 = 1 << 6,
-};
-
-enum scroll_mode {
-    SCROLL_RESIZE = -1,
-    SCROLL_NOSAVEHIST = 0,
-    SCROLL_SAVEHIST = 1
-};
-
-enum cursor_movement {
-    CURSOR_SAVE,
-    CURSOR_LOAD
-};
-
-enum cursor_state {
-    CURSOR_DEFAULT = 0,
-    CURSOR_WRAPNEXT = 1,
-    CURSOR_ORIGIN = 2
-};
-
-enum charset {
-    CS_GRAPHIC0,
-    CS_GRAPHIC1,
-    CS_UK,
-    CS_USA,
-    CS_MULTI,
-    CS_GER,
-    CS_FIN
-};
-
-enum escape_state {
-    ESC_START = 1,
-    ESC_CSI = 2,
-    ESC_STR = 4, /* DCS, OSC, PM, APC */
-    ESC_ALTCHARSET = 8,
-    ESC_STR_END = 16, /* a final string was encountered */
-    ESC_TEST = 32,    /* Enter in test mode */
-    ESC_UTF8 = 64,
-};
-
-typedef struct {
-    Glyph attr; /* current char attributes */
-    int32 x;
-    int32 y;
-    char state;
-} TCursor;
-
-typedef struct {
-    int32 mode;
-    int32 type;
-    int32 snap;
-    /*
-     * Selection variables:
-     * nb – normalized coordinates of the beginning of the selection
-     * ne – normalized coordinates of the end of the selection
-     * ob – original coordinates of the beginning of the selection
-     * oe – original coordinates of the end of the selection
-     */
-    struct {
-        int32 x;
-        int32 y;
-    } nb, ne, ob, oe;
-
-    int32 alt;
-} Selection;
-
-/* Internal representation of the screen */
-typedef struct {
-    int32 nrows;               /* nb row */
-    int32 ncols;               /* nb col */
-    Glyph **line;              /* screen */
-    Glyph *hist[HISTORY_SIZE]; /* history buffer */
-    int32 i_hist;              /* history index */
-    int32 n_hist;              /* nb history available */
-    int32 lines_scrolled_up;   /* scroll back */
-    int32 wrap_char_width[2];  /* used in updating WRAPNEXT when resizing */
-    bool *dirty;               /* dirtyness of lines */
-    TCursor cursor;            /* cursor */
-    int32 old_cursor_x;        /* old cursor col */
-    int32 old_cursor_y;        /* old cursor row */
-    int32 top_scroll_limit;    /* top    scroll limit */
-    int32 bot_scroll_limit;    /* bottom scroll limit */
-    int32 mode;                /* terminal mode flags */
-    int32 esc;                 /* escape state flags */
-    char translation_table[4]; /* charset table translation */
-    int32 charset;             /* current charset */
-    int32 icharset;            /* selection_is_selected charset for sequence */
-    int32 *tabs;
-    uint32 last_char; /* last printed char outside of sequence, 0 if control */
-} Term;
-
-/* CSI Escape sequence structs */
-/* ESC '[' [[ [<priv>] <arg> [;]] <mode> [<mode>]] */
-typedef struct {
-    char buffer[ESC_BUF_SIZ]; /* raw string */
-    int64 len;                /* raw string length */
-    char priv;
-    int32 arg[ESC_ARG_SIZ];
-    int32 narg; /* nb of args */
-    char mode[2];
-} CSIEscape;
-
-/* STR Escape sequence structs */
-/* ESC type [[ [<priv>] <arg> [;]] <mode>] ESC '\' */
-typedef struct {
-    char type;    /* ESC type ... */
-    char *buffer; /* allocated raw string */
-    uint64 siz;   /* allocation size */
-    uint64 len;   /* raw string length */
-    char *args[STR_ARG_SIZ];
-    int32 narg; /* nb of args */
-} STREscape;
 
 static void exec_shell(char *, char **) __attribute__((noreturn));
 static void stty(char **);
@@ -265,7 +136,6 @@ static char base64_decode_getc(const char **);
 static int64 xwrite(int32, const char *, int64);
 
 /* Globals */
-static Term term;
 static Selection selection;
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
@@ -1231,6 +1101,14 @@ term_reset_cursor(void) {
 
 void
 term_reset(void) {
+	ImageList *im = term.images;
+    while (im) {
+        ImageList *next = im->next;
+        xfree(im->pixels);
+        xfree(im);
+        im = next;
+    }
+    term.images = NULL;
     term_reset_cursor();
 
     memset(term.tabs, 0, (size_t)term.ncols*SIZEOF(*term.tabs));
@@ -1402,6 +1280,13 @@ term_scroll_down(int32 top, int32 n) {
         && (selection.alt == TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))) {
         selection_scroll(top, bot, n);
     }
+	ImageList *im = term.images;
+	while (im) {
+		if (im->y >= top && im->y <= bot) {
+			im->y += n;
+		}
+		im = im->next;
+	}
     return;
 }
 
@@ -1457,6 +1342,20 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
                 selection_remove();
             }
         }
+    }
+	ImageList **pim = &term.images;
+    while (*pim) {
+        ImageList *im = *pim;
+        if (im->y >= top && im->y <= bot) {
+            im->y -= n;
+        }
+        if (im->y < -term.n_hist) {
+            *pim = im->next;
+            xfree(im->pixels);
+            xfree(im);
+            continue;
+        }
+        pim = &(*pim)->next;
     }
     return;
 }
@@ -2955,27 +2854,30 @@ term_putc(uint32 u) {
      * receives a ESC, a SUB, a ST or any other C1 control
      * character.
      */
+/*
+     * STR sequence must be checked before anything else
+     * because it uses all following characters until it
+     * receives a ESC, a SUB, a ST or any other C1 control
+     * character.
+     */
     if (term.esc & ESC_STR) {
         if (u == '\a' || u == 030 || u == 032 || u == 033 || IS_CONTROL_C1(u)) {
+            if (term.esc & ESC_SIXEL) {
+                sixel_parser_finalize(&term.images, term.cursor.x, term.cursor.y, term_window.cw, term_window.ch);
+                term.esc &= ~ESC_SIXEL;
+            }
             term.esc &= ~(ESC_START | ESC_STR);
             term.esc |= ESC_STR_END;
             goto check_control_code;
         }
 
+        if (term.esc & ESC_SIXEL) {
+            sixel_parser_parse((uchar)u);
+            return;
+        }
+
         if (str_escape_seq.len + (uint64)len >= str_escape_seq.siz) {
-            /*
-             * Here is a bug in terminals. If the user never sends
-             * some code to stop the string or esc command, then st
-             * will stop responding. But this is better than
-             * silently failing with unknown characters. At least
-             * then users will report back.
-             *
-             * In the case users ever get fixed, here is the code:
-             */
-            /*
-             * term.esc = 0;
-             * string_handle();
-             */
+            /* ... (keep your existing reallocation logic here) ... */
             if (str_escape_seq.siz > (SIZE_MAX - UTF_SIZ) / 2) {
                 return;
             }
@@ -2986,6 +2888,21 @@ term_putc(uint32 u) {
 
         memmove(&str_escape_seq.buffer[str_escape_seq.len], c, (size_t)len);
         str_escape_seq.len += (uint64)len;
+
+        if (str_escape_seq.type == 'P' && u == 'q') {
+            int32 is_sixel = 1;
+            for (uint32 i = 0; i < str_escape_seq.len - 1; i += 1) {
+                if (str_escape_seq.buffer[i] != ';' && !isdigit((uchar)str_escape_seq.buffer[i])) {
+                    is_sixel = 0;
+                    break;
+                }
+            }
+            if (is_sixel) {
+                term.esc |= ESC_SIXEL;
+                sixel_parser_init();
+                str_escape_seq.len = 0;
+            }
+        }
         return;
     }
 
@@ -3157,6 +3074,11 @@ reflow_scroll_down(int32 n) {
             selection_move(-j);
         }
     }
+	ImageList *im = term.images;
+	while (im) {
+		im->y += n;
+		im = im->next;
+	}
     return;
 }
 

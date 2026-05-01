@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include <sys/types.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -28,6 +29,16 @@ typedef uint64_t uint64;
 
 typedef size_t usize;
 typedef ssize_t isize;
+
+/* Arbitrary sizes */
+#define UTF_INVALID 0xFFFD
+#define UTF_SIZ 4
+#define ESC_BUF_SIZ (128*UTF_SIZ)
+#define ESC_ARG_SIZ 16
+#define STR_BUF_SIZ ESC_BUF_SIZ
+#define STR_ARG_SIZ ESC_ARG_SIZ
+#define HISTORY_SIZE 2000
+#define RESIZE_BUFFER 1000
 
 /* macros */
 #define SIZEOF(X) (int64)sizeof(X)
@@ -113,6 +124,144 @@ typedef struct {
     const Arg arg;
     uint32 release;
 } MouseShortcut;
+
+typedef struct _ImageList {
+	struct _ImageList *next, *prev;
+	unsigned char *pixels;
+	void *pixmap;
+	void *clipmask;
+	int width;
+	int height;
+	int x;
+	int y;
+	int reflow_y;
+	int cols;
+	int cw;
+	int ch;
+	int transparent;
+} ImageList;
+
+enum term_mode {
+    TERM_MODE_WRAP = 1 << 0,
+    TERM_MODE_INSERT = 1 << 1,
+    TERM_MODE_ALTSCREEN = 1 << 2,
+    TERM_MODE_CRLF = 1 << 3,
+    TERM_MODE_ECHO = 1 << 4,
+    TERM_MODE_PRINT = 1 << 5,
+    TERM_MODE_UTF8 = 1 << 6,
+};
+
+enum scroll_mode {
+    SCROLL_RESIZE = -1,
+    SCROLL_NOSAVEHIST = 0,
+    SCROLL_SAVEHIST = 1
+};
+
+enum cursor_movement {
+    CURSOR_SAVE,
+    CURSOR_LOAD
+};
+
+enum cursor_state {
+    CURSOR_DEFAULT = 0,
+    CURSOR_WRAPNEXT = 1,
+    CURSOR_ORIGIN = 2
+};
+
+enum charset {
+    CS_GRAPHIC0,
+    CS_GRAPHIC1,
+    CS_UK,
+    CS_USA,
+    CS_MULTI,
+    CS_GER,
+    CS_FIN
+};
+
+enum escape_state {
+    ESC_START = 1,
+    ESC_CSI = 2,
+    ESC_STR = 4, /* DCS, OSC, PM, APC */
+    ESC_ALTCHARSET = 8,
+    ESC_STR_END = 16, /* a final string was encountered */
+    ESC_TEST = 32,    /* Enter in test mode */
+    ESC_UTF8 = 64,
+    ESC_SIXEL = 128,  /* Sixel data stream active */
+};
+
+typedef struct {
+    Glyph attr; /* current char attributes */
+    int32 x;
+    int32 y;
+    char state;
+} TCursor;
+
+typedef struct {
+    int32 mode;
+    int32 type;
+    int32 snap;
+    /*
+     * Selection variables:
+     * nb – normalized coordinates of the beginning of the selection
+     * ne – normalized coordinates of the end of the selection
+     * ob – original coordinates of the beginning of the selection
+     * oe – original coordinates of the end of the selection
+     */
+    struct {
+        int32 x;
+        int32 y;
+    } nb, ne, ob, oe;
+
+    int32 alt;
+} Selection;
+
+/* Internal representation of the screen */
+static struct {
+    int32 nrows;               /* nb row */
+    int32 ncols;               /* nb col */
+    Glyph **line;              /* screen */
+    Glyph *hist[HISTORY_SIZE]; /* history buffer */
+    int32 i_hist;              /* history index */
+    int32 n_hist;              /* nb history available */
+    int32 lines_scrolled_up;   /* scroll back */
+    int32 wrap_char_width[2];  /* used in updating WRAPNEXT when resizing */
+    bool *dirty;               /* dirtyness of lines */
+    TCursor cursor;            /* cursor */
+    int32 old_cursor_x;        /* old cursor col */
+    int32 old_cursor_y;        /* old cursor row */
+    int32 top_scroll_limit;    /* top    scroll limit */
+    int32 bot_scroll_limit;    /* bottom scroll limit */
+    int32 mode;                /* terminal mode flags */
+    int32 esc;                 /* escape state flags */
+    char translation_table[4]; /* charset table translation */
+    int32 charset;             /* current charset */
+    int32 icharset;            /* selection_is_selected charset for sequence */
+    int32 *tabs;
+    uint32 last_char; /* last printed char outside of sequence, 0 if control */
+	ImageList *images;
+} term;
+
+/* CSI Escape sequence structs */
+/* ESC '[' [[ [<priv>] <arg> [;]] <mode> [<mode>]] */
+typedef struct {
+    char buffer[ESC_BUF_SIZ]; /* raw string */
+    int64 len;                /* raw string length */
+    char priv;
+    int32 arg[ESC_ARG_SIZ];
+    int32 narg; /* nb of args */
+    char mode[2];
+} CSIEscape;
+
+/* STR Escape sequence structs */
+/* ESC type [[ [<priv>] <arg> [;]] <mode>] ESC '\' */
+typedef struct {
+    char type;    /* ESC type ... */
+    char *buffer; /* allocated raw string */
+    uint64 siz;   /* allocation size */
+    uint64 len;   /* raw string length */
+    char *args[STR_ARG_SIZ];
+    int32 narg; /* nb of args */
+} STREscape;
 
 void die(const char *, ...) __attribute__((noreturn));
 void redraw(void);
@@ -243,8 +392,7 @@ void selection_set(char *, Time);
 typedef XftColor Color;
 typedef XftGlyphFontSpec GlyphFontSpec;
 
-/* Purely graphic info */
-typedef struct {
+static struct {
     int32 tty_width, tty_height; /* tty width and height */
     int32 w, h;                  /* window width and height */
     int32 hborderpx, vborderpx;
@@ -252,9 +400,9 @@ typedef struct {
     int32 cw;     /* char width  */
     int32 mode;   /* window state/mode flags */
     int32 cursor; /* cursor style */
-} TermWindow;
+} term_window;
 
-typedef struct {
+static struct {
     Display *display;
     Colormap color_map;
     Window win;
@@ -280,7 +428,7 @@ typedef struct {
     int32 left_offset;
 	int32 top_offset;    /* left and top offset */
     int32 geo_mask;      /* geometry mask */
-} XWindow;
+} x_window;
 
 #define Font Font_
 typedef struct {
@@ -310,6 +458,7 @@ typedef struct {
     struct timespec tclick1;
     struct timespec tclick2;
 } XSelection;
+static XSelection xsel;
 
 static DrawingContext draw_context;
 

@@ -19,6 +19,8 @@
 #include "st.h"
 #include "st.c"
 #include "boxdraw.c"
+#include "sixel.c"
+#include "sixel_hls.c"
 
 /* types used in config.def.h */
 
@@ -104,11 +106,6 @@ static void (*handler[LASTEvent])(XEvent *) = {
     [PropertyNotify] = handler_prop_notify,
     [SelectionRequest] = handler_selection_request,
 };
-
-/* Globals */
-static XWindow x_window;
-static XSelection xsel;
-static TermWindow term_window;
 
 /* Font Ring Cache */
 enum {

@@ -7,7 +7,6 @@
 #include <string.h> /* memcpy */
 
 #include "st.h"
-#include "win.h"
 #include "sixel.h"
 #include "sixel_hls.h"
 
@@ -67,10 +66,10 @@ delete_image(ImageList *im) {
         im->next->prev = im->prev;
     }
     if (im->pixmap) {
-        XFreePixmap(xw.dpy, (Drawable)im->pixmap);
+        XFreePixmap(x_window.display, (Drawable)im->pixmap);
     }
     if (im->clipmask) {
-        XFreePixmap(xw.dpy, (Drawable)im->clipmask);
+        XFreePixmap(x_window.display, (Drawable)im->clipmask);
     }
     free(im->pixels);
     free(im);
@@ -697,7 +696,7 @@ Pixmap
 sixel_create_clipmask(char *pixels, int width, int height) {
     char c, *clipdata, *dst;
     int b, i, n, y, w;
-    int msb = (XBitmapBitOrder(xw.dpy) == MSBFirst);
+    int msb = (XBitmapBitOrder(x_window.display) == MSBFirst);
     sixel_color_t *src = (sixel_color_t *)pixels;
     Pixmap clipmask;
 
@@ -722,7 +721,7 @@ sixel_create_clipmask(char *pixels, int width, int height) {
         }
     }
 
-    clipmask = XCreateBitmapFromData(xw.dpy, xw.win, clipdata, width, height);
+    clipmask = XCreateBitmapFromData(x_window.display, x_window.win, clipdata, width, height);
     free(clipdata);
     return clipmask;
 }
