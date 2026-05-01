@@ -952,6 +952,13 @@ tty_hangup(void) {
     return;
 }
 
+void
+tsetsixelattr(Glyph *line, int x1, int x2) {
+    for (; x1 <= x2; x1++) {
+        line[x1].mode |= ATTR_SIXEL;
+    }
+}
+
 int32
 term_attr_set(int32 attr) {
     for (int32 i = 0; i < term.nrows - 1; i += 1) {

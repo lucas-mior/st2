@@ -81,6 +81,7 @@ enum GlyphAttribute {
 	ATTR_WDUMMY     = 1 << 11,
 	ATTR_SELECTED   = 1 << 12,
 	ATTR_BOXDRAW    = 1 << 13,
+	ATTR_SIXEL      = 1 << 16,
 	ATTR_BOLD_FAINT = ATTR_BOLD | ATTR_FAINT,
 };
 
@@ -242,6 +243,7 @@ static struct {
     int32 *tabs;
     uint32 last_char; /* last printed char outside of sequence, 0 if control */
 	ImageList *images;
+	ImageList *images_alt;
 } term;
 
 /* CSI Escape sequence structs */
@@ -278,6 +280,9 @@ void user_print_screen(const Arg *);
 void user_print_sel(const Arg *);
 void user_send_break(const Arg *);
 void user_toggle_printer(const Arg *);
+
+static void tdeleteimages(void);
+static inline void tsetsixelattr(Glyph *line, int x1, int x2);
 
 int32 term_attr_set(int32);
 int32 tisaltscreen(void);
