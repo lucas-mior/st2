@@ -166,7 +166,7 @@ typedef struct {
     int32 charset;             /* current charset */
     int32 icharset;            /* selection_is_selected charset for sequence */
     int32 *tabs;
-    Rune last_char; /* last printed char outside of sequence, 0 if control */
+    uint32 last_char; /* last printed char outside of sequence, 0 if control */
 } Term;
 
 /* CSI Escape sequence structs */
@@ -223,7 +223,7 @@ static void term_move_to(int32, int32);
 static void term_move_abs_to(int32, int32);
 static void term_new_line(int32);
 static void term_put_tab(int32);
-static void term_putc(Rune);
+static void term_putc(uint32);
 static void term_reset(void);
 static void term_scroll_up(int32, int32, int32, int32);
 static void term_scroll_down(int32, int32);
@@ -232,7 +232,7 @@ static void reflow_scroll_down(int32);
 static void term_resize_def(int32, int32);
 static void term_resize_alt(int32, int32);
 static void term_set_attr(const int32 *, int32);
-static void term_set_char(Rune, const Glyph *, int32, int32);
+static void term_set_char(uint32, const Glyph *, int32, int32);
 static void term_set_dirt(int32, int32);
 static void term_swap_screen(void);
 static void term_load_def_screen(int32, int32);
@@ -254,10 +254,10 @@ static void selection_remove(void);
 static int32 selection_is_selected4(int32, int32, int32, int32);
 static void SelectionSnap(int32 *, int32 *, int32);
 
-static int64 utf8_decode(const char *, Rune *, int64);
-static Rune utf8_decode_byte(char, int64 *);
-static char utf8_encode_byte(Rune, int64);
-static int64 utf8_validate(Rune *, int64);
+static int64 utf8_decode(const char *, uint32 *, int64);
+static uint32 utf8_decode_byte(char, int64 *);
+static char utf8_encode_byte(uint32, int64);
+static int64 utf8_validate(uint32 *, int64);
 
 static char *base64_decode(const char *);
 static char base64_decode_getc(const char **);
@@ -275,8 +275,8 @@ static pid_t pid;
 
 static const uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
 static const uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
-static const Rune utf8_min[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
-static const Rune utf8_max[UTF_SIZ + 1]
+static const uint32 utf8_min[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
+static const uint32 utf8_max[UTF_SIZ + 1]
     = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
 int64
@@ -366,10 +366,10 @@ xstrdup(const char *s) {
 }
 
 int64
-utf8_decode(const char *c, Rune *u, int64 clen) {
+utf8_decode(const char *c, uint32 *u, int64 clen) {
     int64 len;
     int64 type;
-    Rune rune_decoded;
+    uint32 rune_decoded;
 
     *u = UTF_INVALID;
     if (!clen) {
@@ -397,7 +397,7 @@ utf8_decode(const char *c, Rune *u, int64 clen) {
     return len;
 }
 
-Rune
+uint32
 utf8_decode_byte(char c, int64 *i) {
     for (*i = 0; *i < LENGTH(utf8_mask); ++(*i)) {
         if (((uchar)c & utf8_mask[*i]) == utf8_byte[*i]) {
@@ -409,7 +409,7 @@ utf8_decode_byte(char c, int64 *i) {
 }
 
 int64
-utf8_encode(Rune u, char *c) {
+utf8_encode(uint32 u, char *c) {
     int64 len;
 
     len = utf8_validate(&u, 0);
@@ -427,12 +427,12 @@ utf8_encode(Rune u, char *c) {
 }
 
 char
-utf8_encode_byte(Rune u, int64 i) {
-    return (char)(utf8_byte[i] | (u & ~utf8_mask[i]));
+utf8_encode_byte(uint32 u, int64 i) {
+    return (char)(utf8_byte[i] | (u & (uint32)~utf8_mask[i]));
 }
 
 int64
-utf8_validate(Rune *u, int64 i) {
+utf8_validate(uint32 *u, int64 i) {
     if (!BETWEEN(*u, utf8_min[i], utf8_max[i]) || BETWEEN(*u, 0xD800, 0xDFFF)) {
         *u = UTF_INVALID;
     }
@@ -1568,7 +1568,7 @@ term_move_to(int32 x, int32 y) {
 }
 
 void
-term_set_char(Rune u, const Glyph *attr, int32 x, int32 y) {
+term_set_char(uint32 u, const Glyph *attr, int32 x, int32 y) {
     static const char *vt100_0[62] = {
         /* 0x41 - 0x7e */
         "↑", "↓", "→", "←", "█", "▚", "☃",      /* A - G */
@@ -1923,7 +1923,7 @@ term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
                     break;
                 }
                 term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
-                /* FALLTHROUGH */
+                _X_FALLTHROUGH;
             case 47:   /* swap screen */
             case 1047: /*swap screen, clearing alternate screen */
                 if (!CONF_ALLOW_ALT_SCREEN) {
@@ -1935,7 +1935,6 @@ term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
                     term_load_def_screen(*args == 1047, *args == 1049);
                 }
                 break;
-                /* FALLTHROUGH */
             case 1048: /* save/restore cursor (like DECSC/DECRC) */
                 if (!CONF_ALLOW_ALT_SCREEN) {
                     break;
@@ -2423,7 +2422,7 @@ string_handle(void) {
                 break;
             }
             p = str_escape_seq.args[2];
-            /* FALLTHROUGH */
+            _X_FALLTHROUGH;
         case 104: /* color reset */
             j = (narg > 1) ? atoi(str_escape_seq.args[1]) : -1;
 
@@ -2775,7 +2774,7 @@ term_control_code(uchar ascii) {
         return;
     case '\032': /* SUB */
         term_set_char('?', &term.cursor.attr, term.cursor.x, term.cursor.y);
-        /* FALLTHROUGH */
+        _X_FALLTHROUGH;
     case '\030': /* CAN */
         control_seq_intro_reset();
         break;
@@ -2928,7 +2927,7 @@ eschandle(uchar ascii) {
 }
 
 void
-term_putc(Rune u) {
+term_putc(uint32 u) {
     char c[UTF_SIZ];
     int32 control;
     int32 width = 0;
@@ -3095,7 +3094,7 @@ check_control_code:
 int32
 term_write(const char *buffer, int32 buflen, int32 show_ctrl) {
     int32 charsize;
-    Rune u;
+    uint32 u;
     int32 n;
 
     for (n = 0; n < buflen; n += charsize) {

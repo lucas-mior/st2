@@ -121,7 +121,7 @@ enum {
 typedef struct {
     XftFont *font;
     int32 flags;
-    Rune unicodep;
+    uint32 unicodep;
 } Fontcache;
 
 /* Fontcache is an array now. A new font will be appended to the array. */
@@ -458,8 +458,9 @@ run:
                 timeout = 0; /* existing events might not set xfd */
             }
 
-            seltv.tv_sec = timeout / 1E3f;
-            seltv.tv_nsec = 1E6f*(timeout - 1E3f*(float)seltv.tv_sec);
+            seltv.tv_sec = (long)((float)timeout / 1E3f);
+            seltv.tv_nsec
+                = (long)(1E6f*((float)timeout - 1E3f*(float)seltv.tv_sec));
             if (timeout >= 0) {
                 tv = &seltv;
             } else {
@@ -558,7 +559,7 @@ run:
             /* error("charset = %d\n", term.charset); */
             /* error("icharset = %d\n", term.icharset); */
             /* error("tabs[0] = %d\n", term.tabs[0]); */
-            /* error("Rune last_char = %u\n\n", term.last_char); */
+            /* error("uint32 last_char = %u\n\n", term.last_char); */
 
             XFlush(x_window.display);
             drawing = 0;
@@ -1059,10 +1060,10 @@ selection_set(char *string, Time t) {
 
 void
 handler_button_release(XEvent *xevent) {
-    int32 button = (int32)xevent->xbutton.button;
+    uint32 button = xevent->xbutton.button;
 
     if (1 <= button && button <= 11) {
-        buttons &= ~(1 << (button - 1));
+        buttons &= (uint32) ~(1 << (button - 1));
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE)
@@ -1439,10 +1440,14 @@ x_load_fonts(const char *fontstr, float fontsize) {
     }
 
     /* Setting character width and height. */
-    term_window.cw
-        = ceilf((float)(draw_context.font.width)*CONF_CHAR_WIDTH_SCALE);
-    term_window.ch
-        = ceilf((float)(draw_context.font.height)*CONF_CHAR_HEIGHT_SCALE);
+    {
+        float cw
+            = ceilf((float)(draw_context.font.width)*CONF_CHAR_WIDTH_SCALE);
+        float ch
+            = ceilf((float)(draw_context.font.height)*CONF_CHAR_HEIGHT_SCALE);
+        term_window.cw = (int32)cw;
+        term_window.ch = (int32)ch;
+    }
 
     FcPatternDel(pattern, FC_SLANT);
     FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
@@ -1665,7 +1670,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
     Font *font_local = &draw_context.font;
     int32 frcflags = FRC_NORMAL;
     int32 runewidth = term_window.cw;
-    Rune rune;
+    uint32 rune;
     FT_UInt glyphidx;
     FcResult fcres;
     FcPattern *fcpattern, *fontpattern;
@@ -1846,10 +1851,10 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len,
         if (fg == &draw_context.color[CONF_COLOR_INDEX_FONT]) {
             fg = &draw_context.color[CONF_COLOR_BG];
         } else {
-            colfg.red = ~fg->color.red;
-            colfg.green = ~fg->color.green;
-            colfg.blue = ~fg->color.blue;
-            colfg.alpha = fg->color.alpha;
+            colfg.red = (ushort)~fg->color.red;
+            colfg.green = (ushort)~fg->color.green;
+            colfg.blue = (ushort)~fg->color.blue;
+            colfg.alpha = (ushort)fg->color.alpha;
             XftColorAllocValue(x_window.display, x_window.visual,
                                x_window.color_map, &colfg, &revfg);
             fg = &revfg;
@@ -1858,10 +1863,10 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len,
         if (bg == &draw_context.color[CONF_COLOR_BG]) {
             bg = &draw_context.color[CONF_COLOR_INDEX_FONT];
         } else {
-            colbg.red = ~bg->color.red;
-            colbg.green = ~bg->color.green;
-            colbg.blue = ~bg->color.blue;
-            colbg.alpha = bg->color.alpha;
+            colbg.red = (ushort)~bg->color.red;
+            colbg.green = (ushort)~bg->color.green;
+            colbg.blue = (ushort)~bg->color.blue;
+            colbg.alpha = (ushort)bg->color.alpha;
             XftColorAllocValue(x_window.display, x_window.visual,
                                x_window.color_map, &colbg, &revbg);
             bg = &revbg;
@@ -2012,9 +2017,10 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
         case 7:              /* st extension */
             g.rune = 0x2603; /* snowman (U+2603) */
                              /* FALLTHROUGH */
-        case 0:              /* Blinking Block */
-        case 1:              /* Blinking Block (Default) */
-        case 2:              /* Steady Block */
+            _X_FALLTHROUGH;
+        case 0: /* Blinking Block */
+        case 1: /* Blinking Block (Default) */
+        case 2: /* Steady Block */
             x_draw_glyph(g, cx, cy);
             break;
         case 3: /* Blinking Underline */
@@ -2279,7 +2285,7 @@ handler_key_press(XEvent *xevent) {
     char buffer[64];
     char *custom_key = NULL;
     int32 len;
-    Rune c;
+    uint32 c;
     Status status;
     Shortcut *bp;
 
@@ -2371,7 +2377,7 @@ tried_custom_keys:
     if (len == 1 && e->state & Mod1Mask) {
         if (TERM_WINDOW_IS_SET(WIN_MODE_8BIT)) {
             if (*buffer < 0177) {
-                c = (Rune)(*buffer | 0x80);
+                c = (uint32)(*buffer | 0x80);
                 len = (int32)utf8_encode(c, buffer);
             }
         } else {

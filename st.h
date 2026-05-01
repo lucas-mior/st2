@@ -29,8 +29,6 @@ typedef uint64_t uint64;
 typedef size_t usize;
 typedef ssize_t isize;
 
-typedef uint_least32_t Rune;
-
 /* macros */
 #define SIZEOF(X) (int64)sizeof(X)
 #define MIN(a, b)		((a) < (b) ? (a) : (b))
@@ -93,7 +91,7 @@ enum SelectionSnap {
 
 #define Glyph Glyph_
 typedef struct {
-	Rune rune;           /* character code */
+	uint32 rune;           /* character code */
 	uint16 mode;      /* attribute flags */
 	uint16 padding;
 	int32 fg;      /* foreground  */
@@ -146,14 +144,14 @@ void selection_extend(int32, int32, int32, int32);
 int32 selection_is_selected(int32, int32);
 char *selection_get(void);
 
-int64 utf8_encode(Rune, char *);
+int64 utf8_encode(uint32, char *);
 
 void *xmalloc(int64);
 void xfree(void *);
 void *xrealloc(void *, int64);
 char *xstrdup(const char *);
 
-int32 isboxdraw(Rune);
+int32 isboxdraw(uint32);
 uint16 boxdrawindex(const Glyph *);
 #ifdef XFT_VERSION
 /* only exposed to main.c, otherwise we'll need Xft.h for the types */

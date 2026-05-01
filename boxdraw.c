@@ -33,8 +33,8 @@ boxdraw_xinit(Display *display, Colormap color_map, XftDraw *draw,
 }
 
 int32
-isboxdraw(Rune u) {
-    Rune block = u & ~(uint32)0xff;
+isboxdraw(uint32 u) {
+    uint32 block = u & ~(uint32)0xff;
     return (CONF_BOXDRAW && block == 0x2500 && boxdata[(uint8_t)u])
            || (CONF_BOXDRAW_BRAILLE && block == 0x2800);
 }
