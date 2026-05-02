@@ -5,6 +5,12 @@
 #include "st.h"
 #include "config.def.h"
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_selection 1
+#elif !defined(TESTING_selection)
+#define TESTING_selection 0
+#endif
+
 static struct {
     int32 mode;
     int32 type;
@@ -367,8 +373,17 @@ selection_set(char *string, Time t) {
 
 #endif /* SELECTION_C */
 
-#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
-#define TESTING_selection 1
-#elif !defined(TESTING_selection)
-#define TESTING_selection 0
-#endif
+#if TESTING_selection
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_selection */

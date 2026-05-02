@@ -6,6 +6,12 @@
 #include "st.h"
 #include "config.def.h"
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_escape 1
+#elif !defined(TESTING_escape)
+#define TESTING_escape 0
+#endif
+
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 
@@ -1707,8 +1713,17 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
 
 #endif /* ESCAPE_C */
 
-#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
-#define TESTING_escape 1
-#elif !defined(TESTING_escape)
-#define TESTING_escape 0
-#endif
+#if TESTING_escape
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_escape */

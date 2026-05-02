@@ -15,6 +15,12 @@
 /* Rounded non-negative integers division of n / d  */
 #define DIV(n, d) (((n) + (d) / 2) / (d))
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_boxdraw 1
+#elif !defined(TESTING_boxdraw)
+#define TESTING_boxdraw 0
+#endif
+
 static Display *xdpy;
 static Colormap xcmap;
 static XftDraw *xd;
@@ -242,8 +248,17 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
 
 #endif /* BOXDRAW_C */
 
-#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
-#define TESTING_boxdraw 1
-#elif !defined(TESTING_boxdraw)
-#define TESTING_boxdraw 0
-#endif
+#if TESTING_boxdraw
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_boxdraw */

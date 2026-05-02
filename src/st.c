@@ -38,6 +38,12 @@
 #include <libutil.h>
 #endif
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_st 1
+#elif !defined(TESTING_st)
+#define TESTING_st 0
+#endif
+
 int64
 xwrite(int32 fd, char *s, int64 len) {
     int64 r;
@@ -1205,8 +1211,17 @@ redraw(void) {
 
 #endif /* ST_C */
 
-#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
-#define TESTING_st 1
-#elif !defined(TESTING_st)
-#define TESTING_st 0
-#endif
+#if TESTING_st
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_st */

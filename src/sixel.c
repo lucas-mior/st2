@@ -14,6 +14,12 @@
 #include "cbase/minmax.c"
 #include "util.c"
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_sixel 1
+#elif !defined(TESTING_sixel)
+#define TESTING_sixel 0
+#endif
+
 uint32 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat);
 
 #define SIXEL_RGB(r, g, b) \
@@ -856,8 +862,17 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
 
 #endif /* SIXEL_C */
 
-#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
-#define TESTING_sixel 1
-#elif !defined(TESTING_sixel)
-#define TESTING_sixel 0
-#endif
+#if TESTING_sixel
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_sixel */

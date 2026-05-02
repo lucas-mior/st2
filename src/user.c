@@ -4,6 +4,12 @@
 #include "st.h"
 #include "util.c"
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_user 1
+#elif !defined(TESTING_user)
+#define TESTING_user 0
+#endif
+
 void
 user_clipboard_copy(Arg *arg) {
     Atom clipboard;
@@ -176,8 +182,17 @@ user_print_sel(Arg *arg) {
 
 #endif /* USER_C */
 
-#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
-#define TESTING_user 1
-#elif !defined(TESTING_user)
-#define TESTING_user 0
-#endif
+#if TESTING_user
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_user */

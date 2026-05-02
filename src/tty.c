@@ -1,8 +1,15 @@
 #if !defined(TTY_C)
 #define TTY_C
 
-#include "st.h"
 #include <pty.h>
+#include "st.h"
+#include "config.def.h"
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_tty 1
+#elif !defined(TESTING_tty)
+#define TESTING_tty 0
+#endif
 
 void
 stty(char **args) {
@@ -10,7 +17,7 @@ stty(char **args) {
     int64 n;
     int64 siz;
 
-    if ((n = (int64)strlen(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
+    if ((n = strlen32(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
         die("incorrect stty parameters\n");
     }
     memcpy(cmd, CONF_STTY_ARGS, (size_t)n);
@@ -62,7 +69,6 @@ tty_new(char *line, char *cmd, char *out, char **args) {
     switch (pid = fork()) {
     case -1:
         die("fork failed: %s\n", strerror(errno));
-        break;
     case 0:
         close(io_fd);
         close(amaster);
@@ -82,7 +88,6 @@ tty_new(char *line, char *cmd, char *out, char **args) {
         }
 #endif
         exec_shell(cmd, args);
-        break;
     default:
 #ifdef __OpenBSD__
         if (pledge("stdio rpath tty proc exec", NULL) == -1) {
@@ -241,8 +246,17 @@ tty_hangup(void) {
 
 #endif /* TTY_C */
 
-#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
-#define TESTING_tty 1
-#elif !defined(TESTING_tty)
-#define TESTING_tty 0
-#endif
+#if TESTING_tty
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_tty */

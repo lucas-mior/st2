@@ -1924,9 +1924,3 @@ usage(void) {
         " [CONF_STTY_ARGS ...]\n",
         argv0, argv0);
 }
-
-#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
-#define TESTING_main 1
-#elif !defined(TESTING_main)
-#define TESTING_main 0
-#endif

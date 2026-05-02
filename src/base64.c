@@ -68,4 +68,19 @@ base64_decode(char *src) {
     return result;
 }
 
+#if TESTING_base64
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_base64 */
+
 #endif /* BASE64_C */
