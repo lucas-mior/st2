@@ -172,11 +172,14 @@ enum cursor_movement {
     CURSOR_LOAD
 };
 
-enum cursor_state {
-    CURSOR_DEFAULT = 0,
-    CURSOR_WRAPNEXT = 1,
-    CURSOR_ORIGIN = 2
-};
+#define ENUM_NAME CursorState
+#define ENUM_PREFIX_ CURSOR_
+#define ENUM_BITFLAGS 0
+#define ENUM_FIELDS \
+    X(DEFAULT) \
+    X(WRAPNEXT) \
+    X(ORIGIN)
+#include "cbase/xenums.c"
 
 enum charset {
     CS_GRAPHIC0,
@@ -207,7 +210,7 @@ typedef struct {
     Glyph attr; /* current char attributes */
     int32 x;
     int32 y;
-    char state;
+    enum CursorState state;
 } TCursor;
 
 /* Internal representation of the screen */
