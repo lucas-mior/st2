@@ -207,7 +207,7 @@ typedef struct {
     char state;
 } TCursor;
 
-typedef struct {
+static struct {
     int32 mode;
     int32 type;
     int32 snap;
@@ -224,7 +224,7 @@ typedef struct {
     } nb, ne, ob, oe;
 
     int32 alt;
-} Selection;
+} selection;
 
 /* Internal representation of the screen */
 static struct {
@@ -543,7 +543,6 @@ static SixelState sixel_st;
 
 static float usedfontsize = 0;
 static float defaultfontsize = 0;
-static Selection selection;
 static pid_t pid;
 
 #endif /* ST_H */
