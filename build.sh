@@ -76,7 +76,9 @@ debug)
 	gdb st
 	;;
 install)
-	[ ! -f st ] && "$0" build
+	if [ ! -f st ]; then
+		"$0" build
+	fi
 	set -x
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	install -Dm755 st ${DESTDIR}${PREFIX}/bin/st
