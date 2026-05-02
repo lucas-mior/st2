@@ -11,8 +11,6 @@
 
 #include "st.h"
 
-char *vtiden = "\033[?62;4c"; /* VT200 family (62) with sixel (4) */
-
 /*
  * appearance
  *
@@ -40,7 +38,8 @@ char *CONF_UTMP = NULL;
 char *CONF_STTY_ARGS = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 
 /* identification sequence returned in DA and DECID */
-char *CONF_VTIDEN = "\033[?6c";
+char *CONF_VTIDEN = "\033[?62;4c"; /* VT200 family (62) with sixel (4) */
+int const sixelbyteorder = LSBFirst;
 
 /* Kerning / character bounding-box multipliers */
 static float CONF_CHAR_WIDTH_SCALE = 1.0;
