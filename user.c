@@ -1,3 +1,6 @@
+#if !defined(USER_C)
+#define USER_C
+
 #include "st.h"
 #include "cbase/util.c"
 
@@ -89,3 +92,5 @@ user_tty_send(Arg *arg) {
     tty_write(arg->s, (int64)strlen(arg->s), 1);
     return;
 }
+
+#endif /* USER_C */
