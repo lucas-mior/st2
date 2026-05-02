@@ -100,16 +100,7 @@ void
 xfree(void *pointer) {
     free_count += 1;
     free(pointer);
-    /* if (free_count < malloc_count) { */
-    /*     fprintf(stderr, "free=%ld < %ld=malloc\n", free_count, malloc_count);
-     */
-    /* } else if (free_count == malloc_count) { */
-    /*     fprintf(stderr, "free=%ld == %ld=malloc\n", free_count,
-     * malloc_count); */
-    /* } else { */
-    /*     fprintf(stderr, "free=%ld > %ld=malloc\n", free_count, malloc_count);
-     */
-    /* } */
+    return;
 }
 
 void *
@@ -124,17 +115,6 @@ xmalloc(int64 len) {
     if (!(p = malloc((size_t)len))) {
         die("malloc: %s\n", strerror(errno));
     }
-
-    /* if (free_count < malloc_count) { */
-    /*     fprintf(stderr, "free=%ld < %ld=malloc\n", free_count, malloc_count);
-     */
-    /* } else if (free_count == malloc_count) { */
-    /*     fprintf(stderr, "free=%ld == %ld=malloc\n", free_count,
-     * malloc_count); */
-    /* } else { */
-    /*     fprintf(stderr, "free=%ld > %ld=malloc\n", free_count, malloc_count);
-     */
-    /* } */
 
     return p;
 }
@@ -2040,19 +2020,34 @@ string_handle(void) {
     int32 j;
     int32 narg;
     int32 par;
-    ImageList *im, *newimages, *next, *tail = NULL;
-    int i, x1, y1, x2, y2, y, numimages;
-    int cx, cy;
+    ImageList *im;
+    ImageList *newimages;
+    ImageList *next;
+    ImageList *tail = NULL;
+    int i;
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+    int y;
+    int numimages;
+    int cx;
+    int cy;
     Glyph *line;
-    int scr
-        = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) ? 0 : term.lines_scrolled_up;
+    int scr;
 
-    const struct {
+    struct {
         int32 idx;
         char *string;
     } osc_table[] = {{CONF_COLOR_INDEX_FONT, "foreground"},
                      {CONF_COLOR_BG, "background"},
                      {CONF_COLOR_INDEX_CURSOR, "cursor"}};
+
+    if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+        scr = 0;
+    } else {
+        scr = term.lines_scrolled_up;
+    }
 
     term.esc &= ~(ESC_STR_END | ESC_STR);
     {
@@ -2062,23 +2057,26 @@ string_handle(void) {
         str_escape_seq.narg = 0;
         str_escape_seq.buffer[str_escape_seq.len] = '\0';
 
-        if (*p2 == '\0') {
-            return;
-        }
-
-        while (str_escape_seq.narg < STR_ARG_SIZ) {
-            str_escape_seq.args[str_escape_seq.narg++] = p2;
-            while ((c = *p2) != ';' && c != '\0') {
-                ++p2;
+        if (*p2 != '\0') {
+            while (str_escape_seq.narg < STR_ARG_SIZ) {
+                str_escape_seq.args[str_escape_seq.narg++] = p2;
+                while ((c = *p2) != ';' && c != '\0') {
+                    ++p2;
+                }
+                if (c == '\0') {
+                    break;
+                }
+                *p2++ = '\0';
             }
-            if (c == '\0') {
-                return;
-            }
-            *p2++ = '\0';
         }
-        return;
     }
-    par = (narg = str_escape_seq.narg) ? atoi(str_escape_seq.args[0]) : 0;
+
+    narg = str_escape_seq.narg;
+    if (narg) {
+        par = atoi(str_escape_seq.args[0]);
+    } else {
+        par = 0;
+    }
 
     switch (str_escape_seq.type) {
     case ']': /* OSC -- Operating System Command */
@@ -2117,7 +2115,8 @@ string_handle(void) {
                 break;
             }
             p = str_escape_seq.args[1];
-            if ((j = par - 10) < 0 || j >= LENGTH(osc_table)) {
+            j = par - 10;
+            if (j < 0 || j >= LENGTH(osc_table)) {
                 break; /* shouldn't be possible */
             }
 
@@ -2137,7 +2136,11 @@ string_handle(void) {
             p = str_escape_seq.args[2];
             _X_FALLTHROUGH;
         case 104: /* color reset */
-            j = (narg > 1) ? atoi(str_escape_seq.args[1]) : -1;
+            if (narg > 1) {
+                j = atoi(str_escape_seq.args[1]);
+            } else {
+                j = -1;
+            }
 
             if (p && !strcmp(p, "?")) {
                 osc_color_response(j, 0, 1);
@@ -2146,8 +2149,12 @@ string_handle(void) {
                     x_load_cols();
                     return; /* color reset without parameter */
                 }
-                fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j,
-                        p ? p : "(null)");
+                if (p) {
+                    fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j, p);
+                } else {
+                    fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j,
+                            "(null)");
+                }
             } else {
                 /*
                  * TODO if CONF_COLOR_BG color is changed, borders
@@ -2162,7 +2169,8 @@ string_handle(void) {
             if (narg != 1) {
                 break;
             }
-            if ((j = par - 110) < 0 || j >= LENGTH(osc_table)) {
+            j = par - 110;
+            if (j < 0 || j >= LENGTH(osc_table)) {
                 break; /* shouldn't be possible */
             }
             if (x_set_color_name(osc_table[j].idx, NULL)) {
@@ -2187,8 +2195,15 @@ string_handle(void) {
                 sixel_parser_deinit(&sixel_st);
                 return;
             }
-            cx = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.x;
-            cy = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.y;
+
+            if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+                cx = 0;
+                cy = 0;
+            } else {
+                cx = term.cursor.x;
+                cy = term.cursor.y;
+            }
+
             if ((numimages
                  = sixel_parser_finalize(&sixel_st, &newimages, cx, cy + scr,
                                          term_window.cw, term_window.ch))
@@ -2260,9 +2275,11 @@ string_handle(void) {
             } else {
                 for (i = 0, im = newimages; im; im = next, i++) {
                     next = im->next;
-                    scr = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)
-                              ? 0
-                              : term.lines_scrolled_up;
+                    if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+                        scr = 0;
+                    } else {
+                        scr = term.lines_scrolled_up;
+                    }
                     im->y = term.cursor.y + scr;
                     tsetsixelattr(term.line[term.cursor.y], x1, x2);
                     term.dirty[MIN(im->y, term.nrows - 1)] = 1;
