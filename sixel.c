@@ -677,9 +677,9 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sixel_state->params[4]
                             = (int32)MIN(sixel_state->params[4], 100);
                         image->palette[sixel_state->color_index]
-							= hls_to_rgb(
-                            sixel_state->params[2], sixel_state->params[3],
-                            sixel_state->params[4]);
+							= hls_to_rgb(sixel_state->params[2],
+									     sixel_state->params[3],
+                                         sixel_state->params[4]);
                     } else if (sixel_state->params[1] == 2) {
                         /* RGB */
                         sixel_state->params[2]

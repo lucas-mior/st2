@@ -47,7 +47,7 @@ typedef struct parser_context {
 	int32 grid_height;
 	int32 param;
 	int32 nparams;
-	int32 params[DECSIXEL_PARAMS_MAX];
+	uint32 params[DECSIXEL_PARAMS_MAX];
 	SixelImage image;
 } SixelState;
 
