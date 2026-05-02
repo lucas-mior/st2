@@ -28,8 +28,6 @@
 /* config.def.h for applying patches and the configuration. */
 #include "config.def.h"
 
-static uint16 sixd_to_16bit(int32);
-
 static void usage(void) __attribute__((noreturn));
 
 static void (*handler[LASTEvent])(XEvent *) = {
