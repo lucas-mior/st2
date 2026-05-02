@@ -264,7 +264,7 @@ typedef struct {
 
 /* STR Escape sequence structs */
 /* ESC type [[ [<priv>] <arg> [;]] <mode>] ESC '\' */
-typedef struct {
+typedef struct STREscape {
     char type;    /* ESC type ... */
     char *buffer; /* allocated raw string */
     uint64 siz;   /* allocation size */
