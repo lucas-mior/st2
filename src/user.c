@@ -98,7 +98,7 @@ user_zoom_reset(Arg *arg) {
 
 static void
 user_tty_send(Arg *arg) {
-    tty_write(arg->s, (int64)strlen(arg->s), 1);
+    tty_write(arg->s, (int64)strlen32(arg->s), 1);
     return;
 }
 

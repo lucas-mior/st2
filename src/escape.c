@@ -434,7 +434,7 @@ control_seq_intro_handle(void) {
         break;
     case 'c':
         if (csi_escape_seq.arg[0] == 0) {
-            tty_write(CONF_VTIDEN, (int64)strlen(CONF_VTIDEN), 0);
+            tty_write(CONF_VTIDEN, (int64)strlen32(CONF_VTIDEN), 0);
         }
         break;
     case 'b':
@@ -1381,7 +1381,7 @@ term_control_code(uchar ascii) {
     case 0x99:
         break;
     case 0x9a:
-        tty_write(CONF_VTIDEN, (int64)strlen(CONF_VTIDEN), 0);
+        tty_write(CONF_VTIDEN, (int64)strlen32(CONF_VTIDEN), 0);
         break;
     case 0x9b:
     case 0x9c:
@@ -1454,7 +1454,7 @@ eschandle(uchar ascii) {
         }
         break;
     case 'Z':
-        tty_write(CONF_VTIDEN, (int64)strlen(CONF_VTIDEN), 0);
+        tty_write(CONF_VTIDEN, (int64)strlen32(CONF_VTIDEN), 0);
         break;
     case 'c':
         term_reset();

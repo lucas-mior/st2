@@ -229,7 +229,7 @@ handler_selection_request(XEvent *xevent) {
                             xselection_request_event->property,
                             xselection_request_event->target, 8,
                             PropModeReplace, (uchar *)selection_text,
-                            (int32)(int64)strlen(selection_text));
+                            (int32)(int64)strlen32(selection_text));
             xselection_event.property = xselection_request_event->property;
         }
     }
@@ -419,7 +419,7 @@ handler_key_press(XEvent *xevent) {
     }
 tried_custom_keys:
     if (custom_key) {
-        tty_write(custom_key, (int64)strlen(custom_key), 1);
+        tty_write(custom_key, (int64)strlen32(custom_key), 1);
         return;
     }
 

@@ -25,7 +25,7 @@ stty(char **args) {
     q = cmd + n;
     siz = SIZEOF(cmd) - n;
     for (char **p = args; p && (s = *p); p += 1) {
-        if ((n = (int64)strlen(s)) > siz - 1) {
+        if ((n = (int64)strlen32(s)) > siz - 1) {
             error("stty parameter length too int64\n");
             exit(EXIT_FAILURE);
         }
