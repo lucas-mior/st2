@@ -23,9 +23,6 @@
 #include "x.c"
 
 #include <Imlib2.h>
-/* types used in config.def.h */
-
-/* config.def.h for applying patches and the configuration. */
 #include "config.def.h"
 
 static void usage(void) __attribute__((noreturn));
