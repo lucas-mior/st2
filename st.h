@@ -28,7 +28,6 @@ typedef uint64_t uint64;
 typedef size_t usize;
 typedef ssize_t isize;
 
-/* Arbitrary sizes */
 #define UTF_INVALID 0xFFFD
 #define UTF_SIZ 4
 #define ESC_BUF_SIZ (128*UTF_SIZ)
@@ -38,7 +37,6 @@ typedef ssize_t isize;
 #define HISTORY_SIZE 2000
 #define RESIZE_BUFFER 1000
 
-/* macros */
 #define BETWEEN(x, a, b)	((a) <= (x) && (x) <= (b))
 #define DIVCEIL(n, d)		(((n) + ((d) - 1)) / (d))
 #define DEFAULT(a, b)		(a) = (a) ? (a) : (b)
@@ -543,5 +541,7 @@ static DrawingContext draw_context;
 
 #include "sixel.h"
 static SixelState sixel_st;
+
+static float usedfontsize = 0;
 
 #endif /* ST_H */

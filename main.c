@@ -127,7 +127,6 @@ static Fontcache *frc = NULL;
 static int32 frclen = 0;
 static int32 frccap = 0;
 static char *usedfont = NULL;
-static float usedfontsize = 0;
 static float defaultfontsize = 0;
 
 static char *opt_class = NULL;
