@@ -114,12 +114,11 @@ static int64
 tty_read(void) {
     static char buffer[BUFSIZ];
     static int32 copied = 0;
-    int32 ret;
+    int64 ret;
     int32 written;
 
     /* append read bytes to unprocessed bytes */
-    ret = (int32)read(command_fd, buffer + copied,
-                      (size_t)(LENGTH(buffer) - copied));
+    ret = read64(command_fd, buffer + copied, LENGTH(buffer) - copied);
 
     switch (ret) {
     case 0:
@@ -133,9 +132,9 @@ tty_read(void) {
         copied -= written;
         /* keep any incomplete UTF-8 byte sequence for the next call */
         if (copied > 0) {
-            memmove(buffer, buffer + written, (size_t)copied);
+            memmove64(buffer, buffer + written, copied);
         }
-        return (int64)ret;
+        return ret;
     }
 }
 
@@ -160,7 +159,7 @@ tty_write(char *s, int64 n, int32 may_echo) {
             next = s + 1;
             tty_write_raw("\r\n", 2);
         } else {
-            next = memchr(s, '\r', (size_t)n);
+            next = memchr64(s, '\r', n);
             DEFAULT(next, s + n);
             tty_write_raw(s, (int64)(next - s));
         }
@@ -202,8 +201,8 @@ tty_write_raw(char *s, int64 n) {
              * default of 256. This seems to be a reasonable value
              * for a serial line. Bigger values might clog the I/O.
              */
-            size_t size = (size_t)((n < lim) ? n : lim);
-            if ((r = write(command_fd, s, size)) < 0) {
+            int64 size = ((n < lim) ? n : lim);
+            if ((r = write64(command_fd, s, size)) < 0) {
                 goto write_error;
             }
             if (r < n) {

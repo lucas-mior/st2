@@ -469,7 +469,7 @@ control_seq_intro_handle(void) {
             term.tabs[term.cursor.x] = 0;
             break;
         case 3:
-            memset(term.tabs, 0, (size_t)term.ncols*SIZEOF(*term.tabs));
+            memset64(term.tabs, 0, term.ncols*SIZEOF(*term.tabs));
             break;
         default:
             goto unknown;
@@ -771,7 +771,7 @@ control_seq_intro_dump(void) {
 
 static void
 control_seq_intro_reset(void) {
-    memset(&csi_escape_seq, 0, SIZEOF(csi_escape_seq));
+    memset64(&csi_escape_seq, 0, SIZEOF(csi_escape_seq));
     return;
 }
 
@@ -1535,7 +1535,7 @@ term_putc(uint32 u) {
             }
         }
 
-        memmove(&str_escape_seq.buffer[str_escape_seq.len], c, (size_t)len);
+        memmove64(&str_escape_seq.buffer[str_escape_seq.len], c, len);
         str_escape_seq.len += (uint64)len;
 
         if (str_escape_seq.type == 'P' && u == 'q') {
@@ -1630,8 +1630,8 @@ check_control_code:
 
     if (TERM_MODE_IS_SET(TERM_MODE_INSERT)) {
         if (term.cursor.x + width < term.ncols) {
-            memmove(glyph + width, glyph,
-                    (size_t)(term.ncols - term.cursor.x - width)*SIZEOF(Glyph));
+            memmove64(glyph + width, glyph,
+                      (term.ncols - term.cursor.x - width)*SIZEOF(Glyph));
             glyph->mode &= ~ATTR_WIDE;
         }
     }

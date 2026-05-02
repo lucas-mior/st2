@@ -235,7 +235,7 @@ run:
                             x_window.left_offset, x_window.top_offset);
         }
 
-        memset(&xgc_values, 0, SIZEOF(xgc_values));
+        memset64(&xgc_values, 0, SIZEOF(xgc_values));
         xgc_values.graphics_exposures = False;
         draw_context.graphics = XCreateGC(x_window.display, x_window.win,
                                           GCGraphicsExposures, &xgc_values);

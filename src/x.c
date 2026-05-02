@@ -1117,7 +1117,7 @@ x_finish_draw(void) {
         }
 
         if (gc == NULL) {
-            memset(&gcvalues, 0, SIZEOF(gcvalues));
+            memset64(&gcvalues, 0, SIZEOF(gcvalues));
             gcvalues.graphics_exposures = False;
             gc = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures,
                             &gcvalues);

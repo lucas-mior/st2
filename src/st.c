@@ -51,7 +51,7 @@ xwrite(int32 fd, char *s, int64 len) {
     int64 left = (int64)len;
 
     while (left > 0) {
-        r = write(fd, s, (size_t)len);
+        r = write64(fd, s, len);
         if (r < 0) {
             return r;
         }
@@ -249,7 +249,7 @@ term_reset(void) {
     term.cursor.y = 0;
     term.cursor.state = CURSOR_DEFAULT;
 
-    memset(term.tabs, 0, (size_t)term.ncols*SIZEOF(*term.tabs));
+    memset64(term.tabs, 0, term.ncols*SIZEOF(*term.tabs));
     for (int32 i = CONF_TAB_NSPACES; i < term.ncols; i += CONF_TAB_NSPACES) {
         term.tabs[i] = 1;
     }
@@ -258,7 +258,7 @@ term_reset(void) {
     term.lines_scrolled_up = 0;
     term.bot_scroll_limit = term.nrows - 1;
     term.mode = TERM_MODE_WRAP | TERM_MODE_UTF8;
-    memset(term.translation_table, CS_USA, SIZEOF(term.translation_table));
+    memset64(term.translation_table, CS_USA, SIZEOF(term.translation_table));
     term.charset = 0;
 
     selection_remove();
@@ -603,7 +603,7 @@ term_delete_char(int32 n) {
          * https://stackoverflow.com/questions/29844298
          */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], (size_t)size*SIZEOF(Glyph));
+        memmove64(&line[dst], &line[src], size*SIZEOF(Glyph));
     }
     term_clear_region(dst + size, term.cursor.y, term.ncols - 1, term.cursor.y,
                       1);
@@ -625,7 +625,7 @@ term_insert_blank(int32 n) {
     size = term.ncols - dst;
     if (size > 0) { /* otherwise dst would point beyond the array */
         line = term.line[term.cursor.y];
-        memmove(&line[dst], &line[src], (size_t)size*SIZEOF(Glyph));
+        memmove64(&line[dst], &line[src], size*SIZEOF(Glyph));
     }
     term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, 1);
     return;
@@ -834,7 +834,7 @@ term_resize(int32 col, int32 row) {
     term.tabs = xrealloc(term.tabs, (int64)col*SIZEOF(*(term.tabs)));
     if (col > term.ncols) {
         bp = term.tabs + term.ncols;
-        memset(bp, 0, SIZEOF(*term.tabs)*(size_t)(col - term.ncols));
+        memset64(bp, 0, SIZEOF(*term.tabs)*(col - term.ncols));
         bp -= 1;
         while (bp > term.tabs && !*bp) {
             bp -= 1;
@@ -909,8 +909,8 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         i += 1;
     }
     if (i > 0) {
-        memmove(term.line, term.line + i,
-                (size_t)new_nrows*SIZEOF(*(term.line)));
+        memmove64(term.line, term.line + i,
+                  new_nrows*SIZEOF(*(term.line)));
         term.cursor.y = new_nrows - 1;
     }
     for (i += new_nrows; i < term.nrows; i += 1) {
@@ -1028,8 +1028,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         chars_left = len - old_x_offset;
 
         if (space_left > chars_left) {
-            memcpy(&reflow_lines[new_y_index][new_x_offset],
-                   &line[old_x_offset], (size_t)chars_left*SIZEOF(Glyph));
+            memcpy64(&reflow_lines[new_y_index][new_x_offset],
+                   &line[old_x_offset], chars_left*SIZEOF(Glyph));
             new_x_offset += chars_left;
 
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
@@ -1047,14 +1047,14 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             old_y_index += 1;
         } else {
             if (space_left == chars_left) {
-                memcpy(&reflow_lines[new_y_index][new_x_offset],
-                       &line[old_x_offset], (size_t)space_left*SIZEOF(Glyph));
+                memcpy64(&reflow_lines[new_y_index][new_x_offset],
+                       &line[old_x_offset], space_left*SIZEOF(Glyph));
                 old_x_offset = 0;
                 old_y_index += 1;
                 new_x_offset = 0;
             } else { /* space_left < chars_left */
-                memcpy(&reflow_lines[new_y_index][new_x_offset],
-                       &line[old_x_offset], (size_t)space_left*SIZEOF(Glyph));
+                memcpy64(&reflow_lines[new_y_index][new_x_offset],
+                       &line[old_x_offset], space_left*SIZEOF(Glyph));
                 old_x_offset += space_left;
                 reflow_lines[new_y_index][new_ncols - 1].mode |= ATTR_WRAP;
                 new_x_offset = 0;

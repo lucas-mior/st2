@@ -7,7 +7,7 @@
 #define SIXEL_C
 
 #include <stdlib.h>
-#include <string.h> /* memcpy */
+#include <string.h> /* memcpy64 */
 
 #include "st.h"
 #include "sixel.h"
@@ -187,24 +187,24 @@ image_buffer_resize(SixelImage *image, int32 width, int32 height) {
     if (width > image->width) { /* if width is extended */
         for (int32 n = 0; n < min_height; ++n) {
             /* copy from source image */
-            memcpy(alt_buffer + width*n, image->data + image->width*n,
-                   (size_t)image->width*sizeof(uint16));
+            memcpy64(alt_buffer + width*n, image->data + image->width*n,
+                     image->width*SIZEOF(uint16));
             /* fill extended area with background color */
-            memset(alt_buffer + width*n + image->width, 0,
-                   (size_t)(width - image->width)*sizeof(uint16));
+            memset64(alt_buffer + width*n + image->width, 0,
+                     (width - image->width)*SIZEOF(uint16));
         }
     } else {
         for (int32 n = 0; n < min_height; ++n) {
             /* copy from source image */
-            memcpy(alt_buffer + width*n, image->data + image->width*n,
-                   (size_t)width*sizeof(uint16));
+            memcpy64(alt_buffer + width*n, image->data + image->width*n,
+                     width*SIZEOF(uint16));
         }
     }
 
     if (height > image->height) { /* if height is extended */
         /* fill extended area with background color */
-        memset(alt_buffer + width*image->height, 0,
-               (size_t)(width*(height - image->height))*sizeof(uint16));
+        memset64(alt_buffer + width*image->height, 0,
+                 (width*(height - image->height))*SIZEOF(uint16));
     }
 
     free(image->data);

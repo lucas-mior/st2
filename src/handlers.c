@@ -149,7 +149,7 @@ handler_selection_notify(XEvent *xevent) {
         repl = data;
         last = data + nitems*(uint64)format / 8;
         while (1) {
-            repl = memchr(repl, '\n', (size_t)(last - repl));
+            repl = memchr64(repl, '\n', last - repl);
             if (!repl) {
                 break;
             }
