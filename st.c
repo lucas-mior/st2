@@ -241,10 +241,9 @@ term_cursor(int32 mode) {
 
 void
 tdeleteimages(void) {
-    ImageList *im;
     ImageList *next;
 
-    for (im = term.images; im; im = next) {
+    for (ImageList *im = term.images; im; im = next) {
         next = im->next;
         delete_image(im);
     }
