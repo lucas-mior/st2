@@ -51,7 +51,8 @@ selection_extend(int32 col, int32 row, int32 type, int32 done) {
 
     if (oldey != selection.oe.y || oldex != selection.oe.x
         || oldtype != selection.type || selection.mode == SELECTION_EMPTY) {
-        term_set_dirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
+        term_set_dirt((int32)MIN(selection.nb.y, oldsby),
+                      (int32)MAX(selection.ne.y, oldsey));
     }
 
     if (done) {
@@ -76,8 +77,8 @@ selection_normalize(void) {
         selection.nb.x = (int32)MIN(selection.ob.x, selection.oe.x);
         selection.ne.x = (int32)MAX(selection.ob.x, selection.oe.x);
     }
-    selection.nb.y = MIN(selection.ob.y, selection.oe.y);
-    selection.ne.y = MAX(selection.ob.y, selection.oe.y);
+    selection.nb.y = (int32)MIN(selection.ob.y, selection.oe.y);
+    selection.ne.y = (int32)MAX(selection.ob.y, selection.oe.y);
 
     SelectionSnap(&selection.nb.x, &selection.nb.y, -1);
     SelectionSnap(&selection.ne.x, &selection.ne.y, +1);

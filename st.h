@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <wchar.h>
 #include <sys/types.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
