@@ -28,7 +28,7 @@
 /* config.def.h for applying patches and the configuration. */
 #include "config.def.h"
 
-static inline uint16 sixd_to_16bit(int32);
+static uint16 sixd_to_16bit(int32);
 
 static void usage(void) __attribute__((noreturn));
 
@@ -716,17 +716,6 @@ cresize(int32 width, int32 height) {
     x_resize(col, row);
     tty_resize(term_window.tty_width, term_window.tty_height);
     return;
-}
-
-uint16
-sixd_to_16bit(int32 x) {
-    int32 y;
-    if (x == 0) {
-        y = 0;
-    } else {
-        y = 0x3737 + 0x2828*x;
-    }
-    return (uint16)y;
 }
 
 int32

@@ -1176,4 +1176,15 @@ x_bell(void) {
     return;
 }
 
+uint16
+sixd_to_16bit(int32 x) {
+    int32 y;
+    if (x == 0) {
+        y = 0;
+    } else {
+        y = 0x3737 + 0x2828*x;
+    }
+    return (uint16)y;
+}
+
 #endif /* X_C */
