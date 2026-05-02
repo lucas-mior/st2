@@ -80,7 +80,7 @@ delete_image(ImageList *im) {
 }
 
 static int32
-set_default_color(sixel_image_t *image) {
+set_default_color(SixelImage *image) {
     int32 i;
     int32 n;
     int32 r;
@@ -118,7 +118,7 @@ set_default_color(sixel_image_t *image) {
 }
 
 static int32
-sixel_image_init(sixel_image_t *image, int32 width, int32 height, int32 fgcolor,
+sixel_image_init(SixelImage *image, int32 width, int32 height, int32 fgcolor,
                  int32 bgcolor, int32 use_private_register) {
     int32 status = (-1);
     size_t size;
@@ -151,7 +151,7 @@ end:
 }
 
 static int32
-image_buffer_resize(sixel_image_t *image, int32 width, int32 height) {
+image_buffer_resize(SixelImage *image, int32 width, int32 height) {
     int32 status = (-1);
     size_t size;
     ushort *alt_buffer;
@@ -205,7 +205,7 @@ end:
 }
 
 static void
-sixel_image_deinit(sixel_image_t *image) {
+sixel_image_deinit(SixelImage *image) {
     if (image->data) {
         free(image->data);
     }
@@ -253,7 +253,7 @@ sixel_parser_set_default_color(sixel_state_t *st) {
 int32
 sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
                       int32 cy, int32 cw, int32 ch) {
-    sixel_image_t *image = &st->image;
+    SixelImage *image = &st->image;
     int32 x, y;
     ushort *src;
     uint32 *dst, color;
@@ -339,7 +339,7 @@ sixel_parser_parse(sixel_state_t *st, const uchar *p, size_t len) {
     int32 sy;
     int32 width;
     const uchar *p0 = p, *p2 = p + len;
-    sixel_image_t *image = &st->image;
+    SixelImage *image = &st->image;
     ushort *data, color_index;
 
     if (!image->data) {

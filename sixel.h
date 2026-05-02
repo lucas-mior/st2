@@ -17,7 +17,7 @@ typedef struct sixel_image_buffer {
 	ushort ncolors;
 	int palette_modified;
 	int use_private_register;
-} sixel_image_t;
+} SixelImage;
 
 typedef enum parse_state {
 	PS_ESC        = 1,  /* ESC */
@@ -47,7 +47,7 @@ typedef struct parser_context {
 	int param;
 	int nparams;
 	int params[DECSIXEL_PARAMS_MAX];
-	sixel_image_t image;
+	SixelImage image;
 } sixel_state_t;
 
 void scroll_images(int n);
