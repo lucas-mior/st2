@@ -255,7 +255,7 @@ sixel_parser_set_default_color(SixelState *sixel_state) {
 int32
 sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
                       int32 cy, int32 cw, int32 ch) {
-    SixelImage *sixel_image = &sixel_state->sixel_image;
+    SixelImage *sixel_image = &sixel_state->image;
     int32 x, y;
     uint16 *src;
     uint32 *dst;
