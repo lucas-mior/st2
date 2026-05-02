@@ -89,6 +89,7 @@ enum ENUM_NAME ENUM_UNDERLYING_TYPE {
 #endif
     #define X(...)            SELECT_ON_NUM_ARGS(XENUM_DEF_, __VA_ARGS__)
 
+	CAT(ENUM_PREFIX_, NONE) = 0,
     ENUM_FIELDS
 
     #undef X
@@ -118,6 +119,8 @@ CAT(ENUM_PREFIX_, str)(enum ENUM_NAME val) {
         #undef X
         #undef XENUM_ST_1
         #undef XENUM_ST_2
+        case CAT(ENUM_PREFIX_, NONE):
+            return QUOTE(ENUM_PREFIX_) "NONE";
         case CAT(ENUM_PREFIX_, LAST):
             return QUOTE(ENUM_PREFIX_) "LAST";
         default:

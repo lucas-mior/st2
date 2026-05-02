@@ -78,25 +78,27 @@
         }                                                                                           \
     } while (0)
 
-enum GlyphAttribute {
-	ATTR_NONE        = 0,
-	ATTR_SET         = 1 << 0,
-	ATTR_BOLD        = 1 << 1,
-	ATTR_FAINT       = 1 << 2,
-	ATTR_ITALIC      = 1 << 3,
-	ATTR_UNDERLINE   = 1 << 4,
-	ATTR_BLINK       = 1 << 5,
-	ATTR_REVERSE     = 1 << 6,
-	ATTR_INVISIBLE   = 1 << 7,
-	ATTR_STRUCK      = 1 << 8,
-	ATTR_WRAP        = 1 << 9,
-	ATTR_WIDE        = 1 << 10,
-	ATTR_WDUMMY      = 1 << 11,
-	ATTR_SELECTED    = 1 << 12,
-	ATTR_BOXDRAW     = 1 << 13,
-	ATTR_SIXEL       = 1 << 16,
-	ATTR_BOLD_FAINT = ATTR_BOLD | ATTR_FAINT,
-};
+#define ENUM_NAME GlyphAttribute
+#define ENUM_PREFIX_ ATTR_ 
+#define ENUM_BITFLAGS 1
+#define ENUM_FIELDS \
+	X(SET) \
+	X(BOLD)       \
+	X(FAINT)      \
+	X(ITALIC)     \
+	X(UNDERLINE)  \
+	X(BLINK)      \
+	X(REVERSE)    \
+	X(INVISIBLE)  \
+	X(STRUCK)     \
+	X(WRAP)       \
+	X(WIDE)       \
+	X(WDUMMY)     \
+	X(SELECTED)   \
+	X(BOXDRAW)    \
+	X(SIXEL)      \
+	X(BOLD_FAINT, ATTR_BOLD | ATTR_FAINT)
+#include "xenums.c"
 
 enum SelectionMode {
 	SELECTION_IDLE = 0,
@@ -118,16 +120,16 @@ enum SelectionSnap {
 #define ENUM_PREFIX_ TERM_MODE_
 #define ENUM_BITFLAGS 1
 #define ENUM_FIELDS \
-    X(WRAP,         1 << 0) \
-    X(INSERT,       1 << 1) \
-    X(ALTSCREEN,    1 << 2) \
-    X(CRLF,         1 << 3) \
-    X(ECHOO,        1 << 4) \
-    X(PRINT,        1 << 5) \
-    X(UTF8,         1 << 6) \
-	X(SIXEL,        1 << 7) \
-	X(SIXEL_CUR_RT, 1 << 8) \
-	X(SIXEL_SDM,    1 << 9)
+    X(WRAP) \
+    X(INSERT) \
+    X(ALTSCREEN) \
+    X(CRLF) \
+    X(ECHOO) \
+    X(PRINT) \
+    X(UTF8) \
+	X(SIXEL) \
+	X(SIXEL_CUR_RT) \
+	X(SIXEL_SDM)
 #include "cbase/xenums.c"
 
 #define Glyph Glyph_
