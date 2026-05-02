@@ -24,7 +24,8 @@ user_clipboard_copy(union Arg *arg) {
     if (xsel.primary != NULL) {
         xsel.clipboard = xstrdup(xsel.primary);
         clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
-        XSetSelectionOwner(x_window.display, clipboard, x_window.win,
+        XSetSelectionOwner(x_window.display,
+				           clipboard, x_window.win,
                            CurrentTime);
     }
     return;
