@@ -79,7 +79,7 @@
     } while (0)
 
 enum GlyphAttribute {
-	ATTR_NULL        = 0,
+	ATTR_NONE        = 0,
 	ATTR_SET         = 1 << 0,
 	ATTR_BOLD        = 1 << 1,
 	ATTR_FAINT       = 1 << 2,

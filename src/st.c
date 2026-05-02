@@ -242,7 +242,7 @@ term_reset(void) {
     }
     term.images = NULL;
     
-    term.cursor.attr.mode = ATTR_NULL;
+    term.cursor.attr.mode = ATTR_NONE;
     term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
     term.cursor.attr.bg = CONF_COLOR_BG;
     term.cursor.x = 0;
@@ -560,7 +560,7 @@ term_clear_glyph(Glyph *gp, int32 usecurattr) {
         gp->fg = CONF_COLOR_INDEX_FONT;
         gp->bg = CONF_COLOR_BG;
     }
-    gp->mode = ATTR_NULL;
+    gp->mode = ATTR_NONE;
     gp->rune = ' ';
     return;
 }
