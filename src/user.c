@@ -191,10 +191,28 @@ user_print_sel(union Arg *arg) {
 #include <stdlib.h>
 
 #include "assert.c"
+#include "st.c"
 
 int
 main(void) {
-    ASSERT(true);
+    {
+        term_window.mode = 0;
+        user_toggle_numlock(NULL);
+        ASSERT_EQUAL((int32)term_window.mode, WIN_MODE_NUMLOCK);
+        
+        user_toggle_numlock(NULL);
+        ASSERT_EQUAL((int32)term_window.mode, 0);
+    }
+
+    {
+        term.mode = 0;
+        user_toggle_printer(NULL);
+        ASSERT_EQUAL((int32)term.mode, TERM_MODE_PRINT);
+        
+        user_toggle_printer(NULL);
+        ASSERT_EQUAL((int32)term.mode, 0);
+    }
+
     exit(EXIT_SUCCESS);
 }
 
