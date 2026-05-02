@@ -1894,33 +1894,6 @@ x_xim_spot(int32 x, int32 y) {
 }
 
 void
-handler_expose(XEvent *xevent) {
-    (void)xevent;
-    redraw();
-    return;
-}
-
-void
-handler_visibility(XEvent *xevent) {
-    XVisibilityEvent *e = &xevent->xvisibility;
-    int32 visible;
-    if (e->state != VisibilityFullyObscured) {
-        visible = 1;
-    } else {
-        visible = 0;
-    }
-    MODBIT(term_window.mode, visible, WIN_MODE_VISIBLE);
-    return;
-}
-
-void
-handler_unmap(XEvent *xevent) {
-    (void)xevent;
-    term_window.mode &= ~WIN_MODE_VISIBLE;
-    return;
-}
-
-void
 x_set_pointer_motion(int32 set) {
     MODBIT(x_window.attrs.event_mask, set, PointerMotionMask);
     XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,

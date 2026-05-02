@@ -269,4 +269,31 @@ handler_button_motion(XEvent *xevent) {
     return;
 }
 
+void
+handler_expose(XEvent *xevent) {
+    (void)xevent;
+    redraw();
+    return;
+}
+
+void
+handler_visibility(XEvent *xevent) {
+    XVisibilityEvent *e = &xevent->xvisibility;
+    int32 visible;
+    if (e->state != VisibilityFullyObscured) {
+        visible = 1;
+    } else {
+        visible = 0;
+    }
+    MODBIT(term_window.mode, visible, WIN_MODE_VISIBLE);
+    return;
+}
+
+void
+handler_unmap(XEvent *xevent) {
+    (void)xevent;
+    term_window.mode &= ~WIN_MODE_VISIBLE;
+    return;
+}
+
 #endif
