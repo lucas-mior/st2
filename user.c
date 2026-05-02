@@ -144,4 +144,34 @@ user_scroll_up(Arg *a) {
     return;
 }
 
+void
+user_send_break(Arg *arg) {
+    if (tcsendbreak(command_fd, 0)) {
+        perror("Error sending break");
+    }
+    (void)arg;
+    return;
+}
+
+void
+user_toggle_printer(Arg *arg) {
+    term.mode ^= TERM_MODE_PRINT;
+    (void)arg;
+    return;
+}
+
+void
+user_print_screen(Arg *arg) {
+    term_dump();
+    (void)arg;
+    return;
+}
+
+void
+user_print_sel(Arg *arg) {
+    term_dump_sel();
+    (void)arg;
+    return;
+}
+
 #endif /* USER_C */
