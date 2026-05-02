@@ -13,7 +13,9 @@
 
 static void
 stty(char **args) {
-    char cmd[_POSIX_ARG_MAX], *q, *s;
+    char cmd[_POSIX_ARG_MAX];
+	char *q;
+	char *s;
     int64 n;
     int64 siz;
 
