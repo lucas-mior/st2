@@ -304,13 +304,12 @@ selection_get(void) {
         ptr = term_get_glyphs(ptr, gp, lgp);
 
         /*
-         * Copy and pasting of line endings is inconsistent
-         * in the inconsistent terminal and GUI world.
-         * The best solution seems like to produce '\n' when
-         * something is copied from st and convert '\n' to
-         * '\r', when something to be pasted is received by
-         * st.
-         * FIXME: Fix the computer world.
+         * Copy and pasting of line endings
+         * is inconsistent in the inconsistent terminal and GUI world.
+         * The best solution seems like to produce '\n'
+         * when something is copied from st
+         * and convert '\n' to '\r'
+         * when something to be pasted is received by st.
          */
         if ((y < selection.ne.y || lastx >= line_len)
             && (!(lgp->mode & ATTR_WRAP)
