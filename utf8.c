@@ -1,3 +1,12 @@
+#if !defined(UTF8_C)
+#define UTF8_C
+
+static uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
+static uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
+static uint32 utf8_min[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
+static uint32 utf8_max[UTF_SIZ + 1]
+    = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
+
 int64
 utf8_decode(char *c, uint32 *u, int64 clen) {
     int64 len;
@@ -74,3 +83,5 @@ utf8_validate(uint32 *u, int64 i) {
 
     return i;
 }
+
+#endif /* UTF8_C */

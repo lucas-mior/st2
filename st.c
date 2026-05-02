@@ -25,6 +25,7 @@
 #include "boxdraw.c"
 #include "sixel.c"
 #include "selection.c"
+#include "utf8.c"
 
 #if defined(__linux)
 #include <pty.h>
@@ -38,12 +39,6 @@ static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 static int32 io_fd = 1;
 static int32 command_fd;
-
-static uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
-static uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
-static uint32 utf8_min[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
-static uint32 utf8_max[UTF_SIZ + 1]
-    = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
 int64
 xwrite(int32 fd, char *s, int64 len) {
@@ -67,8 +62,6 @@ xfree(void *pointer) {
     free(pointer);
     return;
 }
-
-#include "utf8.c"
 
 char
 base64_decode_getc(char **src) {
