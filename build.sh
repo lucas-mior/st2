@@ -97,6 +97,7 @@ CFLAGS="$CFLAGS -Wno-unused-function"
 CFLAGS="$CFLAGS -Wno-comma"
 CFLAGS="$CFLAGS -Wno-undef"
 CFLAGS="$CFLAGS -Wno-cast-align"
+CFLAGS="$CFLAGS -Wno-bad-function-cast"
 
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
