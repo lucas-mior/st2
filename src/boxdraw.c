@@ -261,7 +261,7 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
 #include "selection.c"
 #include "x.c"
 
-static int
+int
 main(void) {
     ASSERT(true);
     exit(EXIT_SUCCESS);
