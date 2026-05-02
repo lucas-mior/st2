@@ -117,8 +117,8 @@ drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg,
     } else if (bd & BBS) {
         /* Shades - data is 1/2/3 for 25%/50%/75% alpha, respectively */
         int32 d = (uint8_t)bd;
-        XftColor xfc;
         XRenderColor xrc = {.alpha = 0xffff};
+        XftColor xfc;
 
         xrc.red = (uint16)DIV(fg->color.red*d + bg->color.red*(4 - d), 4);
         xrc.green
@@ -264,15 +264,10 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
 int
 main(void) {
     {
-        Display *dummy_dpy;
-        Colormap dummy_cmap;
-        XftDraw *dummy_draw;
-        Visual *dummy_vis;
-
-        dummy_dpy = NULL;
-        dummy_cmap = 0;
-        dummy_draw = NULL;
-        dummy_vis = NULL;
+        Display *dummy_dpy = NULL;
+        Colormap dummy_cmap = 0;
+        XftDraw *dummy_draw = NULL;
+        Visual *dummy_vis = NULL;
 
         boxdraw_xinit(dummy_dpy, dummy_cmap, dummy_draw, dummy_vis);
         ASSERT(xdpy == dummy_dpy);
@@ -282,19 +277,18 @@ main(void) {
     }
 
     {
-        int32 res;
-
-        res = isboxdraw(0x2000);
+        int32 res = isboxdraw(0x2000);
         ASSERT_EQUAL(res, 0);
     }
 
     {
-        StGlyph g;
         uint16 idx;
+        StGlyph g;
 
         g.rune = 0x2801;
         g.mode = 0;
         idx = boxdrawindex(&g);
+
         if (CONF_BOXDRAW_BRAILLE) {
             ASSERT_EQUAL(idx, BRL | 0x01);
         }
