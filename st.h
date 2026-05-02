@@ -442,8 +442,10 @@ enum win_mode {
 	WIN_MODE_MOUSEMANY   = 1 << 15,
 	WIN_MODE_BRCKTPASTE  = 1 << 16,
 	WIN_MODE_NUMLOCK     = 1 << 17,
-	WIN_MODE_MOUSE       = WIN_MODE_MOUSEBTN|WIN_MODE_MOUSEMOTION|WIN_MODE_MOUSEX10\
-	                  |WIN_MODE_MOUSEMANY,
+	WIN_MODE_MOUSE       = WIN_MODE_MOUSEBTN
+		                   |WIN_MODE_MOUSEMOTION
+						   |WIN_MODE_MOUSEX10
+						   |WIN_MODE_MOUSEMANY,
 };
 
 void x_bell(void);
