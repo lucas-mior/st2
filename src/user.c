@@ -10,7 +10,7 @@
 #define TESTING_user 0
 #endif
 
-void
+static void
 user_clipboard_copy(Arg *arg) {
     Atom clipboard;
     (void)arg;
@@ -27,7 +27,7 @@ user_clipboard_copy(Arg *arg) {
     return;
 }
 
-void
+static void
 user_clipboard_paste(Arg *arg) {
     Atom clipboard;
     (void)arg;
@@ -38,7 +38,7 @@ user_clipboard_paste(Arg *arg) {
     return;
 }
 
-void
+static void
 user_selection_paste(Arg *arg) {
     (void)arg;
     XConvertSelection(x_window.display, XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
@@ -46,7 +46,7 @@ user_selection_paste(Arg *arg) {
     return;
 }
 
-void
+static void
 user_change_alpha(Arg *arg) {
     if ((CONF_ALPHA > 0 && arg->f < 0) || (CONF_ALPHA < 1 && arg->f > 0)) {
         CONF_ALPHA += arg->f;
@@ -63,14 +63,14 @@ user_change_alpha(Arg *arg) {
     return;
 }
 
-void
+static void
 user_toggle_numlock(Arg *arg) {
     (void)arg;
     term_window.mode ^= WIN_MODE_NUMLOCK;
     return;
 }
 
-void
+static void
 user_zoom(Arg *arg) {
     Arg larg;
 
@@ -81,7 +81,7 @@ user_zoom(Arg *arg) {
     return;
 }
 
-void
+static void
 user_zoom_reset(Arg *arg) {
     Arg larg;
     (void)arg;
@@ -93,13 +93,13 @@ user_zoom_reset(Arg *arg) {
     return;
 }
 
-void
+static void
 user_tty_send(Arg *arg) {
     tty_write(arg->s, (int64)strlen(arg->s), 1);
     return;
 }
 
-void
+static void
 user_scroll_down(Arg *a) {
     int32 n = a->i;
 
@@ -124,7 +124,7 @@ user_scroll_down(Arg *a) {
     return;
 }
 
-void
+static void
 user_scroll_up(Arg *a) {
     int32 n = a->i;
 
@@ -150,7 +150,7 @@ user_scroll_up(Arg *a) {
     return;
 }
 
-void
+static void
 user_send_break(Arg *arg) {
     if (tcsendbreak(command_fd, 0)) {
         perror("Error sending break");
@@ -159,21 +159,21 @@ user_send_break(Arg *arg) {
     return;
 }
 
-void
+static void
 user_toggle_printer(Arg *arg) {
     term.mode ^= TERM_MODE_PRINT;
     (void)arg;
     return;
 }
 
-void
+static void
 user_print_screen(Arg *arg) {
     term_dump();
     (void)arg;
     return;
 }
 
-void
+static void
 user_print_sel(Arg *arg) {
     term_dump_sel();
     (void)arg;
@@ -189,8 +189,8 @@ user_print_sel(Arg *arg) {
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_user */
