@@ -323,9 +323,9 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
         im->ch = ch;
         dst = (uint32 *)im->pixels;
         for (trans = 0, j = 0; j < im->height && y < h; j++, y++) {
-            src = sixel_state->sixel_image.data + sixel_image->width*y;
+            src = sixel_state->image.data + sixel_image->width*y;
             for (x = 0; x < w; x++) {
-                color = sixel_state->sixel_image.palette[*src++];
+                color = sixel_state->image.palette[*src++];
                 trans |= (color == 0);
                 *dst++ = color;
             }
@@ -339,7 +339,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
 /* convert sixel data into indexed pixel bytes and palette data */
 int32
 sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
-    SixelImage *image = &sixel_state->image;
+    SixelImage *sixel_image = &sixel_state->image;
     int32 n = 0;
     int32 i;
     int32 x;
@@ -352,7 +352,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
     uint16 *data;
     int32 color_index;
 
-    if (!image->data) {
+    if (!sixel_image->data) {
         sixel_state->state = PS_ERROR;
     }
 
@@ -401,13 +401,13 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 break;
             default:
                 if (*p >= '?' && *p <= '~') { /* sixel characters */
-                    if ((image->width
+                    if ((sixel_image->width
                              < (sixel_state->pos_x + sixel_state->repeat_count)
-                         || image->height < (sixel_state->pos_y + 6))
-                        && image->width < DECSIXEL_WIDTH_MAX
-                        && image->height < DECSIXEL_HEIGHT_MAX) {
-                        sx = image->width*2;
-                        sy = image->height*2;
+                         || sixel_image->height < (sixel_state->pos_y + 6))
+                        && sixel_image->width < DECSIXEL_WIDTH_MAX
+                        && sixel_image->height < DECSIXEL_HEIGHT_MAX) {
+                        sx = sixel_image->width*2;
+                        sy = sixel_image->height*2;
                         while (sx < (sixel_state->pos_x
                                      + sixel_state->repeat_count)
                                || sy < (sixel_state->pos_y + 6)) {
@@ -418,7 +418,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sx = (int32)MIN(sx, DECSIXEL_WIDTH_MAX);
                         sy = (int32)MIN(sy, DECSIXEL_HEIGHT_MAX);
 
-                        if (image_buffer_resize(image, sx, sy) < 0) {
+                        if (image_buffer_resize(sixel_image, sx, sy) < 0) {
                             perror("sixel_parser_parse() failed");
                             sixel_state->state = PS_ERROR;
                             p++;
@@ -426,24 +426,24 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         }
                     }
 
-                    if (sixel_state->color_index > image->ncolors) {
-                        image->ncolors = sixel_state->color_index;
+                    if (sixel_state->color_index > sixel_image->ncolors) {
+                        sixel_image->ncolors = sixel_state->color_index;
                     }
 
                     if (sixel_state->pos_x + sixel_state->repeat_count
-                        > image->width) {
+                        > sixel_image->width) {
                         sixel_state->repeat_count
-                            = image->width - sixel_state->pos_x;
+                            = sixel_image->width - sixel_state->pos_x;
                     }
 
                     if (sixel_state->repeat_count > 0
-                        && sixel_state->pos_y + 5 < image->height) {
+                        && sixel_state->pos_y + 5 < sixel_image->height) {
                         bits = *p - '?';
                         if (bits != 0) {
-                            data = image->data
-                                   + image->width*sixel_state->pos_y
+                            data = sixel_image->data
+                                   + sixel_image->width*sixel_state->pos_y
                                    + sixel_state->pos_x;
-                            width = image->width;
+                            width = sixel_image->width;
                             color_index = sixel_state->color_index;
                             if (sixel_state->repeat_count <= 1) {
                                 if (bits & 0x01) {
@@ -569,20 +569,20 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     sixel_state->attributed_pad = 1;
                 }
 
-                if (image->width < sixel_state->attributed_ph
-                    || image->height < sixel_state->attributed_pv) {
-                    sx = (int32)MAX(image->width, sixel_state->attributed_ph);
-                    sy = (int32)MAX(image->height, sixel_state->attributed_pv);
+                if (sixel_image->width < sixel_state->attributed_ph
+                    || sixel_image->height < sixel_state->attributed_pv) {
+                    sx = (int32)MAX(sixel_image->width, sixel_state->attributed_ph);
+                    sy = (int32)MAX(sixel_image->height, sixel_state->attributed_pv);
 
-                    /* the height of the image buffer must be divisible by 6
-                     * to avoid unnecessary resizing of the image buffer when
+                    /* the height of the sixel_image buffer must be divisible by 6
+                     * to avoid unnecessary resizing of the sixel_image buffer when
                      * parsing the last sixel line */
                     sy = (sy + 5) / 6*6;
 
                     sx = (int32)MIN(sx, DECSIXEL_WIDTH_MAX);
                     sy = (int32)MIN(sy, DECSIXEL_HEIGHT_MAX);
 
-                    if (image_buffer_resize(image, sx, sy) < 0) {
+                    if (image_buffer_resize(sixel_image, sx, sy) < 0) {
                         perror("sixel_parser_parse() failed");
                         sixel_state->state = PS_ERROR;
                         break;
@@ -677,24 +677,24 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     if (sixel_state->params[1] == 1) {
                         /* HLS */
                         sixel_state->params[2]
-                            = (int32)MIN(sixel_state->params[2], 360);
+                            = (uint32)MIN(sixel_state->params[2], 360);
                         sixel_state->params[3]
-                            = (int32)MIN(sixel_state->params[3], 100);
+                            = (uint32)MIN(sixel_state->params[3], 100);
                         sixel_state->params[4]
-                            = (int32)MIN(sixel_state->params[4], 100);
-                        image->palette[sixel_state->color_index]
+                            = (uint32)MIN(sixel_state->params[4], 100);
+                        sixel_image->palette[sixel_state->color_index]
 							= hls_to_rgb(sixel_state->params[2],
 									     sixel_state->params[3],
                                          sixel_state->params[4]);
                     } else if (sixel_state->params[1] == 2) {
                         /* RGB */
                         sixel_state->params[2]
-                            = (int32)MIN(sixel_state->params[2], 100);
+                            = (uint32)MIN(sixel_state->params[2], 100);
                         sixel_state->params[3]
-                            = (int32)MIN(sixel_state->params[3], 100);
+                            = (uint32)MIN(sixel_state->params[3], 100);
                         sixel_state->params[4]
-                            = (int32)MIN(sixel_state->params[4], 100);
-                        image->palette[sixel_state->color_index] = SIXEL_XRGB(
+                            = (uint32)MIN(sixel_state->params[4], 100);
+                        sixel_image->palette[sixel_state->color_index] = SIXEL_XRGB(
                             sixel_state->params[2], sixel_state->params[3],
                             sixel_state->params[4]);
                     }
