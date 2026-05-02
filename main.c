@@ -64,6 +64,8 @@ static void x_set_urgency(int32);
 static int32 xevent_col(XEvent *);
 static int32 xevent_row(XEvent *);
 
+static void usage(void) __attribute__((noreturn));
+
 static void handler_expose(XEvent *);
 static void handler_visibility(XEvent *);
 static void handler_unmap(XEvent *);
@@ -71,8 +73,6 @@ static void handler_key_press(XEvent *);
 static void handler_client_message(XEvent *);
 static void handler_configure_notify(XEvent *);
 static void handler_focus(XEvent *);
-static uint32 button_mask(uint32);
-static int32 mouse_action(XEvent *, uint32);
 static void handler_button_release(XEvent *);
 static void handler_button_press(XEvent *);
 static void handler_button_motion(XEvent *);
@@ -80,11 +80,12 @@ static void handler_prop_notify(XEvent *);
 static void handler_selection_notify(XEvent *);
 static void handler_selection_clear(XEvent *);
 static void handler_selection_request(XEvent *);
+
 static void mouse_select(XEvent *, int32);
 static void mouse_report(XEvent *);
 static int32 match_mask_state(uint32, uint32);
-
-static void usage(void) __attribute__((noreturn));
+static uint32 button_mask(uint32);
+static int32 mouse_action(XEvent *, uint32);
 
 static void (*handler[LASTEvent])(XEvent *) = {
     [KeyPress] = handler_key_press,
