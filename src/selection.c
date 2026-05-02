@@ -52,7 +52,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
     int32 rtop = 0;
     int32 rbot = term.nrows - 1;
     int32 delim;
-    int32 prevdelim;
+    int32 prev_delim;
     StGlyph *gp;
     StGlyph *prevgp;
 
@@ -68,7 +68,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
          * beginning of a line.
          */
         prevgp = &TERM_LINE(*y)[*x];
-        prevdelim = IS_DELIM(prevgp->rune);
+        prev_delim = IS_DELIM(prevgp->rune);
         while (1) {
             newx = *x + direction;
             newy = *y;
@@ -98,7 +98,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
             gp = &TERM_LINE(newy)[newx];
             delim = IS_DELIM(gp->rune);
             if (!(gp->mode & ATTR_WDUMMY)
-                && (delim != prevdelim
+                && (delim != prev_delim
                     || (delim && !(gp->rune == ' ' && prevgp->rune == ' ')))) {
                 break;
             }
@@ -106,7 +106,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
             *x = newx;
             *y = newy;
             prevgp = gp;
-            prevdelim = delim;
+            prev_delim = delim;
         }
         break;
     case SELECTION_SNAP_LINE:
