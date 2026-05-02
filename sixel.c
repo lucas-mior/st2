@@ -258,11 +258,17 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
     SixelImage *image = &sixel_state->image;
     int32 x, y;
     uint16 *src;
-    uint32 *dst, color;
-    int32 w, h;
-    int32 i, j, cols, numimages;
+    uint32 *dst;
+	uint32 color;
+    int32 w;
+	int32 h;
+    int32 i;
+	int32 j;
+	int32 cols;
+	int32 numimages;
     char trans;
-    ImageList *im, *tail;
+    ImageList *im;
+	ImageList *tail;
 
     if (!image->data) {
         return -1;
