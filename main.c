@@ -2271,7 +2271,7 @@ match_mask_state(uint32 mask, uint32 state) {
 
 void
 handler_key_press(XEvent *xevent) {
-    XKeyEvent *e = &xevent->xkey;
+    XKeyEvent *key_event = &xevent->xkey;
     KeySym key_sym = NoSymbol;
     char buffer[64];
     char *custom_key = NULL;
@@ -2285,18 +2285,19 @@ handler_key_press(XEvent *xevent) {
     }
 
     if (x_window.ime.xic) {
-        len = XmbLookupString(x_window.ime.xic, e, buffer, SIZEOF(buffer),
-                              &key_sym, &status);
+        len = XmbLookupString(x_window.ime.xic, key_event, buffer,
+                              SIZEOF(buffer), &key_sym, &status);
         if (status == XBufferOverflow) {
             return;
         }
     } else {
-        len = XLookupString(e, buffer, SIZEOF(buffer), &key_sym, NULL);
+        len = XLookupString(key_event, buffer, SIZEOF(buffer), &key_sym, NULL);
     }
     /* 1. CONF_KEYBOARD_SHORTCUTS */
     for (bp = CONF_KEYBOARD_SHORTCUTS;
          bp < CONF_KEYBOARD_SHORTCUTS + LENGTH(CONF_KEYBOARD_SHORTCUTS); bp++) {
-        if (key_sym == bp->keysym && match_mask_state(bp->mod, e->state)) {
+        if (key_sym == bp->keysym
+            && match_mask_state(bp->mod, key_event->state)) {
             bp->func(&(bp->arg));
             return;
         }
@@ -2323,7 +2324,7 @@ handler_key_press(XEvent *xevent) {
                 continue;
             }
 
-            if (!match_mask_state(kp->mask, e->state)) {
+            if (!match_mask_state(kp->mask, key_event->state)) {
                 continue;
             }
 
@@ -2365,7 +2366,7 @@ tried_custom_keys:
     if (len == 0) {
         return;
     }
-    if (len == 1 && e->state & Mod1Mask) {
+    if (len == 1 && key_event->state & Mod1Mask) {
         if (TERM_WINDOW_IS_SET(WIN_MODE_8BIT)) {
             if (*buffer < 0177) {
                 c = (uint32)(*buffer | 0x80);
