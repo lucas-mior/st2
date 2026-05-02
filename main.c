@@ -53,7 +53,7 @@ static int32 x_ic_destroy(XIC, XPointer, XPointer);
 static void cresize(int32, int32);
 static void x_resize(int32, int32);
 static void x_hints(void);
-static int32 x_load_color(int32, char *, Color *);
+static int32 x_load_color(int32, char *, XftColor *);
 static int32 x_load_font(Font *, FcPattern *);
 static void x_load_fonts(char *, float);
 static int32 xloadsparefont(FcPattern *, int32);
@@ -334,7 +334,7 @@ run:
 
         /* font spec buffer */
         x_window.specbuf
-            = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(GlyphFontSpec));
+            = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(XftGlyphFontSpec));
 
         /* Xft rendering context */
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
@@ -1035,7 +1035,7 @@ x_resize(int32 col, int32 row) {
 
     /* handler_configure_notify to new width */
     x_window.specbuf
-        = xrealloc(x_window.specbuf, (int64)col*SIZEOF(GlyphFontSpec));
+        = xrealloc(x_window.specbuf, (int64)col*SIZEOF(XftGlyphFontSpec));
     return;
 }
 
@@ -1064,7 +1064,7 @@ x_get_color(int32 x, uint *r, uint *g, uint *b) {
 }
 
 int32
-x_load_color(int32 i, char *name, Color *ncolor) {
+x_load_color(int32 i, char *name, XftColor *ncolor) {
     XRenderColor color = {.alpha = 0xffff};
 
     if (!name) {
@@ -1091,7 +1091,7 @@ x_load_color(int32 i, char *name, Color *ncolor) {
 void
 x_load_cols(void) {
     static int32 loaded = 0;
-    Color *cp;
+    XftColor *cp;
 
     if (loaded) {
         for (cp = draw_context.colors;
@@ -1102,7 +1102,7 @@ x_load_cols(void) {
     } else {
         draw_context.colors_len = (int32)MAX(LENGTH(CONF_COLORS), 256);
         draw_context.colors
-            = xmalloc((uint16)draw_context.colors_len*SIZEOF(Color));
+            = xmalloc((uint16)draw_context.colors_len*SIZEOF(XftColor));
     }
 
     for (int32 i = 0; i < draw_context.colors_len; i += 1) {
@@ -1133,7 +1133,7 @@ x_load_cols(void) {
 
 int32
 x_set_color_name(int32 x, char *name) {
-    Color ncolor;
+    XftColor ncolor;
 
     if (!BETWEEN(x, 0, draw_context.colors_len - 1)) {
         return 1;
@@ -1725,7 +1725,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs, Glyph base, int32 len, int32 x,
     int32 winx = term_window.hborderpx + x*term_window.cw;
     int32 winy = term_window.vborderpx + y*term_window.ch;
     int32 width = charlen*term_window.cw;
-    Color *fg, *bg, *temp, revfg, revbg, truefg, truebg;
+    XftColor *fg, *bg, *temp, revfg, revbg, truefg, truebg;
     XRenderColor colfg, colbg;
     XRectangle r;
 
@@ -1898,7 +1898,7 @@ x_draw_glyph(Glyph g, int32 x, int32 y) {
 
 void
 x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
-    Color drawcol;
+    XftColor drawcol;
 
     /* remove the old cursor */
     if (selection_is_selected(ox, oy)) {

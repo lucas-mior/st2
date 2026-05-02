@@ -462,9 +462,6 @@ void x_xim_spot(int32, int32);
 
 void selection_set(char *, Time);
 
-typedef XftColor Color;
-typedef XftGlyphFontSpec GlyphFontSpec;
-
 static struct {
     int32 tty_width, tty_height; /* tty width and height */
     int32 w, h;                  /* window width and height */
@@ -480,7 +477,7 @@ static struct {
     Colormap color_map;
     Window win;
     Drawable drawable;
-    GlyphFontSpec *specbuf; /* font spec buffer used for rendering */
+    XftGlyphFontSpec *specbuf; /* font spec buffer used for rendering */
     Atom xembed;
 	Atom wm_delete_win;
 	Atom net_wm_name;
@@ -519,7 +516,7 @@ typedef struct {
 } Font;
 
 static struct {
-    Color *colors;
+    XftColor *colors;
     int32 colors_len;
     Font font;
 	Font bfont;
