@@ -25,7 +25,7 @@ user_clipboard_copy(union Arg *arg) {
         xsel.clipboard = xstrdup(xsel.primary);
         clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
         XSetSelectionOwner(x_window.display,
-				           clipboard, x_window.win,
+                           clipboard, x_window.win,
                            CurrentTime);
     }
     return;
@@ -46,7 +46,7 @@ static void
 user_selection_paste(union Arg *arg) {
     (void)arg;
     XConvertSelection(x_window.display,
-			          XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
+                      XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
                       x_window.win, CurrentTime);
     return;
 }
