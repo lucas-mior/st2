@@ -528,13 +528,12 @@ static struct {
     GC graphics;
 } draw_context;
 
-typedef struct {
+static struct {
     Atom xtarget;
     char *primary, *clipboard;
     struct timespec tclick1;
     struct timespec tclick2;
-} XSelection;
-static XSelection xsel;
+} xsel;
 
 #include "sixel.h"
 static SixelState sixel_st;
