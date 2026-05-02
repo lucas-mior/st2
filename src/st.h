@@ -111,7 +111,7 @@ enum SelectionMode {
 };
 
 enum SelectionType {
-	SELECTION_REGULAR = 1,
+	SELECTION_NORMAL = 1,
 	SELECTION_RECTANGULAR = 2
 };
 

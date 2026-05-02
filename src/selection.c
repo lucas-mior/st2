@@ -135,7 +135,7 @@ static void
 selection_normalize(void) {
     int32 len;
 
-    if (selection.type == SELECTION_REGULAR
+    if (selection.type == SELECTION_NORMAL
         && selection.ob.y != selection.oe.y) {
         selection.nb.x
             = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
@@ -170,7 +170,7 @@ static void
 selection_start(int32 col, int32 row, int32 snap) {
     selection_clear();
     selection.mode = SELECTION_EMPTY;
-    selection.type = SELECTION_REGULAR;
+    selection.type = SELECTION_NORMAL;
     selection.alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
     selection.snap = snap;
     selection.oe.x = selection.ob.x = col;
