@@ -290,14 +290,6 @@ typedef struct StFont {
 static void redraw(void);
 static void draw(void);
 
-static void user_scroll_down(Arg *);
-static void user_scroll_up(Arg *);
-static void externalpipe(Arg *);
-static void user_print_screen(Arg *);
-static void user_print_sel(Arg *);
-static void user_send_break(Arg *);
-static void user_toggle_printer(Arg *);
-
 static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 
 static void tdeleteimages(void);
@@ -431,15 +423,23 @@ static void x_unload_font(StFont *);
 static void x_unload_fonts(void);
 static void x_set_urgency(int32);
 
+static void zoom_abs(Arg *);
+
 static void user_clipboard_copy(Arg *);
 static void user_clipboard_paste(Arg *);
 static void user_toggle_numlock(Arg *);
 static void user_selection_paste(Arg *);
 static void user_change_alpha(Arg *);
 static void user_zoom(Arg *);
-static void zoom_abs(Arg *);
 static void user_zoom_reset(Arg *);
 static void user_tty_send(Arg *);
+static void user_scroll_down(Arg *);
+static void user_scroll_up(Arg *);
+static void externalpipe(Arg *);
+static void user_print_screen(Arg *);
+static void user_print_sel(Arg *);
+static void user_send_break(Arg *);
+static void user_toggle_printer(Arg *);
 
 typedef struct {
     uint32 mod;
