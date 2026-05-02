@@ -28,16 +28,6 @@
 /* config.def.h for applying patches and the configuration. */
 #include "config.def.h"
 
-/* XEMBED messages */
-#define XEMBED_FOCUS_IN 4
-#define XEMBED_FOCUS_OUT 5
-
-/* macros */
-#define TERM_WINDOW_IS_SET(flag) ((term_window.mode & (flag)) != 0)
-#define TRUE_RED(x) (uint16)(((x) & 0xff0000) >> 8)
-#define TRUE_GREEN(x) (uint16)(((x) & 0xff00))
-#define TRUE_BLUE(x) (uint16)(((x) & 0xff) << 8)
-
 static inline uint16 sixd_to_16bit(int32);
 static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, Glyph *, int32, int32,
                                      int32);
@@ -61,31 +51,8 @@ static void x_load_spare_fonts(void);
 static void x_unload_font(Font *);
 static void x_unload_fonts(void);
 static void x_set_urgency(int32);
-static int32 xevent_col(XEvent *);
-static int32 xevent_row(XEvent *);
 
 static void usage(void) __attribute__((noreturn));
-
-static void handler_expose(XEvent *);
-static void handler_visibility(XEvent *);
-static void handler_unmap(XEvent *);
-static void handler_key_press(XEvent *);
-static void handler_client_message(XEvent *);
-static void handler_configure_notify(XEvent *);
-static void handler_focus(XEvent *);
-static void handler_button_release(XEvent *);
-static void handler_button_press(XEvent *);
-static void handler_button_motion(XEvent *);
-static void handler_prop_notify(XEvent *);
-static void handler_selection_notify(XEvent *);
-static void handler_selection_clear(XEvent *);
-static void handler_selection_request(XEvent *);
-
-static void mouse_select(XEvent *, int32);
-static void mouse_report(XEvent *);
-static int32 match_mask_state(uint32, uint32);
-static uint32 button_mask(uint32);
-static int32 mouse_action(XEvent *, uint32);
 
 static void (*handler[LASTEvent])(XEvent *) = {
     [KeyPress] = handler_key_press,
@@ -137,8 +104,6 @@ static char *opt_iofile = NULL;
 static char *opt_line = NULL;
 static char *opt_name = NULL;
 static char *opt_title = NULL;
-
-static uint32 buttons; /* bit field of pressed buttons */
 
 int32
 main(int32 argc, char *argv[]) {
@@ -747,207 +712,6 @@ mouse_action(XEvent *xevent, uint32 release) {
     }
 
     return 0;
-}
-
-void
-handler_button_press(XEvent *xevent) {
-    int32 button = (int32)xevent->xbutton.button;
-    struct timespec tnow;
-    int32 snap;
-
-    if (1 <= button && button <= 11) {
-        buttons |= 1 << (button - 1);
-    }
-
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE)) {
-        if (!(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
-            mouse_report(xevent);
-            return;
-        }
-    }
-
-    if (mouse_action(xevent, 0)) {
-        return;
-    }
-
-    if (button == Button1) {
-        /* Snapping behavior based on double/triple click timeouts. */
-        clock_gettime(CLOCK_MONOTONIC, &tnow);
-        if (TIMEDIFF(tnow, xsel.tclick2) <= (float)CONF_TRIPLE_CLICK_TIMEOUT) {
-            snap = SELECTION_SNAP_LINE;
-        } else if (TIMEDIFF(tnow, xsel.tclick1)
-                   <= (float)CONF_DOUBLE_CLICK_TIMEOUT) {
-            snap = SELECTION_SNAP_WORD;
-        } else {
-            snap = 0;
-        }
-        xsel.tclick2 = xsel.tclick1;
-        xsel.tclick1 = tnow;
-
-        selection_start(xevent_col(xevent), xevent_row(xevent), snap);
-    }
-    return;
-}
-
-void
-handler_prop_notify(XEvent *xevent) {
-    XPropertyEvent *x_property_event;
-    Atom clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
-
-    x_property_event = &xevent->xproperty;
-    if (x_property_event->state == PropertyNewValue) {
-        if (x_property_event->atom == XA_PRIMARY) {
-            handler_selection_notify(xevent);
-        } else if (x_property_event->atom == clipboard) {
-            handler_selection_notify(xevent);
-        }
-    }
-    return;
-}
-
-void
-handler_selection_notify(XEvent *xevent) {
-    uint64 nitems;
-    uint64 ofs;
-    uint64 rem;
-    int32 format;
-    uchar *data;
-    uchar *last;
-    uchar *repl;
-    Atom type;
-    Atom incratom;
-    Atom property = None;
-
-    incratom = XInternAtom(x_window.display, "INCR", 0);
-
-    ofs = 0;
-    if (xevent->type == SelectionNotify) {
-        property = xevent->xselection.property;
-    } else if (xevent->type == PropertyNotify) {
-        property = xevent->xproperty.atom;
-    }
-
-    if (property == None) {
-        return;
-    }
-
-    do {
-        if (XGetWindowProperty(x_window.display, x_window.win, property,
-                               (int64)ofs, BUFSIZ / 4, False, AnyPropertyType,
-                               &type, &format, &nitems, &rem, &data)) {
-            fprintf(stderr, "Clipboard allocation failed\n");
-            return;
-        }
-
-        if (xevent->type == PropertyNotify && nitems == 0 && rem == 0) {
-            MODBIT(x_window.attrs.event_mask, 0, PropertyChangeMask);
-            XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
-                                    &x_window.attrs);
-        }
-
-        if (type == incratom) {
-            MODBIT(x_window.attrs.event_mask, 1, PropertyChangeMask);
-            XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
-                                    &x_window.attrs);
-            XDeleteProperty(x_window.display, x_window.win, (ulong)property);
-            continue;
-        }
-
-        repl = data;
-        last = data + nitems*(uint64)format / 8;
-        while (1) {
-            repl = memchr(repl, '\n', (size_t)(last - repl));
-            if (!repl) {
-                break;
-            }
-            *repl = '\r';
-            repl += 1;
-        }
-
-        if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && ofs == 0) {
-            tty_write("\033[200~", 6, 0);
-        }
-        tty_write((char *)data, nitems*(uint64)format / 8, 1);
-        if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && rem == 0) {
-            tty_write("\033[201~", 6, 0);
-        }
-        XFree(data);
-        /* number of 32-bit chunks returned */
-        ofs += nitems*(uint64)format / 32;
-    } while (rem > 0);
-
-    XDeleteProperty(x_window.display, x_window.win, (ulong)property);
-    return;
-}
-
-void
-handler_selection_clear(XEvent *xevent) {
-    (void)xevent;
-    selection_clear();
-    return;
-}
-
-void
-handler_selection_request(XEvent *xevent) {
-    XSelectionRequestEvent *xselection_request_event;
-    XSelectionEvent xselection_event;
-    Atom xa_targets;
-    Atom string;
-    Atom clipboard;
-    char *selection_text;
-
-    xselection_request_event = (XSelectionRequestEvent *)xevent;
-    xselection_event.type = SelectionNotify;
-    xselection_event.requestor = xselection_request_event->requestor;
-    xselection_event.selection = xselection_request_event->selection;
-    xselection_event.target = xselection_request_event->target;
-    xselection_event.time = xselection_request_event->time;
-    if (xselection_request_event->property == None) {
-        xselection_request_event->property = xselection_request_event->target;
-    }
-
-    /* reject */
-    xselection_event.property = None;
-
-    xa_targets = XInternAtom(x_window.display, "TARGETS", 0);
-    if (xselection_request_event->target == xa_targets) {
-        /* respond with the supported type */
-        string = xsel.xtarget;
-        XChangeProperty(xselection_request_event->display,
-                        xselection_request_event->requestor,
-                        xselection_request_event->property, XA_ATOM, 32,
-                        PropModeReplace, (uchar *)&string, 1);
-        xselection_event.property = xselection_request_event->property;
-    } else if (xselection_request_event->target == xsel.xtarget
-               || xselection_request_event->target == XA_STRING) {
-        clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
-        if (xselection_request_event->selection == XA_PRIMARY) {
-            selection_text = xsel.primary;
-        } else if (xselection_request_event->selection == clipboard) {
-            selection_text = xsel.clipboard;
-        } else {
-            fprintf(stderr, "Unhandled clipboard selection 0x%lx\n",
-                    xselection_request_event->selection);
-            return;
-        }
-        if (selection_text != NULL) {
-            XChangeProperty(xselection_request_event->display,
-                            xselection_request_event->requestor,
-                            xselection_request_event->property,
-                            xselection_request_event->target, 8,
-                            PropModeReplace, (uchar *)selection_text,
-                            (int32)(int64)strlen(selection_text));
-            xselection_event.property = xselection_request_event->property;
-        }
-    }
-
-    /* all done, send a notification to the listener */
-    if (!XSendEvent(xselection_request_event->display,
-                    xselection_request_event->requestor, 1, 0,
-                    (XEvent *)&xselection_event)) {
-        fprintf(stderr, "Error sending SelectionNotify event\n");
-    }
-    return;
 }
 
 void
