@@ -18,7 +18,7 @@ enum SelectionMode {
 };
 
 static struct {
-    int32 mode;
+    enum SelectionMode mode;
     enum SelectionType type;
     int32 snap;
     /*
