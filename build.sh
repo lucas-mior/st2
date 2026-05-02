@@ -50,7 +50,8 @@ PKG_CONFIG=${PKG_CONFIG:-pkg-config}
 INCS="$($PKG_CONFIG --cflags fontconfig) \
   $($PKG_CONFIG --cflags freetype2)"
 
-LIBS="-lm -lrt -lX11 -lutil -lXft -lImlib2 $($PKG_CONFIG --libs fontconfig) $($PKG_CONFIG --libs freetype2)"
+LIBS="-lm -lrt -lX11 -lutil -lXft -lImlib2"
+LIBS="$LIBS $($PKG_CONFIG --libs fontconfig) $($PKG_CONFIG --libs freetype2)"
 
 STCPPFLAGS="-DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
 STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
