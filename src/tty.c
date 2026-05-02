@@ -2,6 +2,7 @@
 #define TTY_C
 
 #include <pty.h>
+#undef ECHO
 #include "st.h"
 #include "config.def.h"
 
