@@ -240,14 +240,14 @@ case "$target" in
     trace_off
     ;;
 install)
-	if [ ! -f st ]; then
+	if [ ! -f bin/st ]; then
 		"$0" build
 	fi
 	set -x
 	mkdir -p ${DESTDIR}${PREFIX}/bin
-	install -Dm755 st ${DESTDIR}${PREFIX}/bin/st
-	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	chmod 644 ${DESTDIR}${MANPREFIX}/man1/st.1
+	install -Dm755 bin/st ${DESTDIR}${PREFIX}/bin/st
+	mkdir -p ${DESTDIR}${PREFIX}/man/man1
+	chmod 644 ${DESTDIR}${PREFIX}/man/man1/st.1
 	tic -sx st.info
 	echo "Please see the README regarding the terminfo entry of st."
 	;;
