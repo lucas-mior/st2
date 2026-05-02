@@ -405,11 +405,20 @@ main(void) {
 
         term.dirty = xmalloc(term.nrows * SIZEOF(*term.dirty));
         term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
+
+        /* Allocate Primary Screen Buffer */
         term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
         for (int32 j = 0; j < term.nrows; j += 1) {
             term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
         }
         
+        /* Store Primary in altline, then allocate Alternate Screen Buffer */
+        term_swap_screen(); 
+        term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
+        for (int32 j = 0; j < term.nrows; j += 1) {
+            term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
+        }
+
         term_reset();
     }
 
@@ -424,7 +433,6 @@ main(void) {
 
     /* 3. selection_start and selection_normalize */
     {
-        /* Populate lines with enough glyphs so line length != 0 */
         for (int32 i = 0; i < 20; i += 1) {
             term.lines[2][i].rune = 'A';
             term.lines[2][i].mode |= ATTR_SET;
@@ -434,19 +442,16 @@ main(void) {
             term.lines[10][i].mode |= ATTR_SET;
         }
 
-        /* Start at (5, 5) */
         selection_start(5, 5, 0);
         ASSERT(selection.mode == SELECTION_EMPTY);
         ASSERT_EQUAL(selection.nb.x, 5);
         ASSERT_EQUAL(selection.nb.y, 5);
 
-        /* Extend to (10, 10) */
         selection_extend(10, 10, SELECTION_NORMAL, 0);
         ASSERT(selection.mode == SELECTION_READY);
         ASSERT_EQUAL(selection.nb.x, 5);
         ASSERT_EQUAL(selection.ne.x, 10);
         
-        /* Swap: Extend to (2, 2) which is before start */
         selection_extend(2, 2, SELECTION_NORMAL, 0);
         ASSERT_EQUAL(selection.nb.x, 2);
         ASSERT_EQUAL(selection.ne.x, 5);
@@ -456,7 +461,6 @@ main(void) {
 
     /* 4. SelectionSnap: Word Mode */
     {
-        /* [space][A][B][space] */
         term_clear_region(0, 10, term.ncols - 1, 10, 0);
         term.lines[10][1].rune = 'A';
         term.lines[10][1].mode |= ATTR_SET;
@@ -497,6 +501,11 @@ main(void) {
         term.lines[10][2].mode |= ATTR_SET;
 
         selection_start(1, 10, 0);
+        /* 
+         * Logic fix: We MUST extend without finishing first. 
+         * Finishing while mode is SELECTION_EMPTY triggers a clear.
+         */
+        selection_extend(2, 10, SELECTION_NORMAL, 0); 
         selection_extend(2, 10, SELECTION_NORMAL, 1);
         
         result = selection_get();
