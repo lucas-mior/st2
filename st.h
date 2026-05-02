@@ -188,7 +188,11 @@ enum charset {
     CS_FIN
 };
 
+#if defined(__clang__)
+enum EscapeState : uint32 {
+#else
 enum EscapeState {
+#endif
     ESC_START = 1,
     ESC_CSI = 2,
     ESC_STR = 4, /* DCS, OSC, PM, APC */
