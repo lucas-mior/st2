@@ -4,6 +4,25 @@
 #include "cbase/util.c"
 #include "st.h"
 
+static struct {
+    int32 mode;
+    int32 type;
+    int32 snap;
+    /*
+     * Selection variables:
+     * nb – normalized coordinates of the beginning of the selection
+     * ne – normalized coordinates of the end of the selection
+     * ob – original coordinates of the beginning of the selection
+     * oe – original coordinates of the end of the selection
+     */
+    struct {
+        int32 x;
+        int32 y;
+    } nb, ne, ob, oe;
+
+    int32 alt;
+} selection;
+
 static void
 selection_start(int32 col, int32 row, int32 snap) {
     selection_clear();

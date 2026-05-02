@@ -207,25 +207,6 @@ typedef struct {
     char state;
 } TCursor;
 
-static struct {
-    int32 mode;
-    int32 type;
-    int32 snap;
-    /*
-     * Selection variables:
-     * nb – normalized coordinates of the beginning of the selection
-     * ne – normalized coordinates of the end of the selection
-     * ob – original coordinates of the beginning of the selection
-     * oe – original coordinates of the end of the selection
-     */
-    struct {
-        int32 x;
-        int32 y;
-    } nb, ne, ob, oe;
-
-    int32 alt;
-} selection;
-
 /* Internal representation of the screen */
 static struct {
     int32 nrows;               /* nb row */
