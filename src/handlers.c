@@ -2,6 +2,7 @@
 #define HANDLERS_C
 
 #include "st.h"
+#include "config.def.h"
 
 void
 handler_sigchld(int32 unused) {
