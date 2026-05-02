@@ -1,4 +1,4 @@
-#ifndef ST_C
+#if !defined(ST_C)
 #define ST_C
 
 #include <ctype.h>
@@ -38,10 +38,10 @@ static STREscape str_escape_seq;
 static int32 io_fd = 1;
 static int32 command_fd;
 
-static const uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
-static const uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
-static const uint32 utf8_min[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
-static const uint32 utf8_max[UTF_SIZ + 1]
+static uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
+static uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
+static uint32 utf8_min[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
+static uint32 utf8_max[UTF_SIZ + 1]
     = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
 int64
@@ -85,8 +85,9 @@ base64_decode_getc(char **src) {
 char *
 base64_decode(char *src) {
     int64 in_len = (int64)strlen(src);
-    char *result, *dst;
-    static const char base64_digits[256] = {
+    char *result;
+    char *dst;
+    static char base64_digits[256] = {
         [43] = 62, 0,  0,  0,  63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0,
         0,         0,  -1, 0,  0,  0,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
         10,        11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
@@ -96,7 +97,8 @@ base64_decode(char *src) {
     if (in_len % 4) {
         in_len += 4 - (in_len % 4);
     }
-    result = dst = xmalloc(in_len / 4*3 + 1);
+    result = xmalloc(in_len / 4*3 + 1);
+    dst = result;
     while (*src) {
         int32 a = base64_digits[(uchar)base64_decode_getc(&src)];
         int32 b = base64_digits[(uchar)base64_decode_getc(&src)];
@@ -108,15 +110,18 @@ base64_decode(char *src) {
             break;
         }
 
-        *dst++ = (char)((a << 2) | ((b & 0x30) >> 4));
+        *dst = (char)((a << 2) | ((b & 0x30) >> 4));
+        dst += 1;
         if (c == -1) {
             break;
         }
-        *dst++ = (char)(((b & 0x0f) << 4) | ((c & 0x3c) >> 2));
+        *dst = (char)(((b & 0x0f) << 4) | ((c & 0x3c) >> 2));
+        dst += 1;
         if (d == -1) {
             break;
         }
-        *dst++ = (char)(((c & 0x03) << 6) | d);
+        *dst = (char)(((c & 0x03) << 6) | d);
+        dst += 1;
     }
     *dst = '\0';
     return result;
@@ -126,43 +131,36 @@ int32
 term_line_len(Glyph *line) {
     int32 i = term.ncols - 1;
 
-    for (; i >= 0 && !(line[i].mode & (ATTR_SET | ATTR_WRAP)); i--)
-        ;
+    for (; i >= 0 && !(line[i].mode & (ATTR_SET | ATTR_WRAP)); i -= 1);
+
     return i + 1;
 }
 
 int32
 term_is_wrapped(Glyph *line) {
     int32 len = term_line_len(line);
+    int32 wrapped = 0;
 
-    return len > 0 && (line[len - 1].mode & ATTR_WRAP);
+    if (len > 0) {
+        if (line[len - 1].mode & ATTR_WRAP) {
+            wrapped = 1;
+        }
+    }
+
+    return wrapped;
 }
 
 char *
 term_get_glyphs(char *buffer, Glyph *gp, Glyph *lgp) {
     while (gp <= lgp) {
         if (gp->mode & ATTR_WDUMMY) {
-            gp++;
+            gp += 1;
         } else {
-            buffer += utf8_encode((gp++)->rune, buffer);
+            buffer += utf8_encode(gp->rune, buffer);
+            gp += 1;
         }
     }
     return buffer;
-}
-
-static int32
-tlinehistlen(int32 y) {
-    int32 i = term.ncols;
-
-    if (TERM_LINE_HIST(y)[i - 1].mode & ATTR_WRAP) {
-        return i;
-    }
-
-    while (i > 0 && TERM_LINE_HIST(y)[i - 1].rune == ' ') {
-        --i;
-    }
-
-    return i;
 }
 
 #include "selection.c"
@@ -179,11 +177,13 @@ die(char *errstr, ...) {
 
 void
 exec_shell(char *cmd, char **args) {
-    char *shell, *arg;
+    char *shell;
+    char *arg;
     struct passwd *pw;
 
     errno = 0;
-    if ((pw = getpwuid(getuid())) == NULL) {
+    pw = getpwuid(getuid());
+    if (pw == NULL) {
         if (errno) {
             die("getpwuid: %s\n", strerror(errno));
         } else {
@@ -191,19 +191,26 @@ exec_shell(char *cmd, char **args) {
         }
     }
 
-    if ((shell = getenv("SHELL")) == NULL) {
-        shell = (pw->pw_shell[0]) ? pw->pw_shell : cmd;
+    shell = getenv("SHELL");
+    if (shell == NULL) {
+        if (pw->pw_shell[0]) {
+            shell = pw->pw_shell;
+        } else {
+            shell = cmd;
+        }
     }
 
     if (args) {
         program = args[0];
         arg = NULL;
-    } else if (CONF_UTMP) {
-        program = CONF_UTMP;
-        arg = NULL;
     } else {
-        program = shell;
-        arg = NULL;
+        if (CONF_UTMP) {
+            program = CONF_UTMP;
+            arg = NULL;
+        } else {
+            program = shell;
+            arg = NULL;
+        }
     }
     DEFAULT(args, ((char *[]){program, arg, NULL}));
 
@@ -232,9 +239,10 @@ exec_shell(char *cmd, char **args) {
 
 void
 tsetsixelattr(Glyph *line, int x1, int x2) {
-    for (; x1 <= x2; x1++) {
+    for (; x1 <= x2; x1 += 1) {
         line[x1].mode |= ATTR_SIXEL;
     }
+    return;
 }
 
 int32
@@ -289,36 +297,25 @@ term_cursor(int32 mode) {
 
     if (mode == CURSOR_SAVE) {
         c[alt] = term.cursor;
-    } else if (mode == CURSOR_LOAD) {
-        term.cursor = c[alt];
-        term_move_to(c[alt].x, c[alt].y);
+    } else {
+        if (mode == CURSOR_LOAD) {
+            term.cursor = c[alt];
+            term_move_to(c[alt].x, c[alt].y);
+        }
     }
-    return;
-}
-
-void
-term_reset_cursor(void) {
-    term.cursor = (TCursor){
-        .attr = (Glyph){
-			.mode = ATTR_NULL,
-			.fg = CONF_COLOR_INDEX_FONT,
-			.bg = CONF_COLOR_BG,
-		},
-        .x = 0,
-        .y = 0,
-        .state = CURSOR_DEFAULT,
-	};
     return;
 }
 
 void
 tdeleteimages(void) {
-    ImageList *im, *next;
+    ImageList *im;
+    ImageList *next;
 
     for (im = term.images; im; im = next) {
         next = im->next;
         delete_image(im);
     }
+    return;
 }
 
 void
@@ -331,7 +328,13 @@ term_reset(void) {
         im = next;
     }
     term.images = NULL;
-    term_reset_cursor();
+    
+    term.cursor.attr.mode = ATTR_NULL;
+    term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
+    term.cursor.attr.bg = CONF_COLOR_BG;
+    term.cursor.x = 0;
+    term.cursor.y = 0;
+    term.cursor.state = CURSOR_DEFAULT;
 
     memset(term.tabs, 0, (size_t)term.ncols*SIZEOF(*term.tabs));
     for (int32 i = CONF_TAB_NSPACES; i < term.ncols; i += CONF_TAB_NSPACES) {
@@ -367,7 +370,8 @@ term_swap_screen(void) {
     static int32 altcol;
     static int32 altrow;
     Glyph **tmpline = term.line;
-    int32 tmpcol = term.ncols, tmprow = term.nrows;
+    int32 tmpcol = term.ncols;
+    int32 tmprow = term.nrows;
 
     term.line = altline;
     term.ncols = altcol;
@@ -493,7 +497,7 @@ term_scroll_down(int32 top, int32 n) {
     term_set_dirt(top, bot - n);
     term_clear_region(0, bot - n + 1, term.ncols - 1, bot, 1);
 
-    for (int32 i = bot; i >= top + n; i--) {
+    for (int32 i = bot; i >= top + n; i -= 1) {
         temp = term.line[i];
         term.line[i] = term.line[i - n];
         term.line[i - n] = temp;
@@ -562,10 +566,12 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     if (selection.ob.x != -1 && selection.alt == alt) {
         if (!savehist) {
             selection_scroll(top, bot, -n);
-        } else if (s > 0) {
-            selection_move(-s);
-            if (-term.lines_scrolled_up + selection.nb.y < -term.n_hist) {
-                selection_remove();
+        } else {
+            if (s > 0) {
+                selection_move(-s);
+                if (-term.lines_scrolled_up + selection.nb.y < -term.n_hist) {
+                    selection_remove();
+                }
             }
         }
     }
@@ -607,10 +613,12 @@ selection_scroll(int32 top, int32 bot, int32 n) {
     if (BETWEEN(selection.nb.y, top, bot)
         != BETWEEN(selection.ne.y, top, bot)) {
         selection_clear();
-    } else if (BETWEEN(selection.nb.y, top, bot)) {
-        selection_move(n);
-        if (selection.nb.y < top || selection.ne.y > bot) {
-            selection_clear();
+    } else {
+        if (BETWEEN(selection.nb.y, top, bot)) {
+            selection_move(n);
+            if (selection.nb.y < top || selection.ne.y > bot) {
+                selection_clear();
+            }
         }
     }
     return;
@@ -619,6 +627,7 @@ selection_scroll(int32 top, int32 bot, int32 n) {
 void
 term_new_line(int32 first_col) {
     int32 y = term.cursor.y;
+    int32 x_pos;
 
     if (y == term.bot_scroll_limit) {
         term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit, 1,
@@ -626,13 +635,21 @@ term_new_line(int32 first_col) {
     } else {
         y += 1;
     }
-    term_move_to(first_col ? 0 : term.cursor.x, y);
+    
+    if (first_col) {
+        x_pos = 0;
+    } else {
+        x_pos = term.cursor.x;
+    }
+    
+    term_move_to(x_pos, y);
     return;
 }
 
 void
 control_seq_intro_parse(void) {
-    char *p = csi_escape_seq.buffer, *np;
+    char *p = csi_escape_seq.buffer;
+    char *np;
     int64 v;
     int32 sep = ';'; /* colon or semi-colon, but not both */
 
@@ -652,7 +669,8 @@ control_seq_intro_parse(void) {
         if (v == LONG_MAX || v == LONG_MIN) {
             v = -1;
         }
-        csi_escape_seq.arg[csi_escape_seq.narg++] = (int32)v;
+        csi_escape_seq.arg[csi_escape_seq.narg] = (int32)v;
+        csi_escape_seq.narg += 1;
         p = np;
         if (sep == ';' && *p == ':') {
             sep = ':'; /* allow override to colon once */
@@ -660,20 +678,29 @@ control_seq_intro_parse(void) {
         if (*p != sep || csi_escape_seq.narg == ESC_ARG_SIZ) {
             break;
         }
-        p++;
+        p += 1;
     }
-    csi_escape_seq.mode[0] = *p++;
-    csi_escape_seq.mode[1]
-        = (p < csi_escape_seq.buffer + csi_escape_seq.len) ? *p : '\0';
+    csi_escape_seq.mode[0] = *p;
+    p += 1;
+    if (p < csi_escape_seq.buffer + csi_escape_seq.len) {
+        csi_escape_seq.mode[1] = *p;
+    } else {
+        csi_escape_seq.mode[1] = '\0';
+    }
     return;
 }
 
 /* for absolute user moves, when decom is set */
 void
 term_move_abs_to(int32 x, int32 y) {
-    term_move_to(
-        x,
-        y + ((term.cursor.state & CURSOR_ORIGIN) ? term.top_scroll_limit : 0));
+    int32 y_offset;
+    if (term.cursor.state & CURSOR_ORIGIN) {
+        y_offset = term.top_scroll_limit;
+    } else {
+        y_offset = 0;
+    }
+
+    term_move_to(x, y + y_offset);
     return;
 }
 
@@ -722,9 +749,11 @@ term_set_char(uint32 u, Glyph *attr, int32 x, int32 y) {
             term.line[y][x + 1].rune = ' ';
             term.line[y][x + 1].mode &= ~ATTR_WDUMMY;
         }
-    } else if (term.line[y][x].mode & ATTR_WDUMMY) {
-        term.line[y][x - 1].rune = ' ';
-        term.line[y][x - 1].mode &= ~ATTR_WIDE;
+    } else {
+        if (term.line[y][x].mode & ATTR_WDUMMY) {
+            term.line[y][x - 1].rune = ' ';
+            term.line[y][x - 1].mode &= ~ATTR_WIDE;
+        }
     }
 
     term.dirty[y] = 1;
@@ -945,7 +974,8 @@ term_set_attr(int32 *attr, int32 l) {
             term.cursor.attr.mode &= ~ATTR_STRUCK;
             break;
         case 38:
-            if ((idx = term_def_color(attr, &i, l)) >= 0) {
+            idx = term_def_color(attr, &i, l);
+            if (idx >= 0) {
                 term.cursor.attr.fg = idx;
             }
             break;
@@ -953,7 +983,8 @@ term_set_attr(int32 *attr, int32 l) {
             term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
             break;
         case 48:
-            if ((idx = term_def_color(attr, &i, l)) >= 0) {
+            idx = term_def_color(attr, &i, l);
+            if (idx >= 0) {
                 term.cursor.attr.bg = idx;
             }
             break;
@@ -988,7 +1019,7 @@ term_set_attr(int32 *attr, int32 l) {
 
 void
 term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
-    for (int32 *lim = args + narg; args < lim; ++args) {
+    for (int32 *lim = args + narg; args < lim; args += 1) {
         if (priv) {
             switch (*args) {
             case 1: /* DECCKM -- Cursor CONF_KEYS */
@@ -1050,7 +1081,11 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 if (!CONF_ALLOW_ALT_SCREEN) {
                     break;
                 }
-                term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
+                if (set) {
+                    term_cursor(CURSOR_SAVE);
+                } else {
+                    term_cursor(CURSOR_LOAD);
+                }
                 _X_FALLTHROUGH;
             case 47:   /* swap screen */
             case 1047: /*swap screen, clearing alternate screen */
@@ -1058,16 +1093,44 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                     break;
                 }
                 if (set) {
-                    term_load_alt_screen(*args == 1049, *args == 1049);
+                    int32 should_clear;
+                    int32 should_save;
+                    if (*args == 1049) {
+                        should_clear = 1;
+                    } else {
+                        should_clear = 0;
+                    }
+                    if (*args == 1049) {
+                        should_save = 1;
+                    } else {
+                        should_save = 0;
+                    }
+                    term_load_alt_screen(should_clear, should_save);
                 } else {
-                    term_load_def_screen(*args == 1047, *args == 1049);
+                    int32 should_clear_def;
+                    int32 should_load_def;
+                    if (*args == 1047) {
+                        should_clear_def = 1;
+                    } else {
+                        should_clear_def = 0;
+                    }
+                    if (*args == 1049) {
+                        should_load_def = 1;
+                    } else {
+                        should_load_def = 0;
+                    }
+                    term_load_def_screen(should_clear_def, should_load_def);
                 }
                 break;
             case 1048: /* save/restore cursor (like DECSC/DECRC) */
                 if (!CONF_ALLOW_ALT_SCREEN) {
                     break;
                 }
-                term_cursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
+                if (set) {
+                    term_cursor(CURSOR_SAVE);
+                } else {
+                    term_cursor(CURSOR_LOAD);
+                }
                 break;
             case 2004: /* 2004: bracketed paste mode */
                 x_set_mode(set, WIN_MODE_BRCKTPASTE);
@@ -1177,8 +1240,9 @@ control_seq_intro_handle(void) {
     case 'b': /* REP -- if last char is printable print it <n> more times */
         LIMIT(csi_escape_seq.arg[0], 1, 65535);
         if (term.last_char) {
-            while (csi_escape_seq.arg[0]-- > 0) {
+            while (csi_escape_seq.arg[0] > 0) {
                 term_putc(term.last_char);
+                csi_escape_seq.arg[0] -= 1;
             }
         }
         break;
@@ -1253,9 +1317,10 @@ control_seq_intro_handle(void) {
                term_scroll_up(0, term.nrows-1, term.nrows, SCROLL_SAVEHIST); */
 
             /* alacritty does this: */
-            for (n = term.nrows - 1; n >= 0 && term_line_len(term.line[n]) == 0;
-                 n--)
-                ;
+            n = term.nrows - 1;
+            while (n >= 0 && term_line_len(term.line[n]) == 0) {
+                n -= 1;
+            }
             for (ImageList *im = term.images; im; im = im->next) {
                 n = (int32)MAX(im->y - term.lines_scrolled_up, n);
             }
@@ -1302,23 +1367,20 @@ control_seq_intro_handle(void) {
                 pa = csi_escape_seq.arg[1];
                 if (pi == 1 && (pa == 1 || pa == 2 || pa == 4)) {
                     /* number of sixel color registers */
-                    /* (read, reset and read the maximum value give the same
-                     * response) */
                     n = SNPRINTF(buffer, "\033[?1;0;%dS", DECSIXEL_PALETTE_MAX);
                     tty_write(buffer, n, 1);
                     break;
-                } else if (pi == 2 && (pa == 1 || pa == 2 || pa == 4)) {
-                    /* sixel graphics geometry (in pixels) */
-                    /* (read, reset and read the maximum value give the same
-                     * response) */
-                    n = SNPRINTF(buffer,
-							     "\033[?2;0;%lld;%lldS",
-                                 MIN(term.ncols*term_window.cw,
-									 DECSIXEL_WIDTH_MAX),
-                                 MIN(term.nrows*term_window.ch,
-									 DECSIXEL_HEIGHT_MAX));
-                    tty_write(buffer, n, 1);
-                    break;
+                } else {
+                    if (pi == 2 && (pa == 1 || pa == 2 || pa == 4)) {
+                        /* sixel graphics geometry (in pixels) */
+                        long long mw;
+                        long long mh;
+                        mw = (long long)MIN(term.ncols*term_window.cw, DECSIXEL_WIDTH_MAX);
+                        mh = (long long)MIN(term.nrows*term_window.ch, DECSIXEL_HEIGHT_MAX);
+                        n = SNPRINTF(buffer, "\033[?2;0;%lld;%lldS", mw, mh);
+                        tty_write(buffer, n, 1);
+                        break;
+                    }
                 }
                 /* the number of color registers and sixel geometry can't be
                  * changed */
@@ -1381,7 +1443,7 @@ control_seq_intro_handle(void) {
             break;
         case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
             n = SNPRINTF(buffer,
-					     "\033[%i;%iR", term.cursor.y + 1, term.cursor.x + 1);
+                         "\033[%i;%iR", term.cursor.y + 1, term.cursor.x + 1);
             tty_write(buffer, (int64)n, 0);
             break;
         default:
@@ -1397,17 +1459,19 @@ control_seq_intro_handle(void) {
                 break;
             case 80:
                 /* Sixel Display Mode  */
-                tty_write(TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)
-                              ? "\033[?80;1$y"
-                              : "\033[?80;2$y",
-                          9, 0);
+                if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+                    tty_write("\033[?80;1$y", 9, 0);
+                } else {
+                    tty_write("\033[?80;2$y", 9, 0);
+                }
                 break;
             case 8452:
                 /* Sixel scrolling leaves cursor to right of graphic */
-                tty_write(TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT)
-                              ? "\033[?8452;1$y"
-                              : "\033[?8452;2$y",
-                          11, 0);
+                if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT)) {
+                    tty_write("\033[?8452;1$y", 11, 0);
+                } else {
+                    tty_write("\033[?8452;2$y", 11, 0);
+                }
                 break;
             default:
                 goto unknown;
@@ -1428,9 +1492,9 @@ control_seq_intro_handle(void) {
                 LIMIT(t, 0, term.nrows - 1);
                 LIMIT(b, 0, term.nrows - 1);
                 if (t > b) {
-                    int32 temp = t;
+                    int32 temp_val = t;
                     t = b;
-                    b = temp;
+                    b = temp_val;
                 }
                 term.top_scroll_limit = t;
                 term.bot_scroll_limit = b;
@@ -1448,14 +1512,14 @@ control_seq_intro_handle(void) {
                 goto unknown;
             }
             n = SNPRINTF(buffer,
-					     "\033[4;%d;%dt",
-						 term.nrows*term_window.ch, term.ncols*term_window.cw);
+                         "\033[4;%d;%dt",
+                         term.nrows*term_window.ch, term.ncols*term_window.cw);
             tty_write(buffer, n, 1);
             break;
         case 16: /* character cell size in pixels */
             n = SNPRINTF(buffer,
-					     "\033[6;%d;%dt",
-						 term_window.ch, term_window.cw);
+                         "\033[6;%d;%dt",
+                         term_window.ch, term_window.cw);
             tty_write(buffer, n, 1);
             break;
         case 18: /* size of the text area in characters */
@@ -1497,14 +1561,20 @@ control_seq_intro_dump(void) {
         c = csi_escape_seq.buffer[i] & 0xff;
         if (isprint(c)) {
             putc((int32)c, stderr);
-        } else if (c == '\n') {
-            fprintf(stderr, "(\\n)");
-        } else if (c == '\r') {
-            fprintf(stderr, "(\\r)");
-        } else if (c == 0x1b) {
-            fprintf(stderr, "(\\e)");
         } else {
-            fprintf(stderr, "(%02x)", c);
+            if (c == '\n') {
+                fprintf(stderr, "(\\n)");
+            } else {
+                if (c == '\r') {
+                    fprintf(stderr, "(\\r)");
+                } else {
+                    if (c == 0x1b) {
+                        fprintf(stderr, "(\\e)");
+                    } else {
+                        fprintf(stderr, "(%02x)", c);
+                    }
+                }
+            }
         }
     }
     putc('\n', stderr);
@@ -1521,18 +1591,29 @@ void
 osc_color_response(int32 num, int32 index, int32 is_osc4) {
     int32 n;
     char buffer[128];
-    uchar r, g, b;
+    uchar r;
+    uchar g;
+    uchar b;
     int32 x;
+    char *prefix;
 
     if (is_osc4) {
         x = num;
+        prefix = "4;";
     } else {
         x = index;
+        prefix = "";
     }
 
     if (!BETWEEN(x, 0, draw_context.colors_len - 1)) {
+        char *type_str;
+        if (is_osc4) {
+            type_str = "osc4";
+        } else {
+            type_str = "osc";
+        }
         fprintf(stderr, "erresc: failed to fetch %s color %d\n",
-                is_osc4 ? "osc4" : "osc", is_osc4 ? num : index);
+                type_str, is_osc4 ? num : index);
     }
 
     r = draw_context.colors[x].color.red >> 8;
@@ -1540,8 +1621,8 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
     b = draw_context.colors[x].color.blue >> 8;
 
     n = SNPRINTF(buffer,
-			     "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
-                 is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
+                 "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
+                 prefix, num, r, r, g, g, b, b);
     tty_write(buffer, (int64)n, 1);
     return;
 }
@@ -1554,18 +1635,18 @@ string_handle(void) {
     int32 narg;
     int32 par;
     ImageList *newimages = (void *)0xCD;
-    ImageList *next;
+    ImageList *next_im;
     ImageList *tail = NULL;
-    int x1;
-    int y1;
-    int x2;
-    int y2;
-    int y;
+    int x1_im;
+    int y1_im;
+    int x2_im;
+    int y2_im;
+    int y_line;
     int numimages;
-    int cx;
-    int cy;
-    Glyph *line;
-    int scr;
+    int cx_pos;
+    int cy_pos;
+    Glyph *line_ptr;
+    int scr_offset;
 
     struct {
         int32 idx;
@@ -1575,14 +1656,14 @@ string_handle(void) {
                      {CONF_COLOR_INDEX_CURSOR, "cursor"}};
 
     if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-        scr = 0;
+        scr_offset = 0;
     } else {
-        scr = term.lines_scrolled_up;
+        scr_offset = term.lines_scrolled_up;
     }
 
     term.esc &= ~(ESC_STR_END | ESC_STR);
     {
-        int32 c;
+        int32 c_char;
         char *p2 = str_escape_seq.buffer;
 
         str_escape_seq.narg = 0;
@@ -1590,14 +1671,20 @@ string_handle(void) {
 
         if (*p2 != '\0') {
             while (str_escape_seq.narg < STR_ARG_SIZ) {
-                str_escape_seq.args[str_escape_seq.narg++] = p2;
-                while ((c = *p2) != ';' && c != '\0') {
-                    ++p2;
+                str_escape_seq.args[str_escape_seq.narg] = p2;
+                str_escape_seq.narg += 1;
+                while (1) {
+                    c_char = *p2;
+                    if (c_char == ';' || c_char == '\0') {
+                        break;
+                    }
+                    p2 += 1;
                 }
-                if (c == '\0') {
+                if (c_char == '\0') {
                     break;
                 }
-                *p2++ = '\0';
+                *p2 = '\0';
+                p2 += 1;
             }
         }
     }
@@ -1653,11 +1740,13 @@ string_handle(void) {
 
             if (!strcmp(p, "?")) {
                 osc_color_response(par, osc_table[j].idx, 0);
-            } else if (x_set_color_name(osc_table[j].idx, p)) {
-                fprintf(stderr, "erresc: invalid %s color: %s\n",
-                        osc_table[j].string, p);
             } else {
-                term_full_dirt();
+                if (x_set_color_name(osc_table[j].idx, p)) {
+                    fprintf(stderr, "erresc: invalid %s color: %s\n",
+                            osc_table[j].string, p);
+                } else {
+                    term_full_dirt();
+                }
             }
             return;
         case 4: /* color set */
@@ -1675,23 +1764,21 @@ string_handle(void) {
 
             if (p && !strcmp(p, "?")) {
                 osc_color_response(j, 0, 1);
-            } else if (x_set_color_name(j, p)) {
-                if (par == 104 && narg <= 1) {
-                    x_load_cols();
-                    return; /* color reset without parameter */
-                }
-                if (p) {
-                    fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j, p);
-                } else {
-                    fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j,
-                            "(null)");
-                }
             } else {
-                /*
-                 * TODO if CONF_COLOR_BG color is changed, borders
-                 * are dirty
-                 */
-                term_full_dirt();
+                if (x_set_color_name(j, p)) {
+                    if (par == 104 && narg <= 1) {
+                        x_load_cols();
+                        return;
+                    }
+                    if (p) {
+                        fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j, p);
+                    } else {
+                        fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j,
+                                "(null)");
+                    }
+                } else {
+                    term_full_dirt();
+                }
             }
             return;
         case 110: /* reset dynamic VT100 text foreground color */
@@ -1726,10 +1813,18 @@ string_handle(void) {
                 sixel_parser_deinit(&sixel_st);
                 return;
             }
-            cx = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.x;
-            cy = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.y;
+            if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+                cx_pos = 0;
+            } else {
+                cx_pos = term.cursor.x;
+            }
+            if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+                cy_pos = 0;
+            } else {
+                cy_pos = term.cursor.y;
+            }
             numimages
-                = sixel_parser_finalize(&sixel_st, &newimages, cx, cy + scr,
+                = sixel_parser_finalize(&sixel_st, &newimages, cx_pos, cy_pos + scr_offset,
                                         term_window.cw, term_window.ch);
 
             /* Sanity check to prevent X11 BadMatch crash */
@@ -1742,43 +1837,42 @@ string_handle(void) {
             }
 
             sixel_parser_deinit(&sixel_st);
-            x1 = newimages->x;
-            y1 = newimages->y;
-            x2 = x1 + newimages->cols;
-            y2 = y1 + numimages;
+            x1_im = newimages->x;
+            y1_im = newimages->y;
+            x2_im = x1_im + newimages->cols;
+            y2_im = y1_im + numimages;
 
             if (term.images) {
-                /* Buffer for transparency flags per row */
                 char *transparent_rows = xmalloc((int64)numimages);
-                ImageList *im;
-                int32 i;
-                for (i = 0, im = newimages; im; im = im->next, i += 1) {
-                    transparent_rows[i] = (char)im->transparent;
+                ImageList *im_ptr;
+                int32 i_idx;
+                for (i_idx = 0, im_ptr = newimages; im_ptr; im_ptr = im_ptr->next, i_idx += 1) {
+                    transparent_rows[i_idx] = (char)im_ptr->transparent;
                 }
-                for (im = term.images; im; im = next) {
-                    next = im->next;
-                    if (im->y >= y1 && im->y < y2) {
-                        y = im->y - scr;
-                        if (y >= 0 && y < term.nrows && term.dirty[y]) {
-                            line = term.line[y];
-                            j = (int32)MIN(im->x + im->cols, term.ncols);
-                            for (i = im->x; i < j; i += 1) {
-                                if (line[i].mode & ATTR_SIXEL) {
+                for (im_ptr = term.images; im_ptr; im_ptr = next_im) {
+                    next_im = im_ptr->next;
+                    if (im_ptr->y >= y1_im && im_ptr->y < y2_im) {
+                        y_line = im_ptr->y - scr_offset;
+                        if (y_line >= 0 && y_line < term.nrows && term.dirty[y_line]) {
+                            line_ptr = term.line[y_line];
+                            j = (int32)MIN(im_ptr->x + im_ptr->cols, term.ncols);
+                            for (i_idx = im_ptr->x; i_idx < j; i_idx += 1) {
+                                if (line_ptr[i_idx].mode & ATTR_SIXEL) {
                                     break;
                                 }
                             }
-                            if (i == j) {
-                                delete_image(im);
+                            if (i_idx == j) {
+                                delete_image(im_ptr);
                                 continue;
                             }
                         }
-                        if (im->x >= x1 && im->x + im->cols <= x2
-                            && !transparent_rows[im->y - y1]) {
-                            delete_image(im);
+                        if (im_ptr->x >= x1_im && im_ptr->x + im_ptr->cols <= x2_im
+                            && !transparent_rows[im_ptr->y - y1_im]) {
+                            delete_image(im_ptr);
                             continue;
                         }
                     }
-                    tail = im;
+                    tail = im_ptr;
                 }
                 xfree(transparent_rows);
             }
@@ -1790,50 +1884,46 @@ string_handle(void) {
                 term.images = newimages;
             }
 
-            x2 = (int32)MIN(x2, term.ncols) - 1;
+            x2_im = (int32)MIN(x2_im, term.ncols) - 1;
 
             if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
-                ImageList *im;
-                int32 i;
-                for (i = 0, im = newimages; im; im = next, i += 1) {
-                    next = im->next;
-                    if (i >= term.nrows) {
-                        delete_image(im);
+                ImageList *im_sdm;
+                int32 i_sdm;
+                for (i_sdm = 0, im_sdm = newimages; im_sdm; im_sdm = next_im, i_sdm += 1) {
+                    next_im = im_sdm->next;
+                    if (i_sdm >= term.nrows) {
+                        delete_image(im_sdm);
                         continue;
                     }
-                    im->y = i + scr;
-                    tsetsixelattr(term.line[i], x1, x2);
-                    term.dirty[MIN(im->y, term.nrows - 1)] = 1;
+                    im_sdm->y = i_sdm + scr_offset;
+                    tsetsixelattr(term.line[i_sdm], x1_im, x2_im);
+                    term.dirty[MIN(im_sdm->y, term.nrows - 1)] = 1;
                 }
             } else {
-                ImageList *im;
-                int32 i;
-                for (i = 0, im = newimages; im; im = next, i += 1) {
-                    next = im->next;
+                ImageList *im_cur;
+                int32 i_cur;
+                for (i_cur = 0, im_cur = newimages; im_cur; im_cur = next_im, i_cur += 1) {
+                    next_im = im_cur->next;
                     if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-                        scr = 0;
+                        scr_offset = 0;
                     } else {
-                        scr = term.lines_scrolled_up;
+                        scr_offset = term.lines_scrolled_up;
                     }
-                    im->y = term.cursor.y + scr;
-                    tsetsixelattr(term.line[term.cursor.y], x1, x2);
-                    term.dirty[MIN(im->y, term.nrows - 1)] = 1;
+                    im_cur->y = term.cursor.y + scr_offset;
+                    tsetsixelattr(term.line[term.cursor.y], x1_im, x2_im);
+                    term.dirty[MIN(im_cur->y, term.nrows - 1)] = 1;
 
-                    /* Move the terminal cursor down for every segment */
-                    if (i < numimages - 1) {
-                        im->next = NULL;
+                    if (i_cur < numimages - 1) {
+                        im_cur->next = NULL;
                         term_new_line(0);
-                        im->next = next;
+                        im_cur->next = next_im;
                     }
                 }
 
-                /* Final cursor positioning after the graphic */
                 if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT)) {
-                    /* Leave cursor to the right of the image on the last row */
                     term.cursor.x = (int32)MIN(term.cursor.x + newimages->cols,
                                                term.ncols - 1);
                 } else {
-                    /* Move to the beginning of the next line below the image */
                     term_new_line(1);
                 }
             }
@@ -1849,24 +1939,32 @@ string_handle(void) {
 
     fprintf(stderr, "erresc: unknown string ");
     {
-        uint32 c;
+        uint32 c_code;
 
         fprintf(stderr, "ESC%c", str_escape_seq.type);
         for (uint64 i = 0; i < str_escape_seq.len; i += 1) {
-            c = str_escape_seq.buffer[i] & 0xff;
-            if (c == '\0') {
+            c_code = str_escape_seq.buffer[i] & 0xff;
+            if (c_code == '\0') {
                 putc('\n', stderr);
                 return;
-            } else if (isprint(c)) {
-                putc((int32)c, stderr);
-            } else if (c == '\n') {
-                fprintf(stderr, "(\\n)");
-            } else if (c == '\r') {
-                fprintf(stderr, "(\\r)");
-            } else if (c == 0x1b) {
-                fprintf(stderr, "(\\e)");
             } else {
-                fprintf(stderr, "(%02x)", c);
+                if (isprint(c_code)) {
+                    putc((int32)c_code, stderr);
+                } else {
+                    if (c_code == '\n') {
+                        fprintf(stderr, "(\\n)");
+                    } else {
+                        if (c_code == '\r') {
+                            fprintf(stderr, "(\\r)");
+                        } else {
+                            if (c_code == 0x1b) {
+                                fprintf(stderr, "(\\e)");
+                            } else {
+                                fprintf(stderr, "(%02x)", c_code);
+                            }
+                        }
+                    }
+                }
             }
         }
         fprintf(stderr, "ESC\\\n");
@@ -1907,12 +2005,23 @@ externalpipe(Arg *arg) {
     }
 
     close(to[0]);
-    /* ignore sigpipe for now, in case child exists early */
     oldsigpipe = signal(SIGPIPE, SIG_IGN);
     newline = 0;
     for (int32 n = 0; n <= HISTORY_SIZE + 2; n += 1) {
+        int32 i_hist;
         bp = TERM_LINE_HIST(n);
-        lastpos = (int32)MIN(tlinehistlen(n) + 1, term.ncols) - 1;
+        i_hist = term.ncols;
+
+        if (TERM_LINE_HIST(n)[i_hist - 1].mode & ATTR_WRAP) {
+            lastpos = i_hist;
+        } else {
+            while (i_hist > 0 && TERM_LINE_HIST(n)[i_hist - 1].rune == ' ') {
+                i_hist -= 1;
+            }
+            lastpos = i_hist;
+        }
+
+        lastpos = (int32)MIN(lastpos + 1, term.ncols) - 1;
         if (lastpos < 0) {
             break;
         }
@@ -1920,13 +2029,16 @@ externalpipe(Arg *arg) {
             continue;
         }
         end = &bp[lastpos + 1];
-        for (; bp < end; ++bp) {
+        for (; bp < end; bp += 1) {
             if (xwrite(to[1], buffer, utf8_encode(bp->rune, buffer)) < 0) {
                 break;
             }
         }
-        if ((newline = TERM_LINE_HIST(n)[lastpos].mode & ATTR_WRAP)) {
+        if (TERM_LINE_HIST(n)[lastpos].mode & ATTR_WRAP) {
+            newline = 1;
             continue;
+        } else {
+            newline = 0;
         }
         if (xwrite(to[1], "\n", 1) < 0) {
             break;
@@ -1937,7 +2049,6 @@ externalpipe(Arg *arg) {
         (void)xwrite(to[1], "\n", 1);
     }
     close(to[1]);
-    /* restore */
     signal(SIGPIPE, oldsigpipe);
     return;
 }
@@ -1953,10 +2064,12 @@ user_send_break(Arg *arg) {
 
 void
 term_printer(char *s, int64 len) {
-    if (io_fd != -1 && xwrite(io_fd, s, len) < 0) {
-        perror("Error writing to output file");
-        close(io_fd);
-        io_fd = -1;
+    if (io_fd != -1) {
+        if (xwrite(io_fd, s, len) < 0) {
+            perror("Error writing to output file");
+            close(io_fd);
+            io_fd = -1;
+        }
     }
     return;
 }
@@ -1986,7 +2099,8 @@ void
 term_dump_sel(void) {
     char *ptr;
 
-    if ((ptr = selection_get())) {
+    ptr = selection_get();
+    if (ptr) {
         term_printer(ptr, (int64)strlen(ptr));
         xfree(ptr);
     }
@@ -1995,21 +2109,20 @@ term_dump_sel(void) {
 
 void
 term_dump_line(int32 n) {
-    char *string
-        = xmalloc((int64)((term.ncols + 1)*UTF_SIZ) * SIZEOF(*string));
+    char *string = xmalloc((int64)((term.ncols + 1)*UTF_SIZ) * SIZEOF(*string));
     char *buffer = string;
-
     Glyph *fgp = &term.line[n][0];
     Glyph *lgp = &fgp[term.ncols - 1];
     char *ptr;
 
     while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
-        lgp--;
+        lgp -= 1;
     }
     ptr = term_get_glyphs(buffer, fgp, lgp);
 
     if (!(lgp->mode & ATTR_WRAP)) {
-        *(ptr++) = '\n';
+        *ptr = '\n';
+        ptr += 1;
     }
 
     term_printer(string, ptr - buffer);
@@ -2029,14 +2142,22 @@ term_put_tab(int32 n) {
     int32 x = term.cursor.x;
 
     if (n > 0) {
-        while (x < term.ncols && n--) {
-            for (++x; x < term.ncols && !term.tabs[x]; x += 1)
-                /* nothing */;
+        while (x < term.ncols && n > 0) {
+            x += 1;
+            while (x < term.ncols && !term.tabs[x]) {
+                x += 1;
+            }
+            n -= 1;
         }
-    } else if (n < 0) {
-        while (x > 0 && n++) {
-            for (--x; x > 0 && !term.tabs[x]; --x)
-                /* nothing */;
+    } else {
+        if (n < 0) {
+            while (x > 0 && n < 0) {
+                x -= 1;
+                while (x > 0 && !term.tabs[x]) {
+                    x -= 1;
+                }
+                n += 1;
+            }
         }
     }
     term.cursor.x = LIMIT(x, 0, term.ncols - 1);
@@ -2047,8 +2168,10 @@ void
 term_def_utf8(char ascii) {
     if (ascii == 'G') {
         term.mode |= TERM_MODE_UTF8;
-    } else if (ascii == '@') {
-        term.mode &= ~TERM_MODE_UTF8;
+    } else {
+        if (ascii == '@') {
+            term.mode &= ~TERM_MODE_UTF8;
+        }
     }
     return;
 }
@@ -2059,7 +2182,8 @@ term_def_tran(char ascii) {
     static int32 vcs[] = {CS_GRAPHIC0, CS_USA};
     char *p;
 
-    if ((p = strchr(cs, ascii)) == NULL) {
+    p = strchr(cs, ascii);
+    if (p == NULL) {
         fprintf(stderr, "esc unhandled charset: ESC ( %c\n", ascii);
     } else {
         term.translation_table[term.icharset] = (char)vcs[p - cs];
@@ -2079,17 +2203,13 @@ term_dec_test(char c) {
     return;
 }
 
-static void
-string_reset(void) {
-    str_escape_seq = (STREscape){
-        .buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ),
-        .siz = STR_BUF_SIZ,
-    };
-}
-
 void
 term_str_sequence(uchar c) {
-    string_reset();
+    str_escape_seq.buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ);
+    str_escape_seq.siz = STR_BUF_SIZ;
+    str_escape_seq.len = 0;
+    str_escape_seq.narg = 0;
+
     switch (c) {
     case 0x90: /* DCS -- Device Control String */
         c = 'P';
@@ -2108,7 +2228,6 @@ term_str_sequence(uchar c) {
         fprintf(stderr, "term_str_sequence: unhandled switch case.\n");
         break;
     }
-    string_reset();
     str_escape_seq.type = (char)c;
     term.esc |= ESC_STR;
     return;
@@ -2127,29 +2246,33 @@ dcshandle(void) {
     default:
         fprintf(stderr, "erresc: unknown csi ");
         control_seq_intro_dump();
-        /* die(""); */
         break;
     case 'q': /* DECSIXEL */
-        transparent = (csi_escape_seq.narg >= 2 && csi_escape_seq.arg[1] == 1);
+        if (csi_escape_seq.narg >= 2 && csi_escape_seq.arg[1] == 1) {
+            transparent = 1;
+        } else {
+            transparent = 0;
+        }
+        
         if (IS_TRUECOL(term.cursor.attr.bg)) {
-            r = term.cursor.attr.bg >> 16 & 255;
-            g = term.cursor.attr.bg >> 8 & 255;
-            b = term.cursor.attr.bg >> 0 & 255;
+            r = (term.cursor.attr.bg >> 16) & 255;
+            g = (term.cursor.attr.bg >> 8) & 255;
+            b = (term.cursor.attr.bg >> 0) & 255;
         } else {
             x_get_color(term.cursor.attr.bg, &r, &g, &b);
             if (term.cursor.attr.bg == CONF_COLOR_BG) {
-                a = draw_context.colors[CONF_COLOR_BG].pixel >> 24 & 255;
+                a = (draw_context.colors[CONF_COLOR_BG].pixel >> 24) & 255;
             }
         }
-        bgcolor = a << 24 | r << 16 | g << 8 | b;
+        bgcolor = (a << 24) | (r << 16) | (g << 8) | b;
         if (sixel_parser_init(&sixel_st, transparent, (255u << 24), bgcolor, 1,
-                              term_window.cw, term_window.ch)
-            != 0) {
+                              term_window.cw, term_window.ch) != 0) {
             perror("sixel_parser_init() failed");
         }
         term.mode |= TERM_MODE_SIXEL;
         break;
     }
+    return;
 }
 
 void
@@ -2167,12 +2290,10 @@ term_control_code(uchar ascii) {
     case '\f': /* LF */
     case '\v': /* VT */
     case '\n': /* LF */
-        /* go to first col if the mode is set */
         term_new_line(TERM_MODE_IS_SET(TERM_MODE_CRLF));
         return;
     case '\a': /* BEL */
         if (term.esc & ESC_STR_END) {
-            /* backwards compatibility to xterm */
             string_handle();
         } else {
             x_bell();
@@ -2247,15 +2368,10 @@ term_control_code(uchar ascii) {
         fprintf(stderr, "term_control_code: unhandled switch case.\n");
         break;
     }
-    /* only CAN, SUB, \a and C1 chars interrupt a sequence */
     term.esc &= ~(ESC_STR_END | ESC_STR);
     return;
 }
 
-/*
- * returns 1 when the sequence is finished and it hasn't to read
- * more characters for this sequence, otherwise 0
- */
 int32
 eschandle(uchar ascii) {
     switch (ascii) {
@@ -2296,7 +2412,7 @@ eschandle(uchar ascii) {
             term_move_to(term.cursor.x, term.cursor.y + 1);
         }
         break;
-    case 'E':             /* NEL -- Next line */
+    case 'E':              /* NEL -- Next line */
         term_new_line(1); /* always go to first col */
         break;
     case 'H': /* HTS -- Horizontal tab stop */
@@ -2370,12 +2486,6 @@ term_putc(uint32 u) {
         term_printer(c, (int64)len);
     }
 
-    /*
-     * STR sequence must be checked before anything else
-     * because it uses all following characters until it
-     * receives a ESC, a SUB, a ST or any other C1 control
-     * character.
-     */
     if (term.esc & ESC_STR) {
         if (u == '\a' || u == 030 || u == 032 || u == 033 || IS_CONTROL_C1(u)) {
             term.esc &= ~(ESC_START | ESC_STR | ESC_DCS);
@@ -2388,13 +2498,13 @@ term_putc(uint32 u) {
         }
 
         if (str_escape_seq.len + (uint64)len >= str_escape_seq.siz) {
-            /* ... (keep your existing reallocation logic here) ... */
-            if (str_escape_seq.siz > (SIZE_MAX - UTF_SIZ) / 2) {
+            if (str_escape_seq.siz <= (SIZE_MAX - UTF_SIZ) / 2) {
+                str_escape_seq.siz *= 2;
+                str_escape_seq.buffer
+                    = xrealloc(str_escape_seq.buffer, (int64)str_escape_seq.siz);
+            } else {
                 return;
             }
-            str_escape_seq.siz *= 2;
-            str_escape_seq.buffer
-                = xrealloc(str_escape_seq.buffer, (int64)str_escape_seq.siz);
         }
 
         memmove(&str_escape_seq.buffer[str_escape_seq.len], c, (size_t)len);
@@ -2411,8 +2521,6 @@ term_putc(uint32 u) {
             }
             if (is_sixel) {
                 term.esc |= ESC_SIXEL;
-                /* Note: Adjust the foreground/background color arguments as
-                 * needed for your setup */
                 sixel_parser_init(&sixel_st, 1, 0, 0, 1, term_window.cw,
                                   term_window.ch);
                 str_escape_seq.len = 0;
@@ -2422,86 +2530,82 @@ term_putc(uint32 u) {
     }
 
 check_control_code:
-    /*
-     * Actions of control codes must be performed as soon they arrive
-     * because they can be embedded inside a control sequence, and
-     * they must not cause conflicts with sequences.
-     */
     if (control) {
-        /* in UTF-8 mode ignore handling C1 control characters */
         if (TERM_MODE_IS_SET(TERM_MODE_UTF8) && IS_CONTROL_C1(u)) {
             return;
         }
         term_control_code((uchar)u);
-        /*
-         * control codes are not shown ever
-         */
         if (!term.esc) {
             term.last_char = 0;
         }
         return;
-    } else if (term.esc & ESC_START) {
-        if (term.esc & ESC_CSI) {
-            csi_escape_seq.buffer[csi_escape_seq.len++] = (char)u;
-            if (BETWEEN(u, 0x40, 0x7E)
-                || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
-                term.esc = 0;
-                control_seq_intro_parse();
-                control_seq_intro_handle();
-            }
-            return;
-        } else if (term.esc & ESC_DCS) {
-            /* Skip if DCS escape sequence buffer is full */
-            if (csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
+    } else {
+        if (term.esc & ESC_START) {
+            if (term.esc & ESC_CSI) {
+                csi_escape_seq.buffer[csi_escape_seq.len] = (char)u;
+                csi_escape_seq.len += 1;
+                if (BETWEEN(u, 0x40, 0x7E)
+                    || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
+                    term.esc = 0;
+                    control_seq_intro_parse();
+                    control_seq_intro_handle();
+                }
                 return;
+            } else {
+                if (term.esc & ESC_DCS) {
+                    if (csi_escape_seq.len < SIZEOF(csi_escape_seq.buffer) - 1) {
+                        csi_escape_seq.buffer[csi_escape_seq.len] = (char)u;
+                        csi_escape_seq.len += 1;
+                        if (BETWEEN(u, 0x40, 0x7E)
+                            || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
+                            control_seq_intro_parse();
+                            dcshandle();
+                        }
+                    }
+                    return;
+                } else {
+                    if (term.esc & ESC_UTF8) {
+                        term_def_utf8((char)u);
+                    } else {
+                        if (term.esc & ESC_ALTCHARSET) {
+                            term_def_tran((char)u);
+                        } else {
+                            if (term.esc & ESC_TEST) {
+                                term_dec_test((char)u);
+                            } else {
+                                if (!eschandle((uchar)u)) {
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
             }
-
-            csi_escape_seq.buffer[csi_escape_seq.len++] = (char)u;
-            if (BETWEEN(u, 0x40, 0x7E)
-                || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
-                control_seq_intro_parse();
-                dcshandle();
-            }
+            term.esc = 0;
             return;
-        } else if (term.esc & ESC_UTF8) {
-            term_def_utf8((char)u);
-        } else if (term.esc & ESC_ALTCHARSET) {
-            term_def_tran((char)u);
-        } else if (term.esc & ESC_TEST) {
-            term_dec_test((char)u);
-        } else {
-            if (!eschandle((uchar)u)) {
-                return;
-            }
-            /* sequence already finished */
         }
-        term.esc = 0;
-        /*
-         * All characters which form part of a sequence are not
-         * printed
-         */
-        return;
     }
 
-    /* selection_is_selected() takes relative coordinates */
     if (selection_is_selected(term.cursor.x + term.lines_scrolled_up,
                               term.cursor.y + term.lines_scrolled_up)) {
         selection_clear();
     }
 
     glyph = &term.line[term.cursor.y][term.cursor.x];
-    if (TERM_MODE_IS_SET(TERM_MODE_WRAP)
-        && (term.cursor.state & CURSOR_WRAPNEXT)) {
-        glyph->mode |= ATTR_WRAP;
-        term_new_line(1);
-        glyph = &term.line[term.cursor.y][term.cursor.x];
+    if (TERM_MODE_IS_SET(TERM_MODE_WRAP)) {
+        if (term.cursor.state & CURSOR_WRAPNEXT) {
+            glyph->mode |= ATTR_WRAP;
+            term_new_line(1);
+            glyph = &term.line[term.cursor.y][term.cursor.x];
+        }
     }
 
-    if (TERM_MODE_IS_SET(TERM_MODE_INSERT)
-        && term.cursor.x + width < term.ncols) {
-        memmove(glyph + width, glyph,
-                (size_t)(term.ncols - term.cursor.x - width)*SIZEOF(Glyph));
-        glyph->mode &= ~ATTR_WIDE;
+    if (TERM_MODE_IS_SET(TERM_MODE_INSERT)) {
+        if (term.cursor.x + width < term.ncols) {
+            memmove(glyph + width, glyph,
+                    (size_t)(term.ncols - term.cursor.x - width)*SIZEOF(Glyph));
+            glyph->mode &= ~ATTR_WIDE;
+        }
     }
 
     if (term.cursor.x + width > term.ncols) {
@@ -2552,24 +2656,27 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
             charsize = sixel_parser_parse(
                 &sixel_st, (unsigned char *)buffer + n, buflen - n);
             continue;
-        } else if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
-            /* process a complete utf8 char */
-            charsize = (int32)utf8_decode(buffer + n, &u, (int64)(buflen - n));
-            if (charsize == 0) {
-                break;
-            }
         } else {
-            u = buffer[n] & 0xFF;
-            charsize = 1;
+            if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
+                charsize = (int32)utf8_decode(buffer + n, &u, (int64)(buflen - n));
+                if (charsize == 0) {
+                    break;
+                }
+            } else {
+                u = buffer[n] & 0xFF;
+                charsize = 1;
+            }
         }
         if (show_ctrl && IS_CONTROl(u)) {
             if (u & 0x80) {
                 u &= 0x7f;
                 term_putc('^');
                 term_putc('[');
-            } else if (u != '\n' && u != '\r' && u != '\t') {
-                u ^= 0x40;
-                term_putc('^');
+            } else {
+                if (u != '\n' && u != '\r' && u != '\t') {
+                    u ^= 0x40;
+                    term_putc('^');
+                }
             }
         }
         term_putc(u);
@@ -2582,20 +2689,17 @@ reflow_scroll_down(int32 n) {
     int32 j;
     Glyph *temp;
 
-    /* can never be true as of now
-       if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
-       return; */
-
-    if ((n = (int32)MIN(n, term.n_hist)) <= 0) {
+    n = (int32)MIN(n, term.n_hist);
+    if (n <= 0) {
         return;
     }
 
-    for (int32 i = term.cursor.y + n; i >= n; i--) {
+    for (int32 i = term.cursor.y + n; i >= n; i -= 1) {
         temp = term.line[i];
         term.line[i] = term.line[i - n];
         term.line[i - n] = temp;
     }
-    for (int32 i = n - 1; i >= 0; i--) {
+    for (int32 i = n - 1; i >= 0; i -= 1) {
         temp = term.line[i];
         term.line[i] = term.hist[term.i_hist];
         term.hist[term.i_hist] = temp;
@@ -2603,7 +2707,8 @@ reflow_scroll_down(int32 n) {
     }
     term.cursor.y += n;
     term.n_hist -= n;
-    if ((j = term.lines_scrolled_up - n) >= 0) {
+    j = term.lines_scrolled_up - n;
+    if (j >= 0) {
         term.lines_scrolled_up = j;
     } else {
         term.lines_scrolled_up = 0;
@@ -2626,19 +2731,15 @@ void
 term_resize(int32 col, int32 row) {
     int32 *bp;
 
-    /* col and row are always MAX(_, 1)
-    if (col < 1 || row < 1) {
-            fprintf(stderr, "term_resize: error resizing to %dx%d\n", col, row);
-            return;
-    } */
-
     term.dirty = xrealloc(term.dirty, (int64)row*SIZEOF(*(term.dirty)));
     term.tabs = xrealloc(term.tabs, (int64)col*SIZEOF(*(term.tabs)));
     if (col > term.ncols) {
         bp = term.tabs + term.ncols;
         memset(bp, 0, SIZEOF(*term.tabs)*(size_t)(col - term.ncols));
-        while (--bp > term.tabs && !*bp)
-            /* nothing */;
+        bp -= 1;
+        while (bp > term.tabs && !*bp) {
+            bp -= 1;
+        }
         for (bp += CONF_TAB_NSPACES; bp < term.tabs + col;
              bp += CONF_TAB_NSPACES) {
             *bp = 1;
@@ -2655,7 +2756,6 @@ term_resize(int32 col, int32 row) {
 
 void
 term_resize_def(int32 new_ncols, int32 new_nrows) {
-    /* return if dimensions haven't changed */
     if (term.ncols == new_ncols && term.nrows == new_nrows) {
         term_full_dirt();
         return;
@@ -2666,7 +2766,6 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
         }
         term_reflow(new_ncols, new_nrows);
     } else {
-        /* slide screen up if otherwise cursor would get out of the screen */
         if (term.cursor.y >= new_nrows) {
             term_scroll_up(0, term.nrows - 1, term.cursor.y - new_nrows + 1,
                            SCROLL_RESIZE);
@@ -2676,27 +2775,20 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
             xfree(term.line[i]);
         }
 
-        /* resize to new height */
-        term.line
-            = xrealloc(term.line, (int64)new_nrows*SIZEOF(*(term.line)));
+        term.line = xrealloc(term.line, (int64)new_nrows*SIZEOF(*(term.line)));
 
-        /* allocate any new rows */
         for (int32 i = term.nrows; i < new_nrows; i += 1) {
             term.line[i] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
             for (int32 j = 0; j < new_ncols; j += 1) {
                 term_clear_glyph(&term.line[i][j], 0);
             }
         }
-        /* scroll down as much as height has increased */
         reflow_scroll_down(new_nrows - term.nrows);
     }
-    /* update terminal size */
     term.ncols = new_ncols;
     term.nrows = new_nrows;
-    /* reset scrolling region */
     term.top_scroll_limit = 0;
     term.bot_scroll_limit = new_nrows - 1;
-    /* dirty all lines */
     term_full_dirt();
     return;
 }
@@ -2705,7 +2797,6 @@ void
 term_resize_alt(int32 new_ncols, int32 new_nrows) {
     int32 i;
 
-    /* return if dimensions haven't changed */
     if (term.ncols == new_ncols && term.nrows == new_nrows) {
         term_full_dirt();
         return;
@@ -2713,12 +2804,12 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     if (selection.alt) {
         selection_remove();
     }
-    /* slide screen up if otherwise cursor would get out of the screen */
-    for (i = 0; i <= term.cursor.y - new_nrows; i += 1) {
+    i = 0;
+    while (i <= term.cursor.y - new_nrows) {
         xfree(term.line[i]);
+        i += 1;
     }
     if (i > 0) {
-        /* ensure that both src and dst are not NULL */
         memmove(term.line, term.line + i,
                 (size_t)new_nrows*SIZEOF(*(term.line)));
         term.cursor.y = new_nrows - 1;
@@ -2726,10 +2817,8 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     for (i += new_nrows; i < term.nrows; i += 1) {
         xfree(term.line[i]);
     }
-    /* resize to new height */
     term.line = xrealloc(term.line, (int64)new_nrows*SIZEOF(*(term.line)));
 
-    /* resize to new width */
     for (int32 j = 0; j < MIN(new_nrows, term.nrows); j += 1) {
         term.line[j] = xrealloc(term.line[j],
                                 (int64)new_ncols*SIZEOF(*(term.line[j])));
@@ -2737,27 +2826,22 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
             term_clear_glyph(&term.line[j][k], 0);
         }
     }
-    /* allocate any new rows */
     for (int32 j = (int32)MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
         term.line[j] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
         for (int32 k = 0; k < new_ncols; k += 1) {
             term_clear_glyph(&term.line[j][k], 0);
         }
     }
-    /* update cursor */
     if (term.cursor.x >= new_ncols) {
         term.cursor.state &= ~CURSOR_WRAPNEXT;
         term.cursor.x = new_ncols - 1;
     } else {
         UPDATE_WRAP_NEXT(1, new_ncols);
     }
-    /* update terminal size */
     term.ncols = new_ncols;
     term.nrows = new_nrows;
-    /* reset scrolling region */
     term.top_scroll_limit = 0;
     term.bot_scroll_limit = new_nrows - 1;
-    /* dirty all lines */
     term_full_dirt();
     return;
 }
@@ -2781,9 +2865,13 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     /* --- determine end of current cursor line --- */
     old_cursor_end_line = term.cursor.y;
-    while ((old_cursor_end_line < (term.nrows - 1))
-           && term_is_wrapped(term.line[old_cursor_end_line])) {
-        old_cursor_end_line += 1;
+    while (old_cursor_end_line < (term.nrows - 1)) {
+        int32 wrap_len = term_line_len(term.line[old_cursor_end_line]);
+        if (wrap_len > 0 && (term.line[old_cursor_end_line][wrap_len - 1].mode & ATTR_WRAP)) {
+            old_cursor_end_line += 1;
+        } else {
+            break;
+        }
     }
 
     /* --- compute required number of lines --- */
@@ -2827,11 +2915,12 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                 len = (int32)MAX(len, term.cursor.x + 1);
             }
 
-            if (new_cursor_y_proxy < 0
-                && term.cursor.x - old_x_offset < new_ncols - new_x_offset) {
-                term.cursor.x = new_x_offset + term.cursor.x - old_x_offset;
-                new_cursor_y_proxy = new_y_index;
-                UPDATE_WRAP_NEXT(0, new_ncols);
+            if (new_cursor_y_proxy < 0) {
+                if (term.cursor.x - old_x_offset < new_ncols - new_x_offset) {
+                    term.cursor.x = new_x_offset + term.cursor.x - old_x_offset;
+                    new_cursor_y_proxy = new_y_index;
+                    UPDATE_WRAP_NEXT(0, new_ncols);
+                }
             }
         }
 
@@ -2849,24 +2938,28 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                     term_clear_glyph(&reflow_lines[new_y_index][j], 0);
                 }
                 new_x_offset = 0;
-            } else if (new_x_offset > 0) {
-                reflow_lines[new_y_index][new_x_offset - 1].mode &= ~ATTR_WRAP;
+            } else {
+                if (new_x_offset > 0) {
+                    reflow_lines[new_y_index][new_x_offset - 1].mode &= ~ATTR_WRAP;
+                }
             }
 
             old_x_offset = 0;
             old_y_index += 1;
-        } else if (space_left == chars_left) {
-            memcpy(&reflow_lines[new_y_index][new_x_offset],
-                   &line[old_x_offset], (size_t)space_left*SIZEOF(Glyph));
-            old_x_offset = 0;
-            old_y_index += 1;
-            new_x_offset = 0;
-        } else { /* space_left < chars_left */
-            memcpy(&reflow_lines[new_y_index][new_x_offset],
-                   &line[old_x_offset], (size_t)space_left*SIZEOF(Glyph));
-            old_x_offset += space_left;
-            reflow_lines[new_y_index][new_ncols - 1].mode |= ATTR_WRAP;
-            new_x_offset = 0;
+        } else {
+            if (space_left == chars_left) {
+                memcpy(&reflow_lines[new_y_index][new_x_offset],
+                       &line[old_x_offset], (size_t)space_left*SIZEOF(Glyph));
+                old_x_offset = 0;
+                old_y_index += 1;
+                new_x_offset = 0;
+            } else { /* space_left < chars_left */
+                memcpy(&reflow_lines[new_y_index][new_x_offset],
+                       &line[old_x_offset], (size_t)space_left*SIZEOF(Glyph));
+                old_x_offset += space_left;
+                reflow_lines[new_y_index][new_ncols - 1].mode |= ATTR_WRAP;
+                new_x_offset = 0;
+            }
         }
 
     } while (old_y_index <= old_cursor_end_line);
@@ -2894,19 +2987,20 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     term.cursor.y = new_cursor_end_line - (new_y_index - new_cursor_y_proxy);
 
     if (term.cursor.y < 0) {
-        int32 j = new_cursor_end_line;
+        int32 j_prev = new_cursor_end_line;
         new_cursor_end_line = (int32)MIN(new_cursor_end_line - term.cursor.y,
                                          bottom_visible_line);
-        term.cursor.y += new_cursor_end_line - j;
+        term.cursor.y += new_cursor_end_line - j_prev;
 
         while (term.cursor.y < 0) {
-            xfree(reflow_lines[new_y_index--]);
+            xfree(reflow_lines[new_y_index]);
+            new_y_index -= 1;
             term.cursor.y += 1;
         }
     }
 
     /* --- allocate additional rows if needed --- */
-    for (i = new_nrows - 1; i > new_cursor_end_line; i--) {
+    for (i = new_nrows - 1; i > new_cursor_end_line; i -= 1) {
         term.line[i] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
         for (int32 j = 0; j < new_ncols; j += 1) {
             term_clear_glyph(&term.line[i][j], 0);
@@ -2914,37 +3008,41 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     /* --- populate visible lines --- */
-    for (; i >= term.nrows; i--, new_y_index--) {
+    for (; i >= term.nrows; i -= 1) {
         term.line[i] = reflow_lines[new_y_index];
+        new_y_index -= 1;
     }
 
-    for (; i >= 0; i--, new_y_index--) {
+    for (; i >= 0; i -= 1) {
         xfree(term.line[i]);
         term.line[i] = reflow_lines[new_y_index];
+        new_y_index -= 1;
     }
 
     /* --- update history reflow_lines --- */
     {
-        int32 k;
-        for (k = -1; new_y_index >= 0 && k >= -HISTORY_SIZE;
-             k--, new_y_index--) {
-            int32 j = (term.i_hist + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-            xfree(term.hist[j]);
-            term.hist[j] = reflow_lines[new_y_index];
+        int32 k_idx;
+        k_idx = -1;
+        while (new_y_index >= 0 && k_idx >= -HISTORY_SIZE) {
+            int32 j_hist = (term.i_hist + k_idx + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+            xfree(term.hist[j_hist]);
+            term.hist[j_hist] = reflow_lines[new_y_index];
+            k_idx -= 1;
+            new_y_index -= 1;
         }
-        term.n_hist = -k - 1;
+        term.n_hist = -k_idx - 1;
     }
 
     term.lines_scrolled_up = (int32)MIN(term.lines_scrolled_up, term.n_hist);
 
     /* --- reallocate remaining history lines --- */
-    for (int32 k = -term.n_hist - 1; k >= -HISTORY_SIZE; k--) {
-        int32 j = (term.i_hist + k + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-        term.hist[j] = xrealloc(term.hist[j],
-                                (int64)new_ncols*SIZEOF(*(term.hist[j])));
+    for (int32 k_rem = -term.n_hist - 1; k_rem >= -HISTORY_SIZE; k_rem -= 1) {
+        int32 j_rem = (term.i_hist + k_rem + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+        term.hist[j_rem] = xrealloc(term.hist[j_rem],
+                                    (int64)new_ncols*SIZEOF(*(term.hist[j_rem])));
         if (new_ncols > term.ncols) {
-            for (int32 c = term.ncols; c < new_ncols; c += 1) {
-                term_clear_glyph(&term.hist[j][c], 0);
+            for (int32 c_col = term.ncols; c_col < new_ncols; c_col += 1) {
+                term_clear_glyph(&term.hist[j_rem][c_col], 0);
             }
         }
     }
@@ -2959,21 +3057,21 @@ reset_title(void) {
 
 void
 draw(void) {
-    int32 cx = term.cursor.x, old_cursor_x = term.old_cursor_x,
-          old_cursor_y = term.old_cursor_y;
+    int32 cx = term.cursor.x;
+    int32 old_cursor_x = term.old_cursor_x;
+    int32 old_cursor_y = term.old_cursor_y;
 
     if (!x_start_draw()) {
         return;
     }
 
-    /* adjust cursor position */
     LIMIT(term.old_cursor_x, 0, term.ncols - 1);
     LIMIT(term.old_cursor_y, 0, term.nrows - 1);
     if (term.line[term.old_cursor_y][term.old_cursor_x].mode & ATTR_WDUMMY) {
-        term.old_cursor_x--;
+        term.old_cursor_x -= 1;
     }
     if (term.line[term.cursor.y][cx].mode & ATTR_WDUMMY) {
-        cx--;
+        cx -= 1;
     }
 
     for (int32 y = 0; y < term.nrows; y += 1) {
