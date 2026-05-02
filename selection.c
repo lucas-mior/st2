@@ -67,8 +67,8 @@ selection_normalize(void) {
         selection.ne.x
             = selection.ob.y < selection.oe.y ? selection.oe.x : selection.ob.x;
     } else {
-        selection.nb.x = MIN(selection.ob.x, selection.oe.x);
-        selection.ne.x = MAX(selection.ob.x, selection.oe.x);
+        selection.nb.x = (int32)MIN(selection.ob.x, selection.oe.x);
+        selection.ne.x = (int32)MAX(selection.ob.x, selection.oe.x);
     }
     selection.nb.y = MIN(selection.ob.y, selection.oe.y);
     selection.ne.y = MAX(selection.ob.y, selection.oe.y);
