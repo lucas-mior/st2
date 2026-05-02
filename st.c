@@ -1490,6 +1490,10 @@ control_seq_intro_handle(void) {
     case '$': /* DECRQM -- DEC Request Mode (private) */
         if (csi_escape_seq.mode[1] == 'p' && csi_escape_seq.priv) {
             switch (csi_escape_seq.arg[0]) {
+            case 5: /* DECSCNM -- Reverse Video */
+                tty_write("\033[?5;2$y", 8,
+                          0); /* Report as permanently reset */
+                break;
             case 80:
                 /* Sixel Display Mode  */
                 tty_write(TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)
@@ -1829,28 +1833,27 @@ string_handle(void) {
                 sixel_parser_deinit(&sixel_st);
                 return;
             }
+            cx = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.x;
+            cy = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.y;
+            numimages
+                = sixel_parser_finalize(&sixel_st, &newimages, cx, cy + scr,
+                                        term_window.cw, term_window.ch);
 
-            if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
-                cx = 0;
-                cy = 0;
-            } else {
-                cx = term.cursor.x;
-                cy = term.cursor.y;
-            }
-
-            if ((numimages
-                 = sixel_parser_finalize(&sixel_st, &newimages, cx, cy + scr,
-                                         term_window.cw, term_window.ch))
-                <= 0) {
+            /* FIX: Sanity check to prevent X11 BadMatch crash */
+            if (numimages <= 0 || !newimages || newimages->cols <= 0) {
+                if (newimages) {
+                    delete_image(newimages);
+                }
                 sixel_parser_deinit(&sixel_st);
-                perror("sixel_parser_finalize() failed");
                 return;
             }
+
             sixel_parser_deinit(&sixel_st);
             x1 = newimages->x;
             y1 = newimages->y;
             x2 = x1 + newimages->cols;
             y2 = y1 + numimages;
+            /* ... remainder of the image linking logic ... */
             /* Delete the old images that are covered by the new image(s). We
              * also need to check if they have already been deleted before
              * adding the new ones. */
