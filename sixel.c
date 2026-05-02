@@ -12,6 +12,7 @@
 #include "st.h"
 #include "sixel.h"
 #include "sixel_hls.h"
+#include "cbase/minmax.c"
 
 #define SIXEL_RGB(r, g, b) \
 	((255u << 24) + (((uint32)r) << 16) + (((uint32)g) << 8) +  ((uint32)b))
