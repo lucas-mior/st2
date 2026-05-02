@@ -171,7 +171,7 @@ exec_shell(char *cmd, char **args) {
 }
 
 void
-tsetsixelattr(Glyph *line, int x1, int x2) {
+term_set_sixel_attr(Glyph *line, int x1, int x2) {
     for (; x1 <= x2; x1 += 1) {
         line[x1].mode |= ATTR_SIXEL;
     }
@@ -1749,7 +1749,7 @@ string_handle(void) {
                         continue;
                     }
                     im_sdm->y = i_sdm + scr_offset;
-                    tsetsixelattr(term.line[i_sdm], x1_im, x2_im);
+                    term_set_sixel_attr(term.line[i_sdm], x1_im, x2_im);
                     term.dirty[MIN(im_sdm->y, term.nrows - 1)] = 1;
                 }
             } else {
@@ -1763,7 +1763,7 @@ string_handle(void) {
                         scr_offset = term.lines_scrolled_up;
                     }
                     im_cur->y = term.cursor.y + scr_offset;
-                    tsetsixelattr(term.line[term.cursor.y], x1_im, x2_im);
+                    term_set_sixel_attr(term.line[term.cursor.y], x1_im, x2_im);
                     term.dirty[MIN(im_cur->y, term.nrows - 1)] = 1;
 
                     if (i_cur < numimages - 1) {

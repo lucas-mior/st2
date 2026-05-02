@@ -303,7 +303,7 @@ static void user_toggle_printer(Arg *);
 static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 
 static void tdeleteimages(void);
-static inline void tsetsixelattr(Glyph *line, int32 x1, int32 x2);
+static inline void term_set_sixel_attr(Glyph *line, int32 x1, int32 x2);
 
 static int32 term_attr_set(int32);
 static int32 tisaltscreen(void);
