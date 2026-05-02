@@ -36,8 +36,6 @@ term_cursor(int32 mode) {
 static void
 control_seq_intro_parse(void) {
     char *p = csi_escape_seq.buffer;
-    char *np;
-    int64 v;
     int32 sep = ';';
 
     csi_escape_seq.narg = 0;
@@ -48,7 +46,9 @@ control_seq_intro_parse(void) {
 
     csi_escape_seq.buffer[csi_escape_seq.len] = '\0';
     while (p < csi_escape_seq.buffer + csi_escape_seq.len) {
-        np = NULL;
+        char *np = NULL;
+        int64 v;
+
         v = strtol(p, &np, 10);
         if (np == p) {
             v = 0;
@@ -128,9 +128,9 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
 
 static void
 term_set_attr(int32 *attr, int32 l) {
-    int32_t idx;
-
     for (int32 i = 0; i < l; i += 1) {
+        int32_t idx;
+
         switch (attr[i]) {
         case 0:
             term.cursor.attr.mode &= ~(
@@ -388,8 +388,6 @@ static void
 control_seq_intro_handle(void) {
     char buffer[256];
     int32 n;
-    int32 pi;
-    int32 pa;
     int32 x;
 
     switch (csi_escape_seq.mode[0]) {
@@ -560,8 +558,8 @@ control_seq_intro_handle(void) {
     case 'S':
         if (csi_escape_seq.priv) {
             if (csi_escape_seq.narg > 1) {
-                pi = csi_escape_seq.arg[0];
-                pa = csi_escape_seq.arg[1];
+                int32 pi = csi_escape_seq.arg[0];
+                int32 pa = csi_escape_seq.arg[1];
                 if (pi == 1 && (pa == 1 || pa == 2 || pa == 4)) {
                     n = SNPRINTF(buffer, "\033[?1;0;%dS", DECSIXEL_PALETTE_MAX);
                     tty_write(buffer, n, 1);
@@ -744,11 +742,9 @@ control_seq_intro_handle(void) {
 
 static void
 control_seq_intro_dump(void) {
-    uint32 c;
-
     fprintf(stderr, "ESC[");
     for (int64 i = 0; i < csi_escape_seq.len; i += 1) {
-        c = csi_escape_seq.buffer[i] & 0xff;
+        uint32 c = csi_escape_seq.buffer[i] & 0xff;
         if (isprint(c)) {
             putc((int32)c, stderr);
         } else {
@@ -826,22 +822,9 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
 static void
 string_handle(void) {
     char *p = NULL;
-    char *dec;
     int32 j;
     int32 narg;
     int32 par;
-    ImageList *newimages = (void *)0xCD;
-    ImageList *next_im;
-    ImageList *tail = NULL;
-    int32 x1_im;
-    int32 y1_im;
-    int32 x2_im;
-    int32 y2_im;
-    int32 y_line;
-    int32 numimages;
-    int32 cx_pos;
-    int32 cy_pos;
-    StGlyph *line_ptr;
     int32 scr_offset;
 
     struct {
@@ -913,7 +896,7 @@ string_handle(void) {
             return;
         case 52:
             if (narg > 2 && CONF_ALLOW_WINDOW_OPS) {
-                dec = base64_decode(str_escape_seq.args[2]);
+                char *dec = base64_decode(str_escape_seq.args[2]);
                 if (dec) {
                     selection_set(dec, CurrentTime);
                     user_clipboard_copy(NULL);
@@ -1004,6 +987,19 @@ string_handle(void) {
         return;
     case 'P':
         if (TERM_MODE_IS_SET(TERM_MODE_SIXEL)) {
+            ImageList *newimages = (void *)0xCD;
+            ImageList *next_im;
+            ImageList *tail = NULL;
+            int32 x1_im;
+            int32 y1_im;
+            int32 x2_im;
+            int32 y2_im;
+            int32 y_line;
+            int32 numimages;
+            int32 cx_pos;
+            int32 cy_pos;
+            StGlyph *line_ptr;
+
             term.mode &= ~TERM_MODE_SIXEL;
             if (sixel_st.image.data == NULL) {
                 sixel_parser_deinit(&sixel_st);
@@ -1530,7 +1526,7 @@ term_putc(uint32 u) {
         if (str_escape_seq.len + len >= str_escape_seq.siz) {
             str_escape_seq.siz *= 2;
             str_escape_seq.buffer = xrealloc(str_escape_seq.buffer,
-					                         str_escape_seq.siz);
+                                             str_escape_seq.siz);
         }
 
         memmove64(&str_escape_seq.buffer[str_escape_seq.len], c, len);
@@ -1673,10 +1669,10 @@ check_control_code:
 static int32
 term_write(char *buffer, int32 buflen, int32 show_ctrl) {
     int32 charsize;
-    uint32 u;
     int32 n;
 
     for (n = 0; n < buflen; n += charsize) {
+        uint32 u;
         if (TERM_MODE_IS_SET(TERM_MODE_SIXEL) && sixel_st.state != PS_ESC) {
             charsize = sixel_parser_parse(
                 &sixel_st, (unsigned char *)buffer + n, buflen - n);
