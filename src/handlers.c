@@ -487,6 +487,48 @@ handler_configure_notify(XEvent *xevent) {
 int
 main(void) {
     {
+        Window parent;
+        Window root;
+        XWindowAttributes attr;
+        XVisualInfo visual;
+
+        x_window.display = XOpenDisplay(NULL);
+        if (!x_window.display) {
+            error("can't open display\n");
+            exit(EXIT_FAILURE);
+        }
+        x_window.screen = XDefaultScreen(x_window.display);
+        root = XRootWindow(x_window.display, x_window.screen);
+        parent = root;
+
+        if (XMatchVisualInfo(x_window.display, x_window.screen, 32, TrueColor, &visual) != 0) {
+            x_window.visual = visual.visual;
+            x_window.depth = visual.depth;
+        } else {
+            XGetWindowAttributes(x_window.display, parent, &attr);
+            x_window.visual = attr.visual;
+            x_window.depth = attr.depth;
+        }
+
+        term_window.w = 800;
+        term_window.h = 600;
+        term_window.cw = 10;
+        term_window.ch = 20;
+
+        x_window.win = XCreateSimpleWindow(x_window.display, parent, 0, 0,
+                                           (uint32)term_window.w, (uint32)term_window.h,
+                                           0, 0, 0);
+
+        xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
+        if (xsel.xtarget == None) {
+            xsel.xtarget = XA_STRING;
+        }
+
+        x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
+        x_window.wm_delete_win = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
+    }
+
+    {
         XEvent ev;
 
         ev.type = VisibilityNotify;
@@ -565,8 +607,11 @@ main(void) {
         XEvent ev;
 
         ev.type = SelectionRequest;
+        ev.xselectionrequest.display = x_window.display;
+        ev.xselectionrequest.requestor = x_window.win;
         ev.xselectionrequest.property = None;
         ev.xselectionrequest.target = None;
+        ev.xselectionrequest.time = CurrentTime;
         handler_selection_request(&ev);
         exit(EXIT_SUCCESS);
     }
@@ -614,6 +659,9 @@ main(void) {
 
         ev.type = ClientMessage;
         ev.xclient.message_type = None;
+        ev.xclient.format = 32;
+        ev.xclient.data.l[0] = (long)None;
+        ev.xclient.data.l[1] = (long)None;
         handler_client_message(&ev);
         ASSERT_EQUAL(1, 1);
     }
