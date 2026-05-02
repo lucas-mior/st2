@@ -463,9 +463,12 @@ void x_xim_spot(int32, int32);
 void selection_set(char *, Time);
 
 static struct {
-    int32 tty_width, tty_height; /* tty width and height */
-    int32 w, h;                  /* window width and height */
-    int32 hborderpx, vborderpx;
+    int32 tty_width;
+	int32 tty_height;
+    int32 w;
+	int32 h;
+    int32 hborderpx;
+	int32 vborderpx;
     int32 ch;     /* char height */
     int32 cw;     /* char width  */
     int32 mode;   /* window state/mode flags */
