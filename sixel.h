@@ -29,7 +29,7 @@ enum ParseState {
 	PS_ERROR      = 6,
 };
 
-typedef struct parser_context {
+typedef struct SixelState {
 	enum ParseState state;
 	int32 pos_x;
 	int32 pos_y;
