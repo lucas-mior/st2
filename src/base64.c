@@ -4,6 +4,12 @@
 #include <ctype.h>
 #include "st.h"
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_base64 1
+#elif !defined(TESTING_base64)
+#define TESTING_base64 0
+#endif
+
 char
 base64_decode_getc(char **src) {
     while (**src && !isprint((uchar)**src)) {

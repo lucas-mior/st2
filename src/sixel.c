@@ -855,3 +855,9 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
 }
 
 #endif /* SIXEL_C */
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_sixel 1
+#elif !defined(TESTING_sixel)
+#define TESTING_sixel 0
+#endif

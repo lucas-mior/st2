@@ -1706,3 +1706,9 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
 }
 
 #endif /* ESCAPE_C */
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_escape 1
+#elif !defined(TESTING_escape)
+#define TESTING_escape 0
+#endif

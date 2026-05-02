@@ -175,3 +175,9 @@ user_print_sel(Arg *arg) {
 }
 
 #endif /* USER_C */
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_user 1
+#elif !defined(TESTING_user)
+#define TESTING_user 0
+#endif

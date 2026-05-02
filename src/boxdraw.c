@@ -241,3 +241,9 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
 }
 
 #endif /* BOXDRAW_C */
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_boxdraw 1
+#elif !defined(TESTING_boxdraw)
+#define TESTING_boxdraw 0
+#endif

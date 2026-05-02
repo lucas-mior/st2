@@ -366,3 +366,9 @@ selection_set(char *string, Time t) {
 }
 
 #endif /* SELECTION_C */
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_selection 1
+#elif !defined(TESTING_selection)
+#define TESTING_selection 0
+#endif

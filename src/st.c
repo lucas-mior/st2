@@ -1204,3 +1204,9 @@ redraw(void) {
 }
 
 #endif /* ST_C */
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_st 1
+#elif !defined(TESTING_st)
+#define TESTING_st 0
+#endif

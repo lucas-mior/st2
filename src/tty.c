@@ -240,3 +240,9 @@ tty_hangup(void) {
 }
 
 #endif /* TTY_C */
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_tty 1
+#elif !defined(TESTING_tty)
+#define TESTING_tty 0
+#endif

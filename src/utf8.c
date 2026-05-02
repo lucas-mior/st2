@@ -88,3 +88,9 @@ utf8_validate(uint32 *u, int64 i) {
 }
 
 #endif /* UTF8_C */
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_utf8 1
+#elif !defined(TESTING_utf8)
+#define TESTING_utf8 0
+#endif
