@@ -123,7 +123,7 @@ sixel_image_init(SixelImage *image, int32 width, int32 height, int32 fgcolor,
     int32 status = (-1);
     size_t size;
 
-    size = (size_t)(width*height) * sizeof(uint32);
+    size = (size_t)(width*height)*sizeof(uint32);
     image->width = width;
     image->height = height;
     image->data = (ushort *)malloc(size);
@@ -157,7 +157,7 @@ image_buffer_resize(SixelImage *image, int32 width, int32 height) {
     ushort *alt_buffer;
     int32 min_height;
 
-    size = (size_t)(width*height) * sizeof(ushort);
+    size = (size_t)(width*height)*sizeof(ushort);
     alt_buffer = (ushort *)malloc(size);
     if (alt_buffer == NULL) {
         /* free source image */
@@ -308,7 +308,7 @@ sixel_parser_finalize(SixelState *st, ImageList **newimages, int32 cx, int32 cy,
         im->cols = cols;
         im->width = w;
         im->height = MIN(h - ch*i, ch);
-        im->pixels = xmalloc(im->width*im->height * 4);
+        im->pixels = xmalloc(im->width*im->height*4);
         im->pixmap = NULL;
         im->clipmask = NULL;
         im->cw = cw;
