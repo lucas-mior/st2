@@ -11,9 +11,15 @@
 #define TESTING_selection 0
 #endif
 
+enum SelectionMode {
+	SELECTION_IDLE = 0,
+	SELECTION_EMPTY = 1,
+	SELECTION_READY = 2
+};
+
 static struct {
     int32 mode;
-    int32 type;
+    enum SelectionType type;
     int32 snap;
     /*
      * Selection variables:
@@ -185,12 +191,12 @@ selection_start(int32 col, int32 row, int32 snap) {
 }
 
 static void
-selection_extend(int32 col, int32 row, int32 type, int32 done) {
+selection_extend(int32 col, int32 row, enum SelectionType type, int32 done) {
     int32 oldey;
     int32 oldex;
     int32 oldsby;
     int32 oldsey;
-    int32 oldtype;
+    enum SelectionType oldtype;
 
     if (selection.mode == SELECTION_IDLE) {
         return;

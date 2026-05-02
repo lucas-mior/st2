@@ -104,20 +104,14 @@
 	X(BOLD_FAINT, ATTR_BOLD | ATTR_FAINT)
 #include "xenums.c"
 
-enum SelectionMode {
-	SELECTION_IDLE = 0,
-	SELECTION_EMPTY = 1,
-	SELECTION_READY = 2
+enum SelectionSnap {
+	SELECTION_SNAP_WORD = 1,
+	SELECTION_SNAP_LINE = 2
 };
 
 enum SelectionType {
 	SELECTION_NORMAL = 1,
 	SELECTION_RECTANGULAR = 2
-};
-
-enum SelectionSnap {
-	SELECTION_SNAP_WORD = 1,
-	SELECTION_SNAP_LINE = 2
 };
 
 #define ENUM_NAME TermMode
@@ -314,7 +308,7 @@ static void reset_title(void);
 
 static void selection_clear(void);
 static void selection_start(int32, int32, int32);
-static void selection_extend(int32, int32, int32, int32);
+static void selection_extend(int32, int32, enum SelectionType, int32);
 static int32 selection_is_selected(int32, int32);
 static char *selection_get(void);
 

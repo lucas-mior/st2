@@ -1321,11 +1321,10 @@ xevent_row(XEvent *xevent) {
 
 static void
 mouse_select(XEvent *xevent, int32 done) {
-    int32 type;
-    int32 seltype = SELECTION_NORMAL;
+    enum SelectionType seltype = SELECTION_NORMAL;
     uint32 state = xevent->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
 
-    for (type = 1; type < LENGTH(CONF_SELECTION_MASKS); type += 1) {
+    for (enum SelectionType type = 1; type < LENGTH(CONF_SELECTION_MASKS); type += 1) {
         if (match_mask_state(CONF_SELECTION_MASKS[type], state)) {
             seltype = type;
             break;
