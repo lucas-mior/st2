@@ -530,7 +530,8 @@ static struct {
 
 static struct {
     Atom xtarget;
-    char *primary, *clipboard;
+    char *primary;
+	char *clipboard;
     struct timespec tclick1;
     struct timespec tclick2;
 } xsel;
