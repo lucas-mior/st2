@@ -77,8 +77,43 @@ base64_decode(char *src) {
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    {
+        char *src = "A";
+        char c1;
+        char c2;
+        char c3;
+
+        c1 = base64_decode_getc(&src);
+        ASSERT_EQUAL(c1, 'A');
+        
+        c2 = base64_decode_getc(&src);
+        ASSERT_EQUAL(c2, '=');
+        
+        c3 = base64_decode_getc(&src);
+        ASSERT_EQUAL(c3, '=');
+    }
+
+    {
+        char *decoded;
+
+        decoded = base64_decode("");
+        ASSERT_EQUAL(decoded, "");
+        free(decoded);
+
+        decoded = base64_decode("SGVsbG8=");
+        ASSERT_EQUAL(decoded, "Hello");
+        free(decoded);
+
+        decoded = base64_decode("YW55IGNhcm5hbCBwbGVhc3VyZS4=");
+        ASSERT_EQUAL(decoded, "any carnal pleasure.");
+        free(decoded);
+
+        decoded = base64_decode(" \n\r");
+        ASSERT_EQUAL(decoded, "");
+        free(decoded);
+    }
+
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_base64 */

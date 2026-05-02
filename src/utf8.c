@@ -102,8 +102,79 @@ utf8_validate(uint32 *u, int64 i) {
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    {
+        char buf[UTF_SIZ + 1];
+        uint32 u;
+        int64 len;
+
+        /* Test 1-byte ASCII */
+        len = utf8_encode(0x41, buf);
+        ASSERT_EQUAL(len, 1);
+        ASSERT_EQUAL(buf[0], 'A');
+        len = utf8_decode(buf, &u, 1);
+        ASSERT_EQUAL(len, 1);
+        ASSERT_EQUAL(u, 0x41);
+
+        /* Test 2-byte (e.g. U+00F1 n with tilde) */
+        len = utf8_encode(0xF1, buf);
+        ASSERT_EQUAL(len, 2);
+        len = utf8_decode(buf, &u, 2);
+        ASSERT_EQUAL(len, 2);
+        ASSERT_EQUAL(u, 0xF1);
+
+        /* Test 3-byte (e.g. U+20AC Euro sign) */
+        len = utf8_encode(0x20AC, buf);
+        ASSERT_EQUAL(len, 3);
+        len = utf8_decode(buf, &u, 3);
+        ASSERT_EQUAL(len, 3);
+        ASSERT_EQUAL(u, 0x20AC);
+
+        /* Test 4-byte */
+        len = utf8_encode(0x10348, buf);
+        ASSERT_EQUAL(len, 4);
+        len = utf8_decode(buf, &u, 4);
+        ASSERT_EQUAL(len, 4);
+        ASSERT_EQUAL(u, 0x10348);
+
+        /* Empty string decode */
+        len = utf8_decode(buf, &u, 0);
+        ASSERT_EQUAL(len, 0);
+        ASSERT_EQUAL(u, UTF_INVALID);
+    }
+
+    {
+        int64 idx;
+        uint32 decoded;
+        
+        decoded = utf8_decode_byte('A', &idx);
+        ASSERT_EQUAL(idx, 1); 
+        ASSERT_EQUAL(decoded, 0x41);
+    }
+
+    {
+        char encoded;
+        
+        encoded = utf8_encode_byte(0x41, 1);
+        ASSERT_EQUAL(encoded, 'A');
+    }
+
+    {
+        uint32 u;
+        int64 len;
+
+        /* Valid character */
+        u = 0x41;
+        len = utf8_validate(&u, 0);
+        ASSERT_EQUAL(len, 1);
+        ASSERT_EQUAL(u, 0x41);
+
+        /* Invalid surrogate half */
+        u = 0xD800;
+        len = utf8_validate(&u, 3);
+        ASSERT_EQUAL(u, UTF_INVALID);
+    }
+
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_utf8 */
