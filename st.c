@@ -1605,7 +1605,7 @@ string_handle(void) {
     int32 j;
     int32 narg;
     int32 par;
-    ImageList *newimages;
+    ImageList *newimages = (void *)0xCD;
     ImageList *next;
     ImageList *tail = NULL;
     int x1;
