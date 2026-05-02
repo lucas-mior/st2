@@ -747,7 +747,7 @@ term_dump_sel(void) {
 
     ptr = selection_get();
     if (ptr) {
-        term_printer(ptr, (int64)strlen32(ptr));
+        term_printer(ptr, strlen32(ptr));
         xfree(ptr);
     }
     return;

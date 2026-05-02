@@ -25,7 +25,7 @@ base64_decode_getc(char **src) {
 
 static char *
 base64_decode(char *src) {
-    int64 in_len = (int64)strlen32(src);
+    int64 in_len = strlen32(src);
     char *result;
     char *dst;
     static char base64_digits[256] = {
