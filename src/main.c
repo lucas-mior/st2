@@ -54,26 +54,6 @@ static void (*handler[LASTEvent])(XEvent *) = {
     [SelectionRequest] = handler_selection_request,
 };
 
-/* StFont Ring Cache */
-enum {
-    FRC_NORMAL,
-    FRC_ITALIC,
-    FRC_BOLD,
-    FRC_ITALICBOLD
-};
-
-typedef struct {
-    XftFont *font;
-    int32 flags;
-    uint32 unicodep;
-} Fontcache;
-
-/* Fontcache is an array now. A new font will be appended to the array. */
-static Fontcache *frc = NULL;
-static int32 frclen = 0;
-static int32 frccap = 0;
-static char *usedfont = NULL;
-
 int32
 main(int32 argc, char *argv[]) {
     x_window.left_offset = 0;
