@@ -259,7 +259,7 @@ sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
     int32 w, h;
     int32 i, j, cols, numimages;
     char trans;
-    ImageList *im, *next, *tail;
+    ImageList *im, *tail;
 
     if (!image->data) {
         return -1;
@@ -292,38 +292,26 @@ sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
     *newimages = NULL;
     tail = NULL;
     for (y = 0, i = 0; i < numimages; i++) {
-        if ((im = malloc(sizeof(ImageList)))) {
-            if (!tail) {
-                *newimages = tail = im;
-                im->prev = im->next = NULL;
-            } else {
-                tail->next = im;
-                im->prev = tail;
-                im->next = NULL;
-                tail = im;
-            }
-            im->x = cx;
-            im->y = cy + i;
-            im->cols = cols;
-            im->width = w;
-            im->height = MIN(h - ch*i, ch);
-            im->pixels = malloc(im->width*im->height * 4);
-            im->pixmap = NULL;
-            im->clipmask = NULL;
-            im->cw = cw;
-            im->ch = ch;
+        im = xmalloc(sizeof(*im));
+        if (!tail) {
+            *newimages = tail = im;
+            im->prev = im->next = NULL;
+        } else {
+            tail->next = im;
+            im->prev = tail;
+            im->next = NULL;
+            tail = im;
         }
-        if (!im || !im->pixels) {
-            for (im = *newimages; im; im = next) {
-                next = im->next;
-                if (im->pixels) {
-                    free(im->pixels);
-                }
-                free(im);
-            }
-            *newimages = NULL;
-            return -1;
-        }
+        im->x = cx;
+        im->y = cy + i;
+        im->cols = cols;
+        im->width = w;
+        im->height = MIN(h - ch*i, ch);
+        im->pixels = xmalloc(im->width*im->height * 4);
+        im->pixmap = NULL;
+        im->clipmask = NULL;
+        im->cw = cw;
+        im->ch = ch;
         dst = (uint32 *)im->pixels;
         for (trans = 0, j = 0; j < im->height && y < h; j++, y++) {
             src = st->image.data + image->width*y;
