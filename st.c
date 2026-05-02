@@ -33,33 +33,6 @@
 #include <libutil.h>
 #endif
 
-/* macros */
-#define TERM_MODE_IS_SET(flag) ((term.mode & (flag)) != 0)
-#define IS_CONTROL_C0(c) (BETWEEN(c, 0, 0x1f) || (c) == 0x7f)
-#define IS_CONTROL_C1(c) (BETWEEN(c, 0x80, 0x9f))
-#define IS_CONTROl(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
-#define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
-#define TERM_LINE(y)                                                                               \
-    ((y) < term.lines_scrolled_up                                                                  \
-         ? term.hist[(term.i_hist + (y) - term.lines_scrolled_up + 1 + HISTORY_SIZE)               \
-                     % HISTORY_SIZE]                                                               \
-         : term.line[(y) - term.lines_scrolled_up])
-
-#define TERM_LINE_ABS(y)                                                                           \
-    ((y) < 0 ? term.hist[(term.i_hist + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] : term.line[(y)])
-#define TERM_LINE_HIST(y)                                                                          \
-    ((y) <= HISTORY_SIZE - term.nrows + 2 ? term.hist[(y)]                                         \
-                                          : term.line[(y - HISTORY_SIZE + term.nrows - 3)])
-
-#define UPDATE_WRAP_NEXT(alt, col)                                                                 \
-    do {                                                                                           \
-        if ((term.cursor.state & CURSOR_WRAPNEXT)                                                  \
-            && term.cursor.x + term.wrap_char_width[alt] < col) {                                  \
-            term.cursor.x += term.wrap_char_width[alt];                                            \
-            term.cursor.state &= ~CURSOR_WRAPNEXT;                                                 \
-        }                                                                                          \
-    } while (0)
-
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 static int32 io_fd = 1;
