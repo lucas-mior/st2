@@ -21,7 +21,7 @@ static struct {
         int32 y;
     } nb, ne, ob, oe;
 
-    int32 alt;
+    uint32 alt;
 } selection;
 
 static void

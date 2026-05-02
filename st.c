@@ -512,7 +512,7 @@ term_scroll_down(int32 top, int32 n) {
 void
 term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     int32 s = 0;
-    int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    uint32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
     int32 savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
     Glyph *temp;
 
