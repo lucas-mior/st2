@@ -189,8 +189,6 @@ main(int32 argc, char *argv[]) {
     case 'w':
         opt_embed = EARGF(usage());
         break;
-    case 'v':
-        die("%s " VERSION "\n", argv0);
     default:
         usage();
     }

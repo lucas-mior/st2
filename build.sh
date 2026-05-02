@@ -7,8 +7,6 @@ set -e
 target="${1:-build}"
 CC=${CC:-cc}
 
-VERSION="0.9.3"
-
 CPPFLAGS="$CPPFLAGS -D_DEFAULT_SOURCE"
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
@@ -41,6 +39,7 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-c23-extensions"
     CFLAGS="$CFLAGS -Wno-implicit-int-enum-cast"
     CFLAGS="$CFLAGS -Wno-assign-enum"
+    CFLAGS="$CFLAGS -Wno-cast-align"
 fi
 
 PREFIX="${PREFIX:-/usr/local}"
@@ -56,7 +55,7 @@ LDFLAGS="$LDFLAGS -lm -lrt -lX11 -lutil -lXft -lImlib2"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 
-CPPFLAGS="$CPPFLAGS -DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
+CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE=600"
 
 ctags --kinds-C=+l+d ./*.h ./*.c 2> /dev/null || true
 vtags.sed tags > .tags.vim 2> /dev/null || true
@@ -64,7 +63,7 @@ vtags.sed tags > .tags.vim 2> /dev/null || true
 case "$target" in
 clean)
 	set -x
-	rm -f st st-${VERSION}.tar.gz
+	rm -f st
 	;;
 build)
 	set -x
@@ -88,7 +87,6 @@ install)
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	install -Dm755 st ${DESTDIR}${PREFIX}/bin/st
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	sed "s/VERSION/${VERSION}/g" < st.1 > ${DESTDIR}${MANPREFIX}/man1/st.1
 	chmod 644 ${DESTDIR}${MANPREFIX}/man1/st.1
 	tic -sx st.info
 	echo "Please see the README regarding the terminfo entry of st."
