@@ -106,16 +106,6 @@ term_get_glyphs(char *buffer, Glyph *gp, Glyph *lgp) {
 }
 
 void
-die(char *errstr, ...) {
-    va_list ap;
-
-    va_start(ap, errstr);
-    vfprintf(stderr, errstr, ap);
-    va_end(ap);
-    exit(1);
-}
-
-void
 exec_shell(char *cmd, char **args) {
     char *shell;
     char *arg;
@@ -125,9 +115,11 @@ exec_shell(char *cmd, char **args) {
     pw = getpwuid(getuid());
     if (pw == NULL) {
         if (errno) {
-            die("getpwuid: %s\n", strerror(errno));
+            error("getpwuid: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
         } else {
-            die("who are you?\n");
+            error("who are you?\n");
+			exit(EXIT_FAILURE);
         }
     }
 

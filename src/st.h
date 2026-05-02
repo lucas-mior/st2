@@ -287,7 +287,6 @@ typedef struct StFont {
     FcPattern *pattern;
 } StFont;
 
-static void die(char *, ...) __attribute__((noreturn));
 static void redraw(void);
 static void draw(void);
 

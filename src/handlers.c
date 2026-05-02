@@ -17,12 +17,14 @@ handler_sigchld(int32 unused) {
     (void)unused;
 
     if ((p = waitpid(pid, &stat, WNOHANG)) < 0) {
-        die("waiting for pid %hd failed: %s\n", pid, strerror(errno));
+        error("waiting for pid %hd failed: %s\n", pid, strerror(errno));
+		exit(EXIT_FAILURE);
     }
 
     if (pid != p) {
         if (p == 0 && wait(&stat) < 0) {
-            die("wait: %s\n", strerror(errno));
+            error("wait: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
         }
 
         /* reinstall handler_sigchld handler */
@@ -31,9 +33,11 @@ handler_sigchld(int32 unused) {
     }
 
     if (WIFEXITED(stat) && WEXITSTATUS(stat)) {
-        die("child exited with status %d\n", WEXITSTATUS(stat));
+        error("child exited with status %d\n", WEXITSTATUS(stat));
+		exit(EXIT_FAILURE);
     } else if (WIFSIGNALED(stat)) {
-        die("child terminated due to signal %d\n", WTERMSIG(stat));
+        error("child terminated due to signal %d\n", WTERMSIG(stat));
+		exit(EXIT_FAILURE);
     }
     _exit(0);
 }

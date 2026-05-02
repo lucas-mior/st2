@@ -152,7 +152,8 @@ run:
         XVisualInfo visual;
 
         if (!(x_window.display = XOpenDisplay(NULL))) {
-            die("can't open display\n");
+            error("can't open display\n");
+			exit(EXIT_FAILURE);
         }
         /* XSynchronize(x_window.display, 1); */
         x_window.screen = XDefaultScreen(x_window.display);
@@ -177,7 +178,8 @@ run:
         }
 
         if (!FcInit()) {
-            die("could not init fontconfig.\n");
+            error("could not init fontconfig.\n");
+			exit(EXIT_FAILURE);
         }
 
         if (opt_font) {
@@ -390,7 +392,8 @@ run:
                 if (errno == EINTR) {
                     continue;
                 }
-                die("select failed: %s\n", strerror(errno));
+                error("select failed: %s\n", strerror(errno));
+				exit(EXIT_FAILURE);
             }
             clock_gettime(CLOCK_MONOTONIC, &now);
 
@@ -697,13 +700,14 @@ match_mask_state(uint32 mask, uint32 state) {
 
 void
 usage(void) {
-    die("usage: %s [-aiv] [-c class] [-f font] [-g geometry]"
-        " [-n name] [-o file]\n"
-        "          [-T title] [-t title] [-w windowid]"
-        " [[-e] command [args ...]]\n"
-        "       %s [-aiv] [-c class] [-f font] [-g geometry]"
-        " [-n name] [-o file]\n"
-        "          [-T title] [-t title] [-w windowid] -l line"
-        " [CONF_STTY_ARGS ...]\n",
-        argv0, argv0);
+    error("usage: %s [-aiv] [-c class] [-f font] [-g geometry]"
+          " [-n name] [-o file]\n"
+          "          [-T title] [-t title] [-w windowid]"
+          " [[-e] command [args ...]]\n"
+          "       %s [-aiv] [-c class] [-f font] [-g geometry]"
+          " [-n name] [-o file]\n"
+          "          [-T title] [-t title] [-w windowid] -l line"
+          " [CONF_STTY_ARGS ...]\n",
+          argv0, argv0);
+	exit(EXIT_FAILURE);
 }

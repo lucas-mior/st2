@@ -19,14 +19,16 @@ stty(char **args) {
     int64 siz;
 
     if ((n = strlen32(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
-        die("incorrect stty parameters\n");
+        error("incorrect stty parameters\n");
+		exit(EXIT_FAILURE);
     }
     memcpy(cmd, CONF_STTY_ARGS, (size_t)n);
     q = cmd + n;
     siz = SIZEOF(cmd) - n;
     for (char **p = args; p && (s = *p); p += 1) {
         if ((n = (int64)strlen(s)) > siz - 1) {
-            die("stty parameter length too int64\n");
+            error("stty parameter length too int64\n");
+			exit(EXIT_FAILURE);
         }
         *q++ = ' ';
         memcpy(q, s, (size_t)n);
@@ -55,7 +57,8 @@ tty_new(char *line, char *cmd, char *out, char **args) {
 
     if (line) {
         if ((command_fd = open(line, O_RDWR)) < 0) {
-            die("open line '%s' failed: %s\n", line, strerror(errno));
+            error("open line '%s' failed: %s\n", line, strerror(errno));
+			exit(EXIT_FAILURE);
         }
         dup2(command_fd, 0);
         stty(args);
@@ -64,12 +67,14 @@ tty_new(char *line, char *cmd, char *out, char **args) {
 
     /* seems to work fine on linux, openbsd and freebsd */
     if (openpty(&amaster, &aslave, NULL, NULL, NULL) < 0) {
-        die("openpty failed: %s\n", strerror(errno));
+        error("openpty failed: %s\n", strerror(errno));
+		exit(EXIT_FAILURE);
     }
 
     switch (pid = fork()) {
     case -1:
-        die("fork failed: %s\n", strerror(errno));
+        error("fork failed: %s\n", strerror(errno));
+		exit(EXIT_FAILURE);
     case 0:
         close(io_fd);
         close(amaster);
@@ -78,21 +83,24 @@ tty_new(char *line, char *cmd, char *out, char **args) {
         dup2(aslave, 1);
         dup2(aslave, 2);
         if (ioctl(aslave, TIOCSCTTY, NULL) < 0) {
-            die("ioctl TIOCSCTTY failed: %s\n", strerror(errno));
+            error("ioctl TIOCSCTTY failed: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
         }
         if (aslave > 2) {
             close(aslave);
         }
 #ifdef __OpenBSD__
         if (pledge("stdio getpw proc exec", NULL) == -1) {
-            die("pledge\n");
+            error("pledge\n");
+			exit(EXIT_FAILURE);
         }
 #endif
         exec_shell(cmd, args);
     default:
 #ifdef __OpenBSD__
         if (pledge("stdio rpath tty proc exec", NULL) == -1) {
-            die("pledge\n");
+            error("pledge\n");
+			exit(EXIT_FAILURE);
         }
 #endif
         close(aslave);
@@ -118,7 +126,8 @@ tty_read(void) {
     case 0:
         exit(0);
     case -1:
-        die("couldn't read from CONF_SHELl: %s\n", strerror(errno));
+        error("couldn't read from CONF_SHELl: %s\n", strerror(errno));
+		exit(EXIT_FAILURE);
     default:
         copied += ret;
         written = term_write(buffer, copied, 0);
@@ -185,7 +194,8 @@ tty_write_raw(char *s, int64 n) {
             if (errno == EINTR) {
                 continue;
             }
-            die("select failed: %s\n", strerror(errno));
+            error("select failed: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
         }
         if (FD_ISSET(command_fd, &write_fd)) {
             /*
@@ -220,8 +230,8 @@ tty_write_raw(char *s, int64 n) {
     return;
 
 write_error:
-    die("write error on tty: %s\n", strerror(errno));
-    return;
+    error("write error on tty: %s\n", strerror(errno));
+	exit(EXIT_FAILURE);
 }
 
 void

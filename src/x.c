@@ -92,9 +92,11 @@ x_load_cols(void) {
     for (int32 i = 0; i < draw_context.colors_len; i += 1) {
         if (!x_load_color(i, NULL, &draw_context.colors[i])) {
             if (CONF_COLORS[i]) {
-                die("could not allocate color '%s'\n", CONF_COLORS[i]);
+                error("could not allocate color '%s'\n", CONF_COLORS[i]);
+				exit(EXIT_FAILURE);
             } else {
-                die("could not allocate color %d\n", i);
+                error("could not allocate color %d\n", i);
+				exit(EXIT_FAILURE);
             }
         }
     }
@@ -302,7 +304,8 @@ x_load_fonts(char *fontstr, float fontsize) {
     }
 
     if (!pattern) {
-        die("can't open font %s\n", fontstr);
+        error("can't open font %s\n", fontstr);
+		exit(EXIT_FAILURE);
     }
 
     if (fontsize > 1) {
@@ -325,7 +328,8 @@ x_load_fonts(char *fontstr, float fontsize) {
     }
 
     if (x_load_font(&draw_context.font, pattern)) {
-        die("can't open font %s\n", fontstr);
+        error("can't open font %s\n", fontstr);
+		exit(EXIT_FAILURE);
     }
 
     if (usedfontsize < 0) {
@@ -348,19 +352,22 @@ x_load_fonts(char *fontstr, float fontsize) {
     FcPatternDel(pattern, FC_SLANT);
     FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
     if (x_load_font(&draw_context.ifont, pattern)) {
-        die("can't open font %s\n", fontstr);
+        error("can't open font %s\n", fontstr);
+		exit(EXIT_FAILURE);
     }
 
     FcPatternDel(pattern, FC_WEIGHT);
     FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
     if (x_load_font(&draw_context.ibfont, pattern)) {
-        die("can't open font %s\n", fontstr);
+        error("can't open font %s\n", fontstr);
+		exit(EXIT_FAILURE);
     }
 
     FcPatternDel(pattern, FC_SLANT);
     FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ROMAN);
     if (x_load_font(&draw_context.bfont, pattern)) {
-        die("can't open font %s\n", fontstr);
+        error("can't open font %s\n", fontstr);
+		exit(EXIT_FAILURE);
     }
 
     FcPatternDestroy(pattern);
@@ -398,7 +405,8 @@ x_load_spare_fonts(void) {
     char **fp;
 
     if (frclen != 0) {
-        die("can't embed spare fonts. cache isn't empty");
+        error("can't embed spare fonts. cache isn't empty");
+		exit(EXIT_FAILURE);
     }
 
     /* Calculate count of spare fonts */
@@ -422,7 +430,8 @@ x_load_spare_fonts(void) {
         }
 
         if (!pattern) {
-            die("can't open spare font %s\n", *fp);
+            error("can't open spare font %s\n", *fp);
+			exit(EXIT_FAILURE);
         }
 
         if (defaultfontsize > 0) {
@@ -444,25 +453,29 @@ x_load_spare_fonts(void) {
         XftDefaultSubstitute(x_window.display, x_window.screen, pattern);
 
         if (xloadsparefont(pattern, FRC_NORMAL)) {
-            die("can't open spare font %s\n", *fp);
+            error("can't open spare font %s\n", *fp);
+			exit(EXIT_FAILURE);
         }
 
         FcPatternDel(pattern, FC_SLANT);
         FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
         if (xloadsparefont(pattern, FRC_ITALIC)) {
-            die("can't open spare font %s\n", *fp);
+            error("can't open spare font %s\n", *fp);
+			exit(EXIT_FAILURE);
         }
 
         FcPatternDel(pattern, FC_WEIGHT);
         FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
         if (xloadsparefont(pattern, FRC_ITALICBOLD)) {
-            die("can't open spare font %s\n", *fp);
+            error("can't open spare font %s\n", *fp);
+			exit(EXIT_FAILURE);
         }
 
         FcPatternDel(pattern, FC_SLANT);
         FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ROMAN);
         if (xloadsparefont(pattern, FRC_BOLD)) {
-            die("can't open spare font %s\n", *fp);
+            error("can't open spare font %s\n", *fp);
+			exit(EXIT_FAILURE);
         }
 
         FcPatternDestroy(pattern);
@@ -669,8 +682,9 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, Glyph *glyphs, int32 len,
 
             frc[frclen].font = XftFontOpenPattern(x_window.display, fontpattern);
             if (!frc[frclen].font) {
-                die("XftFontOpenPattern failed seeking fallback font: %s\n",
-                    strerror(errno));
+                error("XftFontOpenPattern failed seeking fallback font: %s\n",
+                      strerror(errno));
+				exit(EXIT_FAILURE);
             }
             frc[frclen].flags = frcflags;
             frc[frclen].unicodep = rune;
