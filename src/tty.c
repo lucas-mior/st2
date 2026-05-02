@@ -128,7 +128,7 @@ tty_read(void) {
     case -1:
         error("couldn't read from CONF_SHELl: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
-    default:
+    default: {
         copied += ret;
         written = term_write(buffer, copied, 0);
         copied -= written;
@@ -138,12 +138,11 @@ tty_read(void) {
         }
         return ret;
     }
+    }
 }
 
 static void
 tty_write(char *s, int64 n, int32 may_echo) {
-    char *next;
-
     user_scroll_down(&((union Arg){.i = term.lines_scrolled_up}));
 
     if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHOO)) {
@@ -157,6 +156,7 @@ tty_write(char *s, int64 n, int32 may_echo) {
 
     /* This is similar to how the kernel handles ONLCR for ttys */
     while (n > 0) {
+        char *next;
         if (*s == '\r') {
             next = s + 1;
             tty_write_raw("\r\n", 2);
@@ -173,9 +173,6 @@ tty_write(char *s, int64 n, int32 may_echo) {
 
 static void
 tty_write_raw(char *s, int64 n) {
-    fd_set write_fd;
-    fd_set read_fd;
-    int64 r;
     int64 lim = 256;
 
     /*
@@ -183,6 +180,8 @@ tty_write_raw(char *s, int64 n) {
      * Writing too much will clog the line. That's why we are doing this dance.
      */
     while (n > 0) {
+        fd_set write_fd;
+        fd_set read_fd;
         FD_ZERO(&write_fd);
         FD_ZERO(&read_fd);
         FD_SET(command_fd, &write_fd);
@@ -204,6 +203,7 @@ tty_write_raw(char *s, int64 n) {
              * for a serial line. Bigger values might clog the I/O.
              */
             int64 size = ((n < lim) ? n : lim);
+            int64 r;
             if ((r = write64(command_fd, s, size)) < 0) {
                 goto write_error;
             }
@@ -269,17 +269,15 @@ tty_hangup(void) {
 
 static void
 mock_term_init(void) {
-    int32 i;
-
     term.nrows = 24;
     term.ncols = 80;
     term.dirty = xmalloc((int64)term.nrows * SIZEOF(*term.dirty));
-    for (i = 0; i < term.nrows; i += 1) {
+    for (int32 i = 0; i < term.nrows; i += 1) {
         term.dirty[i] = 0;
     }
 
     term.lines = xmalloc((int64)term.nrows * SIZEOF(*term.lines));
-    for (i = 0; i < term.nrows; i += 1) {
+    for (int32 i = 0; i < term.nrows; i += 1) {
         term.lines[i] = xmalloc((int64)term.ncols * SIZEOF(StGlyph));
     }
 

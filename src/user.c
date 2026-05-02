@@ -201,6 +201,8 @@ int
 main(void) {
     /* 1. Rigid Initialization of Global State */
     {
+        XGCValues xgc_values = {.graphics_exposures = False};
+
         x_window.display = XOpenDisplay(NULL);
         if (!x_window.display) {
             error("can't open display\n");
@@ -261,7 +263,6 @@ main(void) {
             exit(EXIT_FAILURE);
         }
 
-        XGCValues xgc_values = {.graphics_exposures = False};
         draw_context.graphics = XCreateGC(x_window.display, x_window.win, 
                                           GCGraphicsExposures, &xgc_values);
 
