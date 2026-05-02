@@ -53,7 +53,7 @@ x_get_color(int32 x, uint *r, uint *g, uint *b) {
 }
 
 static int32
-x_load_color(int32 i, char *name, XftColor *ncolor) {
+x_load_color(int32 i, char *name, XftColor *xft_color) {
     XRenderColor color = {.alpha = 0xffff};
 
     if (!name) {
@@ -68,14 +68,14 @@ x_load_color(int32 i, char *name, XftColor *ncolor) {
                 color.blue = color.red;
             }
             return XftColorAllocValue(x_window.display, x_window.visual,
-                                      x_window.color_map, &color, ncolor);
+                                      x_window.color_map, &color, xft_color);
         } else {
             name = CONF_COLORS[i];
         }
     }
 
     return XftColorAllocName(x_window.display, x_window.visual,
-                             x_window.color_map, name, ncolor);
+                             x_window.color_map, name, xft_color);
 }
 
 static void
@@ -1281,10 +1281,10 @@ main(void) {
     }
 
     {
-        XftColor ncolor;
+        XftColor xft_color;
 
-        ncolor.pixel = 0;
-        x_load_color(0, "black", &ncolor);
+        xft_color.pixel = 0;
+        x_load_color(0, "black", &xft_color);
     }
 
     {
