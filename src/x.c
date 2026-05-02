@@ -581,7 +581,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                         int32 len, int32 x, int32 y) {
     int32 winx = term_window.hborderpx + x*term_window.cw;
     int32 winy = term_window.vborderpx + y*term_window.ch;
-    uint16 prevmode = USHRT_MAX;
+    enum GlyphAttribute prevmode = ATTR_LAST;
     StFont *font_local = &draw_context.font;
     int32 frcflags = FRC_NORMAL;
     int32 runewidth = term_window.cw;
@@ -591,7 +591,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
     for (int32 i = 0; i < len; i += 1) {
         uint32 rune = glyphs[i].rune;
-        uint16 mode = glyphs[i].mode;
+        enum GlyphAttribute mode = glyphs[i].mode;
         FT_UInt glyphidx;
         int32 f;
 

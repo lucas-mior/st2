@@ -170,7 +170,7 @@ term_set_sixel_attr(StGlyph *line, int x1, int x2) {
 }
 
 static int32
-term_attr_set(int32 attr) {
+term_attr_set(enum GlyphAttribute attr) {
     for (int32 i = 0; i < term.nrows - 1; i += 1) {
         for (int32 j = 0; j < term.ncols - 1; j += 1) {
             if (term.lines[i][j].mode & attr) {
@@ -194,7 +194,7 @@ term_set_dirt(int32 top, int32 bot) {
 }
 
 static void
-term_set_dirt_attr(int32 attr) {
+term_set_dirt_attr(enum GlyphAttribute attr) {
     for (int32 i = 0; i < term.nrows - 1; i += 1) {
         for (int32 j = 0; j < term.ncols - 1; j += 1) {
             if (term.lines[i][j].mode & attr) {
