@@ -2,7 +2,9 @@
 #define ESCAPE_C
 
 #include <wchar.h>
+#include <ctype.h>
 #include "st.h"
+#include "config.def.h"
 
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
