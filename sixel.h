@@ -48,15 +48,15 @@ typedef struct parser_context {
 	int nparams;
 	int params[DECSIXEL_PARAMS_MAX];
 	SixelImage image;
-} sixel_state_t;
+} SixelState;
 
 void scroll_images(int n);
 void delete_image(ImageList *im);
-int sixel_parser_init(sixel_state_t *st, int transparent, uint fgcolor, uint bgcolor, unsigned char use_private_register, int cell_width, int cell_height);
-int sixel_parser_parse(sixel_state_t *st, const unsigned char *p, size_t len);
-int sixel_parser_set_default_color(sixel_state_t *st);
-int sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int cx, int cy, int cw, int ch);
-void sixel_parser_deinit(sixel_state_t *st);
+int sixel_parser_init(SixelState *st, int transparent, uint fgcolor, uint bgcolor, unsigned char use_private_register, int cell_width, int cell_height);
+int sixel_parser_parse(SixelState *st, const unsigned char *p, size_t len);
+int sixel_parser_set_default_color(SixelState *st);
+int sixel_parser_finalize(SixelState *st, ImageList **newimages, int cx, int cy, int cw, int ch);
+void sixel_parser_deinit(SixelState *st);
 Pixmap sixel_create_clipmask(char *pixels, int width, int height);
 
 #endif

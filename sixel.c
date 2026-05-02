@@ -213,7 +213,7 @@ sixel_image_deinit(SixelImage *image) {
 }
 
 int32
-sixel_parser_init(sixel_state_t *st, int32 transparent, uint32 fgcolor,
+sixel_parser_init(SixelState *st, int32 transparent, uint32 fgcolor,
                   uint32 bgcolor, uchar use_private_register, int32 cell_width,
                   int32 cell_height) {
     int32 status = (-1);
@@ -246,13 +246,13 @@ sixel_parser_init(sixel_state_t *st, int32 transparent, uint32 fgcolor,
 }
 
 int32
-sixel_parser_set_default_color(sixel_state_t *st) {
+sixel_parser_set_default_color(SixelState *st) {
     return set_default_color(&st->image);
 }
 
 int32
-sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
-                      int32 cy, int32 cw, int32 ch) {
+sixel_parser_finalize(SixelState *st, ImageList **newimages, int32 cx, int32 cy,
+                      int32 cw, int32 ch) {
     SixelImage *image = &st->image;
     int32 x, y;
     ushort *src;
@@ -330,7 +330,7 @@ sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
 
 /* convert sixel data into indexed pixel bytes and palette data */
 int32
-sixel_parser_parse(sixel_state_t *st, const uchar *p, size_t len) {
+sixel_parser_parse(SixelState *st, const uchar *p, size_t len) {
     int32 n = 0;
     int32 i;
     int32 x;
@@ -677,7 +677,7 @@ end:
 }
 
 void
-sixel_parser_deinit(sixel_state_t *st) {
+sixel_parser_deinit(SixelState *st) {
     if (st) {
         sixel_image_deinit(&st->image);
     }
