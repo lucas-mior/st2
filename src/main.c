@@ -213,10 +213,13 @@ run:
             = draw_context.colors[CONF_COLOR_BG].pixel;
         x_window.attrs.border_pixel = draw_context.colors[CONF_COLOR_BG].pixel;
         x_window.attrs.bit_gravity = NorthWestGravity;
-        x_window.attrs.event_mask
-            = FocusChangeMask | KeyPressMask | KeyReleaseMask | ExposureMask
-              | VisibilityChangeMask | StructureNotifyMask | ButtonMotionMask
-              | ButtonPressMask | ButtonReleaseMask;
+        x_window.attrs.event_mask = FocusChangeMask
+			                        | KeyPressMask | KeyReleaseMask
+									| ButtonPressMask | ButtonReleaseMask
+									| ButtonMotionMask
+									| ExposureMask
+                                    | VisibilityChangeMask
+									| StructureNotifyMask;
         x_window.attrs.colormap = x_window.color_map;
 
         x_window.win = XCreateWindow(
