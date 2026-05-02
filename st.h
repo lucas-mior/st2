@@ -44,7 +44,7 @@
 #define XK_NO_MOD 0
 #define XK_SWITCH_MOD (1 << 13 | 1 << 14)
 
-#define TERM_MODE_IS_SET(flag) ((term.mode & (flag)) != 0)
+#define TERM_MODE_IS_SET(flag) (term.mode & (flag))
 #define IS_CONTROL_C0(c) (BETWEEN(c, 0, 0x1f) || (c) == 0x7f)
 #define IS_CONTROL_C1(c) (BETWEEN(c, 0x80, 0x9f))
 #define IS_CONTROl(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
@@ -106,6 +106,22 @@ enum SelectionSnap {
 	SELECTION_SNAP_LINE = 2
 };
 
+#define ENUM_NAME TermMode
+#define ENUM_PREFIX_ TERM_MODE_
+#define ENUM_BITFLAGS 1
+#define ENUM_FIELDS \
+    X(WRAP, 1 << 0) \
+    X(INSERT, 1 << 1) \
+    X(ALTSCREEN, 1 << 2) \
+    X(CRLF, 1 << 3) \
+    X(ECHO, 1 << 4) \
+    X(PRINT, 1 << 5) \
+    X(UTF8, 1 << 6) \
+	X(SIXEL, 1 << 7) \
+	X(SIXEL_CUR_RT, 1 << 8) \
+	X(SIXEL_SDM, 1 << 9)
+#include "cbase/xenums.c"
+
 #define Glyph Glyph_
 typedef struct {
 	uint32 rune;           /* character code */
@@ -147,19 +163,6 @@ typedef struct ImageList {
 	int32 ch;
 	int32 transparent;
 } ImageList;
-
-enum term_mode {
-    TERM_MODE_WRAP         = 1 << 0,
-    TERM_MODE_INSERT       = 1 << 1,
-    TERM_MODE_ALTSCREEN    = 1 << 2,
-    TERM_MODE_CRLF         = 1 << 3,
-    TERM_MODE_ECHO         = 1 << 4,
-    TERM_MODE_PRINT        = 1 << 5,
-    TERM_MODE_UTF8         = 1 << 6,
-	TERM_MODE_SIXEL        = 1 << 7,
-	TERM_MODE_SIXEL_CUR_RT = 1 << 8,
-	TERM_MODE_SIXEL_SDM    = 1 << 9
-};
 
 enum scroll_mode {
     SCROLL_RESIZE = -1,
@@ -229,7 +232,7 @@ static struct {
     int32 old_cursor_y;        /* old cursor row */
     int32 top_scroll_limit;    /* top    scroll limit */
     int32 bot_scroll_limit;    /* bottom scroll limit */
-    int32 mode;                /* terminal mode flags */
+    enum TermMode mode;        /* terminal mode flags */
     enum EscapeState esc;     /* escape state flags */
     char translation_table[4]; /* charset table translation */
     int32 charset;             /* current charset */

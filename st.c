@@ -2623,8 +2623,7 @@ check_control_code:
     if (term.cursor.x + width < term.ncols) {
         term_move_to(term.cursor.x + width, term.cursor.y);
     } else {
-        int32 is_alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
-        if (is_alt) {
+        if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
             term.wrap_char_width[1] = width;
         } else {
             term.wrap_char_width[0] = width;
