@@ -29,9 +29,9 @@ x_resize(int32 col, int32 row) {
 
     XFreePixmap(x_window.display, x_window.drawable);
     x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
-			                          (uint32)term_window.w,
-									  (uint32)term_window.h,
-									  (uint32)x_window.depth);
+                                      (uint32)term_window.w,
+                                      (uint32)term_window.h,
+                                      (uint32)x_window.depth);
     XftDrawChange(x_window.xft_draw, x_window.drawable);
     x_clear(0, 0, term_window.w, term_window.h);
 
@@ -85,9 +85,9 @@ x_load_cols(void) {
     if (loaded) {
         for (XftColor *cp = draw_context.colors;
              cp < &draw_context.colors[draw_context.colors_len];
-			 cp += 1) {
+             cp += 1) {
             XftColorFree(x_window.display,
-					     x_window.visual, x_window.color_map, cp);
+                         x_window.visual, x_window.color_map, cp);
         }
     } else {
         draw_context.colors_len = (int32)MAX(LENGTH(CONF_COLORS), 256);
@@ -443,7 +443,7 @@ x_load_spare_fonts(void) {
             sizeshift = (double)(usedfontsize - defaultfontsize);
             if (fabs(sizeshift) >= 0.001) {
                 if (FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &fontval)
-                       == FcResultMatch) {
+                    == FcResultMatch) {
                     fontval += sizeshift;
                     FcPatternDel(pattern, FC_PIXEL_SIZE);
                     FcPatternDel(pattern, FC_SIZE);
@@ -585,13 +585,6 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs, int32 len,
     StFont *font_local = &draw_context.font;
     int32 frcflags = FRC_NORMAL;
     int32 runewidth = term_window.cw;
-    FT_UInt glyphidx;
-    FcResult fcres;
-    FcPattern *fcpattern;
-    FcPattern *fontpattern;
-    FcFontSet *fcsets[] = {NULL};
-    FcCharSet *fccharset;
-    int32 f;
     int32 numspecs = 0;
     int32 xp = winx;
     int32 yp = winy + font_local->ascent;
@@ -599,6 +592,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs, int32 len,
     for (int32 i = 0; i < len; i += 1) {
         uint32 rune = glyphs[i].rune;
         uint16 mode = glyphs[i].mode;
+        FT_UInt glyphidx;
+        int32 f;
 
         if (mode == ATTR_WDUMMY) {
             continue;
@@ -661,6 +656,12 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs, int32 len,
         }
 
         if (f >= frclen) {
+            FcResult fcres;
+            FcPattern *fcpattern;
+            FcPattern *fontpattern;
+            FcFontSet *fcsets[] = {NULL};
+            FcCharSet *fccharset;
+
             if (!font_local->set) {
                 font_local->set = FcFontSort(0, font_local->pattern, 1, 0, &fcres);
             }
@@ -714,16 +715,13 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs, int32 len,
 
 static void
 x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
-		                StGlyph base, int32 len, int32 x, int32 y) {
+                        StGlyph base, int32 len, int32 x, int32 y) {
     int32 charlen;
     int32 winx = term_window.hborderpx + x*term_window.cw;
     int32 winy = term_window.vborderpx + y*term_window.ch;
     int32 width;
     XftColor *fg;
     XftColor *bg;
-    XftColor *temp;
-    XftColor revfg;
-    XftColor revbg;
     XftColor truefg;
     XftColor truebg;
     XRenderColor colfg;
@@ -776,6 +774,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
+        XftColor revfg;
+        XftColor revbg;
         if (fg == &draw_context.colors[CONF_COLOR_INDEX_FONT]) {
             fg = &draw_context.colors[CONF_COLOR_BG];
         } else {
@@ -802,6 +802,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     }
 
     if ((base.mode & ATTR_BOLD_FAINT) == ATTR_FAINT) {
+        XftColor revfg;
         colfg.red = fg->color.red / 2;
         colfg.green = fg->color.green / 2;
         colfg.blue = fg->color.blue / 2;
@@ -812,6 +813,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     }
 
     if (base.mode & ATTR_REVERSE) {
+        XftColor *temp;
         temp = fg;
         fg = bg;
         bg = temp;
@@ -989,8 +991,8 @@ x_set_icon_title(char *p) {
     }
 
     if (Xutf8TextListToTextProperty(x_window.display,
-				                    &p, 1,
-									XUTF8StringStyle, &prop) != Success) {
+                                    &p, 1,
+                                    XUTF8StringStyle, &prop) != Success) {
         return;
     }
     XSetWMIconName(x_window.display, x_window.win, &prop);
@@ -1071,7 +1073,7 @@ x_xim_spot(int32 x, int32 y) {
     x_window.ime.point.y = (int16)(CONF_BORDER_PIXELS + (y + 1)*term_window.ch);
 
     XSetICValues(x_window.ime.xic,
-			     XNPreeditAttributes, x_window.ime.spotlist, NULL);
+                 XNPreeditAttributes, x_window.ime.spotlist, NULL);
     return;
 }
 
@@ -1079,7 +1081,7 @@ static void
 x_set_pointer_motion(int32 set) {
     MODBIT(x_window.attrs.event_mask, set, PointerMotionMask);
     XChangeWindowAttributes(x_window.display,
-			                x_window.win, CWEventMask, &x_window.attrs);
+                            x_window.win, CWEventMask, &x_window.attrs);
     return;
 }
 
@@ -1131,8 +1133,8 @@ x_bell(void) {
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_x */
