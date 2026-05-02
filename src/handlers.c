@@ -475,6 +475,8 @@ handler_configure_notify(XEvent *xevent) {
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 #include "assert.c"
 #include "tty.c"
@@ -514,6 +516,116 @@ main(void) {
         term_window.mode = 0;
         handler_focus(&ev);
         ASSERT_EQUAL((int32)(term_window.mode & WIN_MODE_FOCUSED), 0);
+    }
+
+    if (fork() == 0) {
+        handler_sigchld(0);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        XEvent ev;
+
+        ev.type = ButtonPress;
+        ev.xbutton.button = Button2;
+        ev.xbutton.state = 0;
+        handler_button_press(&ev);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    {
+        XEvent ev;
+
+        ev.type = SelectionNotify;
+        ev.xselection.property = None;
+        handler_selection_notify(&ev);
+        ASSERT_EQUAL(1, 1);
+    }
+
+    {
+        XEvent ev;
+
+        ev.type = PropertyNotify;
+        ev.xproperty.state = PropertyDelete;
+        handler_prop_notify(&ev);
+        ASSERT_EQUAL(1, 1);
+    }
+
+    if (fork() == 0) {
+        XEvent ev;
+
+        handler_selection_clear(&ev);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        XEvent ev;
+
+        ev.type = SelectionRequest;
+        ev.xselectionrequest.property = None;
+        ev.xselectionrequest.target = None;
+        handler_selection_request(&ev);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        XEvent ev;
+
+        ev.type = ButtonRelease;
+        ev.xbutton.button = Button2;
+        ev.xbutton.state = 0;
+        handler_button_release(&ev);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        XEvent ev;
+
+        ev.type = MotionNotify;
+        ev.xbutton.state = 0;
+        handler_button_motion(&ev);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        XEvent ev;
+
+        handler_expose(&ev);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    {
+        XEvent ev;
+
+        term_window.mode = WIN_MODE_KBDLOCK;
+        handler_key_press(&ev);
+        ASSERT_EQUAL(1, 1);
+    }
+
+    {
+        XEvent ev;
+
+        ev.type = ClientMessage;
+        ev.xclient.message_type = None;
+        handler_client_message(&ev);
+        ASSERT_EQUAL(1, 1);
+    }
+
+    {
+        XEvent ev;
+
+        ev.type = ConfigureNotify;
+        ev.xconfigure.width = term_window.w;
+        ev.xconfigure.height = term_window.h;
+        handler_configure_notify(&ev);
+        ASSERT_EQUAL(1, 1);
     }
 
     exit(EXIT_SUCCESS);

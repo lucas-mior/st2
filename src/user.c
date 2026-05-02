@@ -189,9 +189,12 @@ user_print_sel(union Arg *arg) {
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 #include "assert.c"
 #include "st.c"
+#include "x.c"
 
 int
 main(void) {
@@ -212,6 +215,114 @@ main(void) {
         user_toggle_printer(NULL);
         ASSERT_EQUAL((int32)term.mode, 0);
     }
+
+    {
+        union Arg a;
+        
+        term.n_hist = 100;
+        term.lines_scrolled_up = 0;
+        term.mode = 0;
+        selection.ob.x = -1;
+        
+        a.i = 5;
+        user_scroll_up(&a);
+        ASSERT_EQUAL(term.lines_scrolled_up, 5);
+        
+        a.i = 1000;
+        user_scroll_up(&a);
+        ASSERT_EQUAL(term.lines_scrolled_up, 100);
+        
+        a.i = 10;
+        user_scroll_down(&a);
+        ASSERT_EQUAL(term.lines_scrolled_up, 90);
+        
+        a.i = 1000;
+        user_scroll_down(&a);
+        ASSERT_EQUAL(term.lines_scrolled_up, 0);
+    }
+
+    {
+        union Arg a;
+        
+        xsel.primary = NULL;
+        user_clipboard_copy(&a);
+        ASSERT_EQUAL((void *)xsel.clipboard, NULL);
+    }
+
+    if (fork() == 0) {
+        union Arg a;
+
+        user_clipboard_paste(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        union Arg a;
+
+        user_selection_paste(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        union Arg a;
+
+        a.f = 0.0f;
+        user_change_alpha(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        union Arg a;
+
+        a.f = 0.0f;
+        user_zoom(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        union Arg a;
+
+        user_zoom_reset(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        union Arg a;
+
+        a.s = "";
+        user_tty_send(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        union Arg a;
+
+        user_send_break(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        union Arg a;
+
+        user_print_screen(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        union Arg a;
+
+        user_print_sel(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
 
     exit(EXIT_SUCCESS);
 }
