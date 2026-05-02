@@ -47,15 +47,14 @@ MANPREFIX="${MANPREFIX:-$PREFIX/share/man}"
 
 PKG_CONFIG=${PKG_CONFIG:-pkg-config}
 
-INCS="$($PKG_CONFIG --cflags fontconfig) \
-  $($PKG_CONFIG --cflags freetype2)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
 
-LIBS="-lm -lrt -lX11 -lutil -lXft -lImlib2"
-LIBS="$LIBS $($PKG_CONFIG --libs fontconfig) $($PKG_CONFIG --libs freetype2)"
+LDFLAGS="$LDFLAGS -lm -lrt -lX11 -lutil -lXft -lImlib2"
+LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 
-STCPPFLAGS="-DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
-STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
-STLDFLAGS="$LIBS $LDFLAGS"
+CPPFLAGS="$CPPFLAGS -DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
 
 ctags --kinds-C=+l+d ./*.h ./*.c 2> /dev/null || true
 vtags.sed tags > .tags.vim 2> /dev/null || true
@@ -66,9 +65,9 @@ clean)
 	rm -f st st-${VERSION}.tar.gz
 	;;
 
-build|all)
+build)
 	set -x
-	$CC -o st main.c $STCFLAGS $STLDFLAGS
+	$CC $CPPFLAGS $CFLAGS -o st main.c $LDFLAGS
 	;;
 
 install)
@@ -90,6 +89,6 @@ uninstall)
 	;;
 
 *)
-	echo "usage: $0 [ build | all | install | uninstall | clean | dist ]"
+	echo "usage: $0 [ build | install | uninstall | clean | dist ]"
 	;;
 esac
