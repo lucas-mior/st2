@@ -590,4 +590,13 @@ static int32 io_fd = 1;
 static int32 command_fd;
 static uint32 buttons; /* bit field of pressed buttons */
 
+static char *opt_class = NULL;
+static char **opt_cmd = NULL;
+static char *opt_embed = NULL;
+static char *opt_font = NULL;
+static char *opt_iofile = NULL;
+static char *opt_line = NULL;
+static char *opt_name = NULL;
+static char *opt_title = NULL;
+
 #endif /* ST_H */

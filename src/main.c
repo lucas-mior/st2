@@ -74,15 +74,6 @@ static int32 frclen = 0;
 static int32 frccap = 0;
 static char *usedfont = NULL;
 
-static char *opt_class = NULL;
-static char **opt_cmd = NULL;
-static char *opt_embed = NULL;
-static char *opt_font = NULL;
-static char *opt_iofile = NULL;
-static char *opt_line = NULL;
-static char *opt_name = NULL;
-static char *opt_title = NULL;
-
 int32
 main(int32 argc, char *argv[]) {
     x_window.left_offset = 0;
