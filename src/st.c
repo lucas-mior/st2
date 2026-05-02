@@ -1260,9 +1260,9 @@ draw(void) {
 
         XCopyArea(x_window.display, x_window.drawable, x_window.win,
                   draw_context.graphics,
-				  0, 0,
-				  (uint32)term_window.w, (uint32)term_window.h,
-				  0, 0);
+                  0, 0,
+                  (uint32)term_window.w, (uint32)term_window.h,
+                  0, 0);
     }
     if (old_cursor_x != term.old_cursor_x
         || old_cursor_y != term.old_cursor_y) {
@@ -1424,10 +1424,10 @@ mouse_report(XEvent *xevent) {
             c = 'M';
         }
         len = SNPRINTF(buffer, "\033[<%d;%d;%d%c",
-				               code, x + 1, y + 1, c);
+                               code, x + 1, y + 1, c);
     } else if (x < 223 && y < 223) {
         len = SNPRINTF(buffer, "\033[M%c%c%c",
-				               32 + code, 32 + x + 1, 32 + y + 1);
+                               32 + code, 32 + x + 1, 32 + y + 1);
     } else {
         return;
     }
@@ -1538,10 +1538,90 @@ usage(void) {
 #include <stdlib.h>
 
 #include "assert.c"
+#include "user.c"
+#include "x.c"
 
 int
 main(void) {
-    ASSERT(true);
+    {
+        StGlyph line[10];
+        int32 len;
+
+        term.ncols = 10;
+        for (int32 i = 0; i < 10; i += 1) {
+            line[i].mode = ATTR_NONE;
+        }
+
+        len = term_line_len(line);
+        ASSERT_EQUAL(len, 0);
+
+        line[4].mode = ATTR_SET;
+        len = term_line_len(line);
+        ASSERT_EQUAL(len, 5);
+    }
+
+    {
+        StGlyph line[10];
+        int32 wrapped;
+
+        term.ncols = 10;
+        for (int32 i = 0; i < 10; i += 1) {
+            line[i].mode = ATTR_NONE;
+        }
+
+        line[4].mode = ATTR_SET;
+        wrapped = term_is_wrapped(line);
+        ASSERT_EQUAL(wrapped, 0);
+
+        line[4].mode = ATTR_SET | ATTR_WRAP;
+        wrapped = term_is_wrapped(line);
+        ASSERT_EQUAL(wrapped, 1);
+    }
+
+    {
+        StGlyph line[10];
+        
+        for (int32 i = 0; i < 10; i += 1) {
+            line[i].mode = ATTR_NONE;
+        }
+
+        term_set_sixel_attr(line, 2, 5);
+        ASSERT_EQUAL((int32)(line[1].mode & ATTR_SIXEL), 0);
+        ASSERT_MORE((int32)(line[2].mode & ATTR_SIXEL), 0);
+        ASSERT_MORE((int32)(line[5].mode & ATTR_SIXEL), 0);
+        ASSERT_EQUAL((int32)(line[6].mode & ATTR_SIXEL), 0);
+    }
+
+    {
+        uint32 mask;
+
+        mask = button_mask(Button1);
+        ASSERT_EQUAL(mask, Button1Mask);
+
+        mask = button_mask(Button2);
+        ASSERT_EQUAL(mask, Button2Mask);
+
+        mask = button_mask(Button3);
+        ASSERT_EQUAL(mask, Button3Mask);
+
+        mask = button_mask(Button4);
+        ASSERT_EQUAL(mask, Button4Mask);
+
+        mask = button_mask(Button5);
+        ASSERT_EQUAL(mask, Button5Mask);
+
+    }
+
+    {
+        StGlyph glyph;
+
+        term_clear_glyph(&glyph, 0);
+        ASSERT_EQUAL(glyph.mode, ATTR_NONE);
+        ASSERT_EQUAL(glyph.rune, ' ');
+        ASSERT_EQUAL(glyph.fg, CONF_COLOR_INDEX_FONT);
+        ASSERT_EQUAL(glyph.bg, CONF_COLOR_BG);
+    }
+
     exit(EXIT_SUCCESS);
 }
 
