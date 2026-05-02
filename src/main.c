@@ -14,7 +14,7 @@
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
 
-#include "cbase/util.c"
+#include "util.c"
 #include "arg.h"
 #include "st.h"
 #include "st.c"

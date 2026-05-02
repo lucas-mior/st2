@@ -2,7 +2,7 @@
 #define USER_C
 
 #include "st.h"
-#include "cbase/util.c"
+#include "util.c"
 
 void
 user_clipboard_copy(Arg *arg) {

@@ -12,7 +12,7 @@
 #include "st.h"
 #include "sixel.h"
 #include "cbase/minmax.c"
-#include "cbase/util.c"
+#include "util.c"
 
 uint32 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat);
 

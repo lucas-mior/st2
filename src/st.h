@@ -14,7 +14,7 @@
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
 
-#include "cbase/util.c"
+#include "util.c"
 
 #define XEMBED_FOCUS_IN 4
 #define XEMBED_FOCUS_OUT 5

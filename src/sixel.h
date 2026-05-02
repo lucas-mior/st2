@@ -2,7 +2,7 @@
 #define SIXEL_H
 
 #include <X11/X.h>
-#include "cbase/util.c"
+#include "util.c"
 
 #define DECSIXEL_PARAMS_MAX 16
 #define DECSIXEL_PALETTE_MAX 1024
