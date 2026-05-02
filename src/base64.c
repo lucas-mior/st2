@@ -10,7 +10,7 @@
 #define TESTING_base64 0
 #endif
 
-char
+static char
 base64_decode_getc(char **src) {
     while (**src && !isprint((uchar)**src)) {
         (*src)++;
@@ -23,7 +23,7 @@ base64_decode_getc(char **src) {
     }
 }
 
-char *
+static char *
 base64_decode(char *src) {
     int64 in_len = (int64)strlen(src);
     char *result;
