@@ -64,12 +64,15 @@ clean)
 	set -x
 	rm -f st st-${VERSION}.tar.gz
 	;;
-
 build)
 	set -x
-	$CC $CPPFLAGS $CFLAGS -o st main.c $LDFLAGS
+	$CC $CPPFLAGS $CFLAGS -O2 -flto -o st main.c $LDFLAGS
 	;;
-
+debug)
+	set -x
+	$CC $CPPFLAGS $CFLAGS -g3       -o st main.c $LDFLAGS
+	gdb st
+	;;
 install)
 	[ ! -f st ] && "$0" build
 	set -x
@@ -81,13 +84,11 @@ install)
 	tic -sx st.info
 	echo "Please see the README regarding the terminfo entry of st."
 	;;
-
 uninstall)
 	set -x
 	rm -f ${DESTDIR}${PREFIX}/bin/st
 	rm -f ${DESTDIR}${MANPREFIX}/man1/st.1
 	;;
-
 *)
 	echo "usage: $0 [ build | install | uninstall | clean | dist ]"
 	;;
