@@ -341,7 +341,6 @@ static void term_dump(void);
 static void term_clear_region(int32, int32, int32, int32, int32);
 static void term_cursor(int32);
 static void term_clear_glyph(Glyph *, int32);
-static void term_reset_cursor(void);
 static void term_delete_char(int32);
 static void term_delete_line(int32);
 static void term_insert_blank(int32);
