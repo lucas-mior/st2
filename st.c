@@ -23,11 +23,11 @@
 
 #include "st.h"
 #include "boxdraw.c"
-#include "sixel.c"
-#include "selection.c"
-#include "utf8.c"
 #include "handlers.c"
+#include "selection.c"
+#include "sixel.c"
 #include "tty.c"
+#include "utf8.c"
 
 #if defined(__linux)
 #include <pty.h>
