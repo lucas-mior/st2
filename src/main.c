@@ -235,6 +235,8 @@ run:
                                      InputOutput, x_window.visual,
                                      cw_flags,
                                      &x_window.attrs);
+		}
+
         if (parent != root) {
             XReparentWindow(x_window.display, x_window.win, parent,
                             x_window.left_offset, x_window.top_offset);
