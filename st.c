@@ -26,6 +26,8 @@
 #include "sixel.c"
 #include "selection.c"
 #include "utf8.c"
+#include "handlers.c"
+#include "tty.c"
 
 #if defined(__linux)
 #include <pty.h>
@@ -37,8 +39,6 @@
 
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
-static int32 io_fd = 1;
-static int32 command_fd;
 
 int64
 xwrite(int32 fd, char *s, int64 len) {
@@ -225,9 +225,6 @@ exec_shell(char *cmd, char **args) {
     execvp(program, args);
     _exit(1);
 }
-
-#include "handlers.c"
-#include "tty.c"
 
 void
 tsetsixelattr(Glyph *line, int x1, int x2) {

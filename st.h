@@ -529,5 +529,7 @@ static SixelState sixel_st;
 static float usedfontsize = 0;
 static float defaultfontsize = 0;
 static pid_t pid;
+static int32 io_fd = 1;
+static int32 command_fd;
 
 #endif /* ST_H */

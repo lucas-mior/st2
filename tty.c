@@ -1,3 +1,9 @@
+#if !defined(TTY_C)
+#define TTY_C
+
+#include "st.h"
+#include <pty.h>
+
 void
 stty(char **args) {
     char cmd[_POSIX_ARG_MAX], *q, *s;
@@ -232,3 +238,5 @@ tty_hangup(void) {
     kill(pid, SIGHUP);
     return;
 }
+
+#endif /* TTY_C */
