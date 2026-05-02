@@ -2177,12 +2177,17 @@ x_draw_line(Glyph *line, int32 x1, int32 y1, int32 x2) {
 
 void
 x_finish_draw(void) {
-    ImageList *im, *next;
+    ImageList *im;
+    ImageList *next;
     XGCValues gcvalues;
     GC gc = NULL;
-    int rel_y, desty, width, height;
-    int bw = term_window.hborderpx;
-    int bh = term_window.vborderpx;
+    int32 rel_y;
+    int32 desty;
+    int32 width;
+    int32 height;
+    int32 bw = term_window.hborderpx;
+    int32 bh = term_window.vborderpx;
+    XImage ximage;
 
     /* 1. Reset the global GC clip mask immediately.
        If a text-draw operation left a clip active, it will block our Sixels. */
@@ -2196,53 +2201,56 @@ x_finish_draw(void) {
             continue;
         }
 
-        width = im->width; /* Skip scaling for the test */
+        width = im->width;
         height = im->height;
 
-        if (!im->pixmap) {
+        if (im->pixmap == NULL) {
             im->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win,
-                                               width, height, x_window.depth);
+                                               (uint32)width, (uint32)height,
+                                               (uint32)x_window.depth);
 
-            /* Fill Pixmap with your test gray color */
-            uint32 *p = (uint32 *)im->pixels;
-            for (int i = 0; i < (width*height); i++) {
-                p[i] = 0xCDCDCDCD;
+            if (im->transparent) {
+                im->clipmask = (void *)sixel_create_clipmask((char *)im->pixels,
+                                                             width, height);
             }
 
-            XImage ximage = {.format = ZPixmap,
-                             .data = (char *)im->pixels,
-                             .width = width,
-                             .height = height,
-                             .depth = x_window.depth,
-                             .bits_per_pixel = 32,
-                             .bytes_per_line = width*4,
-                             .byte_order = sixelbyteorder,
-                             .bitmap_unit = 32,
-                             .bitmap_pad = 32};
+            ximage.format = ZPixmap;
+            ximage.data = (char *)im->pixels;
+            ximage.width = width;
+            ximage.height = height;
+            ximage.depth = x_window.depth;
+            ximage.bits_per_pixel = 32;
+            ximage.bytes_per_line = width*4;
+            ximage.byte_order = ImageByteOrder(x_window.display);
+            ximage.bitmap_unit = 32;
+            ximage.bitmap_pad = 32;
 
-            /* Use a clean GC to ensure data actually hits the Pixmap */
             XPutImage(x_window.display, (Drawable)im->pixmap,
-                      draw_context.graphics, &ximage, 0, 0, 0, 0, width,
-                      height);
+                      draw_context.graphics, &ximage, 0, 0, 0, 0, (uint32)width,
+                      (uint32)height);
         }
 
-        if (!gc) {
-            memset(&gcvalues, 0, sizeof(gcvalues));
+        if (gc == NULL) {
+            memset(&gcvalues, 0, SIZEOF(gcvalues));
             gcvalues.graphics_exposures = False;
             gc = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures,
                            &gcvalues);
         }
 
-        /* Bypass the ClipMask entirely for this test */
-        XSetClipMask(x_window.display, gc, None);
         desty = bh + rel_y*term_window.ch;
 
-        /* Draw to BOTH the back-buffer and the window directly to see where it
-         * sticks */
+        if (im->transparent && im->clipmask) {
+            XSetClipOrigin(x_window.display, gc, bw + im->x*term_window.cw,
+                           desty);
+            XSetClipMask(x_window.display, gc, (Pixmap)im->clipmask);
+        } else {
+            XSetClipMask(x_window.display, gc, None);
+        }
+
+        /* Draw to the back-buffer */
         XCopyArea(x_window.display, (Drawable)im->pixmap, x_window.drawable, gc,
-                  0, 0, width, height, bw + im->x*term_window.cw, desty);
-        XCopyArea(x_window.display, (Drawable)im->pixmap, x_window.win, gc, 0,
-                  0, width, height, bw + im->x*term_window.cw, desty);
+                  0, 0, (uint32)width, (uint32)height,
+                  bw + im->x*term_window.cw, desty);
     }
 
     if (gc) {
@@ -2251,7 +2259,9 @@ x_finish_draw(void) {
 
     /* Final copy of the back-buffer to the window */
     XCopyArea(x_window.display, x_window.drawable, x_window.win,
-              draw_context.graphics, 0, 0, term_window.w, term_window.h, 0, 0);
+              draw_context.graphics, 0, 0, (uint32)term_window.w,
+              (uint32)term_window.h, 0, 0);
+    return;
 }
 
 void
