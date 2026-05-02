@@ -2782,18 +2782,18 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     term.line = xrealloc(term.line, (int64)new_nrows*SIZEOF(*(term.line)));
 
     /* resize to new width */
-    for (i = 0; i < MIN(new_nrows, term.nrows); i += 1) {
-        term.line[i] = xrealloc(term.line[i],
-                                (int64)new_ncols*SIZEOF(*(term.line[i])));
-        for (int32 j = term.ncols; j < new_ncols; j += 1) {
-            term_clear_glyph(&term.line[i][j], 0);
+    for (int32 j = 0; j < MIN(new_nrows, term.nrows); j += 1) {
+        term.line[j] = xrealloc(term.line[j],
+                                (int64)new_ncols*SIZEOF(*(term.line[j])));
+        for (int32 k = term.ncols; k < new_ncols; k += 1) {
+            term_clear_glyph(&term.line[j][k], 0);
         }
     }
     /* allocate any new rows */
-    for (/*i = MIN(new_nrows, term.nrows) */; i < new_nrows; i += 1) {
-        term.line[i] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
-        for (int32 j = 0; j < new_ncols; j += 1) {
-            term_clear_glyph(&term.line[i][j], 0);
+    for (int32 j = MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
+        term.line[j] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
+        for (int32 k = 0; k < new_ncols; k += 1) {
+            term_clear_glyph(&term.line[j][k], 0);
         }
     }
     /* update cursor */
