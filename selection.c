@@ -1,3 +1,6 @@
+#if !defined(SELECTION_C)
+#define SELECTION_C
+
 void
 selection_start(int32 col, int32 row, int32 snap) {
     selection_clear();
@@ -290,3 +293,5 @@ selection_remove(void) {
     selection.ob.x = -1;
     return;
 }
+
+#endif /* SELECTION_C */
