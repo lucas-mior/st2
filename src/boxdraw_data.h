@@ -60,6 +60,8 @@
 #define BL (1<<2)
 #define BR (1<<3)
 
+#include "primitives.h"
+
 /* Data for U+2500 - U+259F except dashes/diagonals */
 static const uint16 boxdata[256] = {
 	/* light lines */
