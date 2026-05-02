@@ -296,4 +296,33 @@ handler_unmap(XEvent *xevent) {
     return;
 }
 
+void
+handler_focus(XEvent *xevent) {
+    XFocusChangeEvent *e = &xevent->xfocus;
+
+    if (e->mode == NotifyGrab) {
+        return;
+    }
+
+    if (xevent->type == FocusIn) {
+        if (x_window.ime.xic) {
+            XSetICFocus(x_window.ime.xic);
+        }
+        term_window.mode |= WIN_MODE_FOCUSED;
+        x_set_urgency(0);
+        if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUS)) {
+            tty_write("\033[I", 3, 0);
+        }
+    } else {
+        if (x_window.ime.xic) {
+            XUnsetICFocus(x_window.ime.xic);
+        }
+        term_window.mode &= ~WIN_MODE_FOCUSED;
+        if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUS)) {
+            tty_write("\033[O", 3, 0);
+        }
+    }
+    return;
+}
+
 #endif

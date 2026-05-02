@@ -273,6 +273,20 @@ typedef struct {
     int32 narg; /* nb of args */
 } STREscape;
 
+typedef struct StFont {
+    int32 height;
+    int32 width;
+    int32 ascent;
+    int32 descent;
+    int32 badslant;
+    int32 badweight;
+    int16 lbearing;
+    int16 rbearing;
+    XftFont *match;
+    FcFontSet *set;
+    FcPattern *pattern;
+} StFont;
+
 static void die(char *, ...) __attribute__((noreturn));
 static void redraw(void);
 static void draw(void);
@@ -412,6 +426,29 @@ static int32 mouse_action(XEvent *, uint32);
 static int32 xevent_col(XEvent *);
 static int32 xevent_row(XEvent *);
 
+static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, Glyph *, int32, int32,
+                                     int32);
+static void x_draw_glyph_font_specs(XftGlyphFontSpec *, Glyph, int32, int32,
+                                    int32);
+static void x_draw_glyph(Glyph, int32, int32);
+static void x_clear(int32, int32, int32, int32);
+static int32 x_geom_mask_to_gravity(int32);
+static int32 x_im_open(Display *);
+static void x_im_instantiate(Display *, XPointer, XPointer);
+static void x_im_destroy(XIM, XPointer, XPointer);
+static int32 x_ic_destroy(XIC, XPointer, XPointer);
+static void cresize(int32, int32);
+static void x_resize(int32, int32);
+static void x_hints(void);
+static int32 x_load_color(int32, char *, XftColor *);
+static int32 x_load_font(StFont *, FcPattern *);
+static void x_load_fonts(char *, float);
+static int32 xloadsparefont(FcPattern *, int32);
+static void x_load_spare_fonts(void);
+static void x_unload_font(StFont *);
+static void x_unload_fonts(void);
+static void x_set_urgency(int32);
+
 static char *base64_decode(char *);
 static char base64_decode_getc(char **);
 
@@ -525,20 +562,6 @@ static struct {
 	int32 top_offset;    /* left and top offset */
     int32 geo_mask;      /* geometry mask */
 } x_window;
-
-typedef struct StFont {
-    int32 height;
-    int32 width;
-    int32 ascent;
-    int32 descent;
-    int32 badslant;
-    int32 badweight;
-    int16 lbearing;
-    int16 rbearing;
-    XftFont *match;
-    FcFontSet *set;
-    FcPattern *pattern;
-} StFont;
 
 static struct {
     XftColor *colors;

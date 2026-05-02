@@ -29,28 +29,6 @@
 #include "config.def.h"
 
 static inline uint16 sixd_to_16bit(int32);
-static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, Glyph *, int32, int32,
-                                     int32);
-static void x_draw_glyph_font_specs(XftGlyphFontSpec *, Glyph, int32, int32,
-                                    int32);
-static void x_draw_glyph(Glyph, int32, int32);
-static void x_clear(int32, int32, int32, int32);
-static int32 x_geom_mask_to_gravity(int32);
-static int32 x_im_open(Display *);
-static void x_im_instantiate(Display *, XPointer, XPointer);
-static void x_im_destroy(XIM, XPointer, XPointer);
-static int32 x_ic_destroy(XIC, XPointer, XPointer);
-static void cresize(int32, int32);
-static void x_resize(int32, int32);
-static void x_hints(void);
-static int32 x_load_color(int32, char *, XftColor *);
-static int32 x_load_font(StFont *, FcPattern *);
-static void x_load_fonts(char *, float);
-static int32 xloadsparefont(FcPattern *, int32);
-static void x_load_spare_fonts(void);
-static void x_unload_font(StFont *);
-static void x_unload_fonts(void);
-static void x_set_urgency(int32);
 
 static void usage(void) __attribute__((noreturn));
 
@@ -1936,35 +1914,6 @@ x_bell(void) {
     }
     if (CONF_BELL_VOLUME) {
         XkbBell(x_window.display, x_window.win, CONF_BELL_VOLUME, (Atom)NULL);
-    }
-    return;
-}
-
-void
-handler_focus(XEvent *xevent) {
-    XFocusChangeEvent *e = &xevent->xfocus;
-
-    if (e->mode == NotifyGrab) {
-        return;
-    }
-
-    if (xevent->type == FocusIn) {
-        if (x_window.ime.xic) {
-            XSetICFocus(x_window.ime.xic);
-        }
-        term_window.mode |= WIN_MODE_FOCUSED;
-        x_set_urgency(0);
-        if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUS)) {
-            tty_write("\033[I", 3, 0);
-        }
-    } else {
-        if (x_window.ime.xic) {
-            XUnsetICFocus(x_window.ime.xic);
-        }
-        term_window.mode &= ~WIN_MODE_FOCUSED;
-        if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUS)) {
-            tty_write("\033[O", 3, 0);
-        }
     }
     return;
 }
