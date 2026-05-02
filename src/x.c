@@ -3,6 +3,7 @@
 
 #include "st.h"
 #include "math.h"
+#include "config.def.h"
 
 uint16
 sixd_to_16bit(int32 x) {
