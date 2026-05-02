@@ -611,8 +611,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             case '8':
             case '9':
                 sixel_state->param = sixel_state->param*10 + *p - '0';
-                sixel_state->param
-                    = (int32)MIN(sixel_state->param, DECSIXEL_PARAMVALUE_MAX);
+                sixel_state->param = (int32)MIN(sixel_state->param,
+						                        DECSIXEL_PARAMVALUE_MAX);
                 p++;
                 break;
             default:
