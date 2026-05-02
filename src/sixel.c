@@ -23,13 +23,13 @@
 static uint32 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat);
 
 #define SIXEL_RGB(r, g, b) \
-	((255u << 24) + (((uint32)r) << 16) + (((uint32)g) << 8) +  ((uint32)b))
+    ((255u << 24) + (((uint32)r) << 16) + (((uint32)g) << 8) +  ((uint32)b))
 #define SIXEL_PALVAL(n, a, m)  \
     (((n)*(a) + ((m) / 2)) / (m))
 #define SIXEL_XRGB(r, g, b) \
-	SIXEL_RGB(SIXEL_PALVAL(r, 255, 100), \
-			  SIXEL_PALVAL(g, 255, 100), \
-			  SIXEL_PALVAL(b, 255, 100))
+    SIXEL_RGB(SIXEL_PALVAL(r, 255, 100), \
+              SIXEL_PALVAL(g, 255, 100), \
+              SIXEL_PALVAL(b, 255, 100))
 
 static uint32 sixel_default_color_table[] = {
     SIXEL_XRGB(0, 0, 0),    /*  0 Black    */
@@ -42,7 +42,7 @@ static uint32 sixel_default_color_table[] = {
     SIXEL_XRGB(53, 53, 53), /*  7 Gray 50% */
     SIXEL_XRGB(26, 26, 26), /*  8 Gray 25% */
     SIXEL_XRGB(33, 33, 60), /*  9 Blue*    */
-    SIXEL_XRGB(60, 26, 26), /* 10 Red*      */
+    SIXEL_XRGB(60, 26, 26), /* 10 Red*     */
     SIXEL_XRGB(33, 60, 33), /* 11 Green*   */
     SIXEL_XRGB(60, 33, 60), /* 12 Magenta* */
     SIXEL_XRGB(33, 60, 60), /* 13 Cyan*    */
@@ -54,11 +54,11 @@ static void
 scroll_images(int32 n) {
     ImageList *next;
     int32 top;
-	if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-		top = 0;
-	} else {
-		top = term.lines_scrolled_up - HISTORY_SIZE;
-	}
+    if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+        top = 0;
+    } else {
+        top = term.lines_scrolled_up - HISTORY_SIZE;
+    }
 
     for (ImageList *im = term.images; im; im = next) {
         next = im->next;
@@ -273,16 +273,16 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
     int32 x, y;
     uint16 *src;
     uint32 *dst;
-	uint32 color;
+    uint32 color;
     int32 w;
-	int32 h;
+    int32 h;
     int32 i;
-	int32 j;
-	int32 cols;
-	int32 numimages;
+    int32 j;
+    int32 cols;
+    int32 numimages;
     char trans;
     ImageList *im;
-	ImageList *tail;
+    ImageList *tail;
 
     if (!sixel_image->data) {
         return -1;
@@ -697,8 +697,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
                         sixel_image->palette[sixel_state->color_index]
-							= hls_to_rgb(sixel_state->params[2],
-									     sixel_state->params[3],
+                            = hls_to_rgb(sixel_state->params[2],
+                                         sixel_state->params[3],
                                          sixel_state->params[4]);
                     } else if (sixel_state->params[1] == 2) {
                         /* RGB */
@@ -868,13 +868,99 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "assert.c"
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    {
+        uint32 res;
+
+        res = hls_to_rgb(0, 0, 0);
+        ASSERT_EQUAL(res, SIXEL_RGB(0, 0, 0));
+
+        res = hls_to_rgb(0, 100, 0);
+        ASSERT_EQUAL(res, SIXEL_RGB(255, 255, 255));
+    }
+
+    {
+        SixelImage img;
+        int32 status;
+
+        status = sixel_image_init(&img, 10, 10, 1, 0, 1);
+        ASSERT_EQUAL(status, 0);
+        ASSERT_EQUAL(img.width, 10);
+        ASSERT_EQUAL(img.height, 10);
+        ASSERT_EQUAL(img.use_private_register, 1);
+        ASSERT_EQUAL(img.palette[0], 0);
+        ASSERT_EQUAL(img.palette[1], 1);
+
+        status = set_default_color(&img);
+        ASSERT_EQUAL(status, 0);
+
+        status = image_buffer_resize(&img, 20, 20);
+        ASSERT_EQUAL(status, 0);
+        ASSERT_EQUAL(img.width, 20);
+        ASSERT_EQUAL(img.height, 20);
+
+        sixel_image_deinit(&img);
+        ASSERT_EQUAL((void *)img.data, NULL);
+    }
+
+    {
+        SixelState state;
+        int32 status;
+        uchar buf[] = "\x1b";
+        int32 parsed_len;
+        ImageList *newimages;
+        int32 numimages;
+
+        status = sixel_parser_init(&state, 0, 1, 0, 1, 10, 20);
+        ASSERT_EQUAL(status, 0);
+        ASSERT(state.state == PS_DECSIXEL);
+
+        status = sixel_parser_set_default_color(&state);
+        ASSERT_EQUAL(status, 0);
+
+        sixel_parser_parse(&state, buf, 1);
+        ASSERT(state.state == PS_ESC);
+
+        newimages = NULL;
+        numimages = sixel_parser_finalize(&state, &newimages, 0, 0, 10, 20);
+        ASSERT_MORE(numimages, -2);
+
+        if (newimages != NULL) {
+            delete_image(newimages);
+        }
+
+        sixel_parser_deinit(&state);
+    }
+
+    {
+        ImageList *dummy_img;
+
+        dummy_img = xmalloc(sizeof(*dummy_img));
+        dummy_img->next = NULL;
+        dummy_img->prev = NULL;
+        dummy_img->y = 100;
+        dummy_img->pixmap = 0;
+        dummy_img->clipmask = 0;
+        dummy_img->pixels = NULL;
+
+        term.images = dummy_img;
+        term.mode = 0;
+        term.lines_scrolled_up = 0;
+
+        scroll_images(-10);
+
+        if (term.images != NULL) {
+            ASSERT_EQUAL(term.images->y, 90);
+            delete_image(term.images);
+        }
+    }
+
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_sixel */
