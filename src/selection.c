@@ -45,14 +45,8 @@ selection_remove(void) {
 
 static void
 SelectionSnap(int32 *x, int32 *y, int32 direction) {
-    int32 newx;
-    int32 newy;
-    int32 xt;
-    int32 yt;
     int32 rtop = 0;
     int32 rbot = term.nrows - 1;
-    int32 delim;
-    StGlyph *gp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         rtop += term.lines_scrolled_up - term.n_hist;
@@ -64,17 +58,17 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
         /* No snap: do nothing */
         return;
     case SELECTION_SNAP_WORD: {
-        /*
-         * Snap around if the word wraps around at the end or
-         * beginning of a line.
-         */
         StGlyph *prev_gp = &TERM_LINE(*y)[*x];
         int32 prev_delim = IS_DELIM(prev_gp->rune);
 
         while (1) {
-            newx = *x + direction;
-            newy = *y;
+            int32 newx = *x + direction;
+            int32 newy = *y;
+
             if (!BETWEEN(newx, 0, term.ncols - 1)) {
+                int32 xt;
+                int32 yt;
+
                 newy += direction;
                 newx = (newx + term.ncols) % term.ncols;
                 if (!BETWEEN(newy, rtop, rbot)) {
@@ -97,27 +91,25 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
                 break;
             }
 
-            gp = &TERM_LINE(newy)[newx];
-            delim = IS_DELIM(gp->rune);
-            if (!(gp->mode & ATTR_WDUMMY)
-                && (delim != prev_delim
-                    || (delim && !(gp->rune == ' ' && prev_gp->rune == ' ')))) {
-                break;
-            }
+            {
+                StGlyph *gp = &TERM_LINE(newy)[newx];
+                int32 delim = IS_DELIM(gp->rune);
 
-            *x = newx;
-            *y = newy;
-            prev_gp = gp;
-            prev_delim = delim;
+                if (!(gp->mode & ATTR_WDUMMY)
+                    && (delim != prev_delim
+                        || (delim && !(gp->rune == ' ' && prev_gp->rune == ' ')))) {
+                    break;
+                }
+
+                *x = newx;
+                *y = newy;
+                prev_gp = gp;
+                prev_delim = delim;
+            }
         }
         break;
-                                      }
+    }
     case SELECTION_SNAP_LINE:
-        /*
-         * Snap around if the the previous line or the current one
-         * has set ATTR_WRAP at its end. Then the whole next or
-         * previous line will be selection_is_selected.
-         */
         *x = (direction < 0) ? 0 : term.ncols - 1;
         if (direction < 0) {
             for (; *y > rtop; *y -= 1) {
@@ -142,8 +134,6 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
 
 static void
 selection_normalize(void) {
-    int32 len;
-
     if (selection.type == SELECTION_NORMAL
         && selection.ob.y != selection.oe.y) {
         selection.nb.x
@@ -165,12 +155,15 @@ selection_normalize(void) {
         return;
     }
 
-    len = term_line_len(TERM_LINE(selection.nb.y));
-    if (selection.nb.x > len) {
-        selection.nb.x = len;
-    }
-    if (selection.ne.x >= term_line_len(TERM_LINE(selection.ne.y))) {
-        selection.ne.x = term.ncols - 1;
+    {
+        int32 len = term_line_len(TERM_LINE(selection.nb.y));
+
+        if (selection.nb.x > len) {
+            selection.nb.x = len;
+        }
+        if (selection.ne.x >= term_line_len(TERM_LINE(selection.ne.y))) {
+            selection.ne.x = term.ncols - 1;
+        }
     }
     return;
 }
@@ -270,54 +263,48 @@ selection_is_selected(int32 x, int32 y) {
 
 static char *
 selection_get(void) {
-    char *string, *ptr;
-    int32 lastx;
-    int32 line_len;
+    char *string;
+    char *ptr;
 
     if (selection.ob.x == -1
         || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         return NULL;
     }
 
-    string
-        = xmalloc((int64)((term.ncols + 1)
-                          * (selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
+    string = xmalloc((int64)((term.ncols + 1)
+                    * (selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
     ptr = string;
 
-    /* append every set & selection_is_selected glyph to the selection */
     for (int32 y = selection.nb.y; y <= selection.ne.y; y += 1) {
         StGlyph *line = TERM_LINE(y);
-        StGlyph *gp;
-        StGlyph *lgp;
+        int32 line_len = term_line_len(line);
 
-        if ((line_len = term_line_len(line)) == 0) {
+        if (line_len == 0) {
             *ptr++ = '\n';
             continue;
         }
 
-        if (selection.type == SELECTION_RECTANGULAR) {
-            gp = &line[selection.nb.x];
-            lastx = selection.ne.x;
-        } else {
-            gp = &line[selection.nb.y == y ? selection.nb.x : 0];
-            lastx = (selection.ne.y == y) ? selection.ne.x : term.ncols - 1;
-        }
-        lgp = &line[MIN(lastx, line_len - 1)];
+        {
+            int32 lastx;
+            StGlyph *gp;
+            StGlyph *lgp;
 
-        ptr = term_get_glyphs(ptr, gp, lgp);
+            if (selection.type == SELECTION_RECTANGULAR) {
+                gp = &line[selection.nb.x];
+                lastx = selection.ne.x;
+            } else {
+                gp = &line[selection.nb.y == y ? selection.nb.x : 0];
+                lastx = (selection.ne.y == y) ? selection.ne.x : term.ncols - 1;
+            }
+            lgp = &line[MIN(lastx, line_len - 1)];
 
-        /*
-         * Copy and pasting of line endings
-         * is inconsistent in the inconsistent terminal and GUI world.
-         * The best solution seems like to produce '\n'
-         * when something is copied from st
-         * and convert '\n' to '\r'
-         * when something to be pasted is received by st.
-         */
-        if ((y < selection.ne.y || lastx >= line_len)
-            && (!(lgp->mode & ATTR_WRAP)
-                || selection.type == SELECTION_RECTANGULAR)) {
-            *ptr++ = '\n';
+            ptr = term_get_glyphs(ptr, gp, lgp);
+
+            if ((y < selection.ne.y || lastx >= line_len)
+                && (!(lgp->mode & ATTR_WRAP)
+                    || selection.type == SELECTION_RECTANGULAR)) {
+                *ptr++ = '\n';
+            }
         }
     }
     *ptr = '\0';
@@ -345,7 +332,6 @@ selection_move(int32 n) {
 
 static void
 selection_scroll(int32 top, int32 bot, int32 n) {
-    /* turn absolute coordinates into relative */
     top += term.lines_scrolled_up;
     bot += term.lines_scrolled_up;
 
@@ -390,7 +376,6 @@ selection_set(char *string, Time t) {
 
 int32
 main(void) {
-    /* 1. Environment and State Initialization */
     {
         x_window.display = XOpenDisplay(NULL);
         if (!x_window.display) {
@@ -407,16 +392,11 @@ main(void) {
         term.dirty = xmalloc(term.nrows * SIZEOF(*term.dirty));
         term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
 
-        /* CRITICAL: Allocate Primary Screen Buffer */
         term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
         for (int32 j = 0; j < term.nrows; j += 1) {
             term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
         }
         
-        /* 
-         * term_swap_screen swaps current dimensions with static vars.
-         * We MUST restore dimensions after swap so Alternate allocation works.
-         */
         term_swap_screen(); 
         term.ncols = CONF_NUMBER_COLS;
         term.nrows = CONF_NUMBER_ROWS;
@@ -429,7 +409,6 @@ main(void) {
         term_reset();
     }
 
-    /* 2. selection_remove and basics */
     {
         selection.mode = SELECTION_READY;
         selection.ob.x = 10;
@@ -438,9 +417,7 @@ main(void) {
         ASSERT_EQUAL(selection.ob.x, -1);
     }
 
-    /* 3. selection_start and selection_normalize */
     {
-        /* Ensure lines contain enough glyphs so line length != 0 */
         for (int32 i = 0; i < 20; i += 1) {
             term.lines[2][i].rune = 'A';
             term.lines[2][i].mode |= ATTR_SET;
@@ -455,7 +432,6 @@ main(void) {
         ASSERT_EQUAL(selection.nb.x, 5);
         ASSERT_EQUAL(selection.nb.y, 5);
 
-        /* Extend to move away from start point (SELECTION_EMPTY -> READY) */
         selection_extend(10, 10, SELECTION_NORMAL, 0);
         ASSERT(selection.mode == SELECTION_READY);
         ASSERT_EQUAL(selection.nb.x, 5);
@@ -468,7 +444,6 @@ main(void) {
         ASSERT_EQUAL(selection.ne.y, 5);
     }
 
-    /* 4. SelectionSnap: Word Mode */
     {
         term_clear_region(0, 10, term.ncols - 1, 10, 0);
         term.lines[10][1].rune = 'A';
@@ -482,7 +457,6 @@ main(void) {
         ASSERT_EQUAL(selection.ne.x, 2);
     }
 
-    /* 5. selection_is_selected and Rectangular Mode */
     {
         for (int32 y = 10; y <= 15; y += 1) {
             for (int32 x = 0; x < 30; x += 1) {
@@ -499,7 +473,6 @@ main(void) {
         ASSERT_EQUAL(selection_is_selected(15, 16), 0);
     }
 
-    /* 6. selection_get */
     {
         char *result;
 
@@ -510,7 +483,6 @@ main(void) {
         term.lines[10][2].mode |= ATTR_SET;
 
         selection_start(1, 10, 0);
-        /* Do not use done=1 until extension is valid */
         selection_extend(2, 10, SELECTION_NORMAL, 0); 
         selection_extend(2, 10, SELECTION_NORMAL, 1);
         
@@ -521,7 +493,6 @@ main(void) {
         free(result);
     }
 
-    /* 7. selection_move and selection_scroll */
     {
         for (int32 y = 0; y < 24; y += 1) {
             term.lines[y][0].rune = 'X';
@@ -543,7 +514,6 @@ main(void) {
         ASSERT_EQUAL(selection.ob.x, -1);
     }
 
-    /* 8. selection_set and selection_clear */
     {
         char *clip = xstrdup("test clip");
         selection.ob.x = 0; 
