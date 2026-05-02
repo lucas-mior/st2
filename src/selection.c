@@ -61,6 +61,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
 
     switch (selection.snap) {
     case 0:
+        /* No snap: do nothing */
         return;
     case SELECTION_SNAP_WORD: {
         /*
@@ -406,14 +407,20 @@ main(void) {
         term.dirty = xmalloc(term.nrows * SIZEOF(*term.dirty));
         term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
 
-        /* Allocate Primary Screen Buffer */
+        /* CRITICAL: Allocate Primary Screen Buffer */
         term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
         for (int32 j = 0; j < term.nrows; j += 1) {
             term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
         }
         
-        /* Store Primary in altline, then allocate Alternate Screen Buffer */
+        /* 
+         * term_swap_screen swaps current dimensions with static vars.
+         * We MUST restore dimensions after swap so Alternate allocation works.
+         */
         term_swap_screen(); 
+        term.ncols = CONF_NUMBER_COLS;
+        term.nrows = CONF_NUMBER_ROWS;
+
         term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
         for (int32 j = 0; j < term.nrows; j += 1) {
             term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
@@ -433,6 +440,7 @@ main(void) {
 
     /* 3. selection_start and selection_normalize */
     {
+        /* Ensure lines contain enough glyphs so line length != 0 */
         for (int32 i = 0; i < 20; i += 1) {
             term.lines[2][i].rune = 'A';
             term.lines[2][i].mode |= ATTR_SET;
@@ -447,6 +455,7 @@ main(void) {
         ASSERT_EQUAL(selection.nb.x, 5);
         ASSERT_EQUAL(selection.nb.y, 5);
 
+        /* Extend to move away from start point (SELECTION_EMPTY -> READY) */
         selection_extend(10, 10, SELECTION_NORMAL, 0);
         ASSERT(selection.mode == SELECTION_READY);
         ASSERT_EQUAL(selection.nb.x, 5);
@@ -501,10 +510,7 @@ main(void) {
         term.lines[10][2].mode |= ATTR_SET;
 
         selection_start(1, 10, 0);
-        /* 
-         * Logic fix: We MUST extend without finishing first. 
-         * Finishing while mode is SELECTION_EMPTY triggers a clear.
-         */
+        /* Do not use done=1 until extension is valid */
         selection_extend(2, 10, SELECTION_NORMAL, 0); 
         selection_extend(2, 10, SELECTION_NORMAL, 1);
         
