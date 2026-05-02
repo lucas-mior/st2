@@ -1364,12 +1364,10 @@ control_seq_intro_handle(void) {
                     /* sixel graphics geometry (in pixels) */
                     /* (read, reset and read the maximum value give the same
                      * response) */
-                    n = SNPRINTF(buffer,
-							     "\033[?2;0;%lld;%lldS",
-                                 MIN(term.ncols*term_window.cw,
-									 DECSIXEL_WIDTH_MAX),
-                                 MIN(term.nrows*term_window.ch,
-									 DECSIXEL_HEIGHT_MAX));
+                    n = SNPRINTF(
+                        buffer, "\033[?2;0;%lld;%lldS",
+                        MIN(term.ncols*term_window.cw, DECSIXEL_WIDTH_MAX),
+                        MIN(term.nrows*term_window.ch, DECSIXEL_HEIGHT_MAX));
                     tty_write(buffer, n, 1);
                     break;
                 }
@@ -1433,8 +1431,8 @@ control_seq_intro_handle(void) {
             tty_write("\033[0n", SIZEOF("\033[0n") - 1, 0);
             break;
         case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
-            n = SNPRINTF(buffer, "\033[%i;%iR",
-					             term.cursor.y + 1, term.cursor.x + 1);
+            n = SNPRINTF(buffer, "\033[%i;%iR", term.cursor.y + 1,
+                         term.cursor.x + 1);
             tty_write(buffer, (int64)n, 0);
             break;
         default:
@@ -1500,14 +1498,13 @@ control_seq_intro_handle(void) {
             if (csi_escape_seq.narg > 1) {
                 goto unknown;
             }
-            n = SNPRINTF(buffer, "\033[4;%d;%dt",
-                                 term.nrows*term_window.ch,
-                                 term.ncols*term_window.cw);
+            n = SNPRINTF(buffer, "\033[4;%d;%dt", term.nrows*term_window.ch,
+                         term.ncols*term_window.cw);
             tty_write(buffer, n, 1);
             break;
         case 16: /* character cell size in pixels */
-            n = SNPRINTF(buffer, "\033[6;%d;%dt",
-					             term_window.ch, term_window.cw);
+            n = SNPRINTF(buffer, "\033[6;%d;%dt", term_window.ch,
+                         term_window.cw);
             tty_write(buffer, n, 1);
             break;
         case 18: /* size of the text area in characters */
@@ -1591,10 +1588,9 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
     g = draw_context.color[x].color.green >> 8;
     b = draw_context.color[x].color.blue >> 8;
 
-    n = SNPRINTF(buffer,
-                 "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
+    n = SNPRINTF(buffer, "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
-	tty_write(buffer, (int64)n, 1);
+    tty_write(buffer, (int64)n, 1);
     return;
 }
 
@@ -2315,6 +2311,7 @@ eschandle(uchar ascii) {
         return 0;
     case 'P': /* DCS -- Device Control String */
         term.esc |= ESC_DCS;
+        _X_FALLTHROUGH;
     case '_': /* APC -- Application Program Command */
     case '^': /* PM -- Privacy Message */
     case ']': /* OSC -- Operating System Command */
@@ -2502,7 +2499,7 @@ check_control_code:
 
             csi_escape_seq.buffer[csi_escape_seq.len++] = u;
             if (BETWEEN(u, 0x40, 0x7E)
-                || csi_escape_seq.len >= sizeof(csi_escape_seq.buffer) - 1) {
+                || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
                 control_seq_intro_parse();
                 dcshandle();
             }

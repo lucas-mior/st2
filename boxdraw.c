@@ -9,6 +9,7 @@
 #include <X11/Xft/Xft.h>
 #include "st.h"
 #include "boxdraw_data.h"
+#include "cbase/minmax.c"
 
 /* Rounded non-negative integers division of n / d  */
 #define DIV(n, d) (((n) + (d) / 2) / (d))
@@ -207,9 +208,9 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
          */
 
         int32 dl = bd & DL;
-		int32 du = bd & DU;
-		int32 dr = bd & DR;
-		int32 dd = bd & DD;
+        int32 du = bd & DU;
+        int32 dr = bd & DR;
+        int32 dd = bd & DD;
 
         if (dl) {
             int32 p = dd ? -s : 0, n = du ? -s : dd ? s : 0;
