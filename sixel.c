@@ -18,7 +18,7 @@
 #define SIXEL_XRGB(r, g, b) SIXEL_RGB(SIXEL_PALVAL(r, 255, 100), SIXEL_PALVAL(g, 255, 100), SIXEL_PALVAL(b, 255, 100))
 
 static sixel_color_t const sixel_default_color_table[] = {
-    SIXEL_XRGB(0, 0, 0),    /*  0 Black    */
+    SIXEL_XRGB(0,  0,  0),  /*  0 Black    */
     SIXEL_XRGB(20, 20, 80), /*  1 Blue     */
     SIXEL_XRGB(80, 13, 13), /*  2 Red      */
     SIXEL_XRGB(20, 80, 20), /*  3 Green    */

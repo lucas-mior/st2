@@ -2496,7 +2496,7 @@ check_control_code:
             return;
         } else if (term.esc & ESC_DCS) {
             /* Skip if DCS escape sequence buffer is full */
-            if (csi_escape_seq.len >= sizeof(csi_escape_seq.buffer) - 1) {
+            if (csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
                 return;
             }
 
