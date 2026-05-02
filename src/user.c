@@ -340,8 +340,12 @@ main(void) {
     }
 
     /* Cleanup */
-    if (x_window.xft_draw) XftDrawDestroy(x_window.xft_draw);
-    if (x_window.drawable) XFreePixmap(x_window.display, x_window.drawable);
+    if (x_window.xft_draw) {
+        XftDrawDestroy(x_window.xft_draw);
+    }
+    if (x_window.drawable) {
+        XFreePixmap(x_window.display, x_window.drawable);
+    }
     XCloseDisplay(x_window.display);
     
     exit(EXIT_SUCCESS);
