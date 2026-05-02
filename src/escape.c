@@ -1,6 +1,7 @@
 #if !defined(ESCAPE_C)
 #define ESCAPE_C
 
+#include <wchar.h>
 #include "st.h"
 
 static CSIEscape csi_escape_seq;
