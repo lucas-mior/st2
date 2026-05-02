@@ -54,7 +54,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
     int32 delim;
     int32 prev_delim;
     StGlyph *gp;
-    StGlyph *prevgp;
+    StGlyph *prev_gp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         rtop += term.lines_scrolled_up - term.n_hist;
@@ -67,8 +67,8 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
          * Snap around if the word wraps around at the end or
          * beginning of a line.
          */
-        prevgp = &TERM_LINE(*y)[*x];
-        prev_delim = IS_DELIM(prevgp->rune);
+        prev_gp = &TERM_LINE(*y)[*x];
+        prev_delim = IS_DELIM(prev_gp->rune);
         while (1) {
             newx = *x + direction;
             newy = *y;
@@ -99,13 +99,13 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
             delim = IS_DELIM(gp->rune);
             if (!(gp->mode & ATTR_WDUMMY)
                 && (delim != prev_delim
-                    || (delim && !(gp->rune == ' ' && prevgp->rune == ' ')))) {
+                    || (delim && !(gp->rune == ' ' && prev_gp->rune == ' ')))) {
                 break;
             }
 
             *x = newx;
             *y = newy;
-            prevgp = gp;
+            prev_gp = gp;
             prev_delim = delim;
         }
         break;
