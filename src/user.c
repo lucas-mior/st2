@@ -1,8 +1,11 @@
 #if !defined(USER_C)
 #define USER_C
 
+#include <termios.h>
 #include "st.h"
 #include "util.c"
+#include "config.def.h"
+#include "selection.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_user 1

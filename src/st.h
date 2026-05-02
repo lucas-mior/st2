@@ -122,7 +122,7 @@ enum SelectionSnap {
     X(INSERT,       1 << 1) \
     X(ALTSCREEN,    1 << 2) \
     X(CRLF,         1 << 3) \
-    X(ECHO,         1 << 4) \
+    X(ECHOO,        1 << 4) \
     X(PRINT,        1 << 5) \
     X(UTF8,         1 << 6) \
 	X(SIXEL,        1 << 7) \

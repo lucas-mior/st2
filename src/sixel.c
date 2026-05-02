@@ -871,7 +871,7 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
 
 #include "assert.c"
 
-static int
+int
 main(void) {
 	ASSERT(true);
 	exit(EXIT_SUCCESS);

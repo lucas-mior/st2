@@ -379,7 +379,7 @@ selection_set(char *string, Time t) {
 #include "assert.c"
 #include "st.c"
 
-static int
+int
 main(void) {
     ASSERT(true);
     exit(EXIT_SUCCESS);

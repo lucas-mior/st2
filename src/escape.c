@@ -368,7 +368,7 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 MODBIT(term.mode, set, TERM_MODE_INSERT);
                 break;
             case 12:
-                MODBIT(term.mode, !set, TERM_MODE_ECHO);
+                MODBIT(term.mode, !set, TERM_MODE_ECHOO);
                 break;
             case 20:
                 MODBIT(term.mode, set, TERM_MODE_CRLF);

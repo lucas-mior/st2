@@ -2,7 +2,6 @@
 #define TTY_C
 
 #include <pty.h>
-#undef ECHO
 #include "st.h"
 #include "config.def.h"
 
@@ -146,7 +145,7 @@ tty_write(char *s, int64 n, int32 may_echo) {
 
     user_scroll_down(&((Arg){.i = term.lines_scrolled_up}));
 
-    if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHO)) {
+    if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHOO)) {
         term_write(s, (int32)n, 1);
     }
 

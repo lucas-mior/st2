@@ -5,6 +5,12 @@
 #include "math.h"
 #include "config.def.h"
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_x 1
+#elif !defined(TESTING_x)
+#define TESTING_x 0
+#endif
+
 static uint16
 sixd_to_16bit(int32 x) {
     int32 y;
@@ -1201,5 +1207,20 @@ x_bell(void) {
     }
     return;
 }
+
+#if TESTING_x
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_x */
 
 #endif /* X_C */

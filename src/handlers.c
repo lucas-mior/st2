@@ -478,7 +478,7 @@ handler_configure_notify(XEvent *xevent) {
 
 #include "assert.c"
 
-static int
+int
 main(void) {
     ASSERT(true);
     exit(EXIT_SUCCESS);

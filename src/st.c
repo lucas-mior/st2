@@ -29,6 +29,7 @@
 #include "tty.c"
 #include "utf8.c"
 #include "escape.c"
+#include "arg.h"
 
 #if defined(__linux)
 #include <pty.h>
@@ -1463,7 +1464,7 @@ usage(void) {
 
 #include "assert.c"
 
-static int
+int
 main(void) {
     ASSERT(true);
     exit(EXIT_SUCCESS);
