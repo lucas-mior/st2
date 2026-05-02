@@ -209,8 +209,8 @@ typedef struct {
 
 /* Internal representation of the screen */
 static struct {
-    int32 nrows;               /* nb row */
-    int32 ncols;               /* nb col */
+    int32 nrows;
+    int32 ncols;
     Glyph **line;              /* screen */
     Glyph *hist[HISTORY_SIZE]; /* history buffer */
     int32 i_hist;              /* history index */
