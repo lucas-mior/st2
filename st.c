@@ -423,57 +423,6 @@ tisaltscreen(void) {
 }
 
 void
-user_scroll_down(Arg *a) {
-    int32 n = a->i;
-
-    if (!term.lines_scrolled_up || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-        return;
-    }
-
-    if (n < 0) {
-        n = (int32)MAX(term.nrows / -n, 1);
-    }
-
-    if (n <= term.lines_scrolled_up) {
-        term.lines_scrolled_up -= n;
-    } else {
-        n = term.lines_scrolled_up;
-        term.lines_scrolled_up = 0;
-    }
-    if (selection.ob.x != -1 && !selection.alt) {
-        selection_move(-n); /* negate change in term.lines_scrolled_up */
-    }
-    term_full_dirt();
-    return;
-}
-
-void
-user_scroll_up(Arg *a) {
-    int32 n = a->i;
-
-    if (!term.n_hist || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-        return;
-    }
-
-    if (n < 0) {
-        n = (int32)MAX(term.nrows / -n, 1);
-    }
-
-    if (term.lines_scrolled_up + n <= term.n_hist) {
-        term.lines_scrolled_up += n;
-    } else {
-        n = term.n_hist - term.lines_scrolled_up;
-        term.lines_scrolled_up = term.n_hist;
-    }
-
-    if (selection.ob.x != -1 && !selection.alt) {
-        selection_move(n); /* negate change in term.lines_scrolled_up */
-    }
-    term_full_dirt();
-    return;
-}
-
-void
 term_scroll_down(int32 top, int32 n) {
     int32 bot = term.bot_scroll_limit;
     Glyph *temp;
