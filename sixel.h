@@ -11,12 +11,12 @@
 
 typedef struct sixel_image_buffer {
 	ushort *data;
-	int width;
-	int height;
+	int32 width;
+	int32 height;
 	uint palette[DECSIXEL_PALETTE_MAX + 1];
 	ushort ncolors;
-	int palette_modified;
-	int use_private_register;
+	int32 palette_modified;
+	int32 use_private_register;
 } SixelImage;
 
 typedef enum parse_state {
@@ -30,33 +30,33 @@ typedef enum parse_state {
 
 typedef struct parser_context {
 	parse_state_t state;
-	int pos_x;
-	int pos_y;
-	int max_x;
-	int max_y;
-	int attributed_pan;
-	int attributed_pad;
-	int attributed_ph;
-	int attributed_pv;
-	int transparent;
-	int repeat_count;
-	int color_index;
-	int bgindex;
-	int grid_width;
-	int grid_height;
-	int param;
-	int nparams;
-	int params[DECSIXEL_PARAMS_MAX];
+	int32 pos_x;
+	int32 pos_y;
+	int32 max_x;
+	int32 max_y;
+	int32 attributed_pan;
+	int32 attributed_pad;
+	int32 attributed_ph;
+	int32 attributed_pv;
+	int32 transparent;
+	int32 repeat_count;
+	int32 color_index;
+	int32 bgindex;
+	int32 grid_width;
+	int32 grid_height;
+	int32 param;
+	int32 nparams;
+	int32 params[DECSIXEL_PARAMS_MAX];
 	SixelImage image;
 } SixelState;
 
-void scroll_images(int n);
+void scroll_images(int32 n);
 void delete_image(ImageList *im);
-int sixel_parser_init(SixelState *st, int transparent, uint fgcolor, uint bgcolor, unsigned char use_private_register, int cell_width, int cell_height);
-int sixel_parser_parse(SixelState *st, const unsigned char *p, int32 len);
-int sixel_parser_set_default_color(SixelState *st);
-int sixel_parser_finalize(SixelState *st, ImageList **newimages, int cx, int cy, int cw, int ch);
+int32 sixel_parser_init(SixelState *st, int32 transparent, uint fgcolor, uint bgcolor, unsigned char use_private_register, int32 cell_width, int32 cell_height);
+int32 sixel_parser_parse(SixelState *st, const unsigned char *p, int32 len);
+int32 sixel_parser_set_default_color(SixelState *st);
+int32 sixel_parser_finalize(SixelState *st, ImageList **newimages, int32 cx, int32 cy, int32 cw, int32 ch);
 void sixel_parser_deinit(SixelState *st);
-Pixmap sixel_create_clipmask(char *pixels, int width, int height);
+Pixmap sixel_create_clipmask(char *pixels, int32 width, int32 height);
 
 #endif

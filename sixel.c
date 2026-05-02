@@ -284,8 +284,8 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
         }
     }
 
-    w = MIN(sixel_state->max_x, image->width);
-    h = MIN(sixel_state->max_y, image->height);
+    w = (int32)MIN(sixel_state->max_x, image->width);
+    h = (int32)MIN(sixel_state->max_y, image->height);
 
     if ((numimages = (h + ch - 1) / ch) <= 0) {
         return -1;
@@ -310,7 +310,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
         im->y = cy + i;
         im->cols = cols;
         im->width = w;
-        im->height = MIN(h - ch*i, ch);
+        im->height = (int32)MIN(h - ch*i, ch);
         im->pixels = xmalloc(im->width*im->height * 4);
         im->pixmap = NULL;
         im->clipmask = NULL;
@@ -408,8 +408,8 @@ sixel_parser_parse(SixelState *sixel_state, const uchar *p, int32 len) {
                             sy *= 2;
                         }
 
-                        sx = MIN(sx, DECSIXEL_WIDTH_MAX);
-                        sy = MIN(sy, DECSIXEL_HEIGHT_MAX);
+                        sx = (int32)MIN(sx, DECSIXEL_WIDTH_MAX);
+                        sy = (int32)MIN(sy, DECSIXEL_HEIGHT_MAX);
 
                         if (image_buffer_resize(image, sx, sy) < 0) {
                             perror("sixel_parser_parse() failed");
