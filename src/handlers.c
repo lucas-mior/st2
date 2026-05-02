@@ -467,8 +467,6 @@ handler_configure_notify(XEvent *xevent) {
     return;
 }
 
-#endif
-
 #if TESTING_handlers
 
 #include <stdbool.h>
@@ -483,3 +481,5 @@ main(void) {
 }
 
 #endif /* TESTING_handlers */
+
+#endif /* HANDLERS_C */

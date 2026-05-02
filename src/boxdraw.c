@@ -246,8 +246,6 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
     }
 }
 
-#endif /* BOXDRAW_C */
-
 #if TESTING_boxdraw
 
 #include <stdbool.h>
@@ -262,3 +260,5 @@ main(void) {
 }
 
 #endif /* TESTING_boxdraw */
+
+#endif /* BOXDRAW_C */

@@ -371,14 +371,13 @@ selection_set(char *string, Time t) {
     return;
 }
 
-#endif /* SELECTION_C */
-
 #if TESTING_selection
 
 #include <stdbool.h>
 #include <stdlib.h>
 
 #include "assert.c"
+#include "st.c"
 
 int
 main(void) {
@@ -387,3 +386,5 @@ main(void) {
 }
 
 #endif /* TESTING_selection */
+
+#endif /* SELECTION_C */

@@ -93,8 +93,6 @@ utf8_validate(uint32 *u, int64 i) {
     return i;
 }
 
-#endif /* UTF8_C */
-
 #if TESTING_utf8
 
 #include <stdbool.h>
@@ -109,3 +107,5 @@ main(void) {
 }
 
 #endif /* TESTING_utf8 */
+
+#endif /* UTF8_C */

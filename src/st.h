@@ -118,16 +118,16 @@ enum SelectionSnap {
 #define ENUM_PREFIX_ TERM_MODE_
 #define ENUM_BITFLAGS 1
 #define ENUM_FIELDS \
-    X(WRAP, 1 << 0) \
-    X(INSERT, 1 << 1) \
-    X(ALTSCREEN, 1 << 2) \
-    X(CRLF, 1 << 3) \
-    X(ECHO, 1 << 4) \
-    X(PRINT, 1 << 5) \
-    X(UTF8, 1 << 6) \
-	X(SIXEL, 1 << 7) \
+    X(WRAP,         1 << 0) \
+    X(INSERT,       1 << 1) \
+    X(ALTSCREEN,    1 << 2) \
+    X(CRLF,         1 << 3) \
+    X(ECHO,         1 << 4) \
+    X(PRINT,        1 << 5) \
+    X(UTF8,         1 << 6) \
+	X(SIXEL,        1 << 7) \
 	X(SIXEL_CUR_RT, 1 << 8) \
-	X(SIXEL_SDM, 1 << 9)
+	X(SIXEL_SDM,    1 << 9)
 #include "cbase/xenums.c"
 
 #define Glyph Glyph_

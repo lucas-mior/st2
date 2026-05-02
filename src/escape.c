@@ -1711,8 +1711,6 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
     return n;
 }
 
-#endif /* ESCAPE_C */
-
 #if TESTING_escape
 
 #include <stdbool.h>
@@ -1727,3 +1725,5 @@ main(void) {
 }
 
 #endif /* TESTING_escape */
+
+#endif /* ESCAPE_C */

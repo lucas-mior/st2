@@ -860,8 +860,6 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
     return SIXEL_RGB(r, g, b);
 }
 
-#endif /* SIXEL_C */
-
 #if TESTING_sixel
 
 #include <stdbool.h>
@@ -876,3 +874,5 @@ main(void) {
 }
 
 #endif /* TESTING_sixel */
+
+#endif /* SIXEL_C */

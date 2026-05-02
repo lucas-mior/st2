@@ -180,8 +180,6 @@ user_print_sel(Arg *arg) {
     return;
 }
 
-#endif /* USER_C */
-
 #if TESTING_user
 
 #include <stdbool.h>
@@ -196,3 +194,5 @@ main(void) {
 }
 
 #endif /* TESTING_user */
+
+#endif /* USER_C */

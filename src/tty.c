@@ -244,8 +244,6 @@ tty_hangup(void) {
     return;
 }
 
-#endif /* TTY_C */
-
 #if TESTING_tty
 
 #include <stdbool.h>
@@ -260,3 +258,5 @@ main(void) {
 }
 
 #endif /* TESTING_tty */
+
+#endif /* TTY_C */

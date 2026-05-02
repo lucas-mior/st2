@@ -1209,8 +1209,6 @@ redraw(void) {
     return;
 }
 
-#endif /* ST_C */
-
 #if TESTING_st
 
 #include <stdbool.h>
@@ -1225,3 +1223,5 @@ main(void) {
 }
 
 #endif /* TESTING_st */
+
+#endif /* ST_C */
