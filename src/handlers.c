@@ -477,10 +477,45 @@ handler_configure_notify(XEvent *xevent) {
 #include <stdlib.h>
 
 #include "assert.c"
+#include "tty.c"
+#include "st.c"
+#include "x.c"
+#include "user.c"
 
 int
 main(void) {
-    ASSERT(true);
+    {
+        XEvent ev;
+
+        ev.type = VisibilityNotify;
+        ev.xvisibility.state = VisibilityUnobscured;
+        term_window.mode = 0;
+        handler_visibility(&ev);
+        ASSERT_MORE((int32)(term_window.mode & WIN_MODE_VISIBLE), 0);
+
+        ev.xvisibility.state = VisibilityFullyObscured;
+        handler_visibility(&ev);
+        ASSERT_EQUAL((int32)(term_window.mode & WIN_MODE_VISIBLE), 0);
+    }
+
+    {
+        XEvent ev;
+
+        term_window.mode = WIN_MODE_VISIBLE;
+        handler_unmap(&ev);
+        ASSERT_EQUAL((int32)(term_window.mode & WIN_MODE_VISIBLE), 0);
+    }
+    
+    {
+        XEvent ev;
+
+        ev.type = FocusIn;
+        ev.xfocus.mode = NotifyGrab;
+        term_window.mode = 0;
+        handler_focus(&ev);
+        ASSERT_EQUAL((int32)(term_window.mode & WIN_MODE_FOCUSED), 0);
+    }
+
     exit(EXIT_SUCCESS);
 }
 
