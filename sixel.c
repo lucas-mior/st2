@@ -11,9 +11,10 @@
 
 #include "st.h"
 #include "sixel.h"
-#include "sixel_hls.h"
 #include "cbase/minmax.c"
 #include "cbase/util.c"
+
+uint32 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat);
 
 #define SIXEL_RGB(r, g, b) \
 	((255u << 24) + (((uint32)r) << 16) + (((uint32)g) << 8) +  ((uint32)b))
@@ -744,6 +745,95 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
                                      width, height);
     free(clipdata);
     return clipmask;
+}
+
+uint32
+hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
+    double lv = lum / 100.0;
+    double sv = sat / 100.0;
+    double c;
+    double x;
+    double m;
+    double c2;
+    double r1;
+    double g1;
+    double b1;
+    uint32 r;
+    uint32 g;
+    uint32 b;
+    uint32 hs;
+
+    hue = (hue + 240) % 360;
+    if (sat == 0) {
+        r = g = b = lum*255 / 100;
+        return SIXEL_RGB(r, g, b);
+    }
+
+    if ((c2 = ((2.0*lv) - 1.0)) < 0.0) {
+        c2 = -c2;
+    }
+    if ((hs = (hue % 120) - 60) < 0) {
+        hs = -hs;
+    }
+    c = (1.0 - c2)*sv;
+    x = ((60 - hs) / 60.0)*c;
+    m = lv - 0.5*c;
+
+    switch (hue / 60) {
+    case 0:
+        r1 = c;
+        g1 = x;
+        b1 = 0.0;
+        break;
+    case 1:
+        r1 = x;
+        g1 = c;
+        b1 = 0.0;
+        break;
+    case 2:
+        r1 = 0.0;
+        g1 = c;
+        b1 = x;
+        break;
+    case 3:
+        r1 = 0.0;
+        g1 = x;
+        b1 = c;
+        break;
+    case 4:
+        r1 = x;
+        g1 = 0.0;
+        b1 = c;
+        break;
+    case 5:
+        r1 = c;
+        g1 = 0.0;
+        b1 = x;
+        break;
+    default:
+        return SIXEL_RGB(255, 255, 255);
+    }
+
+    r = (uint32)((r1 + m)*255.0 + 0.5);
+    g = (uint32)((g1 + m)*255.0 + 0.5);
+    b = (uint32)((b1 + m)*255.0 + 0.5);
+
+    if (r < 0) {
+        r = 0;
+    } else if (r > 255) {
+        r = 255;
+    }
+    if (g < 0) {
+        g = 0;
+    } else if (g > 255) {
+        g = 255;
+    }
+    if (b < 0) {
+        b = 0;
+    } else if (b > 255) {
+        b = 255;
+    }
+    return SIXEL_RGB(r, g, b);
 }
 
 #endif /* SIXEL_C */
