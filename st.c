@@ -1786,7 +1786,7 @@ string_handle(void) {
     case 'P': /* DCS -- Device Control String */
         if (TERM_MODE_IS_SET(TERM_MODE_SIXEL)) {
             term.mode &= ~TERM_MODE_SIXEL;
-            if (!sixel_st.image.data) {
+            if (sixel_st.image.data == NULL) {
                 sixel_parser_deinit(&sixel_st);
                 return;
             }
@@ -1796,8 +1796,8 @@ string_handle(void) {
                 = sixel_parser_finalize(&sixel_st, &newimages, cx, cy + scr,
                                         term_window.cw, term_window.ch);
 
-            /* FIX: Sanity check to prevent X11 BadMatch crash */
-            if (numimages <= 0 || !newimages || newimages->cols <= 0) {
+            /* Sanity check to prevent X11 BadMatch crash */
+            if (numimages <= 0 || newimages == NULL || newimages->cols <= 0) {
                 if (newimages) {
                     delete_image(newimages);
                 }
@@ -1810,14 +1810,12 @@ string_handle(void) {
             y1 = newimages->y;
             x2 = x1 + newimages->cols;
             y2 = y1 + numimages;
-            /* ... remainder of the image linking logic ... */
-            /* Delete the old images that are covered by the new image(s). We
-             * also need to check if they have already been deleted before
-             * adding the new ones. */
+
             if (term.images) {
-                char transparent[numimages];
-                for (i = 0, im = newimages; im; im = im->next, i++) {
-                    transparent[i] = im->transparent;
+                /* Buffer for transparency flags per row */
+                char *transparent_rows = xmalloc((int64)numimages);
+                for (i = 0, im = newimages; im; im = im->next, i += 1) {
+                    transparent_rows[i] = (char)im->transparent;
                 }
                 for (im = term.images; im; im = next) {
                     next = im->next;
@@ -1826,7 +1824,7 @@ string_handle(void) {
                         if (y >= 0 && y < term.nrows && term.dirty[y]) {
                             line = term.line[y];
                             j = MIN(im->x + im->cols, term.ncols);
-                            for (i = im->x; i < j; i++) {
+                            for (i = im->x; i < j; i += 1) {
                                 if (line[i].mode & ATTR_SIXEL) {
                                     break;
                                 }
@@ -1837,26 +1835,27 @@ string_handle(void) {
                             }
                         }
                         if (im->x >= x1 && im->x + im->cols <= x2
-                            && !transparent[im->y - y1]) {
+                            && !transparent_rows[im->y - y1]) {
                             delete_image(im);
                             continue;
                         }
                     }
                     tail = im;
                 }
+                xfree(transparent_rows);
             }
+
             if (tail) {
                 tail->next = newimages;
                 newimages->prev = tail;
             } else {
                 term.images = newimages;
             }
+
             x2 = MIN(x2, term.ncols) - 1;
+
             if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
-                /* Sixel display mode: put the sixel in the upper left corner of
-                 * the screen, disable scrolling (the sixel will be truncated if
-                 * it is too long) and do not change the cursor position. */
-                for (i = 0, im = newimages; im; im = next, i++) {
+                for (i = 0, im = newimages; im; im = next, i += 1) {
                     next = im->next;
                     if (i >= term.nrows) {
                         delete_image(im);
@@ -1867,7 +1866,7 @@ string_handle(void) {
                     term.dirty[MIN(im->y, term.nrows - 1)] = 1;
                 }
             } else {
-                for (i = 0, im = newimages; im; im = next, i++) {
+                for (i = 0, im = newimages; im; im = next, i += 1) {
                     next = im->next;
                     if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
                         scr = 0;
@@ -1877,17 +1876,23 @@ string_handle(void) {
                     im->y = term.cursor.y + scr;
                     tsetsixelattr(term.line[term.cursor.y], x1, x2);
                     term.dirty[MIN(im->y, term.nrows - 1)] = 1;
+
+                    /* Move the terminal cursor down for every segment */
                     if (i < numimages - 1) {
                         im->next = NULL;
                         term_new_line(0);
                         im->next = next;
                     }
                 }
-                /* if mode 8452 is set, sixel scrolling leaves cursor to right
-                 * of graphic */
+
+                /* Final cursor positioning after the graphic */
                 if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT)) {
+                    /* Leave cursor to the right of the image on the last row */
                     term.cursor.x
                         = MIN(term.cursor.x + newimages->cols, term.ncols - 1);
+                } else {
+                    /* Move to the beginning of the next line below the image */
+                    term_new_line(1);
                 }
             }
         }
