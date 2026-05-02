@@ -5,7 +5,7 @@
 #include "math.h"
 #include "config.def.h"
 
-uint16
+static uint16
 sixd_to_16bit(int32 x) {
     int32 y;
     if (x == 0) {
