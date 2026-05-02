@@ -400,10 +400,10 @@ static int32 mouse_action(XEvent *, uint32);
 static int32 xevent_col(XEvent *);
 static int32 xevent_row(XEvent *);
 
-static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, Glyph *, int32, int32,
-                                     int32);
-static void x_draw_glyph_font_specs(XftGlyphFontSpec *, Glyph, int32, int32,
-                                    int32);
+static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, Glyph *,
+		                             int32, int32, int32);
+static void x_draw_glyph_font_specs(XftGlyphFontSpec *, Glyph,
+		                            int32, int32, int32);
 static void x_draw_glyph(Glyph, int32, int32);
 static void x_clear(int32, int32, int32, int32);
 static int32 x_geom_mask_to_gravity(int32);
