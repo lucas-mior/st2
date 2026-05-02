@@ -361,11 +361,6 @@ term_load_alt_screen(int32 clear, int32 savecursor) {
     return;
 }
 
-int32
-tisaltscreen(void) {
-    return TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
-}
-
 void
 term_scroll_down(int32 top, int32 n) {
     int32 bot = term.bot_scroll_limit;
