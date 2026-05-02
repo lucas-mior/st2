@@ -1824,13 +1824,6 @@ main(void) {
 
         term_putc('Z');
         
-        /* Debugging print to see what's actually there if it fails */
-        if (term.lines[term.cursor.y][0].rune != 'Z') {
-            fprintf(stderr, "Test 8 Failed: Expected 'Z'(90), found '%c'(%d)\n", 
-                    (char)term.lines[term.cursor.y][0].rune, 
-                    term.lines[term.cursor.y][0].rune);
-        }
-
         ASSERT_EQUAL((int32)term.lines[term.cursor.y][0].rune, (int32)'Z');
     }
 
