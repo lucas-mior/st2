@@ -532,8 +532,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             case '8':
             case '9':
                 sixel_state->param = sixel_state->param*10 + *p - '0';
-                sixel_state->param
-                    = (int32)MIN(sixel_state->param, DECSIXEL_PARAMVALUE_MAX);
+                sixel_state->param = (uint32)MIN(sixel_state->param,
+						                         DECSIXEL_PARAMVALUE_MAX);
                 p++;
                 break;
             case ';':
@@ -556,10 +556,10 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     sixel_state->attributed_pan = sixel_state->params[1];
                 }
                 if (sixel_state->nparams > 2 && sixel_state->params[2] > 0) {
-                    sixel_state->attributed_ph = sixel_state->params[2];
+                    sixel_state->attributed_ph = (int32)sixel_state->params[2];
                 }
                 if (sixel_state->nparams > 3 && sixel_state->params[3] > 0) {
-                    sixel_state->attributed_pv = sixel_state->params[3];
+                    sixel_state->attributed_pv = (int32)sixel_state->params[3];
                 }
 
                 if (sixel_state->attributed_pan <= 0) {
@@ -611,8 +611,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             case '8':
             case '9':
                 sixel_state->param = sixel_state->param*10 + *p - '0';
-                sixel_state->param = (int32)MIN(sixel_state->param,
-						                        DECSIXEL_PARAMVALUE_MAX);
+                sixel_state->param = (uint32)MIN(sixel_state->param,
+						                         DECSIXEL_PARAMVALUE_MAX);
                 p++;
                 break;
             default:
@@ -642,7 +642,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             case '9':
                 sixel_state->param = sixel_state->param*10 + *p - '0';
                 sixel_state->param
-                    = (int32)MIN(sixel_state->param, DECSIXEL_PARAMVALUE_MAX);
+                    = (uint32)MIN(sixel_state->param, DECSIXEL_PARAMVALUE_MAX);
                 p++;
                 break;
             case ';':
@@ -662,7 +662,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 sixel_state->param = 0;
 
                 if (sixel_state->nparams > 0) {
-                    sixel_state->color_index = sixel_state->params[0];
+                    sixel_state->color_index = (int32)sixel_state->params[0];
                     if (sixel_state->color_index < 0) {
                         sixel_state->color_index = 0;
                     } else if (sixel_state->color_index
