@@ -717,240 +717,7 @@ handler_sigchld(int32 unused) {
     return;
 }
 
-void
-stty(char **args) {
-    char cmd[_POSIX_ARG_MAX], *q, *s;
-    int64 n;
-    int64 siz;
-
-    if ((n = (int64)strlen(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
-        die("incorrect stty parameters\n");
-    }
-    memcpy(cmd, CONF_STTY_ARGS, (size_t)n);
-    q = cmd + n;
-    siz = SIZEOF(cmd) - n;
-    for (char **p = args; p && (s = *p); p += 1) {
-        if ((n = (int64)strlen(s)) > siz - 1) {
-            die("stty parameter length too int64\n");
-        }
-        *q++ = ' ';
-        memcpy(q, s, (size_t)n);
-        q += n;
-        siz -= n + 1;
-    }
-    *q = '\0';
-    if (system(cmd) != 0) {
-        perror("Couldn't call stty");
-    }
-    return;
-}
-
-int32
-tty_new(const char *line, char *cmd, const char *out, char **args) {
-    int32 amaster;
-    int32 aslave;
-
-    if (out) {
-        term.mode |= TERM_MODE_PRINT;
-        io_fd = (!strcmp(out, "-")) ? 1 : open(out, O_WRONLY | O_CREAT, 0666);
-        if (io_fd < 0) {
-            fprintf(stderr, "Error opening %s:%s\n", out, strerror(errno));
-        }
-    }
-
-    if (line) {
-        if ((command_fd = open(line, O_RDWR)) < 0) {
-            die("open line '%s' failed: %s\n", line, strerror(errno));
-        }
-        dup2(command_fd, 0);
-        stty(args);
-        return command_fd;
-    }
-
-    /* seems to work fine on linux, openbsd and freebsd */
-    if (openpty(&amaster, &aslave, NULL, NULL, NULL) < 0) {
-        die("openpty failed: %s\n", strerror(errno));
-    }
-
-    switch (pid = fork()) {
-    case -1:
-        die("fork failed: %s\n", strerror(errno));
-        break;
-    case 0:
-        close(io_fd);
-        close(amaster);
-        setsid();
-        dup2(aslave, 0);
-        dup2(aslave, 1);
-        dup2(aslave, 2);
-        if (ioctl(aslave, TIOCSCTTY, NULL) < 0) {
-            die("ioctl TIOCSCTTY failed: %s\n", strerror(errno));
-        }
-        if (aslave > 2) {
-            close(aslave);
-        }
-#ifdef __OpenBSD__
-        if (pledge("stdio getpw proc exec", NULL) == -1) {
-            die("pledge\n");
-        }
-#endif
-        exec_shell(cmd, args);
-        break;
-    default:
-#ifdef __OpenBSD__
-        if (pledge("stdio rpath tty proc exec", NULL) == -1) {
-            die("pledge\n");
-        }
-#endif
-        close(aslave);
-        command_fd = amaster;
-        signal(SIGCHLD, handler_sigchld);
-        break;
-    }
-    return command_fd;
-}
-
-int64
-tty_read(void) {
-    static char buffer[BUFSIZ];
-    static int32 copied = 0;
-    int32 ret;
-    int32 written;
-
-    /* append read bytes to unprocessed bytes */
-    ret = (int32)read(command_fd, buffer + copied,
-                      (size_t)(LENGTH(buffer) - copied));
-
-    switch (ret) {
-    case 0:
-        exit(0);
-    case -1:
-        die("couldn't read from CONF_SHELl: %s\n", strerror(errno));
-    default:
-        copied += ret;
-        written = term_write(buffer, copied, 0);
-        copied -= written;
-        /* keep any incomplete UTF-8 byte sequence for the next call */
-        if (copied > 0) {
-            memmove(buffer, buffer + written, (size_t)copied);
-        }
-        return (int64)ret;
-    }
-}
-
-void
-tty_write(const char *s, int64 n, int32 may_echo) {
-    const char *next;
-
-    user_scroll_down(&((Arg){.i = term.lines_scrolled_up}));
-
-    if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHO)) {
-        term_write(s, (int32)n, 1);
-    }
-
-    if (!TERM_MODE_IS_SET(TERM_MODE_CRLF)) {
-        tty_write_raw(s, n);
-        return;
-    }
-
-    /* This is similar to how the kernel handles ONLCR for ttys */
-    while (n > 0) {
-        if (*s == '\r') {
-            next = s + 1;
-            tty_write_raw("\r\n", 2);
-        } else {
-            next = memchr(s, '\r', (size_t)n);
-            DEFAULT(next, s + n);
-            tty_write_raw(s, (int64)(next - s));
-        }
-        n -= (int64)(next - s);
-        s = next;
-    }
-    return;
-}
-
-void
-tty_write_raw(const char *s, int64 n) {
-    fd_set write_fd;
-    fd_set read_fd;
-    int64 r;
-    int64 lim = 256;
-
-    /*
-     * Remember that we are using a pty, which might be a modem line.
-     * Writing too much will clog the line. That's why we are doing this dance.
-     */
-    while (n > 0) {
-        FD_ZERO(&write_fd);
-        FD_ZERO(&read_fd);
-        FD_SET(command_fd, &write_fd);
-        FD_SET(command_fd, &read_fd);
-
-        /* Check if we can write. */
-        if (pselect(command_fd + 1, &read_fd, &write_fd, NULL, NULL, NULL)
-            < 0) {
-            if (errno == EINTR) {
-                continue;
-            }
-            die("select failed: %s\n", strerror(errno));
-        }
-        if (FD_ISSET(command_fd, &write_fd)) {
-            /*
-             * Only write the bytes written by tty_write() or the
-             * default of 256. This seems to be a reasonable value
-             * for a serial line. Bigger values might clog the I/O.
-             */
-            size_t size = (size_t)((n < lim) ? n : lim);
-            if ((r = write(command_fd, s, size)) < 0) {
-                goto write_error;
-            }
-            if (r < n) {
-                /*
-                 * We weren't able to write out everything.
-                 * This means the buffer is getting full
-                 * again. Empty it.
-                 */
-                if (n < lim) {
-                    lim = tty_read();
-                }
-                n -= r;
-                s += r;
-            } else {
-                /* All bytes have been written. */
-                break;
-            }
-        }
-        if (FD_ISSET(command_fd, &read_fd)) {
-            lim = tty_read();
-        }
-    }
-    return;
-
-write_error:
-    die("write error on tty: %s\n", strerror(errno));
-    return;
-}
-
-void
-tty_resize(int32 tty_width, int32 tty_height) {
-    struct winsize winsize;
-
-    winsize.ws_row = (uint16)term.nrows;
-    winsize.ws_col = (uint16)term.ncols;
-    winsize.ws_xpixel = (uint16)tty_width;
-    winsize.ws_ypixel = (uint16)tty_height;
-    if (ioctl(command_fd, TIOCSWINSZ, &winsize) < 0) {
-        fprintf(stderr, "Couldn't set window size: %s\n", strerror(errno));
-    }
-    return;
-}
-
-void
-tty_hangup(void) {
-    /* Send SIGHUP to CONF_SHELl */
-    kill(pid, SIGHUP);
-    return;
-}
+#include "tty.c"
 
 void
 tsetsixelattr(Glyph *line, int x1, int x2) {
@@ -1034,14 +801,13 @@ term_reset_cursor(void) {
 }
 
 void
-tdeleteimages(void)
-{
-	ImageList *im, *next;
+tdeleteimages(void) {
+    ImageList *im, *next;
 
-	for (im = term.images; im; im = next) {
-		next = im->next;
-		delete_image(im);
-	}
+    for (im = term.images; im; im = next) {
+        next = im->next;
+        delete_image(im);
+    }
 }
 
 void
@@ -1076,7 +842,7 @@ term_reset(void) {
                 term_clear_glyph(&term.line[y][x], 0);
             }
         }
-		tdeleteimages();
+        tdeleteimages();
         term_swap_screen();
     }
     term_full_dirt();
@@ -1799,12 +1565,12 @@ term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
                           and can be mistaken for other control
                           codes. */
                 break;
-			case 80: /* DECSDM -- Sixel Display Mode */
-				MODBIT(term.mode, set, TERM_MODE_SIXEL_SDM);
-				break;
-			case 8452: /* sixel scrolling leaves cursor to right of graphic */
-				MODBIT(term.mode, set, TERM_MODE_SIXEL_CUR_RT);
-				break;
+            case 80: /* DECSDM -- Sixel Display Mode */
+                MODBIT(term.mode, set, TERM_MODE_SIXEL_SDM);
+                break;
+            case 8452: /* sixel scrolling leaves cursor to right of graphic */
+                MODBIT(term.mode, set, TERM_MODE_SIXEL_CUR_RT);
+                break;
             default:
                 fprintf(stderr, "erresc: unknown private set/reset mode %d\n",
                         *args);
@@ -1839,10 +1605,10 @@ void
 control_seq_intro_handle(void) {
     char buffer[40];
     int32 n;
-	ImageList *im;
-	ImageList *next;
-	int pi;
-	int pa;
+    ImageList *im;
+    ImageList *next;
+    int pi;
+    int pa;
     int32 x;
 
     switch (csi_escape_seq.mode[0]) {
@@ -1965,7 +1731,7 @@ control_seq_intro_handle(void) {
         case 2: /* all */
             if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
                 term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, 1);
-				tdeleteimages();
+                tdeleteimages();
                 break;
             }
             /* vte does this:
@@ -1975,19 +1741,20 @@ control_seq_intro_handle(void) {
             for (n = term.nrows - 1; n >= 0 && term_line_len(term.line[n]) == 0;
                  n--)
                 ;
-			for (im = term.images; im; im = im->next)
-				n = MAX(im->y - term.lines_scrolled_up, n);
+            for (im = term.images; im; im = im->next) {
+                n = MAX(im->y - term.lines_scrolled_up, n);
+            }
             if (n >= 0) {
                 term_scroll_up(0, term.nrows - 1, n + 1, SCROLL_SAVEHIST);
             }
             term_scroll_up(0, term.nrows - 1, term.nrows - n - 1,
                            SCROLL_NOSAVEHIST);
-			tdeleteimages();
+            tdeleteimages();
             break;
-		case 6: /* sixels */
-			tdeleteimages();
-			term_full_dirt();
-			break;
+        case 6: /* sixels */
+            tdeleteimages();
+            term_full_dirt();
+            break;
         default:
             goto unknown;
         }
@@ -2014,29 +1781,35 @@ control_seq_intro_handle(void) {
         break;
     case 'S': /* SU -- Scroll <n> line up */
         if (csi_escape_seq.priv) {
-			if (csi_escape_seq.narg > 1) {
-				/* XTSMGRAPHICS */
-				pi = csi_escape_seq.arg[0];
-				pa = csi_escape_seq.arg[1];
-				if (pi == 1 && (pa == 1 || pa == 2 || pa == 4)) {
-					/* number of sixel color registers */
-					/* (read, reset and read the maximum value give the same response) */
-					n = snprintf(buffer, sizeof buffer, "\033[?1;0;%dS", DECSIXEL_PALETTE_MAX);
-					tty_write(buffer, n, 1);
-					break;
-				} else if (pi == 2 && (pa == 1 || pa == 2 || pa == 4)) {
-					/* sixel graphics geometry (in pixels) */
-					/* (read, reset and read the maximum value give the same response) */
-					n = snprintf(buffer, sizeof buffer, "\033[?2;0;%d;%dS",
-					             MIN(term.ncols * term_window.cw, DECSIXEL_WIDTH_MAX),
-					             MIN(term.nrows * term_window.ch, DECSIXEL_HEIGHT_MAX));
-					tty_write(buffer, n, 1);
-					break;
-				}
-				/* the number of color registers and sixel geometry can't be changed */
-				n = snprintf(buffer, sizeof buffer, "\033[?%d;3;0S", pi); /* failure */
-				tty_write(buffer, n, 1);
-			}
+            if (csi_escape_seq.narg > 1) {
+                /* XTSMGRAPHICS */
+                pi = csi_escape_seq.arg[0];
+                pa = csi_escape_seq.arg[1];
+                if (pi == 1 && (pa == 1 || pa == 2 || pa == 4)) {
+                    /* number of sixel color registers */
+                    /* (read, reset and read the maximum value give the same
+                     * response) */
+                    n = snprintf(buffer, sizeof buffer, "\033[?1;0;%dS",
+                                 DECSIXEL_PALETTE_MAX);
+                    tty_write(buffer, n, 1);
+                    break;
+                } else if (pi == 2 && (pa == 1 || pa == 2 || pa == 4)) {
+                    /* sixel graphics geometry (in pixels) */
+                    /* (read, reset and read the maximum value give the same
+                     * response) */
+                    n = snprintf(
+                        buffer, sizeof buffer, "\033[?2;0;%d;%dS",
+                        MIN(term.ncols*term_window.cw, DECSIXEL_WIDTH_MAX),
+                        MIN(term.nrows*term_window.ch, DECSIXEL_HEIGHT_MAX));
+                    tty_write(buffer, n, 1);
+                    break;
+                }
+                /* the number of color registers and sixel geometry can't be
+                 * changed */
+                n = snprintf(buffer, sizeof buffer, "\033[?%d;3;0S",
+                             pi); /* failure */
+                tty_write(buffer, n, 1);
+            }
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
         /* xterm, urxvt, alacritty save this in history */
@@ -2100,25 +1873,29 @@ control_seq_intro_handle(void) {
             goto unknown;
         }
         break;
-	case '$': /* DECRQM -- DEC Request Mode (private) */
-		if (csi_escape_seq.mode[1] == 'p' && csi_escape_seq.priv) {
-			switch (csi_escape_seq.arg[0]) {
-			case 80:
-				/* Sixel Display Mode  */
-				tty_write(TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? "\033[?80;1$y"
-				                                 : "\033[?80;2$y", 9, 0);
-				break;
-			case 8452:
-				/* Sixel scrolling leaves cursor to right of graphic */
-				tty_write(TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT) ? "\033[?8452;1$y"
-				                                   : "\033[?8452;2$y", 11, 0);
-				break;
-			default:
-				goto unknown;
-			}
-			break;
-		}
-		goto unknown;
+    case '$': /* DECRQM -- DEC Request Mode (private) */
+        if (csi_escape_seq.mode[1] == 'p' && csi_escape_seq.priv) {
+            switch (csi_escape_seq.arg[0]) {
+            case 80:
+                /* Sixel Display Mode  */
+                tty_write(TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)
+                              ? "\033[?80;1$y"
+                              : "\033[?80;2$y",
+                          9, 0);
+                break;
+            case 8452:
+                /* Sixel scrolling leaves cursor to right of graphic */
+                tty_write(TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT)
+                              ? "\033[?8452;1$y"
+                              : "\033[?8452;2$y",
+                          11, 0);
+                break;
+            default:
+                goto unknown;
+            }
+            break;
+        }
+        goto unknown;
     case 'r': /* DECSTBM -- Set Scrolling Region */
         if (csi_escape_seq.priv) {
             goto unknown;
@@ -2145,27 +1922,31 @@ control_seq_intro_handle(void) {
     case 's': /* DECSC -- Save cursor position (ANSI.SYS) */
         term_cursor(CURSOR_SAVE);
         break;
-	case 't':
-		switch (csi_escape_seq.arg[0]) {
-		case 14: /* text area size in pixels */
-			if (csi_escape_seq.narg > 1)
-				goto unknown;
-			n = snprintf(buffer, sizeof buffer, "\033[4;%d;%dt",
-			             term.nrows * term_window.ch, term.ncols * term_window.cw);
-			tty_write(buffer, n, 1);
-			break;
-		case 16: /* character cell size in pixels */
-			n = snprintf(buffer, sizeof buffer, "\033[6;%d;%dt", term_window.ch, term_window.cw);
-			tty_write(buffer, n, 1);
-			break;
-		case 18: /* size of the text area in characters */
-			n = snprintf(buffer, sizeof buffer, "\033[8;%d;%dt", term.nrows, term.ncols);
-			tty_write(buffer, n, 1);
-			break;
-		default:
-			goto unknown;
-		}
-		break;
+    case 't':
+        switch (csi_escape_seq.arg[0]) {
+        case 14: /* text area size in pixels */
+            if (csi_escape_seq.narg > 1) {
+                goto unknown;
+            }
+            n = snprintf(buffer, sizeof buffer, "\033[4;%d;%dt",
+                         term.nrows*term_window.ch,
+                         term.ncols*term_window.cw);
+            tty_write(buffer, n, 1);
+            break;
+        case 16: /* character cell size in pixels */
+            n = snprintf(buffer, sizeof buffer, "\033[6;%d;%dt", term_window.ch,
+                         term_window.cw);
+            tty_write(buffer, n, 1);
+            break;
+        case 18: /* size of the text area in characters */
+            n = snprintf(buffer, sizeof buffer, "\033[8;%d;%dt", term.nrows,
+                         term.ncols);
+            tty_write(buffer, n, 1);
+            break;
+        default:
+            goto unknown;
+        }
+        break;
     case 'u': /* DECRC -- Restore cursor position (ANSI.SYS) */
         if (csi_escape_seq.priv) {
             goto unknown;
@@ -2259,11 +2040,12 @@ string_handle(void) {
     int32 j;
     int32 narg;
     int32 par;
-	ImageList *im, *newimages, *next, *tail = NULL;
-	int i, x1, y1, x2, y2, y, numimages;
-	int cx, cy;
-	Glyph *line;
-	int scr = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) ? 0 : term.lines_scrolled_up;
+    ImageList *im, *newimages, *next, *tail = NULL;
+    int i, x1, y1, x2, y2, y, numimages;
+    int cx, cy;
+    Glyph *line;
+    int scr
+        = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) ? 0 : term.lines_scrolled_up;
 
     const struct {
         int32 idx;
@@ -2399,96 +2181,106 @@ string_handle(void) {
         x_set_title(str_escape_seq.args[0]);
         return;
     case 'P': /* DCS -- Device Control String */
-		if (TERM_MODE_IS_SET(TERM_MODE_SIXEL)) {
-			term.mode &= ~TERM_MODE_SIXEL;
-			if (!sixel_st.image.data) {
-				sixel_parser_deinit(&sixel_st);
-				return;
-			}
-			cx = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.x;
-			cy = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.y;
-			if ((numimages = sixel_parser_finalize(&sixel_st, &newimages,
-					cx, cy + scr, term_window.cw, term_window.ch)) <= 0) {
-				sixel_parser_deinit(&sixel_st);
-				perror("sixel_parser_finalize() failed");
-				return;
-			}
-			sixel_parser_deinit(&sixel_st);
-			x1 = newimages->x;
-			y1 = newimages->y;
-			x2 = x1 + newimages->cols;
-			y2 = y1 + numimages;
-			/* Delete the old images that are covered by the new image(s). We also need
-			 * to check if they have already been deleted before adding the new ones. */
-			if (term.images) {
-				char transparent[numimages];
-				for (i = 0, im = newimages; im; im = im->next, i++) {
-					transparent[i] = im->transparent;
-				}
-				for (im = term.images; im; im = next) {
-					next = im->next;
-					if (im->y >= y1 && im->y < y2) {
-						y = im->y - scr;
-						if (y >= 0 && y < term.nrows && term.dirty[y]) {
-							line = term.line[y];
-							j = MIN(im->x + im->cols, term.ncols);
-							for (i = im->x; i < j; i++) {
-								if (line[i].mode & ATTR_SIXEL)
-									break;
-							}
-							if (i == j) {
-								delete_image(im);
-								continue;
-							}
-						}
-						if (im->x >= x1 && im->x + im->cols <= x2 && !transparent[im->y - y1]) {
-							delete_image(im);
-							continue;
-						}
-					}
-					tail = im;
-				}
-			}
-			if (tail) {
-				tail->next = newimages;
-				newimages->prev = tail;
-			} else {
-				term.images = newimages;
-			}
-			x2 = MIN(x2, term.ncols) - 1;
-			if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
-				/* Sixel display mode: put the sixel in the upper left corner of
-				 * the screen, disable scrolling (the sixel will be truncated if
-				 * it is too long) and do not change the cursor position. */
-				for (i = 0, im = newimages; im; im = next, i++) {
-					next = im->next;
-					if (i >= term.nrows) {
-						delete_image(im);
-						continue;
-					}
-					im->y = i + scr;
-					tsetsixelattr(term.line[i], x1, x2);
-					term.dirty[MIN(im->y, term.nrows-1)] = 1;
-				}
-			} else {
-				for (i = 0, im = newimages; im; im = next, i++) {
-					next = im->next;
-					scr = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN) ? 0 : term.lines_scrolled_up;
-					im->y = term.cursor.y + scr;
-					tsetsixelattr(term.line[term.cursor.y], x1, x2);
-					term.dirty[MIN(im->y, term.nrows-1)] = 1;
-					if (i < numimages-1) {
-						im->next = NULL;
-						term_new_line(0);
-						im->next = next;
-					}
-				}
-				/* if mode 8452 is set, sixel scrolling leaves cursor to right of graphic */
-				if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT))
-					term.cursor.x = MIN(term.cursor.x + newimages->cols, term.ncols-1);
-			}
-		}
-		return;
+        if (TERM_MODE_IS_SET(TERM_MODE_SIXEL)) {
+            term.mode &= ~TERM_MODE_SIXEL;
+            if (!sixel_st.image.data) {
+                sixel_parser_deinit(&sixel_st);
+                return;
+            }
+            cx = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.x;
+            cy = TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM) ? 0 : term.cursor.y;
+            if ((numimages
+                 = sixel_parser_finalize(&sixel_st, &newimages, cx, cy + scr,
+                                         term_window.cw, term_window.ch))
+                <= 0) {
+                sixel_parser_deinit(&sixel_st);
+                perror("sixel_parser_finalize() failed");
+                return;
+            }
+            sixel_parser_deinit(&sixel_st);
+            x1 = newimages->x;
+            y1 = newimages->y;
+            x2 = x1 + newimages->cols;
+            y2 = y1 + numimages;
+            /* Delete the old images that are covered by the new image(s). We
+             * also need to check if they have already been deleted before
+             * adding the new ones. */
+            if (term.images) {
+                char transparent[numimages];
+                for (i = 0, im = newimages; im; im = im->next, i++) {
+                    transparent[i] = im->transparent;
+                }
+                for (im = term.images; im; im = next) {
+                    next = im->next;
+                    if (im->y >= y1 && im->y < y2) {
+                        y = im->y - scr;
+                        if (y >= 0 && y < term.nrows && term.dirty[y]) {
+                            line = term.line[y];
+                            j = MIN(im->x + im->cols, term.ncols);
+                            for (i = im->x; i < j; i++) {
+                                if (line[i].mode & ATTR_SIXEL) {
+                                    break;
+                                }
+                            }
+                            if (i == j) {
+                                delete_image(im);
+                                continue;
+                            }
+                        }
+                        if (im->x >= x1 && im->x + im->cols <= x2
+                            && !transparent[im->y - y1]) {
+                            delete_image(im);
+                            continue;
+                        }
+                    }
+                    tail = im;
+                }
+            }
+            if (tail) {
+                tail->next = newimages;
+                newimages->prev = tail;
+            } else {
+                term.images = newimages;
+            }
+            x2 = MIN(x2, term.ncols) - 1;
+            if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+                /* Sixel display mode: put the sixel in the upper left corner of
+                 * the screen, disable scrolling (the sixel will be truncated if
+                 * it is too long) and do not change the cursor position. */
+                for (i = 0, im = newimages; im; im = next, i++) {
+                    next = im->next;
+                    if (i >= term.nrows) {
+                        delete_image(im);
+                        continue;
+                    }
+                    im->y = i + scr;
+                    tsetsixelattr(term.line[i], x1, x2);
+                    term.dirty[MIN(im->y, term.nrows - 1)] = 1;
+                }
+            } else {
+                for (i = 0, im = newimages; im; im = next, i++) {
+                    next = im->next;
+                    scr = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)
+                              ? 0
+                              : term.lines_scrolled_up;
+                    im->y = term.cursor.y + scr;
+                    tsetsixelattr(term.line[term.cursor.y], x1, x2);
+                    term.dirty[MIN(im->y, term.nrows - 1)] = 1;
+                    if (i < numimages - 1) {
+                        im->next = NULL;
+                        term_new_line(0);
+                        im->next = next;
+                    }
+                }
+                /* if mode 8452 is set, sixel scrolling leaves cursor to right
+                 * of graphic */
+                if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT)) {
+                    term.cursor.x
+                        = MIN(term.cursor.x + newimages->cols, term.ncols - 1);
+                }
+            }
+        }
+        return;
     case '_': /* APC -- Application Program Command */
     case '^': /* PM -- Privacy Message */
         return;
@@ -2740,11 +2532,11 @@ string_reset(void) {
 
 void
 term_str_sequence(uchar c) {
-	string_reset();
+    string_reset();
     switch (c) {
     case 0x90: /* DCS -- Device Control String */
         c = 'P';
-		term.esc |= ESC_DCS;
+        term.esc |= ESC_DCS;
         break;
     case 0x9f: /* APC -- Application Program Command */
         c = '_';
@@ -2759,7 +2551,7 @@ term_str_sequence(uchar c) {
         fprintf(stderr, "term_str_sequence: unhandled switch case.\n");
         break;
     }
-	string_reset();
+    string_reset();
     str_escape_seq.type = (char)c;
     term.esc |= ESC_STR;
     return;
@@ -2767,33 +2559,37 @@ term_str_sequence(uchar c) {
 
 void
 dcshandle(void) {
-	int bgcolor, transparent;
-	unsigned char r, g, b, a = 255;
+    int bgcolor, transparent;
+    unsigned char r, g, b, a = 255;
 
-	switch (csi_escape_seq.mode[0]) {
-	default:
-	unknown:
-		fprintf(stderr, "erresc: unknown csi ");
-		control_seq_intro_dump();
-		/* die(""); */
-		break;
-	case 'q': /* DECSIXEL */
-		transparent = (csi_escape_seq.narg >= 2 && csi_escape_seq.arg[1] == 1);
-		if (IS_TRUECOL(term.cursor.attr.bg)) {
-			r = term.cursor.attr.bg >> 16 & 255;
-			g = term.cursor.attr.bg >> 8 & 255;
-			b = term.cursor.attr.bg >> 0 & 255;
-		} else {
-			x_get_color(term.cursor.attr.bg, &r, &g, &b);
-			if (term.cursor.attr.bg == CONF_COLOR_BG)
-				a = draw_context.color[CONF_COLOR_BG].pixel >> 24 & 255;
-		}
-		bgcolor = a << 24 | r << 16 | g << 8 | b;
-		if (sixel_parser_init(&sixel_st, transparent, (255 << 24), bgcolor, 1, term_window.cw, term_window.ch) != 0)
-			perror("sixel_parser_init() failed");
-		term.mode |= TERM_MODE_SIXEL;
-		break;
-	}
+    switch (csi_escape_seq.mode[0]) {
+    default:
+    unknown:
+        fprintf(stderr, "erresc: unknown csi ");
+        control_seq_intro_dump();
+        /* die(""); */
+        break;
+    case 'q': /* DECSIXEL */
+        transparent = (csi_escape_seq.narg >= 2 && csi_escape_seq.arg[1] == 1);
+        if (IS_TRUECOL(term.cursor.attr.bg)) {
+            r = term.cursor.attr.bg >> 16 & 255;
+            g = term.cursor.attr.bg >> 8 & 255;
+            b = term.cursor.attr.bg >> 0 & 255;
+        } else {
+            x_get_color(term.cursor.attr.bg, &r, &g, &b);
+            if (term.cursor.attr.bg == CONF_COLOR_BG) {
+                a = draw_context.color[CONF_COLOR_BG].pixel >> 24 & 255;
+            }
+        }
+        bgcolor = a << 24 | r << 16 | g << 8 | b;
+        if (sixel_parser_init(&sixel_st, transparent, (255 << 24), bgcolor, 1,
+                              term_window.cw, term_window.ch)
+            != 0) {
+            perror("sixel_parser_init() failed");
+        }
+        term.mode |= TERM_MODE_SIXEL;
+        break;
+    }
 }
 
 void
@@ -2913,7 +2709,7 @@ eschandle(uchar ascii) {
         term.esc |= ESC_UTF8;
         return 0;
     case 'P': /* DCS -- Device Control String */
-		term.esc |= ESC_DCS;
+        term.esc |= ESC_DCS;
     case '_': /* APC -- Application Program Command */
     case '^': /* PM -- Privacy Message */
     case ']': /* OSC -- Operating System Command */
@@ -3021,13 +2817,14 @@ term_putc(uint32 u) {
      */
     if (term.esc & ESC_STR) {
         if (u == '\a' || u == 030 || u == 032 || u == 033 || IS_CONTROL_C1(u)) {
-			term.esc &= ~(ESC_START|ESC_STR|ESC_DCS);
+            term.esc &= ~(ESC_START | ESC_STR | ESC_DCS);
             term.esc |= ESC_STR_END;
             goto check_control_code;
         }
 
-		if (term.esc & ESC_DCS)
-			goto check_control_code;
+        if (term.esc & ESC_DCS) {
+            goto check_control_code;
+        }
 
         if (str_escape_seq.len + (uint64)len >= str_escape_seq.siz) {
             /* ... (keep your existing reallocation logic here) ... */
@@ -3092,20 +2889,19 @@ check_control_code:
                 control_seq_intro_handle();
             }
             return;
-		} else if (term.esc & ESC_DCS) {
-			/* Skip if DCS escape sequence buffer is full */
-			if (csi_escape_seq.len >= sizeof(csi_escape_seq.buffer) - 1) {
-				return;
-			}
+        } else if (term.esc & ESC_DCS) {
+            /* Skip if DCS escape sequence buffer is full */
+            if (csi_escape_seq.len >= sizeof(csi_escape_seq.buffer) - 1) {
+                return;
+            }
 
-			csi_escape_seq.buffer[csi_escape_seq.len++] = u;
-			if (BETWEEN(u, 0x40, 0x7E)
-					|| csi_escape_seq.len >= \
-					sizeof(csi_escape_seq.buffer)-1) {
-				control_seq_intro_parse();
-				dcshandle();
-			}
-			return;
+            csi_escape_seq.buffer[csi_escape_seq.len++] = u;
+            if (BETWEEN(u, 0x40, 0x7E)
+                || csi_escape_seq.len >= sizeof(csi_escape_seq.buffer) - 1) {
+                control_seq_intro_parse();
+                dcshandle();
+            }
+            return;
         } else if (term.esc & ESC_UTF8) {
             term_def_utf8((char)u);
         } else if (term.esc & ESC_ALTCHARSET) {
@@ -3191,10 +2987,11 @@ term_write(const char *buffer, int32 buflen, int32 show_ctrl) {
     int32 n;
 
     for (n = 0; n < buflen; n += charsize) {
-		if (TERM_MODE_IS_SET(TERM_MODE_SIXEL) && sixel_st.state != PS_ESC) {
-			charsize = sixel_parser_parse(&sixel_st, (const unsigned char*)buffer + n, buflen - n);
-			continue;
-		} else if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
+        if (TERM_MODE_IS_SET(TERM_MODE_SIXEL) && sixel_st.state != PS_ESC) {
+            charsize = sixel_parser_parse(
+                &sixel_st, (const unsigned char *)buffer + n, buflen - n);
+            continue;
+        } else if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
             /* process a complete utf8 char */
             charsize = (int32)utf8_decode(buffer + n, &u, (int64)(buflen - n));
             if (charsize == 0) {

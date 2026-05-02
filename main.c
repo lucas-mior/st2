@@ -630,29 +630,32 @@ user_zoom(const Arg *arg) {
     Arg larg;
 
     larg.f = usedfontsize + arg->f;
-	if (larg.f >= 1.0)
-		zoom_abs(&larg);
+    if (larg.f >= 1.0) {
+        zoom_abs(&larg);
+    }
     return;
 }
 
 void
 zoom_abs(const Arg *arg) {
-	int i;
-	ImageList *im;
+    int i;
+    ImageList *im;
     x_unload_fonts();
     x_load_fonts(usedfont, arg->f);
     x_load_spare_fonts();
 
-	for (im = term.images, i = 0; i < 2; i++, im = term.images_alt) {
-		for (; im; im = im->next) {
-			if (im->pixmap)
-				XFreePixmap(x_window.display, (Drawable)im->pixmap);
-			if (im->clipmask)
-				XFreePixmap(x_window.display, (Drawable)im->clipmask);
-			im->pixmap = NULL;
-			im->clipmask = NULL;
-		}
-	}
+    for (im = term.images, i = 0; i < 2; i++, im = term.images_alt) {
+        for (; im; im = im->next) {
+            if (im->pixmap) {
+                XFreePixmap(x_window.display, (Drawable)im->pixmap);
+            }
+            if (im->clipmask) {
+                XFreePixmap(x_window.display, (Drawable)im->clipmask);
+            }
+            im->pixmap = NULL;
+            im->clipmask = NULL;
+        }
+    }
 
     cresize(0, 0);
     redraw();
@@ -2172,146 +2175,175 @@ x_draw_line(Glyph *line, int32 x1, int32 y1, int32 x2) {
 
 void
 x_finish_draw(void) {
-	ImageList *im, *next;
-	Imlib_Image origin, scaled;
-	XGCValues gcvalues;
-	GC gc = NULL;
-	int width, height;
-	int del, desty, mode, x1, x2, xend;
-	int bw = term_window.hborderpx;
-	int bh = term_window.vborderpx;
-	Glyph *line;
+    ImageList *im, *next;
+    Imlib_Image origin, scaled;
+    XGCValues gcvalues;
+    GC gc = NULL;
+    int width, height;
+    int del, desty, mode, x1, x2, xend;
+    int bw = term_window.hborderpx;
+    int bh = term_window.vborderpx;
+    Glyph *line;
 
-	for (im = term.images; im; im = next) {
-		next = im->next;
+    for (im = term.images; im; im = next) {
+        next = im->next;
 
-		/* do not draw or process the image, if it is not visible */
-		if (im->x >= term.ncols || im->y >= term.nrows || im->y < 0)
-			continue;
+        /* do not draw or process the image, if it is not visible */
+        if (im->x >= term.ncols || im->y >= term.nrows || im->y < 0) {
+            continue;
+        }
 
-		#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
-		/* do not draw the image on the search bar */
-		if (im->y == term.nrows-1 && IS_SET(MODE_KBDSELECT) && kbds_issearchmode())
-			continue;
-		#endif // KEYBOARDSELECT_PATCH
+#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
+        /* do not draw the image on the search bar */
+        if (im->y == term.nrows - 1 && IS_SET(MODE_KBDSELECT)
+            && kbds_issearchmode()) {
+            continue;
+        }
+#endif  // KEYBOARDSELECT_PATCH
 
-		/* scale the image */
-		width = MAX(im->width * term_window.cw / im->cw, 1);
-		height = MAX(im->height * term_window.ch / im->ch, 1);
-		if (!im->pixmap) {
-			im->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win, width, height,
-				#if ALPHA_PATCH
-				x_window.depth
-				#else
-				DefaultDepth(x_window.display, x_window.screen)
-				#endif // ALPHA_PATCH
-			);
-			if (!im->pixmap)
-				continue;
-			if (term_window.cw == im->cw && term_window.ch == im->ch) {
-				XImage ximage = {
-					.format = ZPixmap,
-					.data = (char *)im->pixels,
-					.width = im->width,
-					.height = im->height,
-					.xoffset = 0,
-					.byte_order = sixelbyteorder,
-					.bitmap_bit_order = MSBFirst,
-					.bits_per_pixel = 32,
-					.bytes_per_line = im->width * 4,
-					.bitmap_unit = 32,
-					.bitmap_pad = 32,
-					#if ALPHA_PATCH
-					.depth = x_window.depth
-					#else
-					.depth = 24
-					#endif // ALPHA_PATCH
-				};
-				XPutImage(x_window.display, (Drawable)im->pixmap, draw_context.graphics, &ximage, 0, 0, 0, 0, width, height);
-				if (im->transparent)
-					im->clipmask = (void *)sixel_create_clipmask((char *)im->pixels, width, height);
-			} else {
-				origin = imlib_create_image_using_data(im->width, im->height, (DATA32 *)im->pixels);
-				if (!origin)
-					continue;
-				imlib_context_set_image(origin);
-				imlib_image_set_has_alpha(1);
-				imlib_context_set_anti_alias(im->transparent ? 0 : 1); /* anti-aliasing messes up the clip mask */
-				scaled = imlib_create_cropped_scaled_image(0, 0, im->width, im->height, width, height);
-				imlib_free_image_and_decache();
-				if (!scaled)
-					continue;
-				imlib_context_set_image(scaled);
-				imlib_image_set_has_alpha(1);
-				XImage ximage = {
-					.format = ZPixmap,
-					.data = (char *)imlib_image_get_data_for_reading_only(),
-					.width = width,
-					.height = height,
-					.xoffset = 0,
-					.byte_order = sixelbyteorder,
-					.bitmap_bit_order = MSBFirst,
-					.bits_per_pixel = 32,
-					.bytes_per_line = width * 4,
-					.bitmap_unit = 32,
-					.bitmap_pad = 32,
-					#if ALPHA_PATCH
-					.depth = x_window.depth
-					#else
-					.depth = 24
-					#endif // ALPHA_PATCH
-				};
-				XPutImage(x_window.display, (Drawable)im->pixmap, draw_context.graphics, &ximage, 0, 0, 0, 0, width, height);
-				if (im->transparent)
-					im->clipmask = (void *)sixel_create_clipmask((char *)imlib_image_get_data_for_reading_only(), width, height);
-				imlib_free_image_and_decache();
-			}
-		}
+        /* scale the image */
+        width = MAX(im->width*term_window.cw / im->cw, 1);
+        height = MAX(im->height*term_window.ch / im->ch, 1);
+        if (!im->pixmap) {
+            im->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win,
+                                               width, height,
+#if ALPHA_PATCH
+                                               x_window.depth
+#else
+                                               DefaultDepth(x_window.display,
+                                                            x_window.screen)
+#endif  // ALPHA_PATCH
+            );
+            if (!im->pixmap) {
+                continue;
+            }
+            if (term_window.cw == im->cw && term_window.ch == im->ch) {
+                XImage ximage = {.format = ZPixmap,
+                                 .data = (char *)im->pixels,
+                                 .width = im->width,
+                                 .height = im->height,
+                                 .xoffset = 0,
+                                 .byte_order = sixelbyteorder,
+                                 .bitmap_bit_order = MSBFirst,
+                                 .bits_per_pixel = 32,
+                                 .bytes_per_line = im->width*4,
+                                 .bitmap_unit = 32,
+                                 .bitmap_pad = 32,
+#if ALPHA_PATCH
+                                 .depth = x_window.depth
+#else
+                                 .depth = 24
+#endif  // ALPHA_PATCH
+                };
+                XPutImage(x_window.display, (Drawable)im->pixmap,
+                          draw_context.graphics, &ximage, 0, 0, 0, 0, width,
+                          height);
+                if (im->transparent) {
+                    im->clipmask = (void *)sixel_create_clipmask(
+                        (char *)im->pixels, width, height);
+                }
+            } else {
+                origin = imlib_create_image_using_data(im->width, im->height,
+                                                       (DATA32 *)im->pixels);
+                if (!origin) {
+                    continue;
+                }
+                imlib_context_set_image(origin);
+                imlib_image_set_has_alpha(1);
+                imlib_context_set_anti_alias(
+                    im->transparent
+                        ? 0
+                        : 1); /* anti-aliasing messes up the clip mask */
+                scaled = imlib_create_cropped_scaled_image(
+                    0, 0, im->width, im->height, width, height);
+                imlib_free_image_and_decache();
+                if (!scaled) {
+                    continue;
+                }
+                imlib_context_set_image(scaled);
+                imlib_image_set_has_alpha(1);
+                XImage ximage
+                    = {.format = ZPixmap,
+                       .data = (char *)imlib_image_get_data_for_reading_only(),
+                       .width = width,
+                       .height = height,
+                       .xoffset = 0,
+                       .byte_order = sixelbyteorder,
+                       .bitmap_bit_order = MSBFirst,
+                       .bits_per_pixel = 32,
+                       .bytes_per_line = width*4,
+                       .bitmap_unit = 32,
+                       .bitmap_pad = 32,
+#if ALPHA_PATCH
+                       .depth = x_window.depth
+#else
+                       .depth = 24
+#endif  // ALPHA_PATCH
+                    };
+                XPutImage(x_window.display, (Drawable)im->pixmap,
+                          draw_context.graphics, &ximage, 0, 0, 0, 0, width,
+                          height);
+                if (im->transparent) {
+                    im->clipmask = (void *)sixel_create_clipmask(
+                        (char *)imlib_image_get_data_for_reading_only(), width,
+                        height);
+                }
+                imlib_free_image_and_decache();
+            }
+        }
 
-		/* create GC */
-		if (!gc) {
-			memset(&gcvalues, 0, sizeof(gcvalues));
-			gcvalues.graphics_exposures = False;
-			gc = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &gcvalues);
-		}
+        /* create GC */
+        if (!gc) {
+            memset(&gcvalues, 0, sizeof(gcvalues));
+            gcvalues.graphics_exposures = False;
+            gc = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures,
+                           &gcvalues);
+        }
 
-		/* set the clip mask */
-		desty = bh + im->y * term_window.ch;
-		if (im->clipmask) {
-			XSetClipMask(x_window.display, gc, (Drawable)im->clipmask);
-			XSetClipOrigin(x_window.display, gc, bw + im->x * term_window.cw, desty);
-		}
+        /* set the clip mask */
+        desty = bh + im->y*term_window.ch;
+        if (im->clipmask) {
+            XSetClipMask(x_window.display, gc, (Drawable)im->clipmask);
+            XSetClipOrigin(x_window.display, gc, bw + im->x*term_window.cw,
+                           desty);
+        }
 
-		/* draw only the parts of the image that are not erased */
-		#if SCROLLBACK_PATCH || REFLOW_PATCH
-		line = TLINE(im->y) + im->x;
-		#else
-		line = term.line[im->y] + im->x;
-		#endif // SCROLLBACK_PATCH || REFLOW_PATCH
-		xend = MIN(im->x + im->cols, term.ncols);
-		for (del = 1, x1 = im->x; x1 < xend; x1 = x2) {
-			mode = line->mode & ATTR_SIXEL;
-			for (x2 = x1 + 1; x2 < xend; x2++) {
-				if (((++line)->mode & ATTR_SIXEL) != mode)
-					break;
-			}
-			if (mode) {
-				XCopyArea(x_window.display, (Drawable)im->pixmap, x_window.drawable, gc,
-				    (x1 - im->x) * term_window.cw, 0,
-				    MIN((x2 - x1) * term_window.cw, width - (x1 - im->x) * term_window.cw), height,
-				    bw + x1 * term_window.cw, desty);
-				del = 0;
-			}
-		}
-		if (im->clipmask)
-			XSetClipMask(x_window.display, gc, None);
+/* draw only the parts of the image that are not erased */
+#if SCROLLBACK_PATCH || REFLOW_PATCH
+        line = TLINE(im->y) + im->x;
+#else
+        line = term.line[im->y] + im->x;
+#endif  // SCROLLBACK_PATCH || REFLOW_PATCH
+        xend = MIN(im->x + im->cols, term.ncols);
+        for (del = 1, x1 = im->x; x1 < xend; x1 = x2) {
+            mode = line->mode & ATTR_SIXEL;
+            for (x2 = x1 + 1; x2 < xend; x2++) {
+                if (((++line)->mode & ATTR_SIXEL) != mode) {
+                    break;
+                }
+            }
+            if (mode) {
+                XCopyArea(x_window.display, (Drawable)im->pixmap,
+                          x_window.drawable, gc, (x1 - im->x)*term_window.cw,
+                          0,
+                          MIN((x2 - x1)*term_window.cw,
+                              width - (x1 - im->x)*term_window.cw),
+                          height, bw + x1*term_window.cw, desty);
+                del = 0;
+            }
+        }
+        if (im->clipmask) {
+            XSetClipMask(x_window.display, gc, None);
+        }
 
-		/* if all the parts are erased, we can delete the entire image */
-		if (del && im->x + im->cols <= term.ncols)
-			delete_image(im);
-	}
-	if (gc)
-		XFreeGC(x_window.display, gc);
+        /* if all the parts are erased, we can delete the entire image */
+        if (del && im->x + im->cols <= term.ncols) {
+            delete_image(im);
+        }
+    }
+    if (gc) {
+        XFreeGC(x_window.display, gc);
+    }
 
     XCopyArea(x_window.display, x_window.drawable, x_window.win,
               draw_context.graphics, 0, 0, (uint32)term_window.w,
