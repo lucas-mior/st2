@@ -145,7 +145,7 @@ with_other () {
 
 case "$target" in
 "debug")
-    CFLAGS="$CFLAGS -g3 -fsanitize=undefined"
+    CFLAGS="$CFLAGS -g3 -fsanitize-trap=undefined"
     CPPFLAGS="$CPPFLAGS $GNUSOURCE -DDEBUGGING=1"
     exe="bin/${program}_debug"
     ;;
@@ -163,7 +163,7 @@ case "$target" in
     CPPFLAGS="$CPPFLAGS $GNUSOURCE"
     ;;
 "test")
-    CFLAGS="$CFLAGS -g3 $GNUSOURCE -DDEBUGGING=1 -fsanitize=undefined -Wno-address"
+    CFLAGS="$CFLAGS -g3 $GNUSOURCE -DDEBUGGING=1 -fsanitize-trap=undefined -Wno-address"
     ;;
 "check")
     CC=gcc

@@ -267,64 +267,111 @@ tty_hangup(void) {
 #include "x.c"
 #include "user.c"
 
+static void
+mock_term_init(void) {
+    int32 i;
+
+    term.nrows = 24;
+    term.ncols = 80;
+    term.dirty = xmalloc((int64)term.nrows * SIZEOF(*term.dirty));
+    for (i = 0; i < term.nrows; i += 1) {
+        term.dirty[i] = 0;
+    }
+
+    term.lines = xmalloc((int64)term.nrows * SIZEOF(*term.lines));
+    for (i = 0; i < term.nrows; i += 1) {
+        term.lines[i] = xmalloc((int64)term.ncols * SIZEOF(StGlyph));
+    }
+
+    term.lines_scrolled_up = 0;
+    term.mode = 0;
+    selection.ob.x = -1;
+    selection.alt = 0;
+    return;
+}
+
 int
 main(void) {
     {
-        /* 
-         * Safely test tty_resize with an invalid file descriptor 
-         * to avoid real OS state changes or hanging.
-         */
-        command_fd = -1;
-        term.nrows = 24;
-        term.ncols = 80;
-        tty_resize(800, 600);
+        int32 master;
+        int32 slave;
+
+        if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
+            command_fd = master;
+            term.nrows = 24;
+            term.ncols = 80;
+            tty_resize(800, 600);
+            close(master);
+            close(slave);
+        }
         ASSERT(true);
     }
 
     if (fork() == 0) {
+        int32 master;
+        int32 slave;
         char *args[] = {"-a", NULL};
-        stty(args);
+
+        if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
+            dup2(slave, 0);
+            stty(args);
+            close(master);
+            close(slave);
+        }
         exit(EXIT_SUCCESS);
     }
     wait(NULL);
 
     if (fork() == 0) {
         char *args[] = {"true", NULL};
+
         tty_new(NULL, "true", NULL, args);
         exit(EXIT_SUCCESS);
     }
     wait(NULL);
 
     if (fork() == 0) {
-        int32 fds[2];
-        pipe(fds);
-        command_fd = fds[0];
-        write(fds[1], "test", 4);
-        close(fds[1]);
-        term.mode = 0;
-        tty_read();
+        int32 master;
+        int32 slave;
+
+        mock_term_init();
+        if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
+            command_fd = master;
+            write(slave, "test", 4);
+            tty_read();
+            close(master);
+            close(slave);
+        }
         exit(EXIT_SUCCESS);
     }
     wait(NULL);
 
     if (fork() == 0) {
-        int32 fds[2];
-        pipe(fds);
-        command_fd = fds[1];
-        tty_write_raw("hello", 5);
-        close(fds[0]);
+        int32 master;
+        int32 slave;
+
+        mock_term_init();
+        if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
+            command_fd = master;
+            tty_write_raw("hello", 5);
+            close(master);
+            close(slave);
+        }
         exit(EXIT_SUCCESS);
     }
     wait(NULL);
 
     if (fork() == 0) {
-        int32 fds[2];
-        pipe(fds);
-        command_fd = fds[1];
-        term.mode = 0; /* No CRLF */
-        term.lines_scrolled_up = 0;
-        tty_write("hello\rworld", 11, 0);
-        close(fds[0]);
+        int32 master;
+        int32 slave;
+
+        mock_term_init();
+        if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
+            command_fd = master;
+            tty_write("hello\rworld", 11, 0);
+            close(master);
+            close(slave);
+        }
         exit(EXIT_SUCCESS);
     }
     wait(NULL);
