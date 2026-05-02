@@ -14,13 +14,13 @@
 #include "sixel_hls.h"
 
 #define SIXEL_RGB(r, g, b) \
-	((255u << 24) + (((uint)r) << 16) + (((uint)g) << 8) +  ((uint)b))
+	((255u << 24) + (((uint32)r) << 16) + (((uint32)g) << 8) +  ((uint32)b))
 #define SIXEL_PALVAL(n, a, m)  \
     (((n)*(a) + ((m) / 2)) / (m))
 #define SIXEL_XRGB(r, g, b) \
 	SIXEL_RGB(SIXEL_PALVAL(r, 255, 100), SIXEL_PALVAL(g, 255, 100), SIXEL_PALVAL(b, 255, 100))
 
-static uint const sixel_default_color_table[] = {
+static uint32 const sixel_default_color_table[] = {
     SIXEL_XRGB(0, 0, 0),    /*  0 Black    */
     SIXEL_XRGB(20, 20, 80), /*  1 Blue     */
     SIXEL_XRGB(80, 13, 13), /*  2 Red      */
@@ -121,7 +121,7 @@ sixel_image_init(sixel_image_t *image, int32 width, int32 height, int32 fgcolor,
     int32 status = (-1);
     size_t size;
 
-    size = (size_t)(width*height) * sizeof(uint);
+    size = (size_t)(width*height) * sizeof(uint32);
     image->width = width;
     image->height = height;
     image->data = (ushort *)malloc(size);
@@ -134,10 +134,10 @@ sixel_image_init(sixel_image_t *image, int32 width, int32 height, int32 fgcolor,
     }
     memset(image->data, 0, size);
 
-    image->palette[0] = (uint)bgcolor;
+    image->palette[0] = (uint32)bgcolor;
 
     if (image->use_private_register) {
-        image->palette[1] = (uint)fgcolor;
+        image->palette[1] = (uint32)fgcolor;
     }
 
     image->palette_modified = 0;
@@ -212,8 +212,8 @@ sixel_image_deinit(sixel_image_t *image) {
 }
 
 int32
-sixel_parser_init(sixel_state_t *st, int32 transparent, uint fgcolor,
-                  uint bgcolor, unsigned char use_private_register,
+sixel_parser_init(sixel_state_t *st, int32 transparent, uint32 fgcolor,
+                  uint32 bgcolor, unsigned char use_private_register,
                   int32 cell_width, int32 cell_height) {
     int32 status = (-1);
 
@@ -252,7 +252,7 @@ sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
     sixel_image_t *image = &st->image;
     int32 x, y;
     ushort *src;
-    uint *dst, color;
+    uint32 *dst, color;
     int32 w, h;
     int32 i, j, cols, numimages;
     char trans;
@@ -320,7 +320,7 @@ sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
             *newimages = NULL;
             return -1;
         }
-        dst = (uint *)im->pixels;
+        dst = (uint32 *)im->pixels;
         for (trans = 0, j = 0; j < im->height && y < h; j++, y++) {
             src = st->image.data + image->width*y;
             for (x = 0; x < w; x++) {
@@ -695,7 +695,7 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
     char c, *clipdata, *dst;
     int32 b, i, n, y, w;
     int32 msb = (XBitmapBitOrder(x_window.display) == MSBFirst);
-    uint *src = (uint *)pixels;
+    uint32 *src = (uint32 *)pixels;
     Pixmap clipmask;
 
     clipdata = dst = malloc((width + 7) / 8*height);
