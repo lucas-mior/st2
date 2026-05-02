@@ -876,7 +876,6 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         XftDrawGlyphFontSpec(x_window.xft_draw, fg, specs, len);
     }
 
-    /* Render underline and strikethrough. */
     if (base.mode & ATTR_UNDERLINE) {
         XftDrawRect(x_window.xft_draw, fg, winx,
                     winy + (int32)((float)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE) + 1,
