@@ -518,7 +518,7 @@ typedef struct {
     FcPattern *pattern;
 } Font;
 
-typedef struct {
+static struct {
     Color *colors;
     int32 colors_len;
     Font font;
@@ -526,7 +526,7 @@ typedef struct {
 	Font ifont;
 	Font ibfont;
     GC graphics;
-} DrawingContext;
+} draw_context;
 
 typedef struct {
     Atom xtarget;
@@ -535,8 +535,6 @@ typedef struct {
     struct timespec tclick2;
 } XSelection;
 static XSelection xsel;
-
-static DrawingContext draw_context;
 
 #include "sixel.h"
 static SixelState sixel_st;
