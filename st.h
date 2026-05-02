@@ -13,7 +13,7 @@
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
 
-typedef uchar uchar;
+typedef unsigned char uchar;
 typedef unsigned long ulong;
 
 typedef int8_t int8;

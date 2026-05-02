@@ -1,3 +1,5 @@
+#include "st.h"
+
 void
 user_clipboard_copy(const Arg *arg) {
     Atom clipboard;
