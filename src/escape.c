@@ -1513,7 +1513,7 @@ term_putc(uint32 u) {
     }
 
     if (TERM_MODE_IS_SET(TERM_MODE_PRINT)) {
-        term_printer(c, (int64)len);
+        term_printer(c, len);
     }
 
     if (term.esc & ESC_STR) {
@@ -1530,7 +1530,7 @@ term_putc(uint32 u) {
         if (str_escape_seq.len + len >= str_escape_seq.siz) {
             str_escape_seq.siz *= 2;
             str_escape_seq.buffer = xrealloc(str_escape_seq.buffer,
-					                         (int64)str_escape_seq.siz);
+					                         str_escape_seq.siz);
         }
 
         memmove64(&str_escape_seq.buffer[str_escape_seq.len], c, len);
