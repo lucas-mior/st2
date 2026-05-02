@@ -39,11 +39,7 @@ static sixel_color_t const sixel_default_color_table[] = {
 void
 scroll_images(int n) {
     ImageList *im, *next;
-#if SCROLLBACK_PATCH || REFLOW_PATCH
-    int top = tisaltscr() ? 0 : term.scr - HISTSIZE;
-#else
-    int top = 0;
-#endif  // SCROLLBACK_PATCH
+    int top = tisaltscreen() ? 0 : term.lines_scrolled_up - HISTORY_SIZE;
 
     for (im = term.images; im; im = next) {
         next = im->next;

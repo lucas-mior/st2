@@ -8,7 +8,7 @@ CC=${CC:-cc}
 VERSION="0.9.3"
 
 CPPFLAGS="$CPPFLAGS -D_DEFAULT_SOURCE"
-CFLAGS="$CFLAGS -std=c11"
+CFLAGS="$CFLAGS -std=c11 -g3"
 CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Wextra -Wall"
 # CFLAGS="$CFLAGS -Werror"

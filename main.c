@@ -246,6 +246,7 @@ run:
         if (!(x_window.display = XOpenDisplay(NULL))) {
             die("can't open display\n");
         }
+        /* XSynchronize(x_window.display, 1); */
         x_window.screen = XDefaultScreen(x_window.display);
 
         root = XRootWindow(x_window.display, x_window.screen);
@@ -2175,48 +2176,59 @@ x_draw_line(Glyph *line, int32 x1, int32 y1, int32 x2) {
 
 void
 x_finish_draw(void) {
-    ImageList *im, *next;
-    Imlib_Image origin, scaled;
+    ImageList *im;
+    ImageList *next;
+    Imlib_Image origin;
+    Imlib_Image scaled;
     XGCValues gcvalues;
     GC gc = NULL;
-    int width, height;
-    int del, desty, mode, x1, x2, xend;
+    int width;
+    int height;
+    int del;
+    int desty;
+    int mode;
+    int x1;
+    int x2;
+    int xend;
     int bw = term_window.hborderpx;
     int bh = term_window.vborderpx;
+    int rel_y;
     Glyph *line;
 
     for (im = term.images; im; im = next) {
         next = im->next;
 
-        /* do not draw or process the image, if it is not visible */
-        if (im->x >= term.ncols || im->y >= term.nrows || im->y < 0) {
+        /*
+         * CALCULATE RELATIVE Y:
+         * Transform absolute history coordinate to screen-relative
+         */
+        rel_y = im->y - term.lines_scrolled_up;
+
+        /* Only draw if the image is within the currently visible rows */
+        if (im->x >= term.ncols || rel_y >= term.nrows || rel_y < 0) {
             continue;
         }
 
-#if KEYBOARDSELECT_PATCH && REFLOW_PATCH
-        /* do not draw the image on the search bar */
-        if (im->y == term.nrows - 1 && IS_SET(MODE_KBDSELECT)
-            && kbds_issearchmode()) {
-            continue;
-        }
-#endif  // KEYBOARDSELECT_PATCH
-
-        /* scale the image */
         width = MAX(im->width*term_window.cw / im->cw, 1);
         height = MAX(im->height*term_window.ch / im->ch, 1);
-        if (!im->pixmap) {
-            im->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win,
-                                               width, height,
-#if ALPHA_PATCH
-                                               x_window.depth
-#else
-                                               DefaultDepth(x_window.display,
-                                                            x_window.screen)
-#endif  // ALPHA_PATCH
-            );
-            if (!im->pixmap) {
+
+        if (im->pixmap == NULL) {
+            im->pixmap = (void *)XCreatePixmap(
+                x_window.display, x_window.win, (unsigned int)width,
+                (unsigned int)height, (unsigned int)x_window.depth);
+            if (im->pixmap == NULL) {
                 continue;
             }
+
+            /* FORCE TEST: set p[i] = 0x84e4e4e4; */
+            {
+                uint32 *p = (uint32 *)im->pixels;
+                int pixel_count = im->width*im->height;
+                for (int i = 0; i < pixel_count; i += 1) {
+                    p[i] = 0x84e4e4e4;
+                }
+            }
+
             if (term_window.cw == im->cw && term_window.ch == im->ch) {
                 XImage ximage = {.format = ZPixmap,
                                  .data = (char *)im->pixels,
@@ -2229,15 +2241,11 @@ x_finish_draw(void) {
                                  .bytes_per_line = im->width*4,
                                  .bitmap_unit = 32,
                                  .bitmap_pad = 32,
-#if ALPHA_PATCH
-                                 .depth = x_window.depth
-#else
-                                 .depth = 24
-#endif  // ALPHA_PATCH
-                };
+                                 .depth = x_window.depth};
                 XPutImage(x_window.display, (Drawable)im->pixmap,
-                          draw_context.graphics, &ximage, 0, 0, 0, 0, width,
-                          height);
+                          draw_context.graphics, &ximage, 0, 0, 0, 0,
+                          (unsigned int)width, (unsigned int)height);
+
                 if (im->transparent) {
                     im->clipmask = (void *)sixel_create_clipmask(
                         (char *)im->pixels, width, height);
@@ -2245,115 +2253,115 @@ x_finish_draw(void) {
             } else {
                 origin = imlib_create_image_using_data(im->width, im->height,
                                                        (DATA32 *)im->pixels);
-                if (!origin) {
-                    continue;
+                if (origin != NULL) {
+                    imlib_context_set_image(origin);
+                    imlib_image_set_has_alpha(1);
+
+                    if (im->transparent) {
+                        imlib_context_set_anti_alias(0);
+                    } else {
+                        imlib_context_set_anti_alias(1);
+                    }
+
+                    scaled = imlib_create_cropped_scaled_image(
+                        0, 0, im->width, im->height, width, height);
+                    imlib_free_image_and_decache();
+
+                    if (scaled != NULL) {
+                        imlib_context_set_image(scaled);
+                        imlib_image_set_has_alpha(1);
+
+                        XImage ximage = {
+                            .format = ZPixmap,
+                            .data
+                            = (char *)imlib_image_get_data_for_reading_only(),
+                            .width = width,
+                            .height = height,
+                            .xoffset = 0,
+                            .byte_order = sixelbyteorder,
+                            .bitmap_bit_order = MSBFirst,
+                            .bits_per_pixel = 32,
+                            .bytes_per_line = width*4,
+                            .bitmap_unit = 32,
+                            .bitmap_pad = 32,
+                            .depth = x_window.depth};
+                        XPutImage(x_window.display, (Drawable)im->pixmap,
+                                  draw_context.graphics, &ximage, 0, 0, 0, 0,
+                                  (unsigned int)width, (unsigned int)height);
+
+                        if (im->transparent) {
+                            im->clipmask = (void *)sixel_create_clipmask(
+                                (char *)imlib_image_get_data_for_reading_only(),
+                                width, height);
+                        }
+                        imlib_free_image_and_decache();
+                    }
                 }
-                imlib_context_set_image(origin);
-                imlib_image_set_has_alpha(1);
-                imlib_context_set_anti_alias(
-                    im->transparent
-                        ? 0
-                        : 1); /* anti-aliasing messes up the clip mask */
-                scaled = imlib_create_cropped_scaled_image(
-                    0, 0, im->width, im->height, width, height);
-                imlib_free_image_and_decache();
-                if (!scaled) {
-                    continue;
-                }
-                imlib_context_set_image(scaled);
-                imlib_image_set_has_alpha(1);
-                XImage ximage
-                    = {.format = ZPixmap,
-                       .data = (char *)imlib_image_get_data_for_reading_only(),
-                       .width = width,
-                       .height = height,
-                       .xoffset = 0,
-                       .byte_order = sixelbyteorder,
-                       .bitmap_bit_order = MSBFirst,
-                       .bits_per_pixel = 32,
-                       .bytes_per_line = width*4,
-                       .bitmap_unit = 32,
-                       .bitmap_pad = 32,
-#if ALPHA_PATCH
-                       .depth = x_window.depth
-#else
-                       .depth = 24
-#endif  // ALPHA_PATCH
-                    };
-                XPutImage(x_window.display, (Drawable)im->pixmap,
-                          draw_context.graphics, &ximage, 0, 0, 0, 0, width,
-                          height);
-                if (im->transparent) {
-                    im->clipmask = (void *)sixel_create_clipmask(
-                        (char *)imlib_image_get_data_for_reading_only(), width,
-                        height);
-                }
-                imlib_free_image_and_decache();
             }
         }
 
-        /* create GC */
-        if (!gc) {
+        if (gc == NULL) {
             memset(&gcvalues, 0, sizeof(gcvalues));
             gcvalues.graphics_exposures = False;
             gc = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures,
                            &gcvalues);
         }
 
-        /* set the clip mask */
-        desty = bh + im->y*term_window.ch;
+        /* Calculate screen Y coordinate */
+        desty = bh + rel_y*term_window.ch;
         if (im->clipmask) {
             XSetClipMask(x_window.display, gc, (Drawable)im->clipmask);
             XSetClipOrigin(x_window.display, gc, bw + im->x*term_window.cw,
                            desty);
         }
 
-/* draw only the parts of the image that are not erased */
-#if SCROLLBACK_PATCH || REFLOW_PATCH
-        line = TLINE(im->y) + im->x;
-#else
-        line = term.line[im->y] + im->x;
-#endif  // SCROLLBACK_PATCH || REFLOW_PATCH
+        /* Access the correct line in the terminal grid using absolute Y */
+        line = TERM_LINE(im->y) + im->x;
         xend = MIN(im->x + im->cols, term.ncols);
-        for (del = 1, x1 = im->x; x1 < xend; x1 = x2) {
+        del = 1;
+
+        for (x1 = im->x; x1 < xend; x1 = x2) {
             mode = line->mode & ATTR_SIXEL;
-            for (x2 = x1 + 1; x2 < xend; x2++) {
+            for (x2 = x1 + 1; x2 < xend; x2 += 1) {
                 if (((++line)->mode & ATTR_SIXEL) != mode) {
                     break;
                 }
             }
             if (mode) {
-                XCopyArea(x_window.display, (Drawable)im->pixmap,
-                          x_window.drawable, gc, (x1 - im->x)*term_window.cw,
-                          0,
-                          MIN((x2 - x1)*term_window.cw,
-                              width - (x1 - im->x)*term_window.cw),
-                          height, bw + x1*term_window.cw, desty);
+                XCopyArea(
+                    x_window.display, (Drawable)im->pixmap, x_window.drawable,
+                    gc, (x1 - im->x)*term_window.cw, 0,
+                    (unsigned int)MIN((x2 - x1)*term_window.cw,
+                                      width - (x1 - im->x)*term_window.cw),
+                    (unsigned int)height, bw + x1*term_window.cw, desty);
                 del = 0;
             }
         }
+
         if (im->clipmask) {
             XSetClipMask(x_window.display, gc, None);
         }
 
-        /* if all the parts are erased, we can delete the entire image */
-        if (del && im->x + im->cols <= term.ncols) {
+        if (del && (im->x + im->cols <= term.ncols)) {
             delete_image(im);
         }
     }
-    if (gc) {
+
+    if (gc != NULL) {
         XFreeGC(x_window.display, gc);
     }
 
     XCopyArea(x_window.display, x_window.drawable, x_window.win,
-              draw_context.graphics, 0, 0, (uint32)term_window.w,
-              (uint32)term_window.h, 0, 0);
+              draw_context.graphics, 0, 0, (unsigned int)term_window.w,
+              (unsigned int)term_window.h, 0, 0);
+
     XSetForeground(
         x_window.display, draw_context.graphics,
         draw_context
             .color[TERM_WINDOW_IS_SET(WIN_MODE_REVERSE) ? CONF_COLOR_INDEX_FONT
                                                         : CONF_COLOR_BG]
             .pixel);
+
     return;
 }
 
