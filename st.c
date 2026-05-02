@@ -585,35 +585,6 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
 }
 
 void
-selection_move(int32 n) {
-    selection.ob.y += n;
-    selection.nb.y += n;
-    selection.oe.y += n;
-    selection.ne.y += n;
-    return;
-}
-
-void
-selection_scroll(int32 top, int32 bot, int32 n) {
-    /* turn absolute coordinates into relative */
-    top += term.lines_scrolled_up;
-    bot += term.lines_scrolled_up;
-
-    if (BETWEEN(selection.nb.y, top, bot)
-        != BETWEEN(selection.ne.y, top, bot)) {
-        selection_clear();
-    } else {
-        if (BETWEEN(selection.nb.y, top, bot)) {
-            selection_move(n);
-            if (selection.nb.y < top || selection.ne.y > bot) {
-                selection_clear();
-            }
-        }
-    }
-    return;
-}
-
-void
 term_new_line(int32 first_col) {
     int32 y = term.cursor.y;
     int32 x_pos;
