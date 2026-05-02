@@ -1,4 +1,5 @@
 #include "st.h"
+#include "cbase/util.c"
 
 void
 user_clipboard_copy(const Arg *arg) {
