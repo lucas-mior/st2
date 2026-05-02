@@ -93,12 +93,8 @@ xwrite(int32 fd, const char *s, int64 len) {
     return (int64)len;
 }
 
-static int64 free_count = 0;
-static int64 malloc_count = 0;
-
 void
 xfree(void *pointer) {
-    free_count += 1;
     free(pointer);
     return;
 }
