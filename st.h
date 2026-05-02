@@ -123,15 +123,15 @@ typedef struct ImageList {
 	uchar *pixels;
 	void *pixmap;
 	void *clipmask;
-	int width;
-	int height;
-	int x;
-	int y;
-	int reflow_y;
-	int cols;
-	int cw;
-	int ch;
-	int transparent;
+	int32 width;
+	int32 height;
+	int32 x;
+	int32 y;
+	int32 reflow_y;
+	int32 cols;
+	int32 cw;
+	int32 ch;
+	int32 transparent;
 } ImageList;
 
 enum term_mode {
@@ -277,7 +277,7 @@ void user_toggle_printer(const Arg *);
 int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 
 static void tdeleteimages(void);
-static inline void tsetsixelattr(Glyph *line, int x1, int x2);
+static inline void tsetsixelattr(Glyph *line, int32 x1, int32 x2);
 
 int32 term_attr_set(int32);
 int32 tisaltscreen(void);
