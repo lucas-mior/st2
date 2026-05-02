@@ -1187,7 +1187,87 @@ draw(void) {
                   term.lines[term.old_cursor_y][term.old_cursor_x]);
     term.old_cursor_x = cx;
     term.old_cursor_y = term.cursor.y;
-    x_finish_draw();
+	/* x_finish_draw() */ {
+		ImageList *im;
+		ImageList *next;
+		XGCValues gcvalues;
+		GC gc = NULL;
+		int32 rel_y;
+		int32 desty;
+		int32 width;
+		int32 height;
+		int32 bw = term_window.hborderpx;
+		int32 bh = term_window.vborderpx;
+		XImage ximage;
+
+		XSetClipMask(x_window.display, draw_context.graphics, None);
+
+		for (im = term.images; im; im = next) {
+			next = im->next;
+			rel_y = im->y - term.lines_scrolled_up;
+
+			if (im->x >= term.ncols || rel_y >= term.nrows || rel_y < 0) {
+				continue;
+			}
+
+			width = im->width;
+			height = im->height;
+
+			if (im->pixmap == NULL) {
+				im->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win,
+												   (uint32)width, (uint32)height,
+												   (uint32)x_window.depth);
+
+				if (im->transparent) {
+					im->clipmask = (void *)sixel_create_clipmask((char *)im->pixels,
+																 width, height);
+				}
+
+				ximage.format = ZPixmap;
+				ximage.data = (char *)im->pixels;
+				ximage.width = width;
+				ximage.height = height;
+				ximage.depth = x_window.depth;
+				ximage.bits_per_pixel = 32;
+				ximage.bytes_per_line = width*4;
+				ximage.byte_order = ImageByteOrder(x_window.display);
+				ximage.bitmap_unit = 32;
+				ximage.bitmap_pad = 32;
+
+				XPutImage(x_window.display, (Drawable)im->pixmap,
+						  draw_context.graphics, &ximage, 0, 0, 0, 0, (uint32)width,
+						  (uint32)height);
+			}
+
+			if (gc == NULL) {
+				memset64(&gcvalues, 0, SIZEOF(gcvalues));
+				gcvalues.graphics_exposures = False;
+				gc = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures,
+								&gcvalues);
+			}
+
+			desty = bh + rel_y*term_window.ch;
+
+			if (im->transparent && im->clipmask) {
+				XSetClipOrigin(x_window.display, gc, bw + im->x*term_window.cw, desty);
+				XSetClipMask(x_window.display, gc, (Pixmap)im->clipmask);
+			} else {
+				XSetClipMask(x_window.display, gc, None);
+			}
+
+			XCopyArea(x_window.display, (Drawable)im->pixmap, x_window.drawable, gc,
+					  0, 0, (uint32)width, (uint32)height,
+					  bw + im->x*term_window.cw, desty);
+		}
+
+		if (gc) {
+			XFreeGC(x_window.display, gc);
+		}
+
+		XCopyArea(x_window.display, x_window.drawable, x_window.win,
+				  draw_context.graphics, 0, 0, (uint32)term_window.w,
+				  (uint32)term_window.h, 0, 0);
+	}
     if (old_cursor_x != term.old_cursor_x
         || old_cursor_y != term.old_cursor_y) {
         x_xim_spot(term.old_cursor_x, term.old_cursor_y);

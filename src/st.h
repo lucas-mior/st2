@@ -484,7 +484,6 @@ enum win_mode {
 static void x_bell(void);
 static void x_draw_cursor(int32, int32, Glyph, int32, int32, Glyph);
 static void x_draw_line(Glyph *, int32, int32, int32);
-static void x_finish_draw(void);
 static void x_load_cols(void);
 static int32 x_set_color_name(int32, char *);
 static void x_set_icon_title(char *);
