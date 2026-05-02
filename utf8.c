@@ -1,5 +1,5 @@
 int64
-utf8_decode(const char *c, uint32 *u, int64 clen) {
+utf8_decode(char *c, uint32 *u, int64 clen) {
     int64 len;
     int64 type;
     uint32 rune_decoded;

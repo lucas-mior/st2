@@ -142,7 +142,8 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
     int32 rbot = term.nrows - 1;
     int32 delim;
     int32 prevdelim;
-    const Glyph *gp, *prevgp;
+    Glyph *gp;
+    Glyph *prevgp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         rtop += term.lines_scrolled_up - term.n_hist;
@@ -230,7 +231,8 @@ selection_get(void) {
     char *string, *ptr;
     int32 lastx;
     int32 line_len;
-    const Glyph *gp, *lgp;
+    Glyph *gp;
+    Glyph *lgp;
 
     if (selection.ob.x == -1
         || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {

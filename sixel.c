@@ -25,7 +25,7 @@ uint32 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat);
 			  SIXEL_PALVAL(g, 255, 100), \
 			  SIXEL_PALVAL(b, 255, 100))
 
-static uint32 const sixel_default_color_table[] = {
+static uint32 sixel_default_color_table[] = {
     SIXEL_XRGB(0, 0, 0),    /*  0 Black    */
     SIXEL_XRGB(20, 20, 80), /*  1 Blue     */
     SIXEL_XRGB(80, 13, 13), /*  2 Red      */
@@ -194,7 +194,6 @@ image_buffer_resize(SixelImage *image, int32 width, int32 height) {
                (size_t)(width*(height - image->height))*sizeof(ushort));
     }
 
-    /* free source image */
     free(image->data);
 
     image->data = alt_buffer;
@@ -333,7 +332,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
 
 /* convert sixel data into indexed pixel bytes and palette data */
 int32
-sixel_parser_parse(SixelState *sixel_state, const uchar *p, int32 len) {
+sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
     int32 n = 0;
     int32 i;
     int32 x;
@@ -341,7 +340,8 @@ sixel_parser_parse(SixelState *sixel_state, const uchar *p, int32 len) {
     int32 sx;
     int32 sy;
     int32 width;
-    const uchar *p0 = p, *p2 = p + len;
+    uchar *p0 = p;
+    uchar *p2 = p + len;
     SixelImage *image = &sixel_state->image;
     ushort *data;
     int32 color_index;

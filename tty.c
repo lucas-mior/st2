@@ -27,7 +27,7 @@ stty(char **args) {
 }
 
 int32
-tty_new(const char *line, char *cmd, const char *out, char **args) {
+tty_new(char *line, char *cmd, char *out, char **args) {
     int32 amaster;
     int32 aslave;
 
@@ -120,8 +120,8 @@ tty_read(void) {
 }
 
 void
-tty_write(const char *s, int64 n, int32 may_echo) {
-    const char *next;
+tty_write(char *s, int64 n, int32 may_echo) {
+    char *next;
 
     user_scroll_down(&((Arg){.i = term.lines_scrolled_up}));
 
@@ -151,7 +151,7 @@ tty_write(const char *s, int64 n, int32 may_echo) {
 }
 
 void
-tty_write_raw(const char *s, int64 n) {
+tty_write_raw(char *s, int64 n) {
     fd_set write_fd;
     fd_set read_fd;
     int64 r;

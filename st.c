@@ -46,7 +46,7 @@ static const uint32 utf8_max[UTF_SIZ + 1]
     = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
 int64
-xwrite(int32 fd, const char *s, int64 len) {
+xwrite(int32 fd, char *s, int64 len) {
     int64 r;
     int64 left = (int64)len;
 
@@ -71,7 +71,7 @@ xfree(void *pointer) {
 #include "utf8.c"
 
 char
-base64_decode_getc(const char **src) {
+base64_decode_getc(char **src) {
     while (**src && !isprint((uchar)**src)) {
         (*src)++;
     }
@@ -84,7 +84,7 @@ base64_decode_getc(const char **src) {
 }
 
 char *
-base64_decode(const char *src) {
+base64_decode(char *src) {
     int64 in_len = (int64)strlen(src);
     char *result, *dst;
     static const char base64_digits[256] = {
@@ -140,7 +140,7 @@ term_is_wrapped(Glyph *line) {
 }
 
 char *
-term_get_glyphs(char *buffer, const Glyph *gp, const Glyph *lgp) {
+term_get_glyphs(char *buffer, Glyph *gp, Glyph *lgp) {
     while (gp <= lgp) {
         if (gp->mode & ATTR_WDUMMY) {
             gp++;
@@ -169,7 +169,7 @@ tlinehistlen(int32 y) {
 #include "selection.c"
 
 void
-die(const char *errstr, ...) {
+die(char *errstr, ...) {
     va_list ap;
 
     va_start(ap, errstr);
@@ -181,7 +181,7 @@ die(const char *errstr, ...) {
 void
 exec_shell(char *cmd, char **args) {
     char *shell, *arg;
-    const struct passwd *pw;
+    struct passwd *pw;
 
     errno = 0;
     if ((pw = getpwuid(getuid())) == NULL) {
@@ -458,7 +458,7 @@ tisaltscreen(void) {
 }
 
 void
-user_scroll_down(const Arg *a) {
+user_scroll_down(Arg *a) {
     int32 n = a->i;
 
     if (!term.lines_scrolled_up || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -483,7 +483,7 @@ user_scroll_down(const Arg *a) {
 }
 
 void
-user_scroll_up(const Arg *a) {
+user_scroll_up(Arg *a) {
     int32 n = a->i;
 
     if (!term.n_hist || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -724,8 +724,8 @@ term_move_to(int32 x, int32 y) {
 }
 
 void
-term_set_char(uint32 u, const Glyph *attr, int32 x, int32 y) {
-    static const char *vt100_0[62] = {
+term_set_char(uint32 u, Glyph *attr, int32 x, int32 y) {
+    static char *vt100_0[62] = {
         /* 0x41 - 0x7e */
         "↑", "↓", "→", "←", "█", "▚", "☃",      /* A - G */
         0,   0,   0,   0,   0,   0,   0,   0,   /* H - O */
@@ -864,7 +864,7 @@ term_delete_line(int32 n) {
 }
 
 int32_t
-term_def_color(const int32 *attr, int32 *npar, int32 l) {
+term_def_color(int32 *attr, int32 *npar, int32 l) {
     int32_t idx = -1;
     uint32 r;
     uint32 g;
@@ -913,7 +913,7 @@ term_def_color(const int32 *attr, int32 *npar, int32 l) {
 }
 
 void
-term_set_attr(const int32 *attr, int32 l) {
+term_set_attr(int32 *attr, int32 l) {
     int32_t idx;
 
     for (int32 i = 0; i < l; i += 1) {
@@ -1015,8 +1015,8 @@ term_set_attr(const int32 *attr, int32 l) {
 }
 
 void
-term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
-    for (const int32 *lim = args + narg; args < lim; ++args) {
+term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
+    for (int32 *lim = args + narg; args < lim; ++args) {
         if (priv) {
             switch (*args) {
             case 1: /* DECCKM -- Cursor CONF_KEYS */
@@ -1898,7 +1898,7 @@ string_handle(void) {
 }
 
 void
-externalpipe(const Arg *arg) {
+externalpipe(Arg *arg) {
     int32 to[2];
     char buffer[UTF_SIZ];
     void (*oldsigpipe)(int32);
@@ -1966,7 +1966,7 @@ externalpipe(const Arg *arg) {
 }
 
 void
-user_send_break(const Arg *arg) {
+user_send_break(Arg *arg) {
     if (tcsendbreak(command_fd, 0)) {
         perror("Error sending break");
     }
@@ -1985,21 +1985,21 @@ term_printer(char *s, int64 len) {
 }
 
 void
-user_toggle_printer(const Arg *arg) {
+user_toggle_printer(Arg *arg) {
     term.mode ^= TERM_MODE_PRINT;
     (void)arg;
     return;
 }
 
 void
-user_print_screen(const Arg *arg) {
+user_print_screen(Arg *arg) {
     term_dump();
     (void)arg;
     return;
 }
 
 void
-user_print_sel(const Arg *arg) {
+user_print_sel(Arg *arg) {
     term_dump_sel();
     (void)arg;
     return;
@@ -2022,8 +2022,8 @@ term_dump_line(int32 n) {
         = xmalloc((int64)((term.ncols + 1)*UTF_SIZ) * SIZEOF(*string));
     char *buffer = string;
 
-    const Glyph *fgp = &term.line[n][0];
-    const Glyph *lgp = &fgp[term.ncols - 1];
+    Glyph *fgp = &term.line[n][0];
+    Glyph *lgp = &fgp[term.ncols - 1];
     char *ptr;
 
     while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
@@ -2565,7 +2565,7 @@ check_control_code:
 }
 
 int32
-term_write(const char *buffer, int32 buflen, int32 show_ctrl) {
+term_write(char *buffer, int32 buflen, int32 show_ctrl) {
     int32 charsize;
     uint32 u;
     int32 n;
@@ -2573,7 +2573,7 @@ term_write(const char *buffer, int32 buflen, int32 show_ctrl) {
     for (n = 0; n < buflen; n += charsize) {
         if (TERM_MODE_IS_SET(TERM_MODE_SIXEL) && sixel_st.state != PS_ESC) {
             charsize = sixel_parser_parse(
-                &sixel_st, (const unsigned char *)buffer + n, buflen - n);
+                &sixel_st, (unsigned char *)buffer + n, buflen - n);
             continue;
         } else if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
             /* process a complete utf8 char */

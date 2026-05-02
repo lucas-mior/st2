@@ -43,7 +43,7 @@ isboxdraw(uint32 u) {
 
 /* the "index" is actually the entire shape data encoded as uint16 */
 uint16
-boxdrawindex(const Glyph *g) {
+boxdrawindex(Glyph *g) {
     if (CONF_BOXDRAW_BRAILLE && (g->rune & ~(uint32)0xff) == 0x2800) {
         return BRL | (uint8_t)g->rune;
     }
@@ -55,7 +55,7 @@ boxdrawindex(const Glyph *g) {
 
 void
 drawboxes(int32 x, int32 y, int32 cw, int32 ch, XftColor *fg, XftColor *bg,
-          const XftGlyphFontSpec *specs, int32 len) {
+          XftGlyphFontSpec *specs, int32 len) {
     for (; len-- > 0; x += cw, specs++) {
         drawbox(x, y, cw, ch, fg, bg, (uint16)specs->glyph);
     }

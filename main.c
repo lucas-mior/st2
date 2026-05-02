@@ -39,10 +39,10 @@
 #define TRUE_BLUE(x) (uint16)(((x) & 0xff) << 8)
 
 static inline uint16 sixd_to_16bit(int32);
-static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, const Glyph *, int32,
-                                     int32, int32);
-static void x_draw_glyph_font_specs(const XftGlyphFontSpec *, Glyph, int32,
-                                    int32, int32);
+static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, Glyph *, int32, int32,
+                                     int32);
+static void x_draw_glyph_font_specs(XftGlyphFontSpec *, Glyph, int32, int32,
+                                    int32);
 static void x_draw_glyph(Glyph, int32, int32);
 static void x_clear(int32, int32, int32, int32);
 static int32 x_geom_mask_to_gravity(int32);
@@ -53,9 +53,9 @@ static int32 x_ic_destroy(XIC, XPointer, XPointer);
 static void cresize(int32, int32);
 static void x_resize(int32, int32);
 static void x_hints(void);
-static int32 x_load_color(int32, const char *, Color *);
+static int32 x_load_color(int32, char *, Color *);
 static int32 x_load_font(Font *, FcPattern *);
-static void x_load_fonts(const char *, float);
+static void x_load_fonts(char *, float);
 static int32 xloadsparefont(FcPattern *, int32);
 static void x_load_spare_fonts(void);
 static void x_unload_font(Font *);
@@ -539,7 +539,7 @@ run:
 }
 
 void
-zoom_abs(const Arg *arg) {
+zoom_abs(Arg *arg) {
     int i;
     ImageList *im;
     x_unload_fonts();
@@ -1064,7 +1064,7 @@ x_get_color(int32 x, uint *r, uint *g, uint *b) {
 }
 
 int32
-x_load_color(int32 i, const char *name, Color *ncolor) {
+x_load_color(int32 i, char *name, Color *ncolor) {
     XRenderColor color = {.alpha = 0xffff};
 
     if (!name) {
@@ -1132,7 +1132,7 @@ x_load_cols(void) {
 }
 
 int32
-x_set_color_name(int32 x, const char *name) {
+x_set_color_name(int32 x, char *name) {
     Color ncolor;
 
     if (!BETWEEN(x, 0, draw_context.colors_len - 1)) {
@@ -1305,7 +1305,7 @@ x_load_font(Font *f, FcPattern *pattern) {
 }
 
 void
-x_load_fonts(const char *fontstr, float fontsize) {
+x_load_fonts(char *fontstr, float fontsize) {
     FcPattern *pattern;
     double fontval;
 
@@ -1578,7 +1578,7 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
 }
 
 int32
-x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
+x_make_glyph_font_specs(XftGlyphFontSpec *specs, Glyph *glyphs, int32 len,
                         int32 x, int32 y) {
     int32 winx = term_window.hborderpx + x*term_window.cw;
     int32 winy = term_window.vborderpx + y*term_window.ch;
@@ -1719,8 +1719,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, const Glyph *glyphs, int32 len,
 }
 
 void
-x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len,
-                        int32 x, int32 y) {
+x_draw_glyph_font_specs(XftGlyphFontSpec *specs, Glyph base, int32 len, int32 x,
+                        int32 y) {
     int32 charlen = len*((base.mode & ATTR_WIDE) ? 2 : 1);
     int32 winx = term_window.hborderpx + x*term_window.cw;
     int32 winy = term_window.vborderpx + y*term_window.ch;

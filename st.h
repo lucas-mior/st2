@@ -119,15 +119,15 @@ typedef union {
 	int32 i;
 	uint32 ui;
 	float f;
-	const void *v;
-	const char *s;
+	void *v;
+	char *s;
 } Arg;
 
 typedef struct {
     uint32 mod;
     uint32 button;
-    void (*func)(const Arg *);
-    const Arg arg;
+    void (*func)(Arg *);
+    Arg arg;
     uint32 release;
 } MouseShortcut;
 
@@ -275,18 +275,18 @@ typedef struct {
     int32 narg; /* nb of args */
 } STREscape;
 
-static void die(const char *, ...) __attribute__((noreturn));
+static void die(char *, ...) __attribute__((noreturn));
 static void redraw(void);
 static void draw(void);
 
 static void dcshandle(void);
-static void user_scroll_down(const Arg *);
-static void user_scroll_up(const Arg *);
-static void externalpipe(const Arg *);
-static void user_print_screen(const Arg *);
-static void user_print_sel(const Arg *);
-static void user_send_break(const Arg *);
-static void user_toggle_printer(const Arg *);
+static void user_scroll_down(Arg *);
+static void user_scroll_up(Arg *);
+static void externalpipe(Arg *);
+static void user_print_screen(Arg *);
+static void user_print_sel(Arg *);
+static void user_send_break(Arg *);
+static void user_toggle_printer(Arg *);
 
 static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 
@@ -298,10 +298,10 @@ static int32 tisaltscreen(void);
 static void term_resize(int32, int32);
 static void term_set_dirt_attr(int32);
 static void tty_hangup(void);
-static int32 tty_new(const char *, char *, const char *, char **);
+static int32 tty_new(char *, char *, char *, char **);
 static int64 tty_read(void);
 static void tty_resize(int32, int32);
-static void tty_write(const char *, int64, int32);
+static void tty_write(char *, int64, int32);
 
 static void reset_title(void);
 
@@ -316,17 +316,17 @@ static int64 utf8_encode(uint32, char *);
 static void xfree(void *);
 
 static int32 isboxdraw(uint32);
-static uint16 boxdrawindex(const Glyph *);
+static uint16 boxdrawindex(Glyph *);
 #ifdef XFT_VERSION
 /* only exposed to main.c, otherwise we'll need Xft.h for the types */
 void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
-void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, const XftGlyphFontSpec *, int32);
+void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, XftGlyphFontSpec *, int32);
 #endif
 
 static void exec_shell(char *, char **) __attribute__((noreturn));
 static void stty(char **);
 static void handler_sigchld(int32);
-static void tty_write_raw(const char *, int64);
+static void tty_write_raw(char *, int64);
 
 static void control_seq_intro_dump(void);
 static void control_seq_intro_handle(void);
@@ -350,7 +350,7 @@ static void term_insert_blank(int32);
 static void term_insert_blank_line(int32);
 static int32 term_line_len(Glyph *len);
 static int32 term_is_wrapped(Glyph *line);
-static char *term_get_glyphs(char *, const Glyph *, const Glyph *);
+static char *term_get_glyphs(char *, Glyph *, Glyph *);
 static void term_move_to(int32, int32);
 static void term_move_abs_to(int32, int32);
 static void term_new_line(int32);
@@ -363,19 +363,19 @@ static void term_reflow(int32, int32);
 static void reflow_scroll_down(int32);
 static void term_resize_def(int32, int32);
 static void term_resize_alt(int32, int32);
-static void term_set_attr(const int32 *, int32);
-static void term_set_char(uint32, const Glyph *, int32, int32);
+static void term_set_attr(int32 *, int32);
+static void term_set_char(uint32, Glyph *, int32, int32);
 static void term_set_dirt(int32, int32);
 static void term_swap_screen(void);
 static void term_load_def_screen(int32, int32);
 static void term_load_alt_screen(int32, int32);
-static void term_set_mode(int32, int32, const int32 *, int32);
-static int32 term_write(const char *, int32, int32);
+static void term_set_mode(int32, int32, int32 *, int32);
+static int32 term_write(char *, int32, int32);
 static void term_full_dirt(void);
 static void term_control_code(uchar);
 static void term_dec_test(char);
 static void term_def_utf8(char);
-static int32_t term_def_color(const int32 *, int32 *, int32);
+static int32_t term_def_color(int32 *, int32 *, int32);
 static void term_def_tran(char);
 static void term_str_sequence(uchar);
 
@@ -386,32 +386,32 @@ static void selection_remove(void);
 static int32 selection_is_selected4(int32, int32, int32, int32);
 static void SelectionSnap(int32 *, int32 *, int32);
 
-static int64 utf8_decode(const char *, uint32 *, int64);
+static int64 utf8_decode(char *, uint32 *, int64);
 static uint32 utf8_decode_byte(char, int64 *);
 static char utf8_encode_byte(uint32, int64);
 static int64 utf8_validate(uint32 *, int64);
 
-static char *base64_decode(const char *);
-static char base64_decode_getc(const char **);
+static char *base64_decode(char *);
+static char base64_decode_getc(char **);
 
-static int64 xwrite(int32, const char *, int64);
+static int64 xwrite(int32, char *, int64);
 
 /* function definitions used in config.def.h */
-void user_clipboard_copy(const Arg *);
-void user_clipboard_paste(const Arg *);
-void user_toggle_numlock(const Arg *);
-void user_selection_paste(const Arg *);
-void user_change_alpha(const Arg *);
-void user_zoom(const Arg *);
-void zoom_abs(const Arg *);
-void user_zoom_reset(const Arg *);
-void user_tty_send(const Arg *);
+void user_clipboard_copy(Arg *);
+void user_clipboard_paste(Arg *);
+void user_toggle_numlock(Arg *);
+void user_selection_paste(Arg *);
+void user_change_alpha(Arg *);
+void user_zoom(Arg *);
+void zoom_abs(Arg *);
+void user_zoom_reset(Arg *);
+void user_tty_send(Arg *);
 
 typedef struct {
     uint32 mod;
     KeySym keysym;
-    void (*func)(const Arg *);
-    const Arg arg;
+    void (*func)(Arg *);
+    Arg arg;
 } Shortcut;
 
 typedef struct {
@@ -451,7 +451,7 @@ void x_draw_cursor(int32, int32, Glyph, int32, int32, Glyph);
 void x_draw_line(Glyph *, int32, int32, int32);
 void x_finish_draw(void);
 void x_load_cols(void);
-int32 x_set_color_name(int32, const char *);
+int32 x_set_color_name(int32, char *);
 void x_set_icon_title(char *);
 void x_set_title(char *);
 int32 x_set_cursor(int32);
