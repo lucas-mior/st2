@@ -2170,9 +2170,9 @@ void
 dcshandle(void) {
     uint bgcolor;
     int transparent;
-    uint r;
-    uint g;
-    uint b;
+    uint r = 0xCD;
+    uint g = 0xCD;
+    uint b = 0xCD;
     uint a = 255;
 
     switch (csi_escape_seq.mode[0]) {
