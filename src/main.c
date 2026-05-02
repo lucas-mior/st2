@@ -222,13 +222,19 @@ run:
 									| StructureNotifyMask;
         x_window.attrs.colormap = x_window.color_map;
 
-        x_window.win = XCreateWindow(
-            x_window.display, parent, x_window.left_offset, x_window.top_offset,
-            (uint32)term_window.w, (uint32)term_window.h, 0, x_window.depth,
-            InputOutput, x_window.visual,
-            CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask
-                | CWColormap,
-            &x_window.attrs);
+		{
+			ulong cw_flags = CWBackPixel
+				             | CWBorderPixel
+							 | CWBitGravity
+							 | CWEventMask
+							 | CWColormap;
+        x_window.win = XCreateWindow(x_window.display, parent,
+				                     x_window.left_offset, x_window.top_offset,
+                                     (uint32)term_window.w, (uint32)term_window.h,
+									 0, x_window.depth,
+                                     InputOutput, x_window.visual,
+                                     cw_flags,
+                                     &x_window.attrs);
         if (parent != root) {
             XReparentWindow(x_window.display, x_window.win, parent,
                             x_window.left_offset, x_window.top_offset);
