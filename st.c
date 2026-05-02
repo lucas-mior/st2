@@ -37,7 +37,6 @@ static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 static int32 io_fd = 1;
 static int32 command_fd;
-static pid_t pid;
 
 static const uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
 static const uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
@@ -228,34 +227,7 @@ exec_shell(char *cmd, char **args) {
     _exit(1);
 }
 
-void
-handler_sigchld(int32 unused) {
-    int32 stat;
-    pid_t p;
-    (void)unused;
-
-    if ((p = waitpid(pid, &stat, WNOHANG)) < 0) {
-        die("waiting for pid %hd failed: %s\n", pid, strerror(errno));
-    }
-
-    if (pid != p) {
-        if (p == 0 && wait(&stat) < 0) {
-            die("wait: %s\n", strerror(errno));
-        }
-
-        /* reinstall handler_sigchld handler */
-        signal(SIGCHLD, handler_sigchld);
-        return;
-    }
-
-    if (WIFEXITED(stat) && WEXITSTATUS(stat)) {
-        die("child exited with status %d\n", WEXITSTATUS(stat));
-    } else if (WIFSIGNALED(stat)) {
-        die("child terminated due to signal %d\n", WTERMSIG(stat));
-    }
-    _exit(0);
-}
-
+#include "handlers.c"
 #include "tty.c"
 
 void
