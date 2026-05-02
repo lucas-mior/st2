@@ -39,10 +39,6 @@ typedef ssize_t isize;
 #define RESIZE_BUFFER 1000
 
 /* macros */
-#define SIZEOF(X) (int64)sizeof(X)
-#define MIN(a, b)		((a) < (b) ? (a) : (b))
-#define MAX(a, b)		((a) < (b) ? (b) : (a))
-#define LENGTH(a)			(int32)(SIZEOF(a) / SIZEOF(*a))
 #define BETWEEN(x, a, b)	((a) <= (x) && (x) <= (b))
 #define DIVCEIL(n, d)		(((n) + ((d) - 1)) / (d))
 #define DEFAULT(a, b)		(a) = (a) ? (a) : (b)
@@ -55,8 +51,6 @@ typedef ssize_t isize;
 
 #define TRUECOLOR(r,g,b)	(1 << 24 | (r) << 16 | (g) << 8 | (b))
 #define IS_TRUECOL(x)		(1 << 24 & (x))
-
-#define error(...) fprintf(stderr, __VA_ARGS__)
 
 /* X modifiers */
 #define XK_ANY_MOD UINT_MAX

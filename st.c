@@ -1172,10 +1172,9 @@ term_set_mode(int32 priv, int32 set, const int32 *args, int32 narg) {
 
 void
 control_seq_intro_handle(void) {
-    char buffer[40];
+    char buffer[256];
     int32 n;
     ImageList *im;
-    ImageList *next;
     int pi;
     int pa;
     int32 x;
@@ -1358,25 +1357,25 @@ control_seq_intro_handle(void) {
                     /* number of sixel color registers */
                     /* (read, reset and read the maximum value give the same
                      * response) */
-                    n = snprintf(buffer, sizeof buffer, "\033[?1;0;%dS",
-                                 DECSIXEL_PALETTE_MAX);
+                    n = SNPRINTF(buffer, "\033[?1;0;%dS", DECSIXEL_PALETTE_MAX);
                     tty_write(buffer, n, 1);
                     break;
                 } else if (pi == 2 && (pa == 1 || pa == 2 || pa == 4)) {
                     /* sixel graphics geometry (in pixels) */
                     /* (read, reset and read the maximum value give the same
                      * response) */
-                    n = snprintf(
-                        buffer, sizeof buffer, "\033[?2;0;%d;%dS",
-                        MIN(term.ncols*term_window.cw, DECSIXEL_WIDTH_MAX),
-                        MIN(term.nrows*term_window.ch, DECSIXEL_HEIGHT_MAX));
+                    n = SNPRINTF(buffer,
+							     "\033[?2;0;%lld;%lldS",
+                                 MIN(term.ncols*term_window.cw,
+									 DECSIXEL_WIDTH_MAX),
+                                 MIN(term.nrows*term_window.ch,
+									 DECSIXEL_HEIGHT_MAX));
                     tty_write(buffer, n, 1);
                     break;
                 }
                 /* the number of color registers and sixel geometry can't be
                  * changed */
-                n = snprintf(buffer, sizeof buffer, "\033[?%d;3;0S",
-                             pi); /* failure */
+                n = SNPRINTF(buffer, "\033[?%d;3;0S", pi); /* failure */
                 tty_write(buffer, n, 1);
             }
         }
@@ -1434,8 +1433,8 @@ control_seq_intro_handle(void) {
             tty_write("\033[0n", SIZEOF("\033[0n") - 1, 0);
             break;
         case 6: /* Report Cursor Position (CPR) "<row>;<column>R" */
-            n = snprintf(buffer, SIZEOF(buffer), "\033[%i;%iR",
-                         term.cursor.y + 1, term.cursor.x + 1);
+            n = SNPRINTF(buffer, "\033[%i;%iR",
+					             term.cursor.y + 1, term.cursor.x + 1);
             tty_write(buffer, (int64)n, 0);
             break;
         default:
@@ -1501,19 +1500,18 @@ control_seq_intro_handle(void) {
             if (csi_escape_seq.narg > 1) {
                 goto unknown;
             }
-            n = snprintf(buffer, sizeof buffer, "\033[4;%d;%dt",
-                         term.nrows*term_window.ch,
-                         term.ncols*term_window.cw);
+            n = SNPRINTF(buffer, "\033[4;%d;%dt",
+                                 term.nrows*term_window.ch,
+                                 term.ncols*term_window.cw);
             tty_write(buffer, n, 1);
             break;
         case 16: /* character cell size in pixels */
-            n = snprintf(buffer, sizeof buffer, "\033[6;%d;%dt", term_window.ch,
-                         term_window.cw);
+            n = SNPRINTF(buffer, "\033[6;%d;%dt",
+					             term_window.ch, term_window.cw);
             tty_write(buffer, n, 1);
             break;
         case 18: /* size of the text area in characters */
-            n = snprintf(buffer, sizeof buffer, "\033[8;%d;%dt", term.nrows,
-                         term.ncols);
+            n = SNPRINTF(buffer, "\033[8;%d;%dt", term.nrows, term.ncols);
             tty_write(buffer, n, 1);
             break;
         default:
@@ -1574,7 +1572,7 @@ control_seq_intro_reset(void) {
 void
 osc_color_response(int32 num, int32 index, int32 is_osc4) {
     int32 n;
-    char buffer[32];
+    char buffer[128];
     uchar r, g, b;
     int32 x;
 
@@ -1593,16 +1591,10 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
     g = draw_context.color[x].color.green >> 8;
     b = draw_context.color[x].color.blue >> 8;
 
-    n = snprintf(buffer, SIZEOF(buffer),
+    n = SNPRINTF(buffer,
                  "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
-    if (n < 0 || n >= (int32)SIZEOF(buffer)) {
-        fprintf(stderr, "error: %s while printing %s response\n",
-                n < 0 ? "snprintf failed" : "truncation occurred",
-                is_osc4 ? "osc4" : "osc");
-    } else {
-        tty_write(buffer, (int64)n, 1);
-    }
+	tty_write(buffer, (int64)n, 1);
     return;
 }
 
@@ -2178,7 +2170,6 @@ dcshandle(void) {
 
     switch (csi_escape_seq.mode[0]) {
     default:
-    unknown:
         fprintf(stderr, "erresc: unknown csi ");
         control_seq_intro_dump();
         /* die(""); */
