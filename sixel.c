@@ -465,7 +465,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                     n = 4;
                                 }
                                 if (bits & 0x20) {
-                                    data[width] = color_index;
+                                    data[width] = (uint16)color_index;
                                     n = 5;
                                 }
                                 if (sixel_state->max_x < sixel_state->pos_x) {
@@ -476,12 +476,12 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                 for (i = 0; bits;
                                      bits >>= 1, i++, data += width) {
                                     if (bits & 1) {
-                                        data[0] = color_index;
-                                        data[1] = color_index;
+                                        data[0] = (uint16)color_index;
+                                        data[1] = (uint16)color_index;
                                         for (x = 2;
                                              x < sixel_state->repeat_count;
                                              x++) {
-                                            data[x] = color_index;
+                                            data[x] = (uint16)color_index;
                                         }
                                         n = i;
                                     }
@@ -682,11 +682,11 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     } else if (sixel_state->params[1] == 2) {
                         /* RGB */
                         sixel_state->params[2]
-                            = MIN(sixel_state->params[2], 100);
+                            = (int32)MIN(sixel_state->params[2], 100);
                         sixel_state->params[3]
-                            = MIN(sixel_state->params[3], 100);
+                            = (int32)MIN(sixel_state->params[3], 100);
                         sixel_state->params[4]
-                            = MIN(sixel_state->params[4], 100);
+                            = (int32)MIN(sixel_state->params[4], 100);
                         image->palette[sixel_state->color_index] = SIXEL_XRGB(
                             sixel_state->params[2], sixel_state->params[3],
                             sixel_state->params[4]);
