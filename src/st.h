@@ -290,7 +290,6 @@ typedef struct StFont {
 static void redraw(void);
 static void draw(void);
 
-static void dcshandle(void);
 static void user_scroll_down(Arg *);
 static void user_scroll_up(Arg *);
 static void externalpipe(Arg *);

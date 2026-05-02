@@ -1261,7 +1261,7 @@ term_str_sequence(uchar c) {
     return;
 }
 
-void
+static void
 dcshandle(void) {
     uint bgcolor;
     int transparent;
