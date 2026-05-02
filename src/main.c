@@ -21,6 +21,7 @@
 #include "boxdraw.c"
 #include "sixel.c"
 #include "x.c"
+#include "user.c"
 
 #include <Imlib2.h>
 #include "config.def.h"
@@ -481,8 +482,6 @@ zoom_abs(Arg *arg) {
     x_hints();
     return;
 }
-
-#include "user.c"
 
 static int32
 xevent_col(XEvent *xevent) {
