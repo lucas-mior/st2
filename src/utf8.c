@@ -1,6 +1,9 @@
 #if !defined(UTF8_C)
 #define UTF8_C
 
+#include "st.h"
+#include "util.c"
+
 static uchar utf8_byte[UTF_SIZ + 1] = {0x80, 0, 0xC0, 0xE0, 0xF0};
 static uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
 static uint32 utf8_min[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
