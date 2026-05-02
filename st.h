@@ -188,7 +188,7 @@ enum charset {
     CS_FIN
 };
 
-enum escape_state {
+enum EscapeState {
     ESC_START = 1,
     ESC_CSI = 2,
     ESC_STR = 4, /* DCS, OSC, PM, APC */
@@ -224,7 +224,7 @@ static struct {
     int32 top_scroll_limit;    /* top    scroll limit */
     int32 bot_scroll_limit;    /* bottom scroll limit */
     int32 mode;                /* terminal mode flags */
-    enum escape_state esc;     /* escape state flags */
+    enum EscapeState esc;     /* escape state flags */
     char translation_table[4]; /* charset table translation */
     int32 charset;             /* current charset */
     int32 icharset;            /* selection_is_selected charset for sequence */
