@@ -103,45 +103,6 @@ xfree(void *pointer) {
     return;
 }
 
-void *
-xmalloc(int64 len) {
-    void *p;
-
-    malloc_count += 1;
-
-    if (len <= 0) {
-        die("xmalloc: len <= 0.\n");
-    }
-    if (!(p = malloc((size_t)len))) {
-        die("malloc: %s\n", strerror(errno));
-    }
-
-    return p;
-}
-
-void *
-xrealloc(void *p, int64 len) {
-    if (len <= 0) {
-        die("realloc: len <= 0.\n");
-    }
-    if ((p = realloc(p, (size_t)len)) == NULL) {
-        die("realloc: %s\n", strerror(errno));
-    }
-
-    return p;
-}
-
-char *
-xstrdup(const char *s) {
-    char *p;
-
-    if ((p = strdup(s)) == NULL) {
-        die("strdup: %s\n", strerror(errno));
-    }
-
-    return p;
-}
-
 #include "utf8.c"
 
 char

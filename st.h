@@ -307,10 +307,7 @@ char *selection_get(void);
 
 int64 utf8_encode(uint32, char *);
 
-void *xmalloc(int64);
 void xfree(void *);
-void *xrealloc(void *, int64);
-char *xstrdup(const char *);
 
 int32 isboxdraw(uint32);
 uint16 boxdrawindex(const Glyph *);
