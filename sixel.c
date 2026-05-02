@@ -213,8 +213,8 @@ sixel_image_deinit(sixel_image_t *image) {
 
 int32
 sixel_parser_init(sixel_state_t *st, int32 transparent, uint32 fgcolor,
-                  uint32 bgcolor, unsigned char use_private_register,
-                  int32 cell_width, int32 cell_height) {
+                  uint32 bgcolor, uchar use_private_register, int32 cell_width,
+                  int32 cell_height) {
     int32 status = (-1);
 
     st->state = PS_DECSIXEL;
@@ -341,7 +341,7 @@ sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
 
 /* convert sixel data into indexed pixel bytes and palette data */
 int32
-sixel_parser_parse(sixel_state_t *st, const unsigned char *p, size_t len) {
+sixel_parser_parse(sixel_state_t *st, const uchar *p, size_t len) {
     int32 n = 0;
     int32 i;
     int32 x;
@@ -349,7 +349,7 @@ sixel_parser_parse(sixel_state_t *st, const unsigned char *p, size_t len) {
     int32 sx;
     int32 sy;
     int32 width;
-    const unsigned char *p0 = p, *p2 = p + len;
+    const uchar *p0 = p, *p2 = p + len;
     sixel_image_t *image = &st->image;
     ushort *data, color_index;
 
