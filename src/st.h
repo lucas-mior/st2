@@ -399,21 +399,6 @@ static uint32 utf8_decode_byte(char, int64 *);
 static char utf8_encode_byte(uint32, int64);
 static int64 utf8_validate(uint32 *, int64);
 
-static void handler_expose(XEvent *);
-static void handler_visibility(XEvent *);
-static void handler_unmap(XEvent *);
-static void handler_key_press(XEvent *);
-static void handler_client_message(XEvent *);
-static void handler_configure_notify(XEvent *);
-static void handler_focus(XEvent *);
-static void handler_button_release(XEvent *);
-static void handler_button_press(XEvent *);
-static void handler_button_motion(XEvent *);
-static void handler_prop_notify(XEvent *);
-static void handler_selection_notify(XEvent *);
-static void handler_selection_clear(XEvent *);
-static void handler_selection_request(XEvent *);
-
 static void mouse_select(XEvent *, int32);
 static void mouse_report(XEvent *);
 static int32 match_mask_state(uint32, uint32);
@@ -445,11 +430,6 @@ static void x_load_spare_fonts(void);
 static void x_unload_font(StFont *);
 static void x_unload_fonts(void);
 static void x_set_urgency(int32);
-
-static char *base64_decode(char *);
-static char base64_decode_getc(char **);
-
-static int64 xwrite(int32, char *, int64);
 
 static void user_clipboard_copy(Arg *);
 static void user_clipboard_paste(Arg *);

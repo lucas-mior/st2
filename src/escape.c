@@ -3,8 +3,10 @@
 
 #include <wchar.h>
 #include <ctype.h>
+
 #include "st.h"
 #include "config.def.h"
+#include "base64.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_escape 1

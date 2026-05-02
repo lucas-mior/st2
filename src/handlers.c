@@ -83,22 +83,6 @@ handler_button_press(XEvent *xevent) {
 }
 
 static void
-handler_prop_notify(XEvent *xevent) {
-    XPropertyEvent *x_property_event;
-    Atom clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
-
-    x_property_event = &xevent->xproperty;
-    if (x_property_event->state == PropertyNewValue) {
-        if (x_property_event->atom == XA_PRIMARY) {
-            handler_selection_notify(xevent);
-        } else if (x_property_event->atom == clipboard) {
-            handler_selection_notify(xevent);
-        }
-    }
-    return;
-}
-
-static void
 handler_selection_notify(XEvent *xevent) {
     uint64 nitems;
     uint64 ofs;
@@ -170,6 +154,22 @@ handler_selection_notify(XEvent *xevent) {
     } while (rem > 0);
 
     XDeleteProperty(x_window.display, x_window.win, (ulong)property);
+    return;
+}
+
+static void
+handler_prop_notify(XEvent *xevent) {
+    XPropertyEvent *x_property_event;
+    Atom clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
+
+    x_property_event = &xevent->xproperty;
+    if (x_property_event->state == PropertyNewValue) {
+        if (x_property_event->atom == XA_PRIMARY) {
+            handler_selection_notify(xevent);
+        } else if (x_property_event->atom == clipboard) {
+            handler_selection_notify(xevent);
+        }
+    }
     return;
 }
 
