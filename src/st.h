@@ -379,13 +379,6 @@ static int32_t term_def_color(int32 *, int32 *, int32);
 static void term_def_tran(char);
 static void term_str_sequence(uchar);
 
-static void selection_normalize(void);
-static void selection_scroll(int32, int32, int32);
-static void selection_move(int32);
-static void selection_remove(void);
-static int32 selection_is_selected4(int32, int32, int32, int32);
-static void SelectionSnap(int32 *, int32 *, int32);
-
 static int64 utf8_decode(char *, uint32 *, int64);
 static uint32 utf8_decode_byte(char, int64 *);
 static char utf8_encode_byte(uint32, int64);

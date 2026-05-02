@@ -31,131 +31,10 @@ static struct {
 } selection;
 
 static void
-selection_start(int32 col, int32 row, int32 snap) {
-    selection_clear();
-    selection.mode = SELECTION_EMPTY;
-    selection.type = SELECTION_REGULAR;
-    selection.alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
-    selection.snap = snap;
-    selection.oe.x = selection.ob.x = col;
-    selection.oe.y = selection.ob.y = row;
-    selection_normalize();
-
-    if (selection.snap != 0) {
-        selection.mode = SELECTION_READY;
-    }
-    term_set_dirt(selection.nb.y, selection.ne.y);
+selection_remove(void) {
+    selection.mode = SELECTION_IDLE;
+    selection.ob.x = -1;
     return;
-}
-
-static void
-selection_extend(int32 col, int32 row, int32 type, int32 done) {
-    int32 oldey;
-    int32 oldex;
-    int32 oldsby;
-    int32 oldsey;
-    int32 oldtype;
-
-    if (selection.mode == SELECTION_IDLE) {
-        return;
-    }
-    if (done && selection.mode == SELECTION_EMPTY) {
-        selection_clear();
-        return;
-    }
-
-    oldey = selection.oe.y;
-    oldex = selection.oe.x;
-    oldsby = selection.nb.y;
-    oldsey = selection.ne.y;
-    oldtype = selection.type;
-
-    selection.oe.x = col;
-    selection.oe.y = row;
-    selection.type = type;
-    selection_normalize();
-
-    if (oldey != selection.oe.y || oldex != selection.oe.x
-        || oldtype != selection.type || selection.mode == SELECTION_EMPTY) {
-        term_set_dirt((int32)MIN(selection.nb.y, oldsby),
-                      (int32)MAX(selection.ne.y, oldsey));
-    }
-
-    if (done) {
-        selection.mode = SELECTION_IDLE;
-    } else {
-        selection.mode = SELECTION_READY;
-    }
-    return;
-}
-
-static void
-selection_normalize(void) {
-    int32 len;
-
-    if (selection.type == SELECTION_REGULAR
-        && selection.ob.y != selection.oe.y) {
-        selection.nb.x
-            = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
-        selection.ne.x
-            = selection.ob.y < selection.oe.y ? selection.oe.x : selection.ob.x;
-    } else {
-        selection.nb.x = (int32)MIN(selection.ob.x, selection.oe.x);
-        selection.ne.x = (int32)MAX(selection.ob.x, selection.oe.x);
-    }
-    selection.nb.y = (int32)MIN(selection.ob.y, selection.oe.y);
-    selection.ne.y = (int32)MAX(selection.ob.y, selection.oe.y);
-
-    SelectionSnap(&selection.nb.x, &selection.nb.y, -1);
-    SelectionSnap(&selection.ne.x, &selection.ne.y, +1);
-
-    /* expand selection over line breaks */
-    if (selection.type == SELECTION_RECTANGULAR) {
-        return;
-    }
-
-    len = term_line_len(TERM_LINE(selection.nb.y));
-    if (selection.nb.x > len) {
-        selection.nb.x = len;
-    }
-    if (selection.ne.x >= term_line_len(TERM_LINE(selection.ne.y))) {
-        selection.ne.x = term.ncols - 1;
-    }
-    return;
-}
-
-static int32
-selection_is_selected4(int32 x1, int32 y1, int32 x2, int32 y2) {
-    int32 is_selected;
-
-    if (selection.ob.x == -1) {
-        return 0;
-    }
-    if (selection.mode == SELECTION_EMPTY) {
-        return 0;
-    }
-    if (selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-        return 0;
-    }
-
-    if (selection.nb.y > y2) {
-        return 0;
-    }
-    if (selection.ne.y < y1) {
-        return 0;
-    }
-    if (selection.type == SELECTION_RECTANGULAR) {
-        is_selected = selection.nb.x <= x2 && selection.ne.x >= x1;
-    } else {
-        is_selected = (selection.nb.y != y2 || selection.nb.x <= x2)
-                      && (selection.ne.y != y1 || selection.ne.x >= x1);
-    }
-    return is_selected;
-}
-
-static int32
-selection_is_selected(int32 x, int32 y) {
-    return selection_is_selected4(x, y, x, y);
 }
 
 static void
@@ -252,6 +131,134 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
     return;
 }
 
+static void
+selection_normalize(void) {
+    int32 len;
+
+    if (selection.type == SELECTION_REGULAR
+        && selection.ob.y != selection.oe.y) {
+        selection.nb.x
+            = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
+        selection.ne.x
+            = selection.ob.y < selection.oe.y ? selection.oe.x : selection.ob.x;
+    } else {
+        selection.nb.x = (int32)MIN(selection.ob.x, selection.oe.x);
+        selection.ne.x = (int32)MAX(selection.ob.x, selection.oe.x);
+    }
+    selection.nb.y = (int32)MIN(selection.ob.y, selection.oe.y);
+    selection.ne.y = (int32)MAX(selection.ob.y, selection.oe.y);
+
+    SelectionSnap(&selection.nb.x, &selection.nb.y, -1);
+    SelectionSnap(&selection.ne.x, &selection.ne.y, +1);
+
+    /* expand selection over line breaks */
+    if (selection.type == SELECTION_RECTANGULAR) {
+        return;
+    }
+
+    len = term_line_len(TERM_LINE(selection.nb.y));
+    if (selection.nb.x > len) {
+        selection.nb.x = len;
+    }
+    if (selection.ne.x >= term_line_len(TERM_LINE(selection.ne.y))) {
+        selection.ne.x = term.ncols - 1;
+    }
+    return;
+}
+
+static void
+selection_start(int32 col, int32 row, int32 snap) {
+    selection_clear();
+    selection.mode = SELECTION_EMPTY;
+    selection.type = SELECTION_REGULAR;
+    selection.alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    selection.snap = snap;
+    selection.oe.x = selection.ob.x = col;
+    selection.oe.y = selection.ob.y = row;
+    selection_normalize();
+
+    if (selection.snap != 0) {
+        selection.mode = SELECTION_READY;
+    }
+    term_set_dirt(selection.nb.y, selection.ne.y);
+    return;
+}
+
+static void
+selection_extend(int32 col, int32 row, int32 type, int32 done) {
+    int32 oldey;
+    int32 oldex;
+    int32 oldsby;
+    int32 oldsey;
+    int32 oldtype;
+
+    if (selection.mode == SELECTION_IDLE) {
+        return;
+    }
+    if (done && selection.mode == SELECTION_EMPTY) {
+        selection_clear();
+        return;
+    }
+
+    oldey = selection.oe.y;
+    oldex = selection.oe.x;
+    oldsby = selection.nb.y;
+    oldsey = selection.ne.y;
+    oldtype = selection.type;
+
+    selection.oe.x = col;
+    selection.oe.y = row;
+    selection.type = type;
+    selection_normalize();
+
+    if (oldey != selection.oe.y || oldex != selection.oe.x
+        || oldtype != selection.type || selection.mode == SELECTION_EMPTY) {
+        term_set_dirt((int32)MIN(selection.nb.y, oldsby),
+                      (int32)MAX(selection.ne.y, oldsey));
+    }
+
+    if (done) {
+        selection.mode = SELECTION_IDLE;
+    } else {
+        selection.mode = SELECTION_READY;
+    }
+    return;
+}
+
+static int32
+selection_is_selected4(int32 x1, int32 y1, int32 x2, int32 y2) {
+    int32 is_selected;
+
+    if (selection.ob.x == -1) {
+        return 0;
+    }
+    if (selection.mode == SELECTION_EMPTY) {
+        return 0;
+    }
+    if (selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+        return 0;
+    }
+
+    if (selection.nb.y > y2) {
+        return 0;
+    }
+    if (selection.ne.y < y1) {
+        return 0;
+    }
+    if (selection.type == SELECTION_RECTANGULAR) {
+        is_selected = selection.nb.x <= x2 && selection.ne.x >= x1;
+    } else {
+        is_selected = (selection.nb.y != y2 || selection.nb.x <= x2)
+                      && (selection.ne.y != y1 || selection.ne.x >= x1);
+    }
+    return is_selected;
+}
+
+static int32
+selection_is_selected(int32 x, int32 y) {
+    return selection_is_selected4(x, y, x, y);
+}
+
 static char *
 selection_get(void) {
     char *string, *ptr;
@@ -316,13 +323,6 @@ selection_clear(void) {
     }
     selection_remove();
     term_set_dirt(selection.nb.y, selection.ne.y);
-    return;
-}
-
-static void
-selection_remove(void) {
-    selection.mode = SELECTION_IDLE;
-    selection.ob.x = -1;
     return;
 }
 
