@@ -157,11 +157,11 @@ static int32
 image_buffer_resize(SixelImage *image, int32 width, int32 height) {
     int32 status = (-1);
     size_t size;
-    ushort *alt_buffer;
+    uint16 *alt_buffer;
     int32 min_height;
 
-    size = (size_t)(width*height) * sizeof(ushort);
-    alt_buffer = (ushort *)malloc(size);
+    size = (size_t)(width*height) * sizeof(uint16);
+    alt_buffer = (uint16 *)malloc(size);
     if (alt_buffer == NULL) {
         /* free source image */
         free(image->data);
@@ -175,23 +175,23 @@ image_buffer_resize(SixelImage *image, int32 width, int32 height) {
         for (int32 n = 0; n < min_height; ++n) {
             /* copy from source image */
             memcpy(alt_buffer + width*n, image->data + image->width*n,
-                   (size_t)image->width*sizeof(ushort));
+                   (size_t)image->width*sizeof(uint16));
             /* fill extended area with background color */
             memset(alt_buffer + width*n + image->width, 0,
-                   (size_t)(width - image->width)*sizeof(ushort));
+                   (size_t)(width - image->width)*sizeof(uint16));
         }
     } else {
         for (int32 n = 0; n < min_height; ++n) {
             /* copy from source image */
             memcpy(alt_buffer + width*n, image->data + image->width*n,
-                   (size_t)width*sizeof(ushort));
+                   (size_t)width*sizeof(uint16));
         }
     }
 
     if (height > image->height) { /* if height is extended */
         /* fill extended area with background color */
         memset(alt_buffer + width*image->height, 0,
-               (size_t)(width*(height - image->height))*sizeof(ushort));
+               (size_t)(width*(height - image->height))*sizeof(uint16));
     }
 
     free(image->data);
@@ -257,7 +257,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
                       int32 cy, int32 cw, int32 ch) {
     SixelImage *image = &sixel_state->image;
     int32 x, y;
-    ushort *src;
+    uint16 *src;
     uint32 *dst, color;
     int32 w, h;
     int32 i, j, cols, numimages;
@@ -343,7 +343,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
     uchar *p0 = p;
     uchar *p2 = p + len;
     SixelImage *image = &sixel_state->image;
-    ushort *data;
+    uint16 *data;
     int32 color_index;
 
     if (!image->data) {
