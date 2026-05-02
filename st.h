@@ -188,21 +188,20 @@ enum charset {
     CS_FIN
 };
 
-#if defined(__clang__)
-enum EscapeState : uint32 {
-#else
-enum EscapeState {
-#endif
-    ESC_START = 1,
-    ESC_CSI = 2,
-    ESC_STR = 4, /* DCS, OSC, PM, APC */
-    ESC_ALTCHARSET = 8,
-    ESC_STR_END = 16, /* a final string was encountered */
-    ESC_TEST = 32,    /* Enter in test mode */
-    ESC_UTF8 = 64,
-    ESC_SIXEL = 128,  /* Sixel data stream active */
-    ESC_DCS = 256,
-};
+#define ENUM_NAME EscapeState
+#define ENUM_PREFIX_ ESC_
+#define ENUM_BITFLAGS 1
+#define ENUM_FIELDS \
+    X(START) \
+    X(CSI) \
+    X(STR) \
+    X(ALTCHARSET) \
+    X(STR_END) \
+    X(TEST) \
+    X(UTF8) \
+    X(SIXEL) \
+    X(DCS)
+#include "cbase/xenums.c"
 
 typedef struct {
     Glyph attr; /* current char attributes */
