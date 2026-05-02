@@ -12,7 +12,7 @@
 #define TESTING_tty 0
 #endif
 
-void
+static void
 stty(char **args) {
     char cmd[_POSIX_ARG_MAX], *q, *s;
     int64 n;
@@ -20,7 +20,7 @@ stty(char **args) {
 
     if ((n = strlen32(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
         error("incorrect stty parameters\n");
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
     memcpy(cmd, CONF_STTY_ARGS, (size_t)n);
     q = cmd + n;
@@ -28,7 +28,7 @@ stty(char **args) {
     for (char **p = args; p && (s = *p); p += 1) {
         if ((n = (int64)strlen(s)) > siz - 1) {
             error("stty parameter length too int64\n");
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         *q++ = ' ';
         memcpy(q, s, (size_t)n);
@@ -42,7 +42,7 @@ stty(char **args) {
     return;
 }
 
-int32
+static int32
 tty_new(char *line, char *cmd, char *out, char **args) {
     int32 amaster;
     int32 aslave;
@@ -58,7 +58,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
     if (line) {
         if ((command_fd = open(line, O_RDWR)) < 0) {
             error("open line '%s' failed: %s\n", line, strerror(errno));
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         dup2(command_fd, 0);
         stty(args);
@@ -68,13 +68,13 @@ tty_new(char *line, char *cmd, char *out, char **args) {
     /* seems to work fine on linux, openbsd and freebsd */
     if (openpty(&amaster, &aslave, NULL, NULL, NULL) < 0) {
         error("openpty failed: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     switch (pid = fork()) {
     case -1:
         error("fork failed: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     case 0:
         close(io_fd);
         close(amaster);
@@ -84,7 +84,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
         dup2(aslave, 2);
         if (ioctl(aslave, TIOCSCTTY, NULL) < 0) {
             error("ioctl TIOCSCTTY failed: %s\n", strerror(errno));
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         if (aslave > 2) {
             close(aslave);
@@ -92,7 +92,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
 #ifdef __OpenBSD__
         if (pledge("stdio getpw proc exec", NULL) == -1) {
             error("pledge\n");
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 #endif
         exec_shell(cmd, args);
@@ -100,7 +100,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
 #ifdef __OpenBSD__
         if (pledge("stdio rpath tty proc exec", NULL) == -1) {
             error("pledge\n");
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 #endif
         close(aslave);
@@ -111,7 +111,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
     return command_fd;
 }
 
-int64
+static int64
 tty_read(void) {
     static char buffer[BUFSIZ];
     static int32 copied = 0;
@@ -127,7 +127,7 @@ tty_read(void) {
         exit(0);
     case -1:
         error("couldn't read from CONF_SHELl: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     default:
         copied += ret;
         written = term_write(buffer, copied, 0);
@@ -140,7 +140,7 @@ tty_read(void) {
     }
 }
 
-void
+static void
 tty_write(char *s, int64 n, int32 may_echo) {
     char *next;
 
@@ -171,7 +171,7 @@ tty_write(char *s, int64 n, int32 may_echo) {
     return;
 }
 
-void
+static void
 tty_write_raw(char *s, int64 n) {
     fd_set write_fd;
     fd_set read_fd;
@@ -195,7 +195,7 @@ tty_write_raw(char *s, int64 n) {
                 continue;
             }
             error("select failed: %s\n", strerror(errno));
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         if (FD_ISSET(command_fd, &write_fd)) {
             /*
@@ -231,10 +231,10 @@ tty_write_raw(char *s, int64 n) {
 
 write_error:
     error("write error on tty: %s\n", strerror(errno));
-	exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);
 }
 
-void
+static void
 tty_resize(int32 tty_width, int32 tty_height) {
     struct winsize winsize;
 
@@ -248,7 +248,7 @@ tty_resize(int32 tty_width, int32 tty_height) {
     return;
 }
 
-void
+static void
 tty_hangup(void) {
     /* Send SIGHUP to CONF_SHELl */
     kill(pid, SIGHUP);
@@ -264,8 +264,8 @@ tty_hangup(void) {
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_tty */
