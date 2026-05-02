@@ -280,8 +280,7 @@ run:
         }
 
         if (XParseColor(x_window.display, x_window.color_map,
-                        CONF_COLORS[CONF_MOUSE_COLOR_BG], &xmouse_bg)
-            == 0) {
+                        CONF_COLORS[CONF_MOUSE_COLOR_BG], &xmouse_bg) == 0) {
             xmouse_bg.red = 0x0000;
             xmouse_bg.green = 0x0000;
             xmouse_bg.blue = 0x0000;
@@ -290,20 +289,21 @@ run:
         XRecolorCursor(x_window.display, cursor, &xmouse_fg, &xmouse_bg);
 
         x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
-        x_window.wm_delete_win
-            = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
-        x_window.net_wm_name
-            = XInternAtom(x_window.display, "_NET_WM_NAME", False);
-        x_window.net_wm_iconname
-            = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
-        XSetWMProtocols(x_window.display, x_window.win, &x_window.wm_delete_win,
-                        1);
+        x_window.wm_delete_win = XInternAtom(x_window.display,
+                                             "WM_DELETE_WINDOW", False);
+        x_window.net_wm_name = XInternAtom(x_window.display,
+                                           "_NET_WM_NAME", False);
+        x_window.net_wm_iconname = XInternAtom(x_window.display,
+                                               "_NET_WM_ICON_NAME", False);
+        XSetWMProtocols(x_window.display,
+                        x_window.win, &x_window.wm_delete_win, 1);
 
-        x_window.net_wm_pid
-            = XInternAtom(x_window.display, "_NET_WM_PID", False);
+        x_window.net_wm_pid = XInternAtom(x_window.display,
+                                          "_NET_WM_PID", False);
+
         XChangeProperty(x_window.display, x_window.win, x_window.net_wm_pid,
-                        XA_CARDINAL, 32, PropModeReplace, (uchar *)&pid_this,
-                        1);
+                        XA_CARDINAL, 32, PropModeReplace,
+                        (uchar *)&pid_this, 1);
 
         term_window.mode = WIN_MODE_NUMLOCK;
         reset_title();
@@ -313,21 +313,22 @@ run:
 
         clock_gettime(CLOCK_MONOTONIC, &xsel.tclick1);
         clock_gettime(CLOCK_MONOTONIC, &xsel.tclick2);
+
         xsel.primary = NULL;
         xsel.clipboard = NULL;
-        xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
-        if (xsel.xtarget == None) {
+        if ((xsel.xtarget
+                 = XInternAtom(x_window.display, "UTF8_STRING", 0)) == None) {
             xsel.xtarget = XA_STRING;
         }
 
-        boxdraw_xinit(x_window.display, x_window.color_map, x_window.xft_draw,
-                      x_window.visual);
+        boxdraw_xinit(x_window.display,
+				      x_window.color_map, x_window.xft_draw, x_window.visual);
     }
 
     {
         char buffer[SIZEOF(int64)*8 + 1];
 
-        snprintf(buffer, SIZEOF(buffer), "%lu", x_window.win);
+        SNPRINTF(buffer, "%lu", x_window.win);
         setenv("WINDOWID", buffer, 1);
     }
     selection.mode = SELECTION_IDLE;
