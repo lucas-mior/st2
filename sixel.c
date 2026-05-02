@@ -235,8 +235,11 @@ sixel_parser_init(sixel_state_t *st, int32 transparent, uint32 fgcolor,
     st->param = 0;
 
     /* buffer initialization */
-    status = sixel_image_init(&st->image, 1, 1, fgcolor,
-                              transparent ? 0 : bgcolor, use_private_register);
+    if (transparent) {
+        bgcolor = 0;
+    }
+    status = sixel_image_init(&st->image, 1, 1, (int32)fgcolor, (int32)bgcolor,
+                              use_private_register);
 
     return status;
 }
@@ -286,7 +289,8 @@ sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
 
     cols = (w + cw - 1) / cw;
 
-    *newimages = NULL, tail = NULL;
+    *newimages = NULL;
+    tail = NULL;
     for (y = 0, i = 0; i < numimages; i++) {
         if ((im = malloc(sizeof(ImageList)))) {
             if (!tail) {
