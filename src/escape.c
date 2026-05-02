@@ -841,7 +841,7 @@ string_handle(void) {
     int numimages;
     int cx_pos;
     int cy_pos;
-    Glyph *line_ptr;
+    StGlyph *line_ptr;
     int scr_offset;
 
     struct {
@@ -1495,7 +1495,7 @@ term_putc(uint32 u) {
     int32 control;
     int32 width = 0;
     int32 len;
-    Glyph *glyph;
+    StGlyph *glyph;
 
     control = IS_CONTROl(u);
     if (u < 127 || !TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
@@ -1629,7 +1629,7 @@ check_control_code:
     if (TERM_MODE_IS_SET(TERM_MODE_INSERT)) {
         if (term.cursor.x + width < term.ncols) {
             memmove64(glyph + width, glyph,
-                      (term.ncols - term.cursor.x - width)*SIZEOF(Glyph));
+                      (term.ncols - term.cursor.x - width)*SIZEOF(StGlyph));
             glyph->mode &= ~ATTR_WIDE;
         }
     }

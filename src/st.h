@@ -130,14 +130,13 @@ enum SelectionType {
 	X(SIXEL_SDM)
 #include "cbase/xenums.c"
 
-#define Glyph Glyph_
-typedef struct {
+typedef struct StGlyph {
 	uint32 rune;           /* character code */
 	uint16 mode;      /* attribute flags */
 	uint16 padding;
 	int32 fg;      /* foreground  */
 	int32 bg;      /* background  */
-} Glyph;
+} StGlyph;
 
 union Arg {
 	int32 i;
@@ -218,7 +217,7 @@ enum charset {
 #include "cbase/xenums.c"
 
 typedef struct {
-    Glyph attr; /* current char attributes */
+    StGlyph attr; /* current char attributes */
     int32 x;
     int32 y;
     enum CursorState state;
@@ -228,8 +227,8 @@ typedef struct {
 static struct {
     int32 nrows;
     int32 ncols;
-    Glyph **lines;             /* screen */
-    Glyph *hist[HISTORY_SIZE]; /* history buffer */
+    StGlyph **lines;             /* screen */
+    StGlyph *hist[HISTORY_SIZE]; /* history buffer */
     int32 i_hist;              /* history index */
     int32 n_hist;              /* nb history available */
     int32 lines_scrolled_up;   /* scroll back */
@@ -293,7 +292,7 @@ static void draw(void);
 static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 
 static void tdeleteimages(void);
-static inline void term_set_sixel_attr(Glyph *line, int32 x1, int32 x2);
+static inline void term_set_sixel_attr(StGlyph *line, int32 x1, int32 x2);
 
 static int32 term_attr_set(int32);
 static void term_resize(int32, int32);
@@ -315,7 +314,7 @@ static char *selection_get(void);
 static int64 utf8_encode(uint32, char *);
 
 static int32 isboxdraw(uint32);
-static uint16 boxdrawindex(Glyph *);
+static uint16 boxdrawindex(StGlyph *);
 #ifdef XFT_VERSION
 /* only exposed to main.c, otherwise we'll need Xft.h for the types */
 static void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
@@ -341,14 +340,14 @@ static void term_dump_line(int32);
 static void term_dump(void);
 static void term_clear_region(int32, int32, int32, int32, int32);
 static void term_cursor(int32);
-static void term_clear_glyph(Glyph *, int32);
+static void term_clear_glyph(StGlyph *, int32);
 static void term_delete_char(int32);
 static void term_delete_line(int32);
 static void term_insert_blank(int32);
 static void term_insert_blank_line(int32);
-static int32 term_line_len(Glyph *len);
-static int32 term_is_wrapped(Glyph *line);
-static char *term_get_glyphs(char *, Glyph *, Glyph *);
+static int32 term_line_len(StGlyph *len);
+static int32 term_is_wrapped(StGlyph *line);
+static char *term_get_glyphs(char *, StGlyph *, StGlyph *);
 static void term_move_to(int32, int32);
 static void term_move_abs_to(int32, int32);
 static void term_new_line(int32);
@@ -362,7 +361,7 @@ static void reflow_scroll_down(int32);
 static void term_resize_def(int32, int32);
 static void term_resize_alt(int32, int32);
 static void term_set_attr(int32 *, int32);
-static void term_set_char(uint32, Glyph *, int32, int32);
+static void term_set_char(uint32, StGlyph *, int32, int32);
 static void term_set_dirt(int32, int32);
 static void term_swap_screen(void);
 static void term_load_def_screen(int32, int32);
@@ -391,11 +390,11 @@ static int32 mouse_action(XEvent *, uint32);
 static int32 xevent_col(XEvent *);
 static int32 xevent_row(XEvent *);
 
-static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, Glyph *,
+static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, StGlyph *,
 		                             int32, int32, int32);
-static void x_draw_glyph_font_specs(XftGlyphFontSpec *, Glyph,
+static void x_draw_glyph_font_specs(XftGlyphFontSpec *, StGlyph,
 		                            int32, int32, int32);
-static void x_draw_glyph(Glyph, int32, int32);
+static void x_draw_glyph(StGlyph, int32, int32);
 static void x_clear(int32, int32, int32, int32);
 static int32 x_geom_mask_to_gravity(int32);
 static int32 x_im_open(Display *);
@@ -474,8 +473,8 @@ enum win_mode {
 };
 
 static void x_bell(void);
-static void x_draw_cursor(int32, int32, Glyph, int32, int32, Glyph);
-static void x_draw_line(Glyph *, int32, int32, int32);
+static void x_draw_cursor(int32, int32, StGlyph, int32, int32, StGlyph);
+static void x_draw_line(StGlyph *, int32, int32, int32);
 static void x_load_cols(void);
 static int32 x_set_color_name(int32, char *);
 static void x_set_icon_title(char *);

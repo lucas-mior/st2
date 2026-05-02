@@ -578,7 +578,7 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
 }
 
 static int32
-x_make_glyph_font_specs(XftGlyphFontSpec *specs, Glyph *glyphs, int32 len,
+x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs, int32 len,
                         int32 x, int32 y) {
     int32 winx = term_window.hborderpx + x*term_window.cw;
     int32 winy = term_window.vborderpx + y*term_window.ch;
@@ -716,7 +716,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, Glyph *glyphs, int32 len,
 }
 
 static void
-x_draw_glyph_font_specs(XftGlyphFontSpec *specs, Glyph base, int32 len, int32 x,
+x_draw_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph base, int32 len, int32 x,
                         int32 y) {
     int32 charlen;
     int32 winx = term_window.hborderpx + x*term_window.cw;
@@ -896,7 +896,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs, Glyph base, int32 len, int32 x,
 }
 
 static void
-x_draw_glyph(Glyph g, int32 x, int32 y) {
+x_draw_glyph(StGlyph g, int32 x, int32 y) {
     int32 numspecs;
     XftGlyphFontSpec spec;
 
@@ -906,7 +906,7 @@ x_draw_glyph(Glyph g, int32 x, int32 y) {
 }
 
 static void
-x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
+x_draw_cursor(int32 cx, int32 cy, StGlyph g, int32 ox, int32 oy, StGlyph og) {
     XftColor drawcol;
 
     if (selection_is_selected(ox, oy)) {
@@ -1025,13 +1025,13 @@ x_start_draw(void) {
 }
 
 static void
-x_draw_line(Glyph *line, int32 x1, int32 y1, int32 x2) {
+x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     int32 i;
     int32 x;
     int32 ox;
     int32 numspecs;
-    Glyph base = {0};
-    Glyph new = {0};
+    StGlyph base = {0};
+    StGlyph new = {0};
     XftGlyphFontSpec *specs = x_window.specbuf;
 
     numspecs = x_make_glyph_font_specs(specs, &line[x1], x2 - x1, x1, y1);

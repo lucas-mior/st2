@@ -50,7 +50,7 @@ isboxdraw(uint32 u) {
 
 /* the "index" is actually the entire shape data encoded as uint16 */
 static uint16
-boxdrawindex(Glyph *g) {
+boxdrawindex(StGlyph *g) {
     if (CONF_BOXDRAW_BRAILLE && (g->rune & ~(uint32)0xff) == 0x2800) {
         return BRL | (uint8_t)g->rune;
     }

@@ -65,7 +65,7 @@ xwrite(int32 fd, char *s, int64 len) {
 #include "base64.c"
 
 static int32
-term_line_len(Glyph *line) {
+term_line_len(StGlyph *line) {
     int32 i = term.ncols - 1;
 
     for (; i >= 0 && !(line[i].mode & (ATTR_SET | ATTR_WRAP)); i -= 1);
@@ -74,7 +74,7 @@ term_line_len(Glyph *line) {
 }
 
 static int32
-term_is_wrapped(Glyph *line) {
+term_is_wrapped(StGlyph *line) {
     int32 len = term_line_len(line);
     int32 wrapped = 0;
 
@@ -88,7 +88,7 @@ term_is_wrapped(Glyph *line) {
 }
 
 static char *
-term_get_glyphs(char *buffer, Glyph *gp, Glyph *lgp) {
+term_get_glyphs(char *buffer, StGlyph *gp, StGlyph *lgp) {
     while (gp <= lgp) {
         if (gp->mode & ATTR_WDUMMY) {
             gp += 1;
@@ -162,7 +162,7 @@ exec_shell(char *cmd, char **args) {
 }
 
 static void
-term_set_sixel_attr(Glyph *line, int x1, int x2) {
+term_set_sixel_attr(StGlyph *line, int x1, int x2) {
     for (; x1 <= x2; x1 += 1) {
         line[x1].mode |= ATTR_SIXEL;
     }
@@ -273,10 +273,10 @@ term_reset(void) {
 /* handle it with care */
 static void
 term_swap_screen(void) {
-    static Glyph **altline;
+    static StGlyph **altline;
     static int32 altcol;
     static int32 altrow;
-    Glyph **tmpline = term.lines;
+    StGlyph **tmpline = term.lines;
     int32 tmpcol = term.ncols;
     int32 tmprow = term.nrows;
 
@@ -338,7 +338,7 @@ term_load_alt_screen(int32 clear, int32 savecursor) {
 static void
 term_scroll_down(int32 top, int32 n) {
     int32 bot = term.bot_scroll_limit;
-    Glyph *temp;
+    StGlyph *temp;
 
     if (n <= 0) {
         return;
@@ -376,7 +376,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     int32 s = 0;
     uint32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
     int32 savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
-    Glyph *temp;
+    StGlyph *temp;
 
     if (n <= 0) {
         return;
@@ -501,7 +501,7 @@ term_move_to(int32 x, int32 y) {
 }
 
 static void
-term_set_char(uint32 u, Glyph *attr, int32 x, int32 y) {
+term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
     static char *vt100_0[62] = {
         /* 0x41 - 0x7e */
         "↑", "↓", "→", "←", "█", "▚", "☃",      /* A - G */
@@ -546,7 +546,7 @@ term_set_char(uint32 u, Glyph *attr, int32 x, int32 y) {
 }
 
 static void
-term_clear_glyph(Glyph *gp, int32 usecurattr) {
+term_clear_glyph(StGlyph *gp, int32 usecurattr) {
     if (usecurattr) {
         gp->fg = term.cursor.attr.fg;
         gp->bg = term.cursor.attr.bg;
@@ -582,7 +582,7 @@ term_delete_char(int32 n) {
     int32 src;
     int32 dst;
     int32 size;
-    Glyph *line;
+    StGlyph *line;
 
     if (n <= 0) {
         return;
@@ -597,7 +597,7 @@ term_delete_char(int32 n) {
          * https://stackoverflow.com/questions/29844298
          */
         line = term.lines[term.cursor.y];
-        memmove64(&line[dst], &line[src], size*SIZEOF(Glyph));
+        memmove64(&line[dst], &line[src], size*SIZEOF(StGlyph));
     }
     term_clear_region(dst + size, term.cursor.y, term.ncols - 1, term.cursor.y,
                       1);
@@ -609,7 +609,7 @@ term_insert_blank(int32 n) {
     int32 src;
     int32 dst;
     int32 size;
-    Glyph *line;
+    StGlyph *line;
 
     if (n <= 0) {
         return;
@@ -619,7 +619,7 @@ term_insert_blank(int32 n) {
     size = term.ncols - dst;
     if (size > 0) { /* otherwise dst would point beyond the array */
         line = term.lines[term.cursor.y];
-        memmove64(&line[dst], &line[src], size*SIZEOF(Glyph));
+        memmove64(&line[dst], &line[src], size*SIZEOF(StGlyph));
     }
     term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, 1);
     return;
@@ -647,8 +647,8 @@ externalpipe(union Arg *arg) {
     int32 to[2];
     char buffer[UTF_SIZ];
     void (*oldsigpipe)(int32);
-    Glyph *bp;
-    Glyph *end;
+    StGlyph *bp;
+    StGlyph *end;
     int32 lastpos;
     int32 newline;
     char *const *argv = arg->v;
@@ -751,8 +751,8 @@ static void
 term_dump_line(int32 n) {
     char *string = xmalloc((int64)((term.ncols + 1)*UTF_SIZ) * SIZEOF(*string));
     char *buffer = string;
-    Glyph *fgp = &term.lines[n][0];
-    Glyph *lgp = &fgp[term.ncols - 1];
+    StGlyph *fgp = &term.lines[n][0];
+    StGlyph *lgp = &fgp[term.ncols - 1];
     char *ptr;
 
     while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
@@ -780,7 +780,7 @@ term_dump(void) {
 static void
 reflow_scroll_down(int32 n) {
     int32 j;
-    Glyph *temp;
+    StGlyph *temp;
 
     n = (int32)MIN(n, term.n_hist);
     if (n <= 0) {
@@ -871,7 +871,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
         term.lines = xrealloc(term.lines, (int64)new_nrows*SIZEOF(*(term.lines)));
 
         for (int32 i = term.nrows; i < new_nrows; i += 1) {
-            term.lines[i] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
+            term.lines[i] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
             for (int32 j = 0; j < new_ncols; j += 1) {
                 term_clear_glyph(&term.lines[i][j], 0);
             }
@@ -920,7 +920,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         }
     }
     for (int32 j = (int32)MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
-        term.lines[j] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
+        term.lines[j] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
         for (int32 k = 0; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], 0);
         }
@@ -953,8 +953,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 len = 0;
     int32 new_cursor_y_proxy = -1; /* proxy for new y coordinate of cursor */
     int32 nlines;
-    static Glyph **reflow_lines = NULL;
-    Glyph *line = 0;
+    static StGlyph **reflow_lines = NULL;
+    StGlyph *line = 0;
 
     /* --- determine end of current cursor line --- */
     old_cursor_end_line = term.cursor.y;
@@ -1023,7 +1023,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
         if (space_left > chars_left) {
             memcpy64(&reflow_lines[new_y_index][new_x_offset],
-                   &line[old_x_offset], chars_left*SIZEOF(Glyph));
+                   &line[old_x_offset], chars_left*SIZEOF(StGlyph));
             new_x_offset += chars_left;
 
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
@@ -1042,13 +1042,13 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         } else {
             if (space_left == chars_left) {
                 memcpy64(&reflow_lines[new_y_index][new_x_offset],
-                       &line[old_x_offset], space_left*SIZEOF(Glyph));
+                       &line[old_x_offset], space_left*SIZEOF(StGlyph));
                 old_x_offset = 0;
                 old_y_index += 1;
                 new_x_offset = 0;
             } else { /* space_left < chars_left */
                 memcpy64(&reflow_lines[new_y_index][new_x_offset],
-                       &line[old_x_offset], space_left*SIZEOF(Glyph));
+                       &line[old_x_offset], space_left*SIZEOF(StGlyph));
                 old_x_offset += space_left;
                 reflow_lines[new_y_index][new_ncols - 1].mode |= ATTR_WRAP;
                 new_x_offset = 0;
@@ -1094,7 +1094,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     /* --- allocate additional rows if needed --- */
     for (i = new_nrows - 1; i > new_cursor_end_line; i -= 1) {
-        term.lines[i] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
+        term.lines[i] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
         for (int32 j = 0; j < new_ncols; j += 1) {
             term_clear_glyph(&term.lines[i][j], 0);
         }

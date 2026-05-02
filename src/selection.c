@@ -53,8 +53,8 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
     int32 rbot = term.nrows - 1;
     int32 delim;
     int32 prevdelim;
-    Glyph *gp;
-    Glyph *prevgp;
+    StGlyph *gp;
+    StGlyph *prevgp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         rtop += term.lines_scrolled_up - term.n_hist;
@@ -270,8 +270,8 @@ selection_get(void) {
     char *string, *ptr;
     int32 lastx;
     int32 line_len;
-    Glyph *gp;
-    Glyph *lgp;
+    StGlyph *gp;
+    StGlyph *lgp;
 
     if (selection.ob.x == -1
         || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -285,7 +285,7 @@ selection_get(void) {
 
     /* append every set & selection_is_selected glyph to the selection */
     for (int32 y = selection.nb.y; y <= selection.ne.y; y += 1) {
-        Glyph *line = TERM_LINE(y);
+        StGlyph *line = TERM_LINE(y);
 
         if ((line_len = term_line_len(line)) == 0) {
             *ptr++ = '\n';
