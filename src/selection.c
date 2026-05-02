@@ -108,7 +108,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
             prev_delim = delim;
         }
         break;
-                              }
+                                      }
     case SELECTION_SNAP_LINE:
         /*
          * Snap around if the the previous line or the current one
@@ -380,12 +380,43 @@ selection_set(char *string, Time t) {
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <X11/Xlib.h>
 
 #include "assert.c"
 #include "st.c"
 
-int
+int32
 main(void) {
+    /* 1. Environment and State Initialization */
+    {
+        x_window.display = XOpenDisplay(NULL);
+        if (!x_window.display) {
+            exit(EXIT_FAILURE);
+        }
+        x_window.screen = XDefaultScreen(x_window.display);
+        x_window.win = XCreateSimpleWindow(x_window.display, RootWindow(x_window.display, x_window.screen), 0, 0, 10, 10, 0, 0, 0);
+
+        CONF_NUMBER_COLS = 80;
+        CONF_NUMBER_ROWS = 24;
+        term.ncols = CONF_NUMBER_COLS;
+        term.nrows = CONF_NUMBER_ROWS;
+
+        /* Allocate all terminal structures that term_reset() uses */
+        term.dirty = xmalloc(term.nrows * SIZEOF(*term.dirty));
+        term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
+        term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
+        for (int32 j = 0; j < term.nrows; j += 1) {
+            term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
+            for (int32 i = 0; i < term.ncols; i += 1) {
+                term.lines[j][i].rune = ' ';
+                term.lines[j][i].mode = 0;
+            }
+        }
+        
+        term_reset();
+    }
+
+    /* 2. selection_remove and basics */
     {
         selection.mode = SELECTION_READY;
         selection.ob.x = 10;
@@ -394,43 +425,106 @@ main(void) {
         ASSERT_EQUAL(selection.ob.x, -1);
     }
 
+    /* 3. selection_start and selection_normalize */
     {
-        selection.ob.y = 5;
-        selection.nb.y = 5;
-        selection.oe.y = 10;
-        selection.ne.y = 10;
-        selection_move(2);
-        ASSERT_EQUAL(selection.ob.y, 7);
-        ASSERT_EQUAL(selection.nb.y, 7);
-        ASSERT_EQUAL(selection.oe.y, 12);
-        ASSERT_EQUAL(selection.ne.y, 12);
-    }
+        /* Start at (5, 5) */
+        selection_start(5, 5, 0);
+        ASSERT(selection.mode == SELECTION_EMPTY);
+        ASSERT_EQUAL(selection.nb.x, 5);
+        ASSERT_EQUAL(selection.nb.y, 5);
 
-    {
-        int32 is_sel;
-
-        selection.ob.x = -1;
-        is_sel = selection_is_selected(0, 0);
-        ASSERT_EQUAL(is_sel, 0);
-
-        selection.ob.x = 0;
-        selection.mode = SELECTION_EMPTY;
-        is_sel = selection_is_selected(0, 0);
-        ASSERT_EQUAL(is_sel, 0);
-    }
-
-    {
-        term.lines_scrolled_up = 0;
-        selection.ob.x = 0;
-        selection.nb.y = 2;
-        selection.ne.y = 4;
-        selection_scroll(0, 10, 1);
-        ASSERT_EQUAL(selection.nb.y, 3);
-        ASSERT_EQUAL(selection.ne.y, 5);
+        /* Extend to (10, 10) */
+        selection_extend(10, 10, SELECTION_NORMAL, 0);
+        ASSERT(selection.mode == SELECTION_READY);
+        ASSERT_EQUAL(selection.nb.x, 5);
+        ASSERT_EQUAL(selection.ne.x, 10);
         
-        selection_scroll(0, 2, 1);
+        /* Swap: Extend to (2, 2) which is before start */
+        selection_extend(2, 2, SELECTION_NORMAL, 0);
+        ASSERT_EQUAL(selection.nb.x, 2);
+        ASSERT_EQUAL(selection.ne.x, 5);
+        ASSERT_EQUAL(selection.nb.y, 2);
+        ASSERT_EQUAL(selection.ne.y, 5);
     }
 
+    /* 4. SelectionSnap: Word Mode */
+    {
+        /* Setup a "word" in the line: [space][A][B][space] */
+        term.lines[10][0].rune = ' ';
+        term.lines[10][1].rune = 'A';
+        term.lines[10][2].rune = 'B';
+        term.lines[10][3].rune = ' ';
+        
+        /* Start selection at 'A' with word snap */
+        selection_start(1, 10, SELECTION_SNAP_WORD);
+        
+        /* It should snap to include 'B' */
+        ASSERT_EQUAL(selection.nb.x, 1);
+        ASSERT_EQUAL(selection.ne.x, 2);
+    }
+
+    /* 5. selection_is_selected and Rectangular Mode */
+    {
+        selection_start(10, 10, 0);
+        selection_extend(20, 15, SELECTION_RECTANGULAR, 0);
+        
+        /* In Rect mode, a point at (15, 12) should be selected */
+        ASSERT_EQUAL(selection_is_selected(15, 12), 1);
+        
+        /* A point at (5, 12) should NOT be selected */
+        ASSERT_EQUAL(selection_is_selected(5, 12), 0);
+        
+        /* A point at (15, 16) should NOT be selected (below range) */
+        ASSERT_EQUAL(selection_is_selected(15, 16), 0);
+    }
+
+    /* 6. selection_get */
+    {
+        char *result;
+
+        selection_start(1, 10, 0);
+        selection_extend(2, 10, SELECTION_NORMAL, 1); /* "AB" from previous test */
+        
+        result = selection_get();
+        ASSERT(result != NULL);
+        ASSERT_EQUAL(result[0], 'A');
+        ASSERT_EQUAL(result[1], 'B');
+        free(result);
+    }
+
+    /* 7. selection_move and selection_scroll */
+    {
+        selection_start(0, 5, 0);
+        selection_extend(0, 10, SELECTION_NORMAL, 0);
+        
+        /* Move selection down by 2 */
+        selection_move(2);
+        ASSERT_EQUAL(selection.nb.y, 7);
+        ASSERT_EQUAL(selection.ne.y, 12);
+        
+        /* Scroll: selection is at 7-12. Scroll range 0-20. */
+        term.lines_scrolled_up = 0;
+        selection_scroll(0, 20, -1);
+        ASSERT_EQUAL(selection.nb.y, 6);
+        
+        /* Scroll that crosses boundary should clear selection */
+        selection_scroll(10, 20, 5);
+        ASSERT_EQUAL(selection.ob.x, -1);
+    }
+
+    /* 8. selection_set and selection_clear */
+    {
+        char *clip = xstrdup("test clip");
+        selection.ob.x = 0; /* Fake active selection */
+        
+        selection_set(clip, CurrentTime);
+        ASSERT_EQUAL(xsel.primary, "test clip");
+        
+        selection_clear();
+        ASSERT_EQUAL(selection.ob.x, -1);
+    }
+
+    XCloseDisplay(x_window.display);
     exit(EXIT_SUCCESS);
 }
 
