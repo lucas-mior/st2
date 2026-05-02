@@ -912,7 +912,6 @@ main(void) {
         SixelState state;
         int32 status;
         uchar buf[] = "\x1b";
-        int32 parsed_len;
         ImageList *newimages;
         int32 numimages;
 
