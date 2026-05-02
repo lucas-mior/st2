@@ -577,8 +577,8 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
 }
 
 static int32
-x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs, int32 len,
-                        int32 x, int32 y) {
+x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
+		                int32 len, int32 x, int32 y) {
     int32 winx = term_window.hborderpx + x*term_window.cw;
     int32 winy = term_window.vborderpx + y*term_window.ch;
     uint16 prevmode = USHRT_MAX;
@@ -813,8 +813,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     }
 
     if (base.mode & ATTR_REVERSE) {
-        XftColor *temp;
-        temp = fg;
+        XftColor *temp = fg;
         fg = bg;
         bg = temp;
     }
