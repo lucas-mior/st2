@@ -20,7 +20,7 @@
 #define TESTING_sixel 0
 #endif
 
-uint32 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat);
+static uint32 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat);
 
 #define SIXEL_RGB(r, g, b) \
 	((255u << 24) + (((uint32)r) << 16) + (((uint32)g) << 8) +  ((uint32)b))
@@ -42,7 +42,7 @@ static uint32 sixel_default_color_table[] = {
     SIXEL_XRGB(53, 53, 53), /*  7 Gray 50% */
     SIXEL_XRGB(26, 26, 26), /*  8 Gray 25% */
     SIXEL_XRGB(33, 33, 60), /*  9 Blue*    */
-    SIXEL_XRGB(60, 26, 26), /* 10 Red*     */
+    SIXEL_XRGB(60, 26, 26), /* 10 Red*      */
     SIXEL_XRGB(33, 60, 33), /* 11 Green*   */
     SIXEL_XRGB(60, 33, 60), /* 12 Magenta* */
     SIXEL_XRGB(33, 60, 60), /* 13 Cyan*    */
@@ -50,7 +50,7 @@ static uint32 sixel_default_color_table[] = {
     SIXEL_XRGB(80, 80, 80), /* 15 Gray 75% */
 };
 
-void
+static void
 scroll_images(int32 n) {
     ImageList *next;
     int32 top;
@@ -71,9 +71,10 @@ scroll_images(int32 n) {
             delete_image(im);
         }
     }
+    return;
 }
 
-void
+static void
 delete_image(ImageList *im) {
     if (im->prev) {
         im->prev->next = im->next;
@@ -91,6 +92,7 @@ delete_image(ImageList *im) {
     }
     free(im->pixels);
     free(im);
+    return;
 }
 
 static int32
@@ -223,9 +225,10 @@ sixel_image_deinit(SixelImage *image) {
         free(image->data);
     }
     image->data = NULL;
+    return;
 }
 
-int32
+static int32
 sixel_parser_init(SixelState *sixel_state, int32 transparent, uint32 fgcolor,
                   uint32 bgcolor, uchar use_private_register, int32 cell_width,
                   int32 cell_height) {
@@ -258,12 +261,12 @@ sixel_parser_init(SixelState *sixel_state, int32 transparent, uint32 fgcolor,
     return status;
 }
 
-int32
+static int32
 sixel_parser_set_default_color(SixelState *sixel_state) {
     return set_default_color(&sixel_state->image);
 }
 
-int32
+static int32
 sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
                       int32 cy, int32 cw, int32 ch) {
     SixelImage *sixel_image = &sixel_state->image;
@@ -348,7 +351,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
 }
 
 /* convert sixel data into indexed pixel bytes and palette data */
-int32
+static int32
 sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
     SixelImage *sixel_image = &sixel_state->image;
     int32 n = 0;
@@ -413,7 +416,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             default:
                 if (*p >= '?' && *p <= '~') { /* sixel characters */
                     if ((sixel_image->width
-                             < (sixel_state->pos_x + sixel_state->repeat_count)
+                               < (sixel_state->pos_x + sixel_state->repeat_count)
                          || sixel_image->height < (sixel_state->pos_y + 6))
                         && sixel_image->width < DECSIXEL_WIDTH_MAX
                         && sixel_image->height < DECSIXEL_HEIGHT_MAX) {
@@ -505,10 +508,10 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                 }
                                 if (sixel_state->max_x
                                     < (sixel_state->pos_x
-                                       + sixel_state->repeat_count - 1)) {
+                                        + sixel_state->repeat_count - 1)) {
                                     sixel_state->max_x
-                                        = sixel_state->pos_x
-                                          + sixel_state->repeat_count - 1;
+                                         = sixel_state->pos_x
+                                           + sixel_state->repeat_count - 1;
                                 }
                             }
                             if (sixel_state->max_y < (sixel_state->pos_y + n)) {
@@ -544,7 +547,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             case '9':
                 sixel_state->param = sixel_state->param*10 + *p - '0';
                 sixel_state->param = (uint32)MIN(sixel_state->param,
-						                         DECSIXEL_PARAMVALUE_MAX);
+                                                 DECSIXEL_PARAMVALUE_MAX);
                 p++;
                 break;
             case ';':
@@ -623,7 +626,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             case '9':
                 sixel_state->param = sixel_state->param*10 + *p - '0';
                 sixel_state->param = (uint32)MIN(sixel_state->param,
-						                         DECSIXEL_PARAMVALUE_MAX);
+                                                 DECSIXEL_PARAMVALUE_MAX);
                 p++;
                 break;
             default:
@@ -730,14 +733,15 @@ end:
     return (int32)(p - p0);
 }
 
-void
+static void
 sixel_parser_deinit(SixelState *sixel_state) {
     if (sixel_state) {
         sixel_image_deinit(&sixel_state->image);
     }
+    return;
 }
 
-Pixmap
+static Pixmap
 sixel_create_clipmask(char *pixels, int32 width, int32 height) {
     char c;
     char *clipdata;
@@ -771,7 +775,7 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
     return clipmask;
 }
 
-uint32
+static uint32
 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
     double lv = lum / 100.0;
     double sv = sat / 100.0;
@@ -867,7 +871,7 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
 
 #include "assert.c"
 
-int
+static int
 main(void) {
 	ASSERT(true);
 	exit(EXIT_SUCCESS);

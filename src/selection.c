@@ -48,7 +48,7 @@ selection_start(int32 col, int32 row, int32 snap) {
     return;
 }
 
-void
+static void
 selection_extend(int32 col, int32 row, int32 type, int32 done) {
     int32 oldey;
     int32 oldex;
@@ -89,7 +89,7 @@ selection_extend(int32 col, int32 row, int32 type, int32 done) {
     return;
 }
 
-void
+static void
 selection_normalize(void) {
     int32 len;
 
@@ -124,7 +124,7 @@ selection_normalize(void) {
     return;
 }
 
-int32
+static int32
 selection_is_selected4(int32 x1, int32 y1, int32 x2, int32 y2) {
     int32 is_selected;
 
@@ -153,12 +153,12 @@ selection_is_selected4(int32 x1, int32 y1, int32 x2, int32 y2) {
     return is_selected;
 }
 
-int32
+static int32
 selection_is_selected(int32 x, int32 y) {
     return selection_is_selected4(x, y, x, y);
 }
 
-void
+static void
 SelectionSnap(int32 *x, int32 *y, int32 direction) {
     int32 newx;
     int32 newy;
@@ -252,7 +252,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
     return;
 }
 
-char *
+static char *
 selection_get(void) {
     char *string, *ptr;
     int32 lastx;
@@ -309,7 +309,7 @@ selection_get(void) {
     return string;
 }
 
-void
+static void
 selection_clear(void) {
     if (selection.ob.x == -1) {
         return;
@@ -319,14 +319,14 @@ selection_clear(void) {
     return;
 }
 
-void
+static void
 selection_remove(void) {
     selection.mode = SELECTION_IDLE;
     selection.ob.x = -1;
     return;
 }
 
-void
+static void
 selection_move(int32 n) {
     selection.ob.y += n;
     selection.nb.y += n;
@@ -335,7 +335,7 @@ selection_move(int32 n) {
     return;
 }
 
-void
+static void
 selection_scroll(int32 top, int32 bot, int32 n) {
     /* turn absolute coordinates into relative */
     top += term.lines_scrolled_up;
@@ -355,7 +355,7 @@ selection_scroll(int32 top, int32 bot, int32 n) {
     return;
 }
 
-void
+static void
 selection_set(char *string, Time t) {
     if (!string) {
         return;
@@ -379,10 +379,10 @@ selection_set(char *string, Time t) {
 #include "assert.c"
 #include "st.c"
 
-int
+static int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_selection */

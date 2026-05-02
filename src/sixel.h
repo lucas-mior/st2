@@ -11,59 +11,59 @@
 #define DECSIXEL_HEIGHT_MAX 4096
 
 typedef struct SixelImage {
-	ushort *data;
-	int32 width;
-	int32 height;
-	uint32 palette[DECSIXEL_PALETTE_MAX + 1];
-	int32 ncolors;
-	int32 palette_modified;
-	int32 use_private_register;
+    ushort *data;
+    int32 width;
+    int32 height;
+    uint32 palette[DECSIXEL_PALETTE_MAX + 1];
+    int32 ncolors;
+    int32 palette_modified;
+    int32 use_private_register;
 } SixelImage;
 
 enum ParseState {
-	PS_ESC        = 1,  /* ESC */
-	PS_DECSIXEL   = 2,  /* DECSIXEL body part ", $, -, ? ... ~ */
-	PS_DECGRA     = 3,  /* DECGRA Set Raster Attributes " Pan; Pad; Ph; Pv */
-	PS_DECGRI     = 4,  /* DECGRI Graphics Repeat Introducer ! Pn Ch */
-	PS_DECGCI     = 5,  /* DECGCI Graphics Color Introducer # Pc; Pu; Px; Py; Pz */
-	PS_ERROR      = 6,
+    PS_ESC        = 1,  /* ESC */
+    PS_DECSIXEL   = 2,  /* DECSIXEL body part ", $, -, ? ... ~ */
+    PS_DECGRA     = 3,  /* DECGRA Set Raster Attributes " Pan; Pad; Ph; Pv */
+    PS_DECGRI     = 4,  /* DECGRI Graphics Repeat Introducer ! Pn Ch */
+    PS_DECGCI     = 5,  /* DECGCI Graphics Color Introducer # Pc; Pu; Px; Py; Pz */
+    PS_ERROR      = 6,
 };
 
 typedef struct SixelState {
-	enum ParseState state;
-	int32 pos_x;
-	int32 pos_y;
-	int32 max_x;
-	int32 max_y;
-	uint32 attributed_pan;
-	uint32 attributed_pad;
-	int32 attributed_ph;
-	int32 attributed_pv;
-	int32 transparent;
-	int32 repeat_count;
-	int32 color_index;
-	int32 bgindex;
-	int32 grid_width;
-	int32 grid_height;
-	int32 nparams;
-	uint32 param;
-	uint32 params[DECSIXEL_PARAMS_MAX];
-	SixelImage image;
+    enum ParseState state;
+    int32 pos_x;
+    int32 pos_y;
+    int32 max_x;
+    int32 max_y;
+    uint32 attributed_pan;
+    uint32 attributed_pad;
+    int32 attributed_ph;
+    int32 attributed_pv;
+    int32 transparent;
+    int32 repeat_count;
+    int32 color_index;
+    int32 bgindex;
+    int32 grid_width;
+    int32 grid_height;
+    int32 nparams;
+    uint32 param;
+    uint32 params[DECSIXEL_PARAMS_MAX];
+    SixelImage image;
 } SixelState;
 
 struct ImageList;
-void scroll_images(int32 n);
-void delete_image(struct ImageList *im);
-int32 sixel_parser_init(SixelState *st,
-		                int32 transparent,
-						uint32 fgcolor, uint32 bgcolor,
-						uchar use_private_register,
-						int32 cell_width, int32 cell_height);
-int32 sixel_parser_parse(SixelState *st, uchar *p, int32 len);
-int32 sixel_parser_set_default_color(SixelState *st);
-int32 sixel_parser_finalize(SixelState *st, struct ImageList **newimages,
-		                    int32 cx, int32 cy, int32 cw, int32 ch);
-void sixel_parser_deinit(SixelState *st);
-Pixmap sixel_create_clipmask(char *pixels, int32 width, int32 height);
+static void scroll_images(int32 n);
+static void delete_image(struct ImageList *im);
+static int32 sixel_parser_init(SixelState *st,
+                               int32 transparent,
+                               uint32 fgcolor, uint32 bgcolor,
+                               uchar use_private_register,
+                               int32 cell_width, int32 cell_height);
+static int32 sixel_parser_parse(SixelState *st, uchar *p, int32 len);
+static int32 sixel_parser_set_default_color(SixelState *st);
+static int32 sixel_parser_finalize(SixelState *st, struct ImageList **newimages,
+                                   int32 cx, int32 cy, int32 cw, int32 ch);
+static void sixel_parser_deinit(SixelState *st);
+static Pixmap sixel_create_clipmask(char *pixels, int32 width, int32 height);
 
 #endif /* SIXEL_H */

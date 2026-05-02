@@ -31,16 +31,17 @@ static void drawboxlines(int32, int32, int32, int32, XftColor *, uint16);
 
 /* public API */
 
-void
+static void
 boxdraw_xinit(Display *display, Colormap color_map, XftDraw *draw,
               Visual *visual) {
     xdpy = display;
     xcmap = color_map;
     xd = draw;
     xvis = visual;
+    return;
 }
 
-int32
+static int32
 isboxdraw(uint32 u) {
     uint32 block = u & ~(uint32)0xff;
     return (CONF_BOXDRAW && block == 0x2500 && boxdata[(uint8_t)u])
@@ -48,7 +49,7 @@ isboxdraw(uint32 u) {
 }
 
 /* the "index" is actually the entire shape data encoded as uint16 */
-uint16
+static uint16
 boxdrawindex(Glyph *g) {
     if (CONF_BOXDRAW_BRAILLE && (g->rune & ~(uint32)0xff) == 0x2800) {
         return BRL | (uint8_t)g->rune;
@@ -59,17 +60,18 @@ boxdrawindex(Glyph *g) {
     return boxdata[(uint8_t)g->rune];
 }
 
-void
+static void
 drawboxes(int32 x, int32 y, int32 cw, int32 ch, XftColor *fg, XftColor *bg,
           XftGlyphFontSpec *specs, int32 len) {
     for (; len-- > 0; x += cw, specs++) {
         drawbox(x, y, cw, ch, fg, bg, (uint16)specs->glyph);
     }
+    return;
 }
 
 /* implementation */
 
-void
+static void
 drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg,
         uint16 bd) {
     uint16 cat = bd & ~(BDB | 0xff); /* mask out bold and data */
@@ -161,9 +163,10 @@ drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg,
                         (uint32)(h - h3));
         }
     }
+    return;
 }
 
-void
+static void
 drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
     /* s: stem thickness. width/8 roughly matches underscore thickness. */
     /* We draw bold as 1.5*normal-stem and at least 1px thicker.      */
@@ -244,6 +247,7 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
                         (uint32)(h - h2 + n));
         }
     }
+    return;
 }
 
 #if TESTING_boxdraw
@@ -257,10 +261,10 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
 #include "selection.c"
 #include "x.c"
 
-int
+static int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_boxdraw */

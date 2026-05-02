@@ -153,7 +153,7 @@ run:
 
         if (!(x_window.display = XOpenDisplay(NULL))) {
             error("can't open display\n");
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         /* XSynchronize(x_window.display, 1); */
         x_window.screen = XDefaultScreen(x_window.display);
@@ -179,7 +179,7 @@ run:
 
         if (!FcInit()) {
             error("could not init fontconfig.\n");
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 
         if (opt_font) {
@@ -393,7 +393,7 @@ run:
                     continue;
                 }
                 error("select failed: %s\n", strerror(errno));
-				exit(EXIT_FAILURE);
+                exit(EXIT_FAILURE);
             }
             clock_gettime(CLOCK_MONOTONIC, &now);
 
@@ -455,7 +455,7 @@ run:
     }
 }
 
-void
+static void
 zoom_abs(Arg *arg) {
     int32 i;
     ImageList *im;
@@ -484,21 +484,21 @@ zoom_abs(Arg *arg) {
 
 #include "user.c"
 
-int32
+static int32
 xevent_col(XEvent *xevent) {
     int32 x = xevent->xbutton.x - term_window.hborderpx;
     LIMIT(x, 0, term_window.tty_width - 1);
     return x / term_window.cw;
 }
 
-int32
+static int32
 xevent_row(XEvent *xevent) {
     int32 y = xevent->xbutton.y - term_window.vborderpx;
     LIMIT(y, 0, term_window.tty_height - 1);
     return y / term_window.ch;
 }
 
-void
+static void
 mouse_select(XEvent *xevent, int32 done) {
     int32 type;
     int32 seltype = SELECTION_REGULAR;
@@ -517,7 +517,7 @@ mouse_select(XEvent *xevent, int32 done) {
     return;
 }
 
-void
+static void
 mouse_report(XEvent *xevent) {
     int32 len;
     int32 button;
@@ -544,7 +544,7 @@ mouse_report(XEvent *xevent) {
         /* Set button to lowest-numbered pressed button, or 12 if no
          * buttons are pressed. */
         for (button = 1;
-		     button <= 11 && !(buttons & (1 << (button - 1)));
+             button <= 11 && !(buttons & (1 << (button - 1)));
              button += 1) {
         }
         code = 32;
@@ -616,7 +616,7 @@ mouse_report(XEvent *xevent) {
     return;
 }
 
-uint32
+static uint32
 button_mask(uint32 button) {
     if (button == Button1) {
         return Button1Mask;
@@ -636,7 +636,7 @@ button_mask(uint32 button) {
     return 0;
 }
 
-int32
+static int32
 mouse_action(XEvent *xevent, uint32 release) {
     MouseShortcut *mouse_shortcut;
     /* ignore Button<N>mask for Button<N> - it's set on release */
@@ -661,7 +661,7 @@ mouse_action(XEvent *xevent, uint32 release) {
     return 0;
 }
 
-void
+static void
 cresize(int32 width, int32 height) {
     int32 col;
     int32 row;
@@ -687,7 +687,7 @@ cresize(int32 width, int32 height) {
     return;
 }
 
-int32
+static int32
 match_mask_state(uint32 mask, uint32 state) {
     if (mask == XK_ANY_MOD) {
         return 1;
@@ -698,7 +698,7 @@ match_mask_state(uint32 mask, uint32 state) {
     return 0;
 }
 
-void
+static void
 usage(void) {
     error("usage: %s [-aiv] [-c class] [-f font] [-g geometry]"
           " [-n name] [-o file]\n"
@@ -709,5 +709,5 @@ usage(void) {
           "          [-T title] [-t title] [-w windowid] -l line"
           " [CONF_STTY_ARGS ...]\n",
           argv0, argv0);
-	exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);
 }

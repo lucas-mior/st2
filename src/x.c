@@ -16,7 +16,7 @@ sixd_to_16bit(int32 x) {
     return (uint16)y;
 }
 
-void
+static void
 x_resize(int32 col, int32 row) {
     term_window.tty_width = col*term_window.cw;
     term_window.tty_height = row*term_window.ch;
@@ -33,7 +33,7 @@ x_resize(int32 col, int32 row) {
     return;
 }
 
-int32
+static int32
 x_get_color(int32 x, uint *r, uint *g, uint *b) {
     if (!BETWEEN(x, 0, draw_context.colors_len - 1)) {
         return 1;
@@ -46,7 +46,7 @@ x_get_color(int32 x, uint *r, uint *g, uint *b) {
     return 0;
 }
 
-int32
+static int32
 x_load_color(int32 i, char *name, XftColor *ncolor) {
     XRenderColor color = {.alpha = 0xffff};
 
@@ -72,7 +72,7 @@ x_load_color(int32 i, char *name, XftColor *ncolor) {
                              x_window.color_map, name, ncolor);
 }
 
-void
+static void
 x_load_cols(void) {
     static int32 loaded = 0;
     XftColor *cp;
@@ -93,10 +93,10 @@ x_load_cols(void) {
         if (!x_load_color(i, NULL, &draw_context.colors[i])) {
             if (CONF_COLORS[i]) {
                 error("could not allocate color '%s'\n", CONF_COLORS[i]);
-				exit(EXIT_FAILURE);
+                exit(EXIT_FAILURE);
             } else {
                 error("could not allocate color %d\n", i);
-				exit(EXIT_FAILURE);
+                exit(EXIT_FAILURE);
             }
         }
     }
@@ -117,7 +117,7 @@ x_load_cols(void) {
     return;
 }
 
-int32
+static int32
 x_set_color_name(int32 x, char *name) {
     XftColor ncolor;
 
@@ -144,7 +144,7 @@ x_set_color_name(int32 x, char *name) {
     return 0;
 }
 
-void
+static void
 x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
     int32 color_index;
     if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
@@ -158,7 +158,7 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
     return;
 }
 
-void
+static void
 x_hints(void) {
     XClassHint class;
     XWMHints wm = {.flags = InputHint, .input = 1};
@@ -207,7 +207,7 @@ x_hints(void) {
     return;
 }
 
-int32
+static int32
 x_geom_mask_to_gravity(int32 mask) {
     switch (mask & (XNegative | YNegative)) {
     case 0:
@@ -224,7 +224,7 @@ x_geom_mask_to_gravity(int32 mask) {
     return SouthEastGravity;
 }
 
-int32
+static int32
 x_load_font(StFont *f, FcPattern *pattern) {
     FcPattern *configured;
     FcPattern *match;
@@ -292,7 +292,7 @@ x_load_font(StFont *f, FcPattern *pattern) {
     return 0;
 }
 
-void
+static void
 x_load_fonts(char *fontstr, float fontsize) {
     FcPattern *pattern;
     double fontval;
@@ -305,7 +305,7 @@ x_load_fonts(char *fontstr, float fontsize) {
 
     if (!pattern) {
         error("can't open font %s\n", fontstr);
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     if (fontsize > 1) {
@@ -329,7 +329,7 @@ x_load_fonts(char *fontstr, float fontsize) {
 
     if (x_load_font(&draw_context.font, pattern)) {
         error("can't open font %s\n", fontstr);
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     if (usedfontsize < 0) {
@@ -353,28 +353,28 @@ x_load_fonts(char *fontstr, float fontsize) {
     FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
     if (x_load_font(&draw_context.ifont, pattern)) {
         error("can't open font %s\n", fontstr);
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     FcPatternDel(pattern, FC_WEIGHT);
     FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
     if (x_load_font(&draw_context.ibfont, pattern)) {
         error("can't open font %s\n", fontstr);
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     FcPatternDel(pattern, FC_SLANT);
     FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ROMAN);
     if (x_load_font(&draw_context.bfont, pattern)) {
         error("can't open font %s\n", fontstr);
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     FcPatternDestroy(pattern);
     return;
 }
 
-int32
+static int32
 xloadsparefont(FcPattern *pattern, int32 flags) {
     FcPattern *match;
     FcResult result;
@@ -396,7 +396,7 @@ xloadsparefont(FcPattern *pattern, int32 flags) {
     return 0;
 }
 
-void
+static void
 x_load_spare_fonts(void) {
     FcPattern *pattern;
     double sizeshift;
@@ -406,7 +406,7 @@ x_load_spare_fonts(void) {
 
     if (frclen != 0) {
         error("can't embed spare fonts. cache isn't empty");
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     /* Calculate count of spare fonts */
@@ -431,7 +431,7 @@ x_load_spare_fonts(void) {
 
         if (!pattern) {
             error("can't open spare font %s\n", *fp);
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 
         if (defaultfontsize > 0) {
@@ -454,28 +454,28 @@ x_load_spare_fonts(void) {
 
         if (xloadsparefont(pattern, FRC_NORMAL)) {
             error("can't open spare font %s\n", *fp);
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 
         FcPatternDel(pattern, FC_SLANT);
         FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
         if (xloadsparefont(pattern, FRC_ITALIC)) {
             error("can't open spare font %s\n", *fp);
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 
         FcPatternDel(pattern, FC_WEIGHT);
         FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
         if (xloadsparefont(pattern, FRC_ITALICBOLD)) {
             error("can't open spare font %s\n", *fp);
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 
         FcPatternDel(pattern, FC_SLANT);
         FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ROMAN);
         if (xloadsparefont(pattern, FRC_BOLD)) {
             error("can't open spare font %s\n", *fp);
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 
         FcPatternDestroy(pattern);
@@ -483,7 +483,7 @@ x_load_spare_fonts(void) {
     return;
 }
 
-void
+static void
 x_unload_font(StFont *f) {
     XftFontClose(x_window.display, f->match);
     FcPatternDestroy(f->pattern);
@@ -493,7 +493,7 @@ x_unload_font(StFont *f) {
     return;
 }
 
-void
+static void
 x_unload_fonts(void) {
     /* Free the loaded fonts in the font cache.  */
     while (frclen > 0) {
@@ -508,7 +508,7 @@ x_unload_fonts(void) {
     return;
 }
 
-int32
+static int32
 x_im_open(Display *display) {
     XIMCallback imdestroy = {.client_data = NULL, .callback = x_im_destroy};
     XICCallback icdestroy = {.client_data = NULL, .callback = x_ic_destroy};
@@ -539,7 +539,7 @@ x_im_open(Display *display) {
     return 1;
 }
 
-void
+static void
 x_im_instantiate(Display *display, XPointer client, XPointer call) {
     (void)client;
     (void)call;
@@ -550,7 +550,7 @@ x_im_instantiate(Display *display, XPointer client, XPointer call) {
     return;
 }
 
-void
+static void
 x_im_destroy(XIM xim, XPointer client, XPointer call) {
     (void)xim;
     (void)client;
@@ -562,7 +562,7 @@ x_im_destroy(XIM xim, XPointer client, XPointer call) {
     return;
 }
 
-int32
+static int32
 x_ic_destroy(XIC xim, XPointer client, XPointer call) {
     (void)xim;
     (void)client;
@@ -571,7 +571,7 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
     return 1;
 }
 
-int32
+static int32
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, Glyph *glyphs, int32 len,
                         int32 x, int32 y) {
     int32 winx = term_window.hborderpx + x*term_window.cw;
@@ -684,7 +684,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, Glyph *glyphs, int32 len,
             if (!frc[frclen].font) {
                 error("XftFontOpenPattern failed seeking fallback font: %s\n",
                       strerror(errno));
-				exit(EXIT_FAILURE);
+                exit(EXIT_FAILURE);
             }
             frc[frclen].flags = frcflags;
             frc[frclen].unicodep = rune;
@@ -709,7 +709,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, Glyph *glyphs, int32 len,
     return numspecs;
 }
 
-void
+static void
 x_draw_glyph_font_specs(XftGlyphFontSpec *specs, Glyph base, int32 len, int32 x,
                         int32 y) {
     int32 charlen;
@@ -889,7 +889,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs, Glyph base, int32 len, int32 x,
     return;
 }
 
-void
+static void
 x_draw_glyph(Glyph g, int32 x, int32 y) {
     int32 numspecs;
     XftGlyphFontSpec spec;
@@ -899,7 +899,7 @@ x_draw_glyph(Glyph g, int32 x, int32 y) {
     return;
 }
 
-void
+static void
 x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
     XftColor drawcol;
 
@@ -975,7 +975,7 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
     return;
 }
 
-void
+static void
 x_set_icon_title(char *p) {
     XTextProperty prop;
     if (!p) {
@@ -994,7 +994,7 @@ x_set_icon_title(char *p) {
     return;
 }
 
-void
+static void
 x_set_title(char *p) {
     XTextProperty prop;
     if (!p) {
@@ -1013,12 +1013,12 @@ x_set_title(char *p) {
     return;
 }
 
-int32
+static int32
 x_start_draw(void) {
     return TERM_WINDOW_IS_SET(WIN_MODE_VISIBLE);
 }
 
-void
+static void
 x_draw_line(Glyph *line, int32 x1, int32 y1, int32 x2) {
     int32 i;
     int32 x;
@@ -1057,7 +1057,7 @@ x_draw_line(Glyph *line, int32 x1, int32 y1, int32 x2) {
     return;
 }
 
-void
+static void
 x_finish_draw(void) {
     ImageList *im;
     ImageList *next;
@@ -1141,7 +1141,7 @@ x_finish_draw(void) {
     return;
 }
 
-void
+static void
 x_xim_spot(int32 x, int32 y) {
     if (x_window.ime.xic == NULL) {
         return;
@@ -1155,7 +1155,7 @@ x_xim_spot(int32 x, int32 y) {
     return;
 }
 
-void
+static void
 x_set_pointer_motion(int32 set) {
     MODBIT(x_window.attrs.event_mask, set, PointerMotionMask);
     XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
@@ -1163,7 +1163,7 @@ x_set_pointer_motion(int32 set) {
     return;
 }
 
-void
+static void
 x_set_mode(int32 set, uint32 flags) {
     int32 mode = term_window.mode;
     MODBIT(term_window.mode, set, flags);
@@ -1173,7 +1173,7 @@ x_set_mode(int32 set, uint32 flags) {
     return;
 }
 
-int32
+static int32
 x_set_cursor(int32 cursor) {
     if (!BETWEEN(cursor, 0, 7)) {
         return 1;
@@ -1182,7 +1182,7 @@ x_set_cursor(int32 cursor) {
     return 0;
 }
 
-void
+static void
 x_set_urgency(int32 add) {
     XWMHints *h = XGetWMHints(x_window.display, x_window.win);
     MODBIT(h->flags, add, XUrgencyHint);
@@ -1191,7 +1191,7 @@ x_set_urgency(int32 add) {
     return;
 }
 
-void
+static void
 x_bell(void) {
     if (!(TERM_WINDOW_IS_SET(WIN_MODE_FOCUSED))) {
         x_set_urgency(1);

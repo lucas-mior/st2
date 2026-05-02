@@ -44,7 +44,7 @@
 #define TESTING_st 0
 #endif
 
-int64
+static int64
 xwrite(int32 fd, char *s, int64 len) {
     int64 r;
     int64 left = (int64)len;
@@ -61,7 +61,7 @@ xwrite(int32 fd, char *s, int64 len) {
     return (int64)len;
 }
 
-void
+static void
 xfree(void *pointer) {
     free(pointer);
     return;
@@ -69,7 +69,7 @@ xfree(void *pointer) {
 
 #include "base64.c"
 
-int32
+static int32
 term_line_len(Glyph *line) {
     int32 i = term.ncols - 1;
 
@@ -78,7 +78,7 @@ term_line_len(Glyph *line) {
     return i + 1;
 }
 
-int32
+static int32
 term_is_wrapped(Glyph *line) {
     int32 len = term_line_len(line);
     int32 wrapped = 0;
@@ -92,7 +92,7 @@ term_is_wrapped(Glyph *line) {
     return wrapped;
 }
 
-char *
+static char *
 term_get_glyphs(char *buffer, Glyph *gp, Glyph *lgp) {
     while (gp <= lgp) {
         if (gp->mode & ATTR_WDUMMY) {
@@ -105,7 +105,7 @@ term_get_glyphs(char *buffer, Glyph *gp, Glyph *lgp) {
     return buffer;
 }
 
-void
+static void
 exec_shell(char *cmd, char **args) {
     char *shell;
     char *arg;
@@ -116,10 +116,10 @@ exec_shell(char *cmd, char **args) {
     if (pw == NULL) {
         if (errno) {
             error("getpwuid: %s\n", strerror(errno));
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         } else {
             error("who are you?\n");
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -166,7 +166,7 @@ exec_shell(char *cmd, char **args) {
     _exit(1);
 }
 
-void
+static void
 term_set_sixel_attr(Glyph *line, int x1, int x2) {
     for (; x1 <= x2; x1 += 1) {
         line[x1].mode |= ATTR_SIXEL;
@@ -174,7 +174,7 @@ term_set_sixel_attr(Glyph *line, int x1, int x2) {
     return;
 }
 
-int32
+static int32
 term_attr_set(int32 attr) {
     for (int32 i = 0; i < term.nrows - 1; i += 1) {
         for (int32 j = 0; j < term.ncols - 1; j += 1) {
@@ -187,7 +187,7 @@ term_attr_set(int32 attr) {
     return 0;
 }
 
-void
+static void
 term_set_dirt(int32 top, int32 bot) {
     LIMIT(top, 0, term.nrows - 1);
     LIMIT(bot, 0, term.nrows - 1);
@@ -198,7 +198,7 @@ term_set_dirt(int32 top, int32 bot) {
     return;
 }
 
-void
+static void
 term_set_dirt_attr(int32 attr) {
     for (int32 i = 0; i < term.nrows - 1; i += 1) {
         for (int32 j = 0; j < term.ncols - 1; j += 1) {
@@ -211,7 +211,7 @@ term_set_dirt_attr(int32 attr) {
     return;
 }
 
-void
+static void
 term_full_dirt(void) {
     for (int32 i = 0; i < term.nrows; i += 1) {
         term.dirty[i] = 1;
@@ -219,7 +219,7 @@ term_full_dirt(void) {
     return;
 }
 
-void
+static void
 tdeleteimages(void) {
     ImageList *next;
 
@@ -230,7 +230,7 @@ tdeleteimages(void) {
     return;
 }
 
-void
+static void
 term_reset(void) {
     ImageList *im = term.images;
     while (im) {
@@ -276,7 +276,7 @@ term_reset(void) {
 }
 
 /* handle it with care */
-void
+static void
 term_swap_screen(void) {
     static Glyph **altline;
     static int32 altcol;
@@ -295,7 +295,7 @@ term_swap_screen(void) {
     return;
 }
 
-void
+static void
 term_load_def_screen(int32 clear, int32 loadcursor) {
     int32 col = 0;
     int32 row = 0;
@@ -318,7 +318,7 @@ term_load_def_screen(int32 clear, int32 loadcursor) {
     return;
 }
 
-void
+static void
 term_load_alt_screen(int32 clear, int32 savecursor) {
     int32 col;
     int32 row;
@@ -340,7 +340,7 @@ term_load_alt_screen(int32 clear, int32 savecursor) {
     return;
 }
 
-void
+static void
 term_scroll_down(int32 top, int32 n) {
     int32 bot = term.bot_scroll_limit;
     Glyph *temp;
@@ -376,7 +376,7 @@ term_scroll_down(int32 top, int32 n) {
     return;
 }
 
-void
+static void
 term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     int32 s = 0;
     uint32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
@@ -451,7 +451,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     return;
 }
 
-void
+static void
 term_new_line(int32 first_col) {
     int32 y = term.cursor.y;
     int32 x_pos;
@@ -474,7 +474,7 @@ term_new_line(int32 first_col) {
 }
 
 /* for absolute user moves, when decom is set */
-void
+static void
 term_move_abs_to(int32 x, int32 y) {
     int32 y_offset;
     if (term.cursor.state & CURSOR_ORIGIN) {
@@ -487,7 +487,7 @@ term_move_abs_to(int32 x, int32 y) {
     return;
 }
 
-void
+static void
 term_move_to(int32 x, int32 y) {
     int32 miny;
     int32 maxy;
@@ -505,7 +505,7 @@ term_move_to(int32 x, int32 y) {
     return;
 }
 
-void
+static void
 term_set_char(uint32 u, Glyph *attr, int32 x, int32 y) {
     static char *vt100_0[62] = {
         /* 0x41 - 0x7e */
@@ -550,7 +550,7 @@ term_set_char(uint32 u, Glyph *attr, int32 x, int32 y) {
     return;
 }
 
-void
+static void
 term_clear_glyph(Glyph *gp, int32 usecurattr) {
     if (usecurattr) {
         gp->fg = term.cursor.attr.fg;
@@ -564,7 +564,7 @@ term_clear_glyph(Glyph *gp, int32 usecurattr) {
     return;
 }
 
-void
+static void
 term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, int32 usecurattr) {
     /* selection_is_selected4() takes relative coordinates */
     if (selection_is_selected4(
@@ -582,7 +582,7 @@ term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, int32 usecurattr) {
     return;
 }
 
-void
+static void
 term_delete_char(int32 n) {
     int32 src;
     int32 dst;
@@ -609,7 +609,7 @@ term_delete_char(int32 n) {
     return;
 }
 
-void
+static void
 term_insert_blank(int32 n) {
     int32 src;
     int32 dst;
@@ -630,7 +630,7 @@ term_insert_blank(int32 n) {
     return;
 }
 
-void
+static void
 term_insert_blank_line(int32 n) {
     if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot_scroll_limit)) {
         term_scroll_down(term.cursor.y, n);
@@ -638,7 +638,7 @@ term_insert_blank_line(int32 n) {
     return;
 }
 
-void
+static void
 term_delete_line(int32 n) {
     if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot_scroll_limit)) {
         term_scroll_up(term.cursor.y, term.bot_scroll_limit, n,
@@ -647,7 +647,7 @@ term_delete_line(int32 n) {
     return;
 }
 
-void
+static void
 externalpipe(Arg *arg) {
     int32 to[2];
     char buffer[UTF_SIZ];
@@ -728,7 +728,7 @@ externalpipe(Arg *arg) {
     return;
 }
 
-void
+static void
 term_printer(char *s, int64 len) {
     if (io_fd != -1) {
         if (xwrite(io_fd, s, len) < 0) {
@@ -740,7 +740,7 @@ term_printer(char *s, int64 len) {
     return;
 }
 
-void
+static void
 term_dump_sel(void) {
     char *ptr;
 
@@ -752,7 +752,7 @@ term_dump_sel(void) {
     return;
 }
 
-void
+static void
 term_dump_line(int32 n) {
     char *string = xmalloc((int64)((term.ncols + 1)*UTF_SIZ) * SIZEOF(*string));
     char *buffer = string;
@@ -774,7 +774,7 @@ term_dump_line(int32 n) {
     return;
 }
 
-void
+static void
 term_dump(void) {
     for (int32 i = 0; i < term.nrows; i += 1) {
         term_dump_line(i);
@@ -782,7 +782,7 @@ term_dump(void) {
     return;
 }
 
-void
+static void
 reflow_scroll_down(int32 n) {
     int32 j;
     Glyph *temp;
@@ -825,7 +825,7 @@ reflow_scroll_down(int32 n) {
     return;
 }
 
-void
+static void
 term_resize(int32 col, int32 row) {
     int32 *bp;
 
@@ -852,7 +852,7 @@ term_resize(int32 col, int32 row) {
     return;
 }
 
-void
+static void
 term_resize_def(int32 new_ncols, int32 new_nrows) {
     if (term.ncols == new_ncols && term.nrows == new_nrows) {
         term_full_dirt();
@@ -891,7 +891,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
     return;
 }
 
-void
+static void
 term_resize_alt(int32 new_ncols, int32 new_nrows) {
     int32 i;
 
@@ -944,7 +944,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     return;
 }
 
-void
+static void
 term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 i;
     int32 old_cursor_end_line;
@@ -1147,13 +1147,13 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     return;
 }
 
-void
+static void
 reset_title(void) {
     x_set_title(NULL);
     return;
 }
 
-void
+static void
 draw(void) {
     int32 cx = term.cursor.x;
     int32 old_cursor_x = term.old_cursor_x;
@@ -1194,7 +1194,7 @@ draw(void) {
     return;
 }
 
-void
+static void
 redraw(void) {
     term_full_dirt();
     draw();
@@ -1208,10 +1208,10 @@ redraw(void) {
 
 #include "assert.c"
 
-int
+static int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_st */

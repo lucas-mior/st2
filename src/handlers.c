@@ -10,7 +10,7 @@
 #define TESTING_handlers 0
 #endif
 
-void
+static void
 handler_sigchld(int32 unused) {
     int32 stat;
     pid_t p;
@@ -18,13 +18,13 @@ handler_sigchld(int32 unused) {
 
     if ((p = waitpid(pid, &stat, WNOHANG)) < 0) {
         error("waiting for pid %hd failed: %s\n", pid, strerror(errno));
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     if (pid != p) {
         if (p == 0 && wait(&stat) < 0) {
             error("wait: %s\n", strerror(errno));
-			exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 
         /* reinstall handler_sigchld handler */
@@ -34,15 +34,15 @@ handler_sigchld(int32 unused) {
 
     if (WIFEXITED(stat) && WEXITSTATUS(stat)) {
         error("child exited with status %d\n", WEXITSTATUS(stat));
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     } else if (WIFSIGNALED(stat)) {
         error("child terminated due to signal %d\n", WTERMSIG(stat));
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
     _exit(0);
 }
 
-void
+static void
 handler_button_press(XEvent *xevent) {
     int32 button = (int32)xevent->xbutton.button;
     struct timespec tnow;
@@ -82,7 +82,7 @@ handler_button_press(XEvent *xevent) {
     return;
 }
 
-void
+static void
 handler_prop_notify(XEvent *xevent) {
     XPropertyEvent *x_property_event;
     Atom clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
@@ -98,7 +98,7 @@ handler_prop_notify(XEvent *xevent) {
     return;
 }
 
-void
+static void
 handler_selection_notify(XEvent *xevent) {
     uint64 nitems;
     uint64 ofs;
@@ -173,14 +173,14 @@ handler_selection_notify(XEvent *xevent) {
     return;
 }
 
-void
+static void
 handler_selection_clear(XEvent *xevent) {
     (void)xevent;
     selection_clear();
     return;
 }
 
-void
+static void
 handler_selection_request(XEvent *xevent) {
     XSelectionRequestEvent *xselection_request_event;
     XSelectionEvent xselection_event;
@@ -243,7 +243,7 @@ handler_selection_request(XEvent *xevent) {
     return;
 }
 
-void
+static void
 handler_button_release(XEvent *xevent) {
     uint32 button = xevent->xbutton.button;
 
@@ -267,7 +267,7 @@ handler_button_release(XEvent *xevent) {
     return;
 }
 
-void
+static void
 handler_button_motion(XEvent *xevent) {
     if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE)) {
         if (!(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
@@ -280,14 +280,14 @@ handler_button_motion(XEvent *xevent) {
     return;
 }
 
-void
+static void
 handler_expose(XEvent *xevent) {
     (void)xevent;
     redraw();
     return;
 }
 
-void
+static void
 handler_visibility(XEvent *xevent) {
     XVisibilityEvent *e = &xevent->xvisibility;
     int32 visible;
@@ -300,14 +300,14 @@ handler_visibility(XEvent *xevent) {
     return;
 }
 
-void
+static void
 handler_unmap(XEvent *xevent) {
     (void)xevent;
     term_window.mode &= ~WIN_MODE_VISIBLE;
     return;
 }
 
-void
+static void
 handler_focus(XEvent *xevent) {
     XFocusChangeEvent *e = &xevent->xfocus;
 
@@ -336,7 +336,7 @@ handler_focus(XEvent *xevent) {
     return;
 }
 
-void
+static void
 handler_key_press(XEvent *xevent) {
     XKeyEvent *key_event = &xevent->xkey;
     KeySym key_sym = NoSymbol;
@@ -442,7 +442,7 @@ tried_custom_keys:
     return;
 }
 
-void
+static void
 handler_client_message(XEvent *xevent) {
     if (xevent->xclient.message_type == x_window.xembed) {
         if (xevent->xclient.format == 32) {
@@ -460,7 +460,7 @@ handler_client_message(XEvent *xevent) {
     return;
 }
 
-void
+static void
 handler_configure_notify(XEvent *xevent) {
     if (xevent->xconfigure.width == term_window.w) {
         if (xevent->xconfigure.height == term_window.h) {
@@ -478,10 +478,10 @@ handler_configure_notify(XEvent *xevent) {
 
 #include "assert.c"
 
-int
+static int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_handlers */

@@ -38,10 +38,10 @@
 #define DEFAULT(a, b)		(a) = (a) ? (a) : (b)
 #define LIMIT(x, a, b)		(x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
 #define ATTRCMP(a, b)		(((a).mode != (b).mode) \
-		                   || (a).fg   != (b).fg    \
-						   || (a).bg   != (b).bg)
+                           || (a).fg   != (b).fg    \
+                           || (a).bg   != (b).bg)
 #define TIMEDIFF(t1, t2)	((float)(t1.tv_sec - t2.tv_sec)*1000 + \
-		                     (float)(t1.tv_nsec - t2.tv_nsec)/1E6f)
+                             (float)(t1.tv_nsec - t2.tv_nsec)/1E6f)
 #define MODBIT(x, set, bit)	((set) ? ((x) |= (bit)) : ((x) &= ~(bit)))
 
 #define TRUECOLOR(r,g,b)	(1 << 24 | (r) << 16 | (g) << 8 | (b))
@@ -57,44 +57,44 @@
 #define IS_CONTROL_C1(c) (BETWEEN(c, 0x80, 0x9f))
 #define IS_CONTROl(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
 #define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
-#define TERM_LINE(y)                                                                               \
-    ((y) < term.lines_scrolled_up                                                                  \
-         ? term.hist[(term.i_hist + (y) - term.lines_scrolled_up + 1 + HISTORY_SIZE)               \
-                     % HISTORY_SIZE]                                                               \
+#define TERM_LINE(y)                                                                                \
+    ((y) < term.lines_scrolled_up                                                                   \
+         ? term.hist[(term.i_hist + (y) - term.lines_scrolled_up + 1 + HISTORY_SIZE)                \
+                     % HISTORY_SIZE]                                                                \
          : term.line[(y) - term.lines_scrolled_up])
 
-#define TERM_LINE_ABS(y)                                                                           \
+#define TERM_LINE_ABS(y)                                                                            \
     ((y) < 0 ? term.hist[(term.i_hist + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] : term.line[(y)])
-#define TERM_LINE_HIST(y)                                                                          \
-    ((y) <= HISTORY_SIZE - term.nrows + 2 ? term.hist[(y)]                                         \
+#define TERM_LINE_HIST(y)                                                                           \
+    ((y) <= HISTORY_SIZE - term.nrows + 2 ? term.hist[(y)]                                          \
                                           : term.line[(y - HISTORY_SIZE + term.nrows - 3)])
 
-#define UPDATE_WRAP_NEXT(alt, col)                                                                 \
-    do {                                                                                           \
-        if ((term.cursor.state & CURSOR_WRAPNEXT)                                                  \
-            && term.cursor.x + term.wrap_char_width[alt] < col) {                                  \
-            term.cursor.x += term.wrap_char_width[alt];                                            \
-            term.cursor.state &= ~CURSOR_WRAPNEXT;                                                 \
-        }                                                                                          \
+#define UPDATE_WRAP_NEXT(alt, col)                                                                  \
+    do {                                                                                            \
+        if ((term.cursor.state & CURSOR_WRAPNEXT)                                                   \
+            && term.cursor.x + term.wrap_char_width[alt] < col) {                                   \
+            term.cursor.x += term.wrap_char_width[alt];                                             \
+            term.cursor.state &= ~CURSOR_WRAPNEXT;                                                  \
+        }                                                                                           \
     } while (0)
 
 enum GlyphAttribute {
-	ATTR_NULL       = 0,
-	ATTR_SET        = 1 << 0,
-	ATTR_BOLD       = 1 << 1,
-	ATTR_FAINT      = 1 << 2,
-	ATTR_ITALIC     = 1 << 3,
-	ATTR_UNDERLINE  = 1 << 4,
-	ATTR_BLINK      = 1 << 5,
-	ATTR_REVERSE    = 1 << 6,
-	ATTR_INVISIBLE  = 1 << 7,
-	ATTR_STRUCK     = 1 << 8,
-	ATTR_WRAP       = 1 << 9,
-	ATTR_WIDE       = 1 << 10,
-	ATTR_WDUMMY     = 1 << 11,
-	ATTR_SELECTED   = 1 << 12,
-	ATTR_BOXDRAW    = 1 << 13,
-	ATTR_SIXEL      = 1 << 16,
+	ATTR_NULL        = 0,
+	ATTR_SET         = 1 << 0,
+	ATTR_BOLD        = 1 << 1,
+	ATTR_FAINT       = 1 << 2,
+	ATTR_ITALIC      = 1 << 3,
+	ATTR_UNDERLINE   = 1 << 4,
+	ATTR_BLINK       = 1 << 5,
+	ATTR_REVERSE     = 1 << 6,
+	ATTR_INVISIBLE   = 1 << 7,
+	ATTR_STRUCK      = 1 << 8,
+	ATTR_WRAP        = 1 << 9,
+	ATTR_WIDE        = 1 << 10,
+	ATTR_WDUMMY      = 1 << 11,
+	ATTR_SELECTED    = 1 << 12,
+	ATTR_BOXDRAW     = 1 << 13,
+	ATTR_SIXEL       = 1 << 16,
 	ATTR_BOLD_FAINT = ATTR_BOLD | ATTR_FAINT,
 };
 
@@ -228,7 +228,7 @@ typedef struct {
 static struct {
     int32 nrows;
     int32 ncols;
-    Glyph **line;              /* screen */
+    Glyph **line;               /* screen */
     Glyph *hist[HISTORY_SIZE]; /* history buffer */
     int32 i_hist;              /* history index */
     int32 n_hist;              /* nb history available */
@@ -328,8 +328,8 @@ static int32 isboxdraw(uint32);
 static uint16 boxdrawindex(Glyph *);
 #ifdef XFT_VERSION
 /* only exposed to main.c, otherwise we'll need Xft.h for the types */
-void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
-void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, XftGlyphFontSpec *, int32);
+static void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
+static void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, XftGlyphFontSpec *, int32);
 #endif
 
 static void exec_shell(char *, char **) __attribute__((noreturn));
@@ -451,16 +451,15 @@ static char base64_decode_getc(char **);
 
 static int64 xwrite(int32, char *, int64);
 
-/* function definitions used in config.def.h */
-void user_clipboard_copy(Arg *);
-void user_clipboard_paste(Arg *);
-void user_toggle_numlock(Arg *);
-void user_selection_paste(Arg *);
-void user_change_alpha(Arg *);
-void user_zoom(Arg *);
-void zoom_abs(Arg *);
-void user_zoom_reset(Arg *);
-void user_tty_send(Arg *);
+static void user_clipboard_copy(Arg *);
+static void user_clipboard_paste(Arg *);
+static void user_toggle_numlock(Arg *);
+static void user_selection_paste(Arg *);
+static void user_change_alpha(Arg *);
+static void user_zoom(Arg *);
+static void zoom_abs(Arg *);
+static void user_zoom_reset(Arg *);
+static void user_tty_send(Arg *);
 
 typedef struct {
     uint32 mod;
@@ -498,26 +497,26 @@ enum win_mode {
 	WIN_MODE_BRCKTPASTE  = 1 << 16,
 	WIN_MODE_NUMLOCK     = 1 << 17,
 	WIN_MODE_MOUSE       = WIN_MODE_MOUSEBTN
-		                   |WIN_MODE_MOUSEMOTION
-						   |WIN_MODE_MOUSEX10
-						   |WIN_MODE_MOUSEMANY,
+                    |WIN_MODE_MOUSEMOTION
+                    |WIN_MODE_MOUSEX10
+                    |WIN_MODE_MOUSEMANY,
 };
 
-void x_bell(void);
-void x_draw_cursor(int32, int32, Glyph, int32, int32, Glyph);
-void x_draw_line(Glyph *, int32, int32, int32);
-void x_finish_draw(void);
-void x_load_cols(void);
-int32 x_set_color_name(int32, char *);
-void x_set_icon_title(char *);
-void x_set_title(char *);
-int32 x_set_cursor(int32);
-void x_set_mode(int32, uint32);
-void x_set_pointer_motion(int32);
-int32 x_start_draw(void);
-void x_xim_spot(int32, int32);
+static void x_bell(void);
+static void x_draw_cursor(int32, int32, Glyph, int32, int32, Glyph);
+static void x_draw_line(Glyph *, int32, int32, int32);
+static void x_finish_draw(void);
+static void x_load_cols(void);
+static int32 x_set_color_name(int32, char *);
+static void x_set_icon_title(char *);
+static void x_set_title(char *);
+static int32 x_set_cursor(int32);
+static void x_set_mode(int32, uint32);
+static void x_set_pointer_motion(int32);
+static int32 x_start_draw(void);
+static void x_xim_spot(int32, int32);
 
-void selection_set(char *, Time);
+static void selection_set(char *, Time);
 
 static struct {
     int32 tty_width;
