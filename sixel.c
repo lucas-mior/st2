@@ -333,6 +333,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
 /* convert sixel data into indexed pixel bytes and palette data */
 int32
 sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
+    SixelImage *image = &sixel_state->image;
     int32 n = 0;
     int32 i;
     int32 x;
@@ -342,7 +343,6 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
     int32 width;
     uchar *p0 = p;
     uchar *p2 = p + len;
-    SixelImage *image = &sixel_state->image;
     uint16 *data;
     int32 color_index;
 
