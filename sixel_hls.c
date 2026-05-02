@@ -30,13 +30,15 @@
 // sale, use or other dealings in this Software without prior written
 // authorization.
 
-int
-hls_to_rgb(int hue, int lum, int sat) {
+#include "sixel.c"
+
+int32
+hls_to_rgb(int32 hue, int32 lum, int32 sat) {
     double lv = lum / 100.0;
     double sv = sat / 100.0;
     double c, x, m, c2;
     double r1, g1, b1;
-    int r, g, b, hs;
+    int32 r, g, b, hs;
 
     hue = (hue + 240) % 360;
     if (sat == 0) {
@@ -89,9 +91,9 @@ hls_to_rgb(int hue, int lum, int sat) {
         return SIXEL_RGB(255, 255, 255);
     }
 
-    r = (int)((r1 + m)*255.0 + 0.5);
-    g = (int)((g1 + m)*255.0 + 0.5);
-    b = (int)((b1 + m)*255.0 + 0.5);
+    r = (int32)((r1 + m)*255.0 + 0.5);
+    g = (int32)((g1 + m)*255.0 + 0.5);
+    b = (int32)((b1 + m)*255.0 + 0.5);
 
     if (r < 0) {
         r = 0;

@@ -1813,7 +1813,7 @@ string_handle(void) {
                         y = im->y - scr;
                         if (y >= 0 && y < term.nrows && term.dirty[y]) {
                             line = term.line[y];
-                            j = MIN(im->x + im->cols, term.ncols);
+                            j = (int32)MIN(im->x + im->cols, term.ncols);
                             for (i = im->x; i < j; i += 1) {
                                 if (line[i].mode & ATTR_SIXEL) {
                                     break;
@@ -1842,7 +1842,7 @@ string_handle(void) {
                 term.images = newimages;
             }
 
-            x2 = MIN(x2, term.ncols) - 1;
+            x2 = (int32)MIN(x2, term.ncols) - 1;
 
             if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
                 ImageList *im;
@@ -2508,7 +2508,7 @@ check_control_code:
                 return;
             }
 
-            csi_escape_seq.buffer[csi_escape_seq.len++] = (uchar)u;
+            csi_escape_seq.buffer[csi_escape_seq.len++] = (char)u;
             if (BETWEEN(u, 0x40, 0x7E)
                 || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
                 control_seq_intro_parse();
@@ -2638,7 +2638,7 @@ reflow_scroll_down(int32 n) {
        if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))
        return; */
 
-    if ((n = MIN(n, term.n_hist)) <= 0) {
+    if ((n = (int32)MIN(n, term.n_hist)) <= 0) {
         return;
     }
 
@@ -2663,10 +2663,13 @@ reflow_scroll_down(int32 n) {
             selection_move(-j);
         }
     }
-    ImageList *im = term.images;
-    while (im) {
-        im->y += n;
-        im = im->next;
+
+    {
+        ImageList *im = term.images;
+        while (im) {
+            im->y += n;
+            im = im->next;
+        }
     }
     return;
 }
@@ -2873,7 +2876,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         /* update cursor tracking */
         if (old_y_index == term.cursor.y) {
             if (!old_x_offset) {
-                len = MAX(len, term.cursor.x + 1);
+                len = (int32)MAX(len, term.cursor.x + 1);
             }
 
             if (new_cursor_y_proxy < 0
@@ -2935,17 +2938,17 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     term.line = xrealloc(term.line, (int64)new_nrows*SIZEOF(*(term.line)));
 
     /* --- adjust cursor and visible region --- */
-    bottom_visible_line = MIN(new_y_index, new_nrows - 1);
-    scroll_offset = MAX(new_nrows - term.nrows, 0);
+    bottom_visible_line = (int32)MIN(new_y_index, new_nrows - 1);
+    scroll_offset = (int32)MAX(new_nrows - term.nrows, 0);
     new_cursor_end_line
-        = MIN(old_cursor_end_line + scroll_offset, bottom_visible_line);
+        = (int32)MIN(old_cursor_end_line + scroll_offset, bottom_visible_line);
 
     term.cursor.y = new_cursor_end_line - (new_y_index - new_cursor_y_proxy);
 
     if (term.cursor.y < 0) {
         int32 j = new_cursor_end_line;
-        new_cursor_end_line
-            = MIN(new_cursor_end_line - term.cursor.y, bottom_visible_line);
+        new_cursor_end_line = (int32)MIN(new_cursor_end_line - term.cursor.y,
+                                         bottom_visible_line);
         term.cursor.y += new_cursor_end_line - j;
 
         while (term.cursor.y < 0) {
@@ -2984,7 +2987,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         term.n_hist = -k - 1;
     }
 
-    term.lines_scrolled_up = MIN(term.lines_scrolled_up, term.n_hist);
+    term.lines_scrolled_up = (int32)MIN(term.lines_scrolled_up, term.n_hist);
 
     /* --- reallocate remaining history lines --- */
     for (int32 k = -term.n_hist - 1; k >= -HISTORY_SIZE; k--) {
