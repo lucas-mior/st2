@@ -45,7 +45,8 @@ user_clipboard_paste(union Arg *arg) {
 static void
 user_selection_paste(union Arg *arg) {
     (void)arg;
-    XConvertSelection(x_window.display, XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
+    XConvertSelection(x_window.display,
+			          XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
                       x_window.win, CurrentTime);
     return;
 }
