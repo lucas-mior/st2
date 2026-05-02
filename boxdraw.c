@@ -205,7 +205,12 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
          * which consider other doubles - shorter to avoid intersections
          * (p, n), or longer to draw the far-corner texel (n).
          */
-        int32 dl = bd & DL, du = bd & DU, dr = bd & DR, dd = bd & DD;
+
+        int32 dl = bd & DL;
+		int32 du = bd & DU;
+		int32 dr = bd & DR;
+		int32 dd = bd & DD;
+
         if (dl) {
             int32 p = dd ? -s : 0, n = du ? -s : dd ? s : 0;
             XftDrawRect(xd, fg, x, y + h2 + s, (uint32)(w2 + s + p), (uint32)s);
