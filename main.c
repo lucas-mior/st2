@@ -731,43 +731,6 @@ selection_set(char *string, Time t) {
 }
 
 void
-handler_button_release(XEvent *xevent) {
-    uint32 button = xevent->xbutton.button;
-
-    if (1 <= button && button <= 11) {
-        buttons &= (uint32) ~(1 << (button - 1));
-    }
-
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE)) {
-        if (!(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
-            mouse_report(xevent);
-            return;
-        }
-    }
-
-    if (mouse_action(xevent, 1)) {
-        return;
-    }
-    if (button == Button1) {
-        mouse_select(xevent, 1);
-    }
-    return;
-}
-
-void
-handler_button_motion(XEvent *xevent) {
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE)) {
-        if (!(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
-            mouse_report(xevent);
-            return;
-        }
-    }
-
-    mouse_select(xevent, 0);
-    return;
-}
-
-void
 cresize(int32 width, int32 height) {
     int32 col;
     int32 row;
