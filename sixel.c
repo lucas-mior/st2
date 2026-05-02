@@ -330,7 +330,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
 
 /* convert sixel data into indexed pixel bytes and palette data */
 int32
-sixel_parser_parse(SixelState *sixel_state, const uchar *p, size_t len) {
+sixel_parser_parse(SixelState *sixel_state, const uchar *p, int32 len) {
     int32 n = 0;
     int32 i;
     int32 x;

@@ -522,9 +522,12 @@ typedef struct {
 } Font;
 
 typedef struct {
-    Color *color;
-    int32 collen;
-    Font font, bfont, ifont, ibfont;
+    Color *colors;
+    int32 colors_len;
+    Font font;
+	Font bfont;
+	Font ifont;
+	Font ibfont;
     GC graphics;
 } DrawingContext;
 

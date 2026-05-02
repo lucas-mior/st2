@@ -53,7 +53,7 @@ typedef struct parser_context {
 void scroll_images(int n);
 void delete_image(ImageList *im);
 int sixel_parser_init(SixelState *st, int transparent, uint fgcolor, uint bgcolor, unsigned char use_private_register, int cell_width, int cell_height);
-int sixel_parser_parse(SixelState *st, const unsigned char *p, size_t len);
+int sixel_parser_parse(SixelState *st, const unsigned char *p, int32 len);
 int sixel_parser_set_default_color(SixelState *st);
 int sixel_parser_finalize(SixelState *st, ImageList **newimages, int cx, int cy, int cw, int ch);
 void sixel_parser_deinit(SixelState *st);

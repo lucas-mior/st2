@@ -213,8 +213,8 @@ run:
 
     setlocale(LC_CTYPE, "");
     XSetLocaleModifiers("");
-    CONF_NUMBER_COLS = MAX(CONF_NUMBER_COLS, 1);
-    CONF_NUMBER_ROWS = MAX(CONF_NUMBER_ROWS, 1);
+    CONF_NUMBER_COLS = (int32)MAX(CONF_NUMBER_COLS, 1);
+    CONF_NUMBER_ROWS = (int32)MAX(CONF_NUMBER_ROWS, 1);
 
     for (int32 i = 0; i < 2; i++) {
         term.line = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*(term.line)));
@@ -300,8 +300,8 @@ run:
 
         /* Events */
         x_window.attrs.background_pixel
-            = draw_context.color[CONF_COLOR_BG].pixel;
-        x_window.attrs.border_pixel = draw_context.color[CONF_COLOR_BG].pixel;
+            = draw_context.colors[CONF_COLOR_BG].pixel;
+        x_window.attrs.border_pixel = draw_context.colors[CONF_COLOR_BG].pixel;
         x_window.attrs.bit_gravity = NorthWestGravity;
         x_window.attrs.event_mask
             = FocusChangeMask | KeyPressMask | KeyReleaseMask | ExposureMask
@@ -329,7 +329,7 @@ run:
             x_window.display, x_window.win, (uint32)term_window.w,
             (uint32)term_window.h, (uint32)x_window.depth);
         XSetForeground(x_window.display, draw_context.graphics,
-                       draw_context.color[CONF_COLOR_BG].pixel);
+                       draw_context.colors[CONF_COLOR_BG].pixel);
         XFillRectangle(x_window.display, x_window.drawable,
                        draw_context.graphics, 0, 0, (uint32)term_window.w,
                        (uint32)term_window.h);
@@ -466,7 +466,8 @@ run:
                 tv = NULL;
             }
 
-            if (pselect(MAX(xfd, ttyfd) + 1, &read_fd, NULL, NULL, tv, NULL)
+            if (pselect((int32)MAX(xfd, ttyfd) + 1, &read_fd, NULL, NULL, tv,
+                        NULL)
                 < 0) {
                 if (errno == EINTR) {
                     continue;
@@ -998,7 +999,8 @@ handler_button_motion(XEvent *xevent) {
 
 void
 cresize(int32 width, int32 height) {
-    int32 col, row;
+    int32 col;
+    int32 row;
 
     if (width != 0) {
         term_window.w = width;
@@ -1009,8 +1011,8 @@ cresize(int32 width, int32 height) {
 
     col = (term_window.w - 2*CONF_BORDER_PIXELS) / term_window.cw;
     row = (term_window.h - 2*CONF_BORDER_PIXELS) / term_window.ch;
-    col = MAX(1, col);
-    row = MAX(1, row);
+    col = (int32)MAX(1, col);
+    row = (int32)MAX(1, row);
 
     term_window.hborderpx = (term_window.w - col*term_window.cw) / 2;
     term_window.vborderpx = (term_window.h - row*term_window.ch) / 2;
@@ -1052,13 +1054,13 @@ sixd_to_16bit(int32 x) {
 
 int32
 x_get_color(int32 x, uint *r, uint *g, uint *b) {
-    if (!BETWEEN(x, 0, draw_context.collen - 1)) {
+    if (!BETWEEN(x, 0, draw_context.colors_len - 1)) {
         return 1;
     }
 
-    *r = draw_context.color[x].color.red >> 8;
-    *g = draw_context.color[x].color.green >> 8;
-    *b = draw_context.color[x].color.blue >> 8;
+    *r = draw_context.colors[x].color.red >> 8;
+    *g = draw_context.colors[x].color.green >> 8;
+    *b = draw_context.colors[x].color.blue >> 8;
 
     return 0;
 }
@@ -1094,19 +1096,19 @@ x_load_cols(void) {
     Color *cp;
 
     if (loaded) {
-        for (cp = draw_context.color;
-             cp < &draw_context.color[draw_context.collen]; ++cp) {
+        for (cp = draw_context.colors;
+             cp < &draw_context.colors[draw_context.colors_len]; ++cp) {
             XftColorFree(x_window.display, x_window.visual, x_window.color_map,
                          cp);
         }
     } else {
-        draw_context.collen = MAX(LENGTH(CONF_COLORS), 256);
-        draw_context.color
-            = xmalloc((uint16)draw_context.collen*SIZEOF(Color));
+        draw_context.colors_len = (int32)MAX(LENGTH(CONF_COLORS), 256);
+        draw_context.colors
+            = xmalloc((uint16)draw_context.colors_len*SIZEOF(Color));
     }
 
-    for (int32 i = 0; i < draw_context.collen; i += 1) {
-        if (!x_load_color(i, NULL, &draw_context.color[i])) {
+    for (int32 i = 0; i < draw_context.colors_len; i += 1) {
+        if (!x_load_color(i, NULL, &draw_context.colors[i])) {
             if (CONF_COLORS[i]) {
                 die("could not allocate color '%s'\n", CONF_COLORS[i]);
             } else {
@@ -1115,17 +1117,17 @@ x_load_cols(void) {
         }
     }
 
-    draw_context.color[CONF_COLOR_BG].color.alpha
+    draw_context.colors[CONF_COLOR_BG].color.alpha
         = (uint16)(0xffff*CONF_ALPHA);
-    draw_context.color[CONF_COLOR_BG].pixel &= 0x00FFFFFF;
-    draw_context.color[CONF_COLOR_BG].pixel
+    draw_context.colors[CONF_COLOR_BG].pixel &= 0x00FFFFFF;
+    draw_context.colors[CONF_COLOR_BG].pixel
         |= ((uint32)(0xFF*CONF_ALPHA) & 0xFF) << 24;
 
     for (int32 i = 16; i < 16 + CONF_NTRANSPARENT_COLORS; i += 1) {
-        draw_context.color[i].color.alpha = (uint16)(0xffff*CONF_ALPHA);
-        draw_context.color[i].pixel &= 0x00FFFFFF;
-        draw_context.color[i].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff)
-                                       << 24;
+        draw_context.colors[i].color.alpha = (uint16)(0xffff*CONF_ALPHA);
+        draw_context.colors[i].pixel &= 0x00FFFFFF;
+        draw_context.colors[i].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff)
+                                        << 24;
     }
     loaded = 1;
     return;
@@ -1135,7 +1137,7 @@ int32
 x_set_color_name(int32 x, const char *name) {
     Color ncolor;
 
-    if (!BETWEEN(x, 0, draw_context.collen - 1)) {
+    if (!BETWEEN(x, 0, draw_context.colors_len - 1)) {
         return 1;
     }
 
@@ -1144,14 +1146,14 @@ x_set_color_name(int32 x, const char *name) {
     }
 
     XftColorFree(x_window.display, x_window.visual, x_window.color_map,
-                 &draw_context.color[x]);
-    draw_context.color[x] = ncolor;
+                 &draw_context.colors[x]);
+    draw_context.colors[x] = ncolor;
 
     if (x == CONF_COLOR_BG) {
-        draw_context.color[CONF_COLOR_BG].color.alpha
+        draw_context.colors[CONF_COLOR_BG].color.alpha
             = (uint16)(0xffff*CONF_ALPHA);
-        draw_context.color[CONF_COLOR_BG].pixel &= 0x00FFFFFF;
-        draw_context.color[CONF_COLOR_BG].pixel
+        draw_context.colors[CONF_COLOR_BG].pixel &= 0x00FFFFFF;
+        draw_context.colors[CONF_COLOR_BG].pixel
             |= ((uint32)(0xff*CONF_ALPHA) & 0xff) << 24;
     }
 
@@ -1170,7 +1172,7 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
         color_index = CONF_COLOR_BG;
     }
 
-    XftDrawRect(x_window.xft_draw, &draw_context.color[color_index], x1, y1,
+    XftDrawRect(x_window.xft_draw, &draw_context.colors[color_index], x1, y1,
                 (uint32)(x2 - x1), (uint32)(y2 - y1));
     return;
 }
@@ -1748,7 +1750,7 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len,
                            x_window.color_map, &colfg, &truefg);
         fg = &truefg;
     } else {
-        fg = &draw_context.color[base.fg];
+        fg = &draw_context.colors[base.fg];
     }
 
     if (IS_TRUECOL(base.bg)) {
@@ -1760,12 +1762,12 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len,
                            x_window.color_map, &colbg, &truebg);
         bg = &truebg;
     } else {
-        bg = &draw_context.color[base.bg];
+        bg = &draw_context.colors[base.bg];
     }
 
     if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
-        if (fg == &draw_context.color[CONF_COLOR_INDEX_FONT]) {
-            fg = &draw_context.color[CONF_COLOR_BG];
+        if (fg == &draw_context.colors[CONF_COLOR_INDEX_FONT]) {
+            fg = &draw_context.colors[CONF_COLOR_BG];
         } else {
             colfg.red = (ushort)~fg->color.red;
             colfg.green = (ushort)~fg->color.green;
@@ -1776,8 +1778,8 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len,
             fg = &revfg;
         }
 
-        if (bg == &draw_context.color[CONF_COLOR_BG]) {
-            bg = &draw_context.color[CONF_COLOR_INDEX_FONT];
+        if (bg == &draw_context.colors[CONF_COLOR_BG]) {
+            bg = &draw_context.colors[CONF_COLOR_INDEX_FONT];
         } else {
             colbg.red = (ushort)~bg->color.red;
             colbg.green = (ushort)~bg->color.green;
@@ -1806,9 +1808,9 @@ x_draw_glyph_font_specs(const XftGlyphFontSpec *specs, Glyph base, int32 len,
     }
 
     if (base.mode & ATTR_SELECTED) {
-        bg = &draw_context.color[CONF_COLOR_INDEX_SELECTION_BACK];
+        bg = &draw_context.colors[CONF_COLOR_INDEX_SELECTION_BACK];
         if (!CONF_COLOR_IGNORE_SELECTION_FONT_COLOR) {
-            fg = &draw_context.color[CONF_COLOR_INDEX_SELECTION_FONT];
+            fg = &draw_context.colors[CONF_COLOR_INDEX_SELECTION_FONT];
         }
     }
 
@@ -1920,11 +1922,11 @@ x_draw_cursor(int32 cx, int32 cy, Glyph g, int32 ox, int32 oy, Glyph og) {
         g.mode |= ATTR_REVERSE;
         g.fg = CONF_COLOR_INDEX_CURSOR;
         g.bg = CONF_COLOR_INDEX_FONT;
-        drawcol = draw_context.color[CONF_COLOR_INDEX_REVCURSOR];
+        drawcol = draw_context.colors[CONF_COLOR_INDEX_REVCURSOR];
     } else {
         g.fg = CONF_COLOR_BG;
         g.bg = CONF_COLOR_INDEX_CURSOR;
-        drawcol = draw_context.color[CONF_COLOR_INDEX_CURSOR];
+        drawcol = draw_context.colors[CONF_COLOR_INDEX_CURSOR];
     }
 
     /* draw the new one */

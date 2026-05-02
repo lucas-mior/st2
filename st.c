@@ -209,7 +209,7 @@ die(const char *errstr, ...) {
 
 void
 exec_shell(char *cmd, char **args) {
-    char *shell, *program, *arg;
+    char *shell, *arg;
     const struct passwd *pw;
 
     errno = 0;
@@ -283,7 +283,6 @@ handler_sigchld(int32 unused) {
         die("child terminated due to signal %d\n", WTERMSIG(stat));
     }
     _exit(0);
-    return;
 }
 
 #include "tty.c"
@@ -496,7 +495,7 @@ user_scroll_down(const Arg *a) {
     }
 
     if (n < 0) {
-        n = MAX(term.nrows / -n, 1);
+        n = (int32)MAX(term.nrows / -n, 1);
     }
 
     if (n <= term.lines_scrolled_up) {
@@ -521,7 +520,7 @@ user_scroll_up(const Arg *a) {
     }
 
     if (n < 0) {
-        n = MAX(term.nrows / -n, 1);
+        n = (int32)MAX(term.nrows / -n, 1);
     }
 
     if (term.lines_scrolled_up + n <= term.n_hist) {
@@ -546,7 +545,7 @@ term_scroll_down(int32 top, int32 n) {
     if (n <= 0) {
         return;
     }
-    n = MIN(n, bot - top + 1);
+    n = (int32)MIN(n, bot - top + 1);
 
     term_set_dirt(top, bot - n);
     term_clear_region(0, bot - n + 1, term.ncols - 1, bot, 1);
@@ -561,12 +560,15 @@ term_scroll_down(int32 top, int32 n) {
         && (selection.alt == TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))) {
         selection_scroll(top, bot, n);
     }
-    ImageList *im = term.images;
-    while (im) {
-        if (im->y >= top && im->y <= bot) {
-            im->y += n;
+
+    {
+        ImageList *im = term.images;
+        while (im) {
+            if (im->y >= top && im->y <= bot) {
+                im->y += n;
+            }
+            im = im->next;
         }
-        im = im->next;
     }
     return;
 }
@@ -581,7 +583,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
     if (n <= 0) {
         return;
     }
-    n = MIN(n, bot - top + 1);
+    n = (int32)MIN(n, bot - top + 1);
 
     if (savehist) {
         for (int32 i = 0; i < n; i += 1) {
@@ -593,11 +595,11 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
             term.hist[term.i_hist] = term.line[i];
             term.line[i] = temp;
         }
-        term.n_hist = MIN(term.n_hist + n, HISTORY_SIZE);
+        term.n_hist = (int32)MIN(term.n_hist + n, HISTORY_SIZE);
         s = n;
         if (term.lines_scrolled_up) {
             int32 j = term.lines_scrolled_up;
-            term.lines_scrolled_up = MIN(j + n, HISTORY_SIZE);
+            term.lines_scrolled_up = (int32)MIN(j + n, HISTORY_SIZE);
             s = j + n - term.lines_scrolled_up;
         }
         if (mode != SCROLL_RESIZE) {
@@ -624,19 +626,22 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
             }
         }
     }
-    ImageList **pim = &term.images;
-    while (*pim) {
-        ImageList *im = *pim;
-        if (im->y >= top && im->y <= bot) {
-            im->y -= n;
+
+    {
+        ImageList **pim = &term.images;
+        while (*pim) {
+            ImageList *im = *pim;
+            if (im->y >= top && im->y <= bot) {
+                im->y -= n;
+            }
+            if (im->y < -term.n_hist) {
+                *pim = im->next;
+                xfree(im->pixels);
+                xfree(im);
+                continue;
+            }
+            pim = &(*pim)->next;
         }
-        if (im->y < -term.n_hist) {
-            *pim = im->next;
-            xfree(im->pixels);
-            xfree(im);
-            continue;
-        }
-        pim = &(*pim)->next;
     }
     return;
 }
@@ -834,7 +839,7 @@ term_delete_char(int32 n) {
     }
 
     dst = term.cursor.x;
-    src = MIN(term.cursor.x + n, term.ncols);
+    src = (int32)MIN(term.cursor.x + n, term.ncols);
     size = term.ncols - src;
     if (size > 0) {
         /*
@@ -859,7 +864,7 @@ term_insert_blank(int32 n) {
     if (n <= 0) {
         return;
     }
-    dst = MIN(term.cursor.x + n, term.ncols);
+    dst = (int32)MIN(term.cursor.x + n, term.ncols);
     src = term.cursor.x;
     size = term.ncols - dst;
     if (size > 0) { /* otherwise dst would point beyond the array */
@@ -1174,7 +1179,6 @@ void
 control_seq_intro_handle(void) {
     char buffer[256];
     int32 n;
-    ImageList *im;
     int pi;
     int pa;
     int32 x;
@@ -1309,8 +1313,8 @@ control_seq_intro_handle(void) {
             for (n = term.nrows - 1; n >= 0 && term_line_len(term.line[n]) == 0;
                  n--)
                 ;
-            for (im = term.images; im; im = im->next) {
-                n = MAX(im->y - term.lines_scrolled_up, n);
+            for (ImageList *im = term.images; im; im = im->next) {
+                n = (int32)MAX(im->y - term.lines_scrolled_up, n);
             }
             if (n >= 0) {
                 term_scroll_up(0, term.nrows - 1, n + 1, SCROLL_SAVEHIST);
@@ -1403,7 +1407,7 @@ control_seq_intro_handle(void) {
             return;
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
-        x = MIN(term.cursor.x + csi_escape_seq.arg[0], term.ncols) - 1;
+        x = (int32)MIN(term.cursor.x + csi_escape_seq.arg[0], term.ncols) - 1;
         term_clear_region(term.cursor.x, term.cursor.y, x, term.cursor.y, 1);
         break;
     case 'P': /* DCH -- Delete <n> char */
@@ -1579,14 +1583,14 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
         x = index;
     }
 
-    if (!BETWEEN(x, 0, draw_context.collen - 1)) {
+    if (!BETWEEN(x, 0, draw_context.colors_len - 1)) {
         fprintf(stderr, "erresc: failed to fetch %s color %d\n",
                 is_osc4 ? "osc4" : "osc", is_osc4 ? num : index);
     }
 
-    r = draw_context.color[x].color.red >> 8;
-    g = draw_context.color[x].color.green >> 8;
-    b = draw_context.color[x].color.blue >> 8;
+    r = draw_context.colors[x].color.red >> 8;
+    g = draw_context.colors[x].color.green >> 8;
+    b = draw_context.colors[x].color.blue >> 8;
 
     n = SNPRINTF(buffer, "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  is_osc4 ? "4;" : "", num, r, r, g, g, b, b);
@@ -1601,11 +1605,9 @@ string_handle(void) {
     int32 j;
     int32 narg;
     int32 par;
-    ImageList *im;
     ImageList *newimages;
     ImageList *next;
     ImageList *tail = NULL;
-    int i;
     int x1;
     int y1;
     int x2;
@@ -1800,6 +1802,8 @@ string_handle(void) {
             if (term.images) {
                 /* Buffer for transparency flags per row */
                 char *transparent_rows = xmalloc((int64)numimages);
+                ImageList *im;
+                int32 i;
                 for (i = 0, im = newimages; im; im = im->next, i += 1) {
                     transparent_rows[i] = (char)im->transparent;
                 }
@@ -1841,6 +1845,8 @@ string_handle(void) {
             x2 = MIN(x2, term.ncols) - 1;
 
             if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+                ImageList *im;
+                int32 i;
                 for (i = 0, im = newimages; im; im = next, i += 1) {
                     next = im->next;
                     if (i >= term.nrows) {
@@ -1852,6 +1858,8 @@ string_handle(void) {
                     term.dirty[MIN(im->y, term.nrows - 1)] = 1;
                 }
             } else {
+                ImageList *im;
+                int32 i;
                 for (i = 0, im = newimages; im; im = next, i += 1) {
                     next = im->next;
                     if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -1874,8 +1882,8 @@ string_handle(void) {
                 /* Final cursor positioning after the graphic */
                 if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT)) {
                     /* Leave cursor to the right of the image on the last row */
-                    term.cursor.x
-                        = MIN(term.cursor.x + newimages->cols, term.ncols - 1);
+                    term.cursor.x = (int32)MIN(term.cursor.x + newimages->cols,
+                                               term.ncols - 1);
                 } else {
                     /* Move to the beginning of the next line below the image */
                     term_new_line(1);
@@ -1916,7 +1924,6 @@ string_handle(void) {
         fprintf(stderr, "ESC\\\n");
         return;
     }
-    return;
 }
 
 void
@@ -1957,7 +1964,7 @@ externalpipe(const Arg *arg) {
     newline = 0;
     for (int32 n = 0; n <= HISTORY_SIZE + 2; n += 1) {
         bp = TERM_LINE_HIST(n);
-        lastpos = MIN(tlinehistlen(n) + 1, term.ncols) - 1;
+        lastpos = (int32)MIN(tlinehistlen(n) + 1, term.ncols) - 1;
         if (lastpos < 0) {
             break;
         }
@@ -2124,7 +2131,7 @@ term_dec_test(char c) {
     return;
 }
 
-void
+static void
 string_reset(void) {
     str_escape_seq = (STREscape){
         .buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ),
@@ -2183,7 +2190,7 @@ dcshandle(void) {
         } else {
             x_get_color(term.cursor.attr.bg, &r, &g, &b);
             if (term.cursor.attr.bg == CONF_COLOR_BG) {
-                a = draw_context.color[CONF_COLOR_BG].pixel >> 24 & 255;
+                a = draw_context.colors[CONF_COLOR_BG].pixel >> 24 & 255;
             }
         }
         bgcolor = a << 24 | r << 16 | g << 8 | b;
@@ -2501,7 +2508,7 @@ check_control_code:
                 return;
             }
 
-            csi_escape_seq.buffer[csi_escape_seq.len++] = u;
+            csi_escape_seq.buffer[csi_escape_seq.len++] = (uchar)u;
             if (BETWEEN(u, 0x40, 0x7E)
                 || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
                 control_seq_intro_parse();
