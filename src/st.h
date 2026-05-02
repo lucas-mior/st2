@@ -320,8 +320,6 @@ static char *selection_get(void);
 
 static int64 utf8_encode(uint32, char *);
 
-static void xfree(void *);
-
 static int32 isboxdraw(uint32);
 static uint16 boxdrawindex(Glyph *);
 #ifdef XFT_VERSION

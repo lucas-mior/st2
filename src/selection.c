@@ -361,7 +361,7 @@ selection_set(char *string, Time t) {
         return;
     }
 
-    xfree(xsel.primary);
+    free(xsel.primary);
     xsel.primary = string;
 
     XSetSelectionOwner(x_window.display, XA_PRIMARY, x_window.win, t);

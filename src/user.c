@@ -18,7 +18,7 @@ user_clipboard_copy(union Arg *arg) {
     Atom clipboard;
     (void)arg;
 
-    xfree(xsel.clipboard);
+    free(xsel.clipboard);
     xsel.clipboard = NULL;
 
     if (xsel.primary != NULL) {

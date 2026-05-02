@@ -62,12 +62,6 @@ xwrite(int32 fd, char *s, int64 len) {
     return (int64)len;
 }
 
-static void
-xfree(void *pointer) {
-    free(pointer);
-    return;
-}
-
 #include "base64.c"
 
 static int32
@@ -236,8 +230,8 @@ term_reset(void) {
     ImageList *im = term.images;
     while (im) {
         ImageList *next = im->next;
-        xfree(im->pixels);
-        xfree(im);
+        free(im->pixels);
+        free(im);
         im = next;
     }
     term.images = NULL;
@@ -442,8 +436,8 @@ term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
             }
             if (im->y < -term.n_hist) {
                 *pim = im->next;
-                xfree(im->pixels);
-                xfree(im);
+                free(im->pixels);
+                free(im);
                 continue;
             }
             pim = &(*pim)->next;
@@ -748,7 +742,7 @@ term_dump_sel(void) {
     ptr = selection_get();
     if (ptr) {
         term_printer(ptr, strlen32(ptr));
-        xfree(ptr);
+        free(ptr);
     }
     return;
 }
@@ -871,7 +865,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
             term.cursor.y = new_nrows - 1;
         }
         for (int32 i = new_nrows; i < term.nrows; i += 1) {
-            xfree(term.lines[i]);
+            free(term.lines[i]);
         }
 
         term.lines = xrealloc(term.lines, (int64)new_nrows*SIZEOF(*(term.lines)));
@@ -905,7 +899,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     }
     i = 0;
     while (i <= term.cursor.y - new_nrows) {
-        xfree(term.lines[i]);
+        free(term.lines[i]);
         i += 1;
     }
     if (i > 0) {
@@ -914,7 +908,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         term.cursor.y = new_nrows - 1;
     }
     for (i += new_nrows; i < term.nrows; i += 1) {
-        xfree(term.lines[i]);
+        free(term.lines[i]);
     }
     term.lines = xrealloc(term.lines, (int64)new_nrows*SIZEOF(*(term.lines)));
 
@@ -1072,7 +1066,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     /* --- release unused old lines --- */
     for (i = new_nrows; i < term.nrows; i += 1) {
-        xfree(term.lines[i]);
+        free(term.lines[i]);
     }
 
     term.lines = xrealloc(term.lines, (int64)new_nrows*SIZEOF(*(term.lines)));
@@ -1092,7 +1086,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         term.cursor.y += new_cursor_end_line - j_prev;
 
         while (term.cursor.y < 0) {
-            xfree(reflow_lines[new_y_index]);
+            free(reflow_lines[new_y_index]);
             new_y_index -= 1;
             term.cursor.y += 1;
         }
@@ -1113,7 +1107,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     for (; i >= 0; i -= 1) {
-        xfree(term.lines[i]);
+        free(term.lines[i]);
         term.lines[i] = reflow_lines[new_y_index];
         new_y_index -= 1;
     }
@@ -1124,7 +1118,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         k_idx = -1;
         while (new_y_index >= 0 && k_idx >= -HISTORY_SIZE) {
             int32 j_hist = (term.i_hist + k_idx + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-            xfree(term.hist[j_hist]);
+            free(term.hist[j_hist]);
             term.hist[j_hist] = reflow_lines[new_y_index];
             k_idx -= 1;
             new_y_index -= 1;

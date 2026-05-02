@@ -1069,7 +1069,7 @@ string_handle(void) {
                     }
                     tail = im_ptr;
                 }
-                xfree(transparent_rows);
+                free(transparent_rows);
             }
 
             if (tail) {
