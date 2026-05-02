@@ -61,13 +61,13 @@
     ((y) < term.lines_scrolled_up                                                                   \
          ? term.hist[(term.i_hist + (y) - term.lines_scrolled_up + 1 + HISTORY_SIZE)                \
                      % HISTORY_SIZE]                                                                \
-         : term.line[(y) - term.lines_scrolled_up])
+         : term.lines[(y) - term.lines_scrolled_up])
 
 #define TERM_LINE_ABS(y)                                                                            \
-    ((y) < 0 ? term.hist[(term.i_hist + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] : term.line[(y)])
+    ((y) < 0 ? term.hist[(term.i_hist + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] : term.lines[(y)])
 #define TERM_LINE_HIST(y)                                                                           \
     ((y) <= HISTORY_SIZE - term.nrows + 2 ? term.hist[(y)]                                          \
-                                          : term.line[(y - HISTORY_SIZE + term.nrows - 3)])
+                                          : term.lines[(y - HISTORY_SIZE + term.nrows - 3)])
 
 #define UPDATE_WRAP_NEXT(alt, col)                                                                  \
     do {                                                                                            \
@@ -228,7 +228,7 @@ typedef struct {
 static struct {
     int32 nrows;
     int32 ncols;
-    Glyph **line;               /* screen */
+    Glyph **lines;             /* screen */
     Glyph *hist[HISTORY_SIZE]; /* history buffer */
     int32 i_hist;              /* history index */
     int32 n_hist;              /* nb history available */

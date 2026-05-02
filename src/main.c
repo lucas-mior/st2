@@ -125,10 +125,10 @@ run:
     CONF_NUMBER_ROWS = (int32)MAX(CONF_NUMBER_ROWS, 1);
 
     for (int32 i = 0; i < 2; i += 1) {
-        term.line = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*(term.line)));
+        term.lines = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
         for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {
-            term.line[j]
-                = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(*(term.line[j])));
+            term.lines[j]
+                = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
         }
         term.ncols = CONF_NUMBER_COLS;
         term.nrows = CONF_NUMBER_ROWS;

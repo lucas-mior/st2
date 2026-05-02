@@ -516,7 +516,7 @@ control_seq_intro_handle(void) {
                 break;
             }
             n = term.nrows - 1;
-            while (n >= 0 && term_line_len(term.line[n]) == 0) {
+            while (n >= 0 && term_line_len(term.lines[n]) == 0) {
                 n -= 1;
             }
             for (ImageList *im = term.images; im; im = im->next) {
@@ -1049,7 +1049,7 @@ string_handle(void) {
                     if (im_ptr->y >= y1_im && im_ptr->y < y2_im) {
                         y_line = im_ptr->y - scr_offset;
                         if (y_line >= 0 && y_line < term.nrows && term.dirty[y_line]) {
-                            line_ptr = term.line[y_line];
+                            line_ptr = term.lines[y_line];
                             j = (int32)MIN(im_ptr->x + im_ptr->cols, term.ncols);
                             for (i_idx = im_ptr->x; i_idx < j; i_idx += 1) {
                                 if (line_ptr[i_idx].mode & ATTR_SIXEL) {
@@ -1091,7 +1091,7 @@ string_handle(void) {
                         continue;
                     }
                     im_sdm->y = i_sdm + scr_offset;
-                    term_set_sixel_attr(term.line[i_sdm], x1_im, x2_im);
+                    term_set_sixel_attr(term.lines[i_sdm], x1_im, x2_im);
                     term.dirty[MIN(im_sdm->y, term.nrows - 1)] = 1;
                 }
             } else {
@@ -1105,7 +1105,7 @@ string_handle(void) {
                         scr_offset = term.lines_scrolled_up;
                     }
                     im_cur->y = term.cursor.y + scr_offset;
-                    term_set_sixel_attr(term.line[term.cursor.y], x1_im, x2_im);
+                    term_set_sixel_attr(term.lines[term.cursor.y], x1_im, x2_im);
                     term.dirty[MIN(im_cur->y, term.nrows - 1)] = 1;
 
                     if (i_cur < numimages - 1) {
@@ -1621,12 +1621,12 @@ check_control_code:
         selection_clear();
     }
 
-    glyph = &term.line[term.cursor.y][term.cursor.x];
+    glyph = &term.lines[term.cursor.y][term.cursor.x];
     if (TERM_MODE_IS_SET(TERM_MODE_WRAP)) {
         if (term.cursor.state & CURSOR_WRAPNEXT) {
             glyph->mode |= ATTR_WRAP;
             term_new_line(1);
-            glyph = &term.line[term.cursor.y][term.cursor.x];
+            glyph = &term.lines[term.cursor.y][term.cursor.x];
         }
     }
 
@@ -1644,7 +1644,7 @@ check_control_code:
         } else {
             term_move_to(term.ncols - width, term.cursor.y);
         }
-        glyph = &term.line[term.cursor.y][term.cursor.x];
+        glyph = &term.lines[term.cursor.y][term.cursor.x];
     }
 
     term_set_char(u, &term.cursor.attr, term.cursor.x, term.cursor.y);
