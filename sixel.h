@@ -1,7 +1,8 @@
 #ifndef SIXEL_H
 #define SIXEL_H
 
-#include "st.h"
+#include <X11/X.h>
+#include "cbase/util.c"
 
 #define DECSIXEL_PARAMS_MAX 16
 #define DECSIXEL_PALETTE_MAX 1024
@@ -14,7 +15,7 @@ typedef struct sixel_image_buffer {
 	int32 width;
 	int32 height;
 	uint palette[DECSIXEL_PALETTE_MAX + 1];
-	ushort ncolors;
+	int32 ncolors;
 	int32 palette_modified;
 	int32 use_private_register;
 } SixelImage;
@@ -50,13 +51,14 @@ typedef struct parser_context {
 	SixelImage image;
 } SixelState;
 
+struct ImageList;
 void scroll_images(int32 n);
-void delete_image(ImageList *im);
+void delete_image(struct ImageList *im);
 int32 sixel_parser_init(SixelState *st, int32 transparent, uint fgcolor, uint bgcolor, unsigned char use_private_register, int32 cell_width, int32 cell_height);
 int32 sixel_parser_parse(SixelState *st, const unsigned char *p, int32 len);
 int32 sixel_parser_set_default_color(SixelState *st);
-int32 sixel_parser_finalize(SixelState *st, ImageList **newimages, int32 cx, int32 cy, int32 cw, int32 ch);
+int32 sixel_parser_finalize(SixelState *st, struct ImageList **newimages, int32 cx, int32 cy, int32 cw, int32 ch);
 void sixel_parser_deinit(SixelState *st);
 Pixmap sixel_create_clipmask(char *pixels, int32 width, int32 height);
 
-#endif
+#endif /* SIXEL_H */
