@@ -13,7 +13,7 @@
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
 
-typedef unsigned char uchar;
+typedef uchar uchar;
 typedef unsigned long ulong;
 
 typedef int8_t int8;
@@ -120,7 +120,7 @@ typedef struct {
 
 typedef struct ImageList {
 	struct ImageList *next, *prev;
-	unsigned char *pixels;
+	uchar *pixels;
 	void *pixmap;
 	void *clipmask;
 	int width;
