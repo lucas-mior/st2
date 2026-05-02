@@ -2,6 +2,7 @@
 #define X_C
 
 #include "st.h"
+#include "math.h"
 
 uint16
 sixd_to_16bit(int32 x) {

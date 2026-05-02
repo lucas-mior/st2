@@ -255,6 +255,7 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
 #include "st.c"
 #include "user.c"
 #include "selection.c"
+#include "x.c"
 
 int
 main(void) {
