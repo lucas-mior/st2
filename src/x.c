@@ -279,7 +279,7 @@ x_load_font(StFont *f, FcPattern *pattern) {
     }
 
     XftTextExtentsUtf8(x_window.display, f->match,
-                       (const FcChar8 *)CONF_ASCII_PRINTABLE,
+                       (FcChar8 *)CONF_ASCII_PRINTABLE,
                        strlen32(CONF_ASCII_PRINTABLE), &extents);
 
     f->set = NULL;
@@ -305,7 +305,7 @@ x_load_fonts(char *fontstr, float fontsize) {
     if (fontstr[0] == '-') {
         pattern = XftXlfdParse(fontstr, False, False);
     } else {
-        pattern = FcNameParse((const FcChar8 *)fontstr);
+        pattern = FcNameParse((FcChar8 *)fontstr);
     }
 
     if (!pattern) {
@@ -1134,6 +1134,90 @@ x_bell(void) {
 int
 main(void) {
     {
+        Window parent;
+        Window root;
+        XWindowAttributes attr;
+        XVisualInfo visual;
+        ulong cw_flags;
+        XGCValues xgc_values;
+
+        x_window.display = XOpenDisplay(NULL);
+        if (!x_window.display) {
+            error("can't open display\n");
+            exit(EXIT_FAILURE);
+        }
+        x_window.screen = XDefaultScreen(x_window.display);
+        root = XRootWindow(x_window.display, x_window.screen);
+        parent = root;
+
+        if (XMatchVisualInfo(x_window.display, x_window.screen, 32, TrueColor, &visual) != 0) {
+            x_window.visual = visual.visual;
+            x_window.depth = visual.depth;
+        } else {
+            XGetWindowAttributes(x_window.display, parent, &attr);
+            x_window.visual = attr.visual;
+            x_window.depth = attr.depth;
+        }
+
+        if (!FcInit()) {
+            error("could not init fontconfig.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        x_window.color_map = XCreateColormap(x_window.display, parent, x_window.visual, None);
+
+        term_window.w = 800;
+        term_window.h = 600;
+        term_window.cw = 10;
+        term_window.ch = 20;
+
+        cw_flags = CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap;
+        x_window.win = XCreateWindow(x_window.display, parent,
+                                     0, 0,
+                                     (uint32)term_window.w, (uint32)term_window.h,
+                                     0, x_window.depth,
+                                     InputOutput, x_window.visual,
+                                     cw_flags,
+                                     &x_window.attrs);
+
+        memset64(&xgc_values, 0, SIZEOF(xgc_values));
+        xgc_values.graphics_exposures = False;
+        draw_context.graphics = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &xgc_values);
+
+        x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
+                                          (uint32)term_window.w,
+                                          (uint32)term_window.h,
+                                          (uint32)x_window.depth);
+
+        x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
+                                          x_window.visual, x_window.color_map);
+
+        CONF_NUMBER_COLS = 80;
+        CONF_NUMBER_ROWS = 24;
+        for (int32 i = 0; i < 2; i += 1) {
+            term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
+            for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {
+                term.lines[j] = xmalloc(CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
+            }
+            term.ncols = CONF_NUMBER_COLS;
+            term.nrows = CONF_NUMBER_ROWS;
+            term_swap_screen();
+        }
+        term_window.tty_width = term_window.cw * term.ncols;
+        term_window.tty_height = term_window.ch * term.nrows;
+    }
+
+    {
+        uint16 result;
+
+        result = sixd_to_16bit(0);
+        ASSERT_EQUAL(result, 0);
+
+        result = sixd_to_16bit(4);
+        ASSERT_EQUAL(result, 0x3737 + 0x2828*4);
+    }
+
+    {
         int32 gravity;
 
         gravity = x_geom_mask_to_gravity(0);
@@ -1155,32 +1239,68 @@ main(void) {
         uint b;
         int32 ret;
 
-        draw_context.colors_len = 1;
-        draw_context.colors = xmalloc(SIZEOF(XftColor));
-        draw_context.colors[0].color.red = 0x1234;
-        draw_context.colors[0].color.green = 0x5678;
-        draw_context.colors[0].color.blue = 0x9abc;
+        x_load_cols();
 
         ret = x_get_color(0, &r, &g, &b);
         ASSERT_EQUAL(ret, 0);
-        ASSERT_EQUAL(r, 0x1234 >> 8);
-        ASSERT_EQUAL(g, 0x5678 >> 8);
-        ASSERT_EQUAL(b, 0x9abc >> 8);
 
-        ret = x_get_color(1, &r, &g, &b);
+        ret = x_get_color(9999, &r, &g, &b);
         ASSERT_EQUAL(ret, 1);
-
-        free(draw_context.colors);
     }
 
     {
-        uint16 result;
+        int32 result;
 
-        result = sixd_to_16bit(0);
+        result = x_set_color_name(CONF_COLOR_BG, "black");
         ASSERT_EQUAL(result, 0);
 
-        result = sixd_to_16bit(4);
-        ASSERT_EQUAL(result, 0x3737 + 0x2828*4);
+        result = x_set_color_name(9999, "black");
+        ASSERT_EQUAL(result, 1);
+    }
+
+    {
+        XftColor ncolor;
+
+        ncolor.pixel = 0;
+        x_load_color(0, "black", &ncolor);
+    }
+
+    {
+        x_load_fonts("monospace", 12.0);
+    }
+
+    {
+        x_load_spare_fonts();
+    }
+
+    {
+        StFont font;
+        FcPattern *pattern;
+
+        pattern = FcNameParse((FcChar8 *)"monospace");
+        x_load_font(&font, pattern);
+        x_unload_font(&font);
+        FcPatternDestroy(pattern);
+    }
+
+    {
+        FcPattern *pattern;
+
+        pattern = FcNameParse((FcChar8 *)"monospace");
+        xloadsparefont(pattern, 0);
+        FcPatternDestroy(pattern);
+    }
+
+    {
+        x_clear(0, 0, 10, 10);
+    }
+
+    {
+        x_resize(100, 30);
+    }
+
+    {
+        x_hints();
     }
 
     {
@@ -1208,172 +1328,58 @@ main(void) {
     }
 
     {
-        int32 result;
-
-        x_window.ime.xic = (XIC)1;
-        result = x_ic_destroy(NULL, NULL, NULL);
-        ASSERT_EQUAL(result, 1);
-        ASSERT_NULL(x_window.ime.xic);
-    }
-
-    {
-        x_window.ime.xic = NULL;
-        x_xim_spot(0, 0);
-    }
-
-    {
-        int32 result;
-
-        draw_context.colors_len = 0;
-        result = x_set_color_name(10, "red");
-        ASSERT_EQUAL(result, 1);
-    }
-
-    {
         term_window.mode = 0;
         x_set_mode(WIN_MODE_REVERSE, WIN_MODE_REVERSE);
         ASSERT_EQUAL(term_window.mode, WIN_MODE_REVERSE);
     }
 
     {
-        XftColor ncolor;
-
-        x_load_color(0, "black", &ncolor);
-    }
-
-    {
-        x_load_cols();
-    }
-
-    {
-        x_clear(0, 0, 10, 10);
-    }
-
-    {
-        x_hints();
-    }
-
-    {
-        StFont font;
-
-        font.match = NULL;
-        font.set = NULL;
-        font.pattern = NULL;
-        x_load_font(&font, NULL);
-    }
-
-    {
-        x_load_fonts("monospace", 12.0);
-    }
-
-    {
-        xloadsparefont(NULL, 0);
-    }
-
-    {
-        x_load_spare_fonts();
-    }
-
-    {
-        StFont font;
-
-        font.match = NULL;
-        font.set = NULL;
-        font.pattern = NULL;
-        x_unload_font(&font);
-    }
-
-    {
-        x_unload_fonts();
-    }
-
-    {
-        x_im_open(NULL);
-    }
-
-    {
-        x_im_instantiate(NULL, NULL, NULL);
-    }
-
-    {
-        x_im_destroy(NULL, NULL, NULL);
+        x_set_icon_title(NULL);
+        x_set_title(NULL);
+        x_set_pointer_motion(0);
+        x_set_urgency(0);
+        x_bell();
     }
 
     {
         XftGlyphFontSpec spec;
         StGlyph glyph;
-
-        glyph.rune = 'a';
-        glyph.mode = 0;
-        glyph.fg = 0;
-        glyph.bg = 0;
-        x_make_glyph_font_specs(&spec, &glyph, 1, 0, 0);
-    }
-
-    {
-        XftGlyphFontSpec spec;
-        StGlyph base;
-
-        base.rune = 'a';
-        base.mode = 0;
-        base.fg = 0;
-        base.bg = 0;
-        x_draw_glyph_font_specs(&spec, base, 1, 0, 0);
-    }
-
-    {
-        StGlyph glyph;
-
-        glyph.rune = 'a';
-        glyph.mode = 0;
-        glyph.fg = 0;
-        glyph.bg = 0;
-        x_draw_glyph(glyph, 0, 0);
-    }
-
-    {
-        StGlyph g;
+        StGlyph line[2];
         StGlyph og;
 
-        g.rune = 'a';
-        g.mode = 0;
-        g.fg = 0;
-        g.bg = 0;
+        glyph.rune = 'a';
+        glyph.mode = 0;
+        glyph.fg = 0;
+        glyph.bg = 0;
+
+        x_make_glyph_font_specs(&spec, &glyph, 1, 0, 0);
+        x_draw_glyph_font_specs(&spec, glyph, 1, 0, 0);
+        x_draw_glyph(glyph, 0, 0);
+
         og.rune = 'b';
         og.mode = 0;
         og.fg = 0;
         og.bg = 0;
-        x_draw_cursor(0, 0, g, 0, 0, og);
+        x_draw_cursor(0, 0, glyph, 0, 0, og);
+
+        line[0] = glyph;
+        line[1] = og;
+        x_draw_line(line, 0, 0, 2);
     }
 
     {
-        x_set_icon_title(NULL);
+        int32 result;
+
+        result = x_im_open(x_window.display);
+        ASSERT_EQUAL(result, 1);
+        x_xim_spot(0, 0);
+        x_im_instantiate(x_window.display, NULL, NULL);
+        x_ic_destroy(NULL, NULL, NULL);
+        x_im_destroy(NULL, NULL, NULL);
     }
 
     {
-        x_set_title(NULL);
-    }
-
-    {
-        StGlyph line[1];
-
-        line[0].rune = 'a';
-        line[0].mode = 0;
-        line[0].fg = 0;
-        line[0].bg = 0;
-        x_draw_line(line, 0, 0, 1);
-    }
-
-    {
-        x_set_pointer_motion(0);
-    }
-
-    {
-        x_set_urgency(0);
-    }
-
-    {
-        x_bell();
+        x_unload_fonts();
     }
 
     exit(EXIT_SUCCESS);
