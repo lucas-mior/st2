@@ -8,7 +8,7 @@ CC=${CC:-cc}
 VERSION="0.9.3"
 
 CPPFLAGS="$CPPFLAGS -D_DEFAULT_SOURCE"
-CFLAGS="$CFLAGS -std=c11 -g3"
+CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Wextra -Wall"
 # CFLAGS="$CFLAGS -Werror"
@@ -56,7 +56,6 @@ STCPPFLAGS="-DVERSION="\"$VERSION\"" -D_XOPEN_SOURCE=600"
 STCFLAGS="$INCS $STCPPFLAGS $CPPFLAGS $CFLAGS"
 STLDFLAGS="$LIBS $LDFLAGS"
 
-echo "target=$target"
 ctags --kinds-C=+l+d ./*.h ./*.c 2> /dev/null || true
 vtags.sed tags > .tags.vim 2> /dev/null || true
 
