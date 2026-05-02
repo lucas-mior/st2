@@ -28,7 +28,6 @@ x_resize(int32 col, int32 row) {
     XftDrawChange(x_window.xft_draw, x_window.drawable);
     x_clear(0, 0, term_window.w, term_window.h);
 
-    /* x_window.specbuf resize */
     x_window.specbuf
         = xrealloc(x_window.specbuf, (int64)col*SIZEOF(XftGlyphFontSpec));
     return;
