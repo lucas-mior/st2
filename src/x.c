@@ -578,7 +578,7 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
 
 static int32
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
-		                int32 len, int32 x, int32 y) {
+                        int32 len, int32 x, int32 y) {
     int32 winx = term_window.hborderpx + x*term_window.cw;
     int32 winy = term_window.vborderpx + y*term_window.ch;
     uint16 prevmode = USHRT_MAX;
@@ -1128,10 +1128,51 @@ x_bell(void) {
 #include <stdlib.h>
 
 #include "assert.c"
+#include "user.c"
+#include "st.c"
 
 int
 main(void) {
-    ASSERT(true);
+    {
+        int32 gravity;
+
+        gravity = x_geom_mask_to_gravity(0);
+        ASSERT_EQUAL(gravity, NorthWestGravity);
+
+        gravity = x_geom_mask_to_gravity(XNegative);
+        ASSERT_EQUAL(gravity, NorthEastGravity);
+
+        gravity = x_geom_mask_to_gravity(YNegative);
+        ASSERT_EQUAL(gravity, SouthWestGravity);
+
+        gravity = x_geom_mask_to_gravity(XNegative | YNegative);
+        ASSERT_EQUAL(gravity, SouthEastGravity);
+    }
+
+    {
+        uint r;
+        uint g;
+        uint b;
+        int32 ret;
+
+        draw_context.colors_len = 1;
+        draw_context.colors = xmalloc(SIZEOF(XftColor));
+        draw_context.colors[0].color.red = 0x1234;
+        draw_context.colors[0].color.green = 0x5678;
+        draw_context.colors[0].color.blue = 0x9abc;
+
+        ret = x_get_color(0, &r, &g, &b);
+        ASSERT_EQUAL(ret, 0);
+        ASSERT_EQUAL(r, 0x1234 >> 8);
+        ASSERT_EQUAL(g, 0x5678 >> 8);
+        ASSERT_EQUAL(b, 0x9abc >> 8);
+
+        ret = x_get_color(1, &r, &g, &b);
+        ASSERT_EQUAL(ret, 1);
+
+        free(draw_context.colors);
+    }
+
     exit(EXIT_SUCCESS);
 }
 
