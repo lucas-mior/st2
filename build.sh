@@ -73,7 +73,12 @@ build)
 debug)
 	set -x
 	$CC $CPPFLAGS $CFLAGS -g3 -fsanitize=undefined -o st main.c $LDFLAGS
-	gdb st
+	gdb ./st
+	;;
+valgrind)
+	set -x
+	$CC $CPPFLAGS $CFLAGS -g3 -fsanitize=undefined -o st main.c $LDFLAGS
+	valgrind ./st
 	;;
 install)
 	if [ ! -f st ]; then

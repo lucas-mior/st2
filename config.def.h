@@ -123,7 +123,7 @@ static int32 CONF_TAB_NSPACES = 4;
 static float CONF_ALPHA = 0.85f;
 
 /* Terminal colors (16 first used in escape sequence) */
-static const char *CONF_COLORS[] = {
+static char *CONF_COLORS[] = {
 	/* 8 normal colors */
 	[0] = "#000000",
 	[1] = "#ff0000",
