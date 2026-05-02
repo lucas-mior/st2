@@ -441,27 +441,27 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             color_index = sixel_state->color_index;
                             if (sixel_state->repeat_count <= 1) {
                                 if (bits & 0x01) {
-                                    *data = color_index;
+                                    *data = (uint16)color_index;
                                     n = 0;
                                 }
                                 data += width;
                                 if (bits & 0x02) {
-                                    *data = color_index;
+                                    *data = (uint16)color_index;
                                     n = 1;
                                 }
                                 data += width;
                                 if (bits & 0x04) {
-                                    *data = color_index;
+                                    *data = (uint16)color_index;
                                     n = 2;
                                 }
                                 data += width;
                                 if (bits & 0x08) {
-                                    *data = color_index;
+                                    *data = (uint16)color_index;
                                     n = 3;
                                 }
                                 data += width;
                                 if (bits & 0x10) {
-                                    *data = color_index;
+                                    *data = (uint16)color_index;
                                     n = 4;
                                 }
                                 if (bits & 0x20) {
