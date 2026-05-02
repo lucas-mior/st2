@@ -539,6 +539,6 @@ static XSelection xsel;
 static DrawingContext draw_context;
 
 #include "sixel.h"
-SixelState sixel_st;
+static SixelState sixel_st;
 
 #endif /* ST_H */
