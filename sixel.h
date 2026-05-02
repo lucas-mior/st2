@@ -20,17 +20,17 @@ typedef struct sixel_image_buffer {
 	int32 use_private_register;
 } SixelImage;
 
-typedef enum parse_state {
+enum ParseState {
 	PS_ESC        = 1,  /* ESC */
 	PS_DECSIXEL   = 2,  /* DECSIXEL body part ", $, -, ? ... ~ */
 	PS_DECGRA     = 3,  /* DECGRA Set Raster Attributes " Pan; Pad; Ph; Pv */
 	PS_DECGRI     = 4,  /* DECGRI Graphics Repeat Introducer ! Pn Ch */
 	PS_DECGCI     = 5,  /* DECGCI Graphics Color Introducer # Pc; Pu; Px; Py; Pz */
 	PS_ERROR      = 6,
-} parse_state_t;
+};
 
 typedef struct parser_context {
-	parse_state_t state;
+	enum ParseState state;
 	int32 pos_x;
 	int32 pos_y;
 	int32 max_x;
