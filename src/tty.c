@@ -21,7 +21,7 @@ stty(char **args) {
         error("incorrect stty parameters\n");
         exit(EXIT_FAILURE);
     }
-    memcpy(cmd, CONF_STTY_ARGS, (size_t)n);
+    memcpy64(cmd, CONF_STTY_ARGS, (size_t)n);
     q = cmd + n;
     siz = SIZEOF(cmd) - n;
     for (char **p = args; p && (s = *p); p += 1) {
@@ -30,7 +30,7 @@ stty(char **args) {
             exit(EXIT_FAILURE);
         }
         *q++ = ' ';
-        memcpy(q, s, (size_t)n);
+        memcpy64(q, s, (size_t)n);
         q += n;
         siz -= n + 1;
     }
