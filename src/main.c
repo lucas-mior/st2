@@ -342,7 +342,7 @@ run:
         int32 h = term_window.h;
         fd_set read_fd;
         int32 xfd = XConnectionNumber(x_window.display);
-        int32 ttyfd;
+        int32 tty_fd;
         int32 xev;
         int32 drawing;
         struct timespec seltv;
@@ -368,7 +368,7 @@ run:
             }
         } while (xevent.type != MapNotify);
 
-        ttyfd = tty_new(opt_line, CONF_SHELl, opt_iofile, opt_cmd);
+        tty_fd = tty_new(opt_line, CONF_SHELl, opt_iofile, opt_cmd);
         cresize(w, h);
 
         timeout = -1;
@@ -377,7 +377,7 @@ run:
 
         while (1) {
             FD_ZERO(&read_fd);
-            FD_SET(ttyfd, &read_fd);
+            FD_SET(tty_fd, &read_fd);
             FD_SET(xfd, &read_fd);
 
             if (XPending(x_window.display)) {
@@ -393,7 +393,7 @@ run:
                 tv = NULL;
             }
 
-            if (pselect((int32)MAX(xfd, ttyfd) + 1, &read_fd, NULL, NULL, tv,
+            if (pselect((int32)MAX(xfd, tty_fd) + 1, &read_fd, NULL, NULL, tv,
                         NULL)
                 < 0) {
                 if (errno == EINTR) {
@@ -404,7 +404,7 @@ run:
             }
             clock_gettime(CLOCK_MONOTONIC, &now);
 
-            if (FD_ISSET(ttyfd, &read_fd)) {
+            if (FD_ISSET(tty_fd, &read_fd)) {
                 tty_read();
             }
 
@@ -425,7 +425,7 @@ run:
              * triggers drawing, we first wait a bit to ensure we got
              * everything, and if nothing new arrives - we draw.
              */
-            if (FD_ISSET(ttyfd, &read_fd) || xev) {
+            if (FD_ISSET(tty_fd, &read_fd) || xev) {
                 if (!drawing) {
                     trigger = now;
                     drawing = 1;
