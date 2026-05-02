@@ -529,5 +529,6 @@ static SixelState sixel_st;
 
 static float usedfontsize = 0;
 static float defaultfontsize = 0;
+static Selection selection;
 
 #endif /* ST_H */

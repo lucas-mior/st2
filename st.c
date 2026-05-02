@@ -60,8 +60,6 @@
         }                                                                                          \
     } while (0)
 
-/* Globals */
-static Selection selection;
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 static int32 io_fd = 1;
