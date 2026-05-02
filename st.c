@@ -1,5 +1,3 @@
-/* See LICENSE for license details. */
-
 #ifndef ST_C
 #define ST_C
 
