@@ -532,33 +532,6 @@ run:
             }
 
             draw();
-            /* error("Terminal:\n"); */
-            /* error("nrows = %d\n", term.nrows); */
-            /* error("ncols = %d\n", term.ncols); */
-            /* error("line = %p\n", term.line); */
-            /* error("hist = %p\n", term.hist); */
-            /* error("i_hist = %d\n", term.i_hist); */
-            /* error("n_hist = %d\n", term.n_hist); */
-            /* error("lines_scrolled_up = %d\n", term.lines_scrolled_up); */
-            /* error("wrap_char_width[2] = [%d, %d]\n", term.wrap_char_width[0],
-             * term.wrap_char_width[1]); */
-            /* error("dirty[0] = %d\n", term.dirty[0]); */
-            /* error("TCursor.xy = (%d, term.%d)\n", term.cursor.x,
-             * term.cursor.y); */
-            /* error("old_cursor_x = %d\n", term.old_cursor_x); */
-            /* error("old_cursor_y = %d\n", term.old_cursor_y); */
-            /* error("top = %d\n", term.top); */
-            /* error("bot = %d\n", term.bot); */
-            /* error("mode = %d\n", term.mode); */
-            /* error("esc = %d\n", term.esc); */
-            /* error("translation_table[4] = %c %c %c %c\n",
-             * term.translation_table[0], term.translation_table[1],
-             * term.translation_table[2], */
-            /*       term.translation_table[3]); */
-            /* error("charset = %d\n", term.charset); */
-            /* error("icharset = %d\n", term.icharset); */
-            /* error("tabs[0] = %d\n", term.tabs[0]); */
-            /* error("uint32 last_char = %u\n\n", term.last_char); */
 
             XFlush(x_window.display);
             drawing = 0;
