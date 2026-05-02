@@ -276,7 +276,7 @@ void user_print_sel(const Arg *);
 void user_send_break(const Arg *);
 void user_toggle_printer(const Arg *);
 
-int32 x_get_color(int32 x, uchar *r, uchar *g, uchar *b);
+int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 
 static void tdeleteimages(void);
 static inline void tsetsixelattr(Glyph *line, int x1, int x2);

@@ -2,6 +2,8 @@
 
 # shellcheck disable=SC2086
 
+set -e
+
 target="${1:-build}"
 CC=${CC:-cc}
 
@@ -70,7 +72,7 @@ build)
 	;;
 debug)
 	set -x
-	$CC $CPPFLAGS $CFLAGS -g3       -o st main.c $LDFLAGS
+	$CC $CPPFLAGS $CFLAGS -g3 -fsanitize=undefined -o st main.c $LDFLAGS
 	gdb st
 	;;
 install)

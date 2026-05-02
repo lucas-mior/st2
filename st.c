@@ -2161,8 +2161,12 @@ term_str_sequence(uchar c) {
 
 void
 dcshandle(void) {
-    int bgcolor, transparent;
-    unsigned char r, g, b, a = 255;
+    uint bgcolor;
+    int transparent;
+    uint r;
+    uint g;
+    uint b;
+    uint a = 255;
 
     switch (csi_escape_seq.mode[0]) {
     default:
@@ -2183,7 +2187,7 @@ dcshandle(void) {
             }
         }
         bgcolor = a << 24 | r << 16 | g << 8 | b;
-        if (sixel_parser_init(&sixel_st, transparent, (255 << 24), bgcolor, 1,
+        if (sixel_parser_init(&sixel_st, transparent, (255u << 24), bgcolor, 1,
                               term_window.cw, term_window.ch)
             != 0) {
             perror("sixel_parser_init() failed");

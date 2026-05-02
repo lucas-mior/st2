@@ -1051,7 +1051,7 @@ sixd_to_16bit(int32 x) {
 }
 
 int32
-x_get_color(int32 x, uchar *r, uchar *g, uchar *b) {
+x_get_color(int32 x, uint *r, uint *g, uint *b) {
     if (!BETWEEN(x, 0, draw_context.collen - 1)) {
         return 1;
     }
