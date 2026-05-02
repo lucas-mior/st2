@@ -10,7 +10,7 @@
 #define DECSIXEL_WIDTH_MAX 4096
 #define DECSIXEL_HEIGHT_MAX 4096
 
-typedef struct sixel_image_buffer {
+typedef struct SixelImage {
 	ushort *data;
 	int32 width;
 	int32 height;
