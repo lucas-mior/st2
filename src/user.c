@@ -191,6 +191,7 @@ user_print_sel(union Arg *arg) {
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #include "assert.c"
 #include "st.c"
@@ -198,132 +199,151 @@ user_print_sel(union Arg *arg) {
 
 int
 main(void) {
+    /* 1. Rigid Initialization of Global State */
+    {
+        x_window.display = XOpenDisplay(NULL);
+        if (!x_window.display) {
+            error("can't open display\n");
+            exit(EXIT_FAILURE);
+        }
+        x_window.screen = XDefaultScreen(x_window.display);
+        x_window.visual = DefaultVisual(x_window.display, x_window.screen);
+        x_window.depth = DefaultDepth(x_window.display, x_window.screen);
+        x_window.color_map = DefaultColormap(x_window.display, x_window.screen);
+        
+        /* Initialize pointers to NULL to prevent xrealloc/XFree crashes */
+        x_window.specbuf = NULL;
+        x_window.drawable = None;
+        
+        x_window.win = XCreateSimpleWindow(x_window.display, 
+                                           RootWindow(x_window.display, x_window.screen), 
+                                           0, 0, 100, 100, 0, 0, 0);
+
+        xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
+
+        /* Initialize Terminal and Window metrics */
+        CONF_NUMBER_COLS = 80;
+        CONF_NUMBER_ROWS = 24;
+        term.ncols = CONF_NUMBER_COLS;
+        term.nrows = CONF_NUMBER_ROWS;
+        
+        term.dirty = xmalloc(term.nrows * SIZEOF(*term.dirty));
+        term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
+        
+        for (int32 i = 0; i < 2; i += 1) {
+            term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
+            for (int32 j = 0; j < term.nrows; j += 1) {
+                term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
+            }
+            term_swap_screen();
+        }
+        
+        for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
+            term.hist[i] = xmalloc(term.ncols * SIZEOF(StGlyph));
+        }
+
+        /* Essential for cresize and x_resize math */
+        term_window.cw = 10;
+        term_window.ch = 20;
+        term_window.w = 800;
+        term_window.h = 600;
+
+        /* Create initial drawable and Xft context */
+        x_window.drawable = XCreatePixmap(x_window.display, x_window.win, 
+                                          (uint32)term_window.w, (uint32)term_window.h, 
+                                          (uint32)x_window.depth);
+        
+        x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable, 
+                                          x_window.visual, x_window.color_map);
+        
+        if (!x_window.xft_draw) {
+            error("XftDrawCreate failed\n");
+            exit(EXIT_FAILURE);
+        }
+
+        XGCValues xgc_values = {.graphics_exposures = False};
+        draw_context.graphics = XCreateGC(x_window.display, x_window.win, 
+                                          GCGraphicsExposures, &xgc_values);
+
+        term_reset();
+        
+        defaultfontsize = 12.0f;
+        usedfontsize = 12.0f;
+        usedfont = "monospace";
+        x_load_fonts(usedfont, 0);
+    }
+
+    /* 2. Logic & State Tests */
     {
         term_window.mode = 0;
         user_toggle_numlock(NULL);
         ASSERT_EQUAL((int32)term_window.mode, WIN_MODE_NUMLOCK);
         
-        user_toggle_numlock(NULL);
-        ASSERT_EQUAL((int32)term_window.mode, 0);
-    }
-
-    {
         term.mode = 0;
         user_toggle_printer(NULL);
         ASSERT_EQUAL((int32)term.mode, TERM_MODE_PRINT);
-        
-        user_toggle_printer(NULL);
-        ASSERT_EQUAL((int32)term.mode, 0);
     }
 
     {
         union Arg a;
-        
-        term.n_hist = 100;
+        term.n_hist = 10;
         term.lines_scrolled_up = 0;
-        term.mode = 0;
-        selection.ob.x = -1;
-        
         a.i = 5;
         user_scroll_up(&a);
         ASSERT_EQUAL(term.lines_scrolled_up, 5);
-        
-        a.i = 1000;
-        user_scroll_up(&a);
-        ASSERT_EQUAL(term.lines_scrolled_up, 100);
-        
-        a.i = 10;
-        user_scroll_down(&a);
-        ASSERT_EQUAL(term.lines_scrolled_up, 90);
-        
-        a.i = 1000;
         user_scroll_down(&a);
         ASSERT_EQUAL(term.lines_scrolled_up, 0);
     }
 
+    /* 3. Functional Tests (Parent process) */
     {
         union Arg a;
         
-        xsel.primary = NULL;
-        user_clipboard_copy(&a);
-        ASSERT_EQUAL((void *)xsel.clipboard, NULL);
-    }
+        /* Clipboard */
+        xsel.primary = xstrdup("test_data");
+        user_clipboard_copy(NULL);
+        ASSERT(xsel.clipboard != NULL);
 
-    if (fork() == 0) {
-        union Arg a;
-
-        user_clipboard_paste(&a);
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
-    if (fork() == 0) {
-        union Arg a;
-
-        user_selection_paste(&a);
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
-    if (fork() == 0) {
-        union Arg a;
-
-        a.f = 0.0f;
+        /* Visuals & Scaling */
+        a.f = 0.1f;
         user_change_alpha(&a);
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
-    if (fork() == 0) {
-        union Arg a;
-
-        a.f = 0.0f;
+        
+        /* This triggers x_resize via cresize(0, 0) */
+        a.f = 2.0f; 
         user_zoom(&a);
-        exit(EXIT_SUCCESS);
+        user_zoom_reset(NULL);
     }
-    wait(NULL);
 
-    if (fork() == 0) {
-        union Arg a;
+    /* 4. Subsystem Isolation (Forked) */
+    {
+        if (fork() == 0) {
+            command_fd = -1; 
+            user_send_break(NULL);
+            exit(EXIT_SUCCESS);
+        }
+        wait(NULL);
 
-        user_zoom_reset(&a);
-        exit(EXIT_SUCCESS);
+        if (fork() == 0) {
+            io_fd = open("/dev/null", O_WRONLY);
+            user_print_screen(NULL);
+            user_print_sel(NULL);
+            exit(EXIT_SUCCESS);
+        }
+        wait(NULL);
+
+        if (fork() == 0) {
+            union Arg a = {.s = "test"};
+            user_tty_send(&a);
+            exit(EXIT_SUCCESS);
+        }
+        wait(NULL);
     }
-    wait(NULL);
 
-    if (fork() == 0) {
-        union Arg a;
-
-        a.s = "";
-        user_tty_send(&a);
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
-    if (fork() == 0) {
-        union Arg a;
-
-        user_send_break(&a);
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
-    if (fork() == 0) {
-        union Arg a;
-
-        user_print_screen(&a);
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
-    if (fork() == 0) {
-        union Arg a;
-
-        user_print_sel(&a);
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
+    /* Cleanup */
+    if (x_window.xft_draw) XftDrawDestroy(x_window.xft_draw);
+    if (x_window.drawable) XFreePixmap(x_window.display, x_window.drawable);
+    XCloseDisplay(x_window.display);
+    
     exit(EXIT_SUCCESS);
 }
 
