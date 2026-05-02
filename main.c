@@ -692,22 +692,6 @@ mouse_action(XEvent *xevent, uint32 release) {
 }
 
 void
-selection_set(char *string, Time t) {
-    if (!string) {
-        return;
-    }
-
-    xfree(xsel.primary);
-    xsel.primary = string;
-
-    XSetSelectionOwner(x_window.display, XA_PRIMARY, x_window.win, t);
-    if (XGetSelectionOwner(x_window.display, XA_PRIMARY) != x_window.win) {
-        selection_clear();
-    }
-    return;
-}
-
-void
 cresize(int32 width, int32 height) {
     int32 col;
     int32 row;

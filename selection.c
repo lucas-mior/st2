@@ -349,4 +349,20 @@ selection_scroll(int32 top, int32 bot, int32 n) {
     return;
 }
 
+void
+selection_set(char *string, Time t) {
+    if (!string) {
+        return;
+    }
+
+    xfree(xsel.primary);
+    xsel.primary = string;
+
+    XSetSelectionOwner(x_window.display, XA_PRIMARY, x_window.win, t);
+    if (XGetSelectionOwner(x_window.display, XA_PRIMARY) != x_window.win) {
+        selection_clear();
+    }
+    return;
+}
+
 #endif /* SELECTION_C */
