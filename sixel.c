@@ -153,7 +153,6 @@ image_buffer_resize(sixel_image_t *image, int32 width, int32 height) {
     int32 status = (-1);
     size_t size;
     ushort *alt_buffer;
-    int32 n;
     int32 min_height;
 
     size = (size_t)(width*height) * sizeof(ushort);
@@ -168,7 +167,7 @@ image_buffer_resize(sixel_image_t *image, int32 width, int32 height) {
 
     min_height = height > image->height ? image->height : height;
     if (width > image->width) { /* if width is extended */
-        for (n = 0; n < min_height; ++n) {
+        for (int32 n = 0; n < min_height; ++n) {
             /* copy from source image */
             memcpy(alt_buffer + width*n, image->data + image->width*n,
                    (size_t)image->width*sizeof(ushort));
@@ -177,7 +176,7 @@ image_buffer_resize(sixel_image_t *image, int32 width, int32 height) {
                    (size_t)(width - image->width)*sizeof(ushort));
         }
     } else {
-        for (n = 0; n < min_height; ++n) {
+        for (int32 n = 0; n < min_height; ++n) {
             /* copy from source image */
             memcpy(alt_buffer + width*n, image->data + image->width*n,
                    (size_t)width*sizeof(ushort));
