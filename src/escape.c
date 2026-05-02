@@ -1137,7 +1137,7 @@ string_handle(void) {
         uint32 c_code;
 
         fprintf(stderr, "ESC%c", str_escape_seq.type);
-        for (uint64 i = 0; i < str_escape_seq.len; i += 1) {
+        for (int32 i = 0; i < str_escape_seq.len; i += 1) {
             c_code = str_escape_seq.buffer[i] & 0xff;
             if (c_code == '\0') {
                 putc('\n', stderr);
@@ -1527,14 +1527,10 @@ term_putc(uint32 u) {
             goto check_control_code;
         }
 
-        if (str_escape_seq.len + (uint64)len >= str_escape_seq.siz) {
-            if (str_escape_seq.siz <= (SIZE_MAX - UTF_SIZ) / 2) {
-                str_escape_seq.siz *= 2;
-                str_escape_seq.buffer
-                    = xrealloc(str_escape_seq.buffer, (int64)str_escape_seq.siz);
-            } else {
-                return;
-            }
+        if (str_escape_seq.len + len >= str_escape_seq.siz) {
+            str_escape_seq.siz *= 2;
+            str_escape_seq.buffer = xrealloc(str_escape_seq.buffer,
+					                         (int64)str_escape_seq.siz);
         }
 
         memmove64(&str_escape_seq.buffer[str_escape_seq.len], c, len);
@@ -1542,7 +1538,7 @@ term_putc(uint32 u) {
 
         if (str_escape_seq.type == 'P' && u == 'q') {
             int32 is_sixel = 1;
-            for (uint32 i = 0; i < str_escape_seq.len - 1; i += 1) {
+            for (int32 i = 0; i < str_escape_seq.len - 1; i += 1) {
                 if (str_escape_seq.buffer[i] != ';'
                     && !isdigit((uchar)str_escape_seq.buffer[i])) {
                     is_sixel = 0;

@@ -267,8 +267,8 @@ typedef struct {
 typedef struct STREscape {
     char type;    /* ESC type ... */
     char *buffer; /* allocated raw string */
-    uint64 siz;   /* allocation size */
-    uint64 len;   /* raw string length */
+    int32 siz;    /* allocation size */
+    int32 len;    /* raw string length */
     char *args[STR_ARG_SIZ];
     int32 nargs;
 } STREscape;
