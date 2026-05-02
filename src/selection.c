@@ -12,9 +12,9 @@
 #endif
 
 enum SelectionMode {
-	SELECTION_IDLE = 0,
-	SELECTION_EMPTY = 1,
-	SELECTION_READY = 2
+    SELECTION_IDLE = 0,
+    SELECTION_EMPTY = 1,
+    SELECTION_READY = 2
 };
 
 static struct {
@@ -386,7 +386,51 @@ selection_set(char *string, Time t) {
 
 int
 main(void) {
-    ASSERT(true);
+    {
+        selection.mode = SELECTION_READY;
+        selection.ob.x = 10;
+        selection_remove();
+        ASSERT_EQUAL(selection.mode, SELECTION_IDLE);
+        ASSERT_EQUAL(selection.ob.x, -1);
+    }
+
+    {
+        selection.ob.y = 5;
+        selection.nb.y = 5;
+        selection.oe.y = 10;
+        selection.ne.y = 10;
+        selection_move(2);
+        ASSERT_EQUAL(selection.ob.y, 7);
+        ASSERT_EQUAL(selection.nb.y, 7);
+        ASSERT_EQUAL(selection.oe.y, 12);
+        ASSERT_EQUAL(selection.ne.y, 12);
+    }
+
+    {
+        int32 is_sel;
+
+        selection.ob.x = -1;
+        is_sel = selection_is_selected(0, 0);
+        ASSERT_EQUAL(is_sel, 0);
+
+        selection.ob.x = 0;
+        selection.mode = SELECTION_EMPTY;
+        is_sel = selection_is_selected(0, 0);
+        ASSERT_EQUAL(is_sel, 0);
+    }
+
+    {
+        term.lines_scrolled_up = 0;
+        selection.ob.x = 0;
+        selection.nb.y = 2;
+        selection.ne.y = 4;
+        selection_scroll(0, 10, 1);
+        ASSERT_EQUAL(selection.nb.y, 3);
+        ASSERT_EQUAL(selection.ne.y, 5);
+        
+        selection_scroll(0, 2, 1);
+    }
+
     exit(EXIT_SUCCESS);
 }
 
