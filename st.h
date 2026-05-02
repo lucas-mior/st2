@@ -119,7 +119,8 @@ typedef struct {
 } MouseShortcut;
 
 typedef struct ImageList {
-	struct ImageList *next, *prev;
+	struct ImageList *next;
+	struct ImageList *prev;
 	uchar *pixels;
 	void *pixmap;
 	void *clipmask;
