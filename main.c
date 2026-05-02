@@ -20,7 +20,6 @@
 #include "st.c"
 #include "boxdraw.c"
 #include "sixel.c"
-#include "sixel_hls.c"
 
 #include <Imlib2.h>
 /* types used in config.def.h */
