@@ -52,9 +52,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
     int32 rtop = 0;
     int32 rbot = term.nrows - 1;
     int32 delim;
-    int32 prev_delim;
     StGlyph *gp;
-    StGlyph *prev_gp;
 
     if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         rtop += term.lines_scrolled_up - term.n_hist;
@@ -62,13 +60,14 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
     }
 
     switch (selection.snap) {
-    case SELECTION_SNAP_WORD:
+    case SELECTION_SNAP_WORD: {
         /*
          * Snap around if the word wraps around at the end or
          * beginning of a line.
          */
-        prev_gp = &TERM_LINE(*y)[*x];
-        prev_delim = IS_DELIM(prev_gp->rune);
+        StGlyph *prev_gp = &TERM_LINE(*y)[*x];
+        int32 prev_delim = IS_DELIM(prev_gp->rune);
+
         while (1) {
             newx = *x + direction;
             newy = *y;
@@ -109,6 +108,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
             prev_delim = delim;
         }
         break;
+                              }
     case SELECTION_SNAP_LINE:
         /*
          * Snap around if the the previous line or the current one
