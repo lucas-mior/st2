@@ -543,5 +543,6 @@ static DrawingContext draw_context;
 static SixelState sixel_st;
 
 static float usedfontsize = 0;
+static float defaultfontsize = 0;
 
 #endif /* ST_H */

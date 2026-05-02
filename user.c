@@ -66,7 +66,7 @@ user_zoom(const Arg *arg) {
     Arg larg;
 
     larg.f = usedfontsize + arg->f;
-    if (larg.f >= 1.0) {
+    if (larg.f >= 1.0f) {
         zoom_abs(&larg);
     }
     return;
