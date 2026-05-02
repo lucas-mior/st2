@@ -1181,33 +1181,28 @@ draw(void) {
                   term.lines[term.old_cursor_y][term.old_cursor_x]);
     term.old_cursor_x = cx;
     term.old_cursor_y = term.cursor.y;
+
     /* x_finish_draw() */ {
-        ImageList *im;
-        ImageList *next;
-        XGCValues gcvalues;
-        GC gc = NULL;
-        int32 rel_y;
-        int32 desty;
-        int32 width;
-        int32 height;
         int32 bw = term_window.hborderpx;
         int32 bh = term_window.vborderpx;
-        XImage ximage;
 
+        GC gc = NULL;
+        ImageList *next;
         XSetClipMask(x_window.display, draw_context.graphics, None);
 
-        for (im = term.images; im; im = next) {
+        for (ImageList *im = term.images; im; im = next) {
+            int32 rel_y = im->y + term.lines_scrolled_up;
+            int32 width = im->width;
+            int32 height = im->height;
+            int32 desty;
             next = im->next;
-            rel_y = im->y - term.lines_scrolled_up;
 
             if (im->x >= term.ncols || rel_y >= term.nrows || rel_y < 0) {
                 continue;
             }
 
-            width = im->width;
-            height = im->height;
-
             if (im->pixmap == NULL) {
+                XImage ximage;
                 im->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win,
                                                    (uint32)width, (uint32)height,
                                                    (uint32)x_window.depth);
@@ -1234,10 +1229,11 @@ draw(void) {
             }
 
             if (gc == NULL) {
+                XGCValues gcvalues;
                 memset64(&gcvalues, 0, SIZEOF(gcvalues));
                 gcvalues.graphics_exposures = False;
                 gc = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures,
-                                &gcvalues);
+                               &gcvalues);
             }
 
             desty = bh + rel_y*term_window.ch;
@@ -1264,6 +1260,7 @@ draw(void) {
                   (uint32)term_window.w, (uint32)term_window.h,
                   0, 0);
     }
+
     if (old_cursor_x != term.old_cursor_x
         || old_cursor_y != term.old_cursor_y) {
         x_xim_spot(term.old_cursor_x, term.old_cursor_y);
