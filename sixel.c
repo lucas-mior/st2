@@ -21,7 +21,9 @@ uint32 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat);
 #define SIXEL_PALVAL(n, a, m)  \
     (((n)*(a) + ((m) / 2)) / (m))
 #define SIXEL_XRGB(r, g, b) \
-	SIXEL_RGB(SIXEL_PALVAL(r, 255, 100), SIXEL_PALVAL(g, 255, 100), SIXEL_PALVAL(b, 255, 100))
+	SIXEL_RGB(SIXEL_PALVAL(r, 255, 100), \
+			  SIXEL_PALVAL(g, 255, 100), \
+			  SIXEL_PALVAL(b, 255, 100))
 
 static uint32 const sixel_default_color_table[] = {
     SIXEL_XRGB(0, 0, 0),    /*  0 Black    */
