@@ -270,8 +270,6 @@ selection_get(void) {
     char *string, *ptr;
     int32 lastx;
     int32 line_len;
-    StGlyph *gp;
-    StGlyph *lgp;
 
     if (selection.ob.x == -1
         || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -286,6 +284,8 @@ selection_get(void) {
     /* append every set & selection_is_selected glyph to the selection */
     for (int32 y = selection.nb.y; y <= selection.ne.y; y += 1) {
         StGlyph *line = TERM_LINE(y);
+        StGlyph *gp;
+        StGlyph *lgp;
 
         if ((line_len = term_line_len(line)) == 0) {
             *ptr++ = '\n';
@@ -390,7 +390,7 @@ main(void) {
         selection.mode = SELECTION_READY;
         selection.ob.x = 10;
         selection_remove();
-        ASSERT_EQUAL(selection.mode, SELECTION_IDLE);
+        ASSERT(selection.mode == SELECTION_IDLE);
         ASSERT_EQUAL(selection.ob.x, -1);
     }
 
