@@ -2790,7 +2790,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         }
     }
     /* allocate any new rows */
-    for (int32 j = MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
+    for (int32 j = (int32)MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
         term.line[j] = xmalloc((int64)new_ncols*SIZEOF(Glyph));
         for (int32 k = 0; k < new_ncols; k += 1) {
             term_clear_glyph(&term.line[j][k], 0);
