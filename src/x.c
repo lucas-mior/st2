@@ -3,6 +3,17 @@
 
 #include "st.h"
 
+uint16
+sixd_to_16bit(int32 x) {
+    int32 y;
+    if (x == 0) {
+        y = 0;
+    } else {
+        y = 0x3737 + 0x2828*x;
+    }
+    return (uint16)y;
+}
+
 void
 x_resize(int32 col, int32 row) {
     term_window.tty_width = col*term_window.cw;
@@ -1174,17 +1185,6 @@ x_bell(void) {
         XkbBell(x_window.display, x_window.win, CONF_BELL_VOLUME, (Atom)NULL);
     }
     return;
-}
-
-uint16
-sixd_to_16bit(int32 x) {
-    int32 y;
-    if (x == 0) {
-        y = 0;
-    } else {
-        y = 0x3737 + 0x2828*x;
-    }
-    return (uint16)y;
 }
 
 #endif /* X_C */
