@@ -685,7 +685,9 @@ sixel_parser_deinit(sixel_state_t *st) {
 
 Pixmap
 sixel_create_clipmask(char *pixels, int32 width, int32 height) {
-    char c, *clipdata, *dst;
+    char c;
+    char *clipdata;
+    char *dst;
     int32 b, i, n, y, w;
     int32 msb = (XBitmapBitOrder(x_window.display) == MSBFirst);
     uint32 *src = (uint32 *)pixels;
