@@ -527,8 +527,7 @@ static struct {
     int32 geo_mask;      /* geometry mask */
 } x_window;
 
-#define Font Font_
-typedef struct {
+typedef struct StFont {
     int32 height;
     int32 width;
     int32 ascent;
@@ -540,15 +539,15 @@ typedef struct {
     XftFont *match;
     FcFontSet *set;
     FcPattern *pattern;
-} Font;
+} StFont;
 
 static struct {
     XftColor *colors;
     int32 colors_len;
-    Font font;
-	Font bfont;
-	Font ifont;
-	Font ibfont;
+    StFont font;
+	StFont bfont;
+	StFont ifont;
+	StFont ibfont;
     GC graphics;
 } draw_context;
 

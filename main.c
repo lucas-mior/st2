@@ -44,11 +44,11 @@ static void cresize(int32, int32);
 static void x_resize(int32, int32);
 static void x_hints(void);
 static int32 x_load_color(int32, char *, XftColor *);
-static int32 x_load_font(Font *, FcPattern *);
+static int32 x_load_font(StFont *, FcPattern *);
 static void x_load_fonts(char *, float);
 static int32 xloadsparefont(FcPattern *, int32);
 static void x_load_spare_fonts(void);
-static void x_unload_font(Font *);
+static void x_unload_font(StFont *);
 static void x_unload_fonts(void);
 static void x_set_urgency(int32);
 
@@ -76,7 +76,7 @@ static void (*handler[LASTEvent])(XEvent *) = {
     [SelectionRequest] = handler_selection_request,
 };
 
-/* Font Ring Cache */
+/* StFont Ring Cache */
 enum {
     FRC_NORMAL,
     FRC_ITALIC,
@@ -975,7 +975,7 @@ x_geom_mask_to_gravity(int32 mask) {
 }
 
 int32
-x_load_font(Font *f, FcPattern *pattern) {
+x_load_font(StFont *f, FcPattern *pattern) {
     FcPattern *configured;
     FcPattern *match;
     FcResult result;
@@ -1223,7 +1223,7 @@ x_load_spare_fonts(void) {
 }
 
 void
-x_unload_font(Font *f) {
+x_unload_font(StFont *f) {
     XftFontClose(x_window.display, f->match);
     FcPatternDestroy(f->pattern);
     if (f->set) {
@@ -1317,7 +1317,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, Glyph *glyphs, int32 len,
     int32 winy = term_window.vborderpx + y*term_window.ch;
     uint16 mode;
     uint16 prevmode = USHRT_MAX;
-    Font *font_local = &draw_context.font;
+    StFont *font_local = &draw_context.font;
     int32 frcflags = FRC_NORMAL;
     int32 runewidth = term_window.cw;
     uint32 rune;
