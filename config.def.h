@@ -32,11 +32,11 @@ static int32 CONF_BORDER_PIXELS = 2;
  * 5: value of CONF_SHELl in config.def.h
  */
 static char *CONF_SHELl = "/bin/sh";
-char *CONF_UTMP = NULL;
-char *CONF_STTY_ARGS = "stty raw pass8 nl -echo -iexten -cstopb 38400";
+static char *CONF_UTMP = NULL;
+static char *CONF_STTY_ARGS = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 
 /* identification sequence returned in DA and DECID */
-char *CONF_VTIDEN = "\033[?62;4c"; /* VT200 family (62) with sixel (4) */
+static char *CONF_VTIDEN = "\033[?62;4c"; /* VT200 family (62) with sixel (4) */
 static int const sixelbyteorder = LSBFirst;
 
 /* Kerning / character bounding-box multipliers */
@@ -48,18 +48,18 @@ static float CONF_CHAR_HEIGHT_SCALE = 1.0;
  *
  * More advanced example: L" `'\"()[]{}"
  */
-wchar_t *CONF_WORD_DELIMITERS = L" ";
+static wchar_t *CONF_WORD_DELIMITERS = L" ";
 
 /* selection timeouts (in milliseconds) */
 static const uint32 CONF_DOUBLE_CLICK_TIMEOUT = 300;
 static const uint32 CONF_TRIPLE_CLICK_TIMEOUT = 600;
 
 /* alt screens */
-int32 CONF_ALLOW_ALT_SCREEN = 1;
+static int32 CONF_ALLOW_ALT_SCREEN = 1;
 
 /* allow certain non-interactive (insecure) window operations such as:
    setting the clipboard text */
-int32 CONF_ALLOW_WINDOW_OPS = 0;
+static int32 CONF_ALLOW_WINDOW_OPS = 0;
 
 /*
  * draw latency range in ms - from new content/keypress/etc until drawing.
@@ -87,11 +87,11 @@ static uint32 CONF_CURSOR_THICKNESS = 2;
  *    Bold affects lines thickness if CONF_BOXDRAW_BOLD is not 0. Italic is ignored.
  * 0: disable (render all U25XX glyphs normally from the font).
  */
-const int32 CONF_BOXDRAW = 1;
-const int32 CONF_BOXDRAW_BOLD = 1;
+static const int32 CONF_BOXDRAW = 1;
+static const int32 CONF_BOXDRAW_BOLD = 1;
 
 /* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
-const int32 CONF_BOXDRAW_BRAILLE = 0;
+static const int32 CONF_BOXDRAW_BRAILLE = 0;
 
 /*
  * bell volume. It must be a value between -100 and 100. Use 0 for disabling
@@ -100,7 +100,7 @@ const int32 CONF_BOXDRAW_BRAILLE = 0;
 static int32 CONF_BELL_VOLUME = 0;
 
 /* default TERM value */
-char *CONF_TERM_NAME = "st-256color";
+static char *CONF_TERM_NAME = "st-256color";
 
 /*
  * spaces per tab
@@ -117,10 +117,10 @@ char *CONF_TERM_NAME = "st-256color";
  *
  *	stty tabs
  */
-int32 CONF_TAB_NSPACES = 4;
+static int32 CONF_TAB_NSPACES = 4;
 
 /* bg opacity */
-float CONF_ALPHA = 0.85f;
+static float CONF_ALPHA = 0.85f;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *CONF_COLORS[] = {
@@ -189,9 +189,9 @@ static const int32 CONF_NTRANSPARENT_COLORS = 26;
  * Default colors (CONF_COLORS index)
  * foreground, background, cursor, reverse cursor, selection
  */
-int32 CONF_COLOR_INDEX_FONT = 7;
-int32 CONF_COLOR_BG = 0;
-int32 CONF_COLOR_INDEX_CURSOR = 257;
+static int32 CONF_COLOR_INDEX_FONT = 7;
+static int32 CONF_COLOR_BG = 0;
+static int32 CONF_COLOR_INDEX_CURSOR = 257;
 static int32 CONF_COLOR_INDEX_REVCURSOR = 258;
 static int32 CONF_COLOR_INDEX_SELECTION_BACK = 259;
 static int32 CONF_COLOR_INDEX_SELECTION_FONT = 7;

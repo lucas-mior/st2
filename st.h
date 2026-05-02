@@ -261,48 +261,48 @@ typedef struct {
     int32 narg; /* nb of args */
 } STREscape;
 
-void die(const char *, ...) __attribute__((noreturn));
-void redraw(void);
-void draw(void);
+static void die(const char *, ...) __attribute__((noreturn));
+static void redraw(void);
+static void draw(void);
 
-void dcshandle(void);
-void user_scroll_down(const Arg *);
-void user_scroll_up(const Arg *);
-void externalpipe(const Arg *);
-void user_print_screen(const Arg *);
-void user_print_sel(const Arg *);
-void user_send_break(const Arg *);
-void user_toggle_printer(const Arg *);
+static void dcshandle(void);
+static void user_scroll_down(const Arg *);
+static void user_scroll_up(const Arg *);
+static void externalpipe(const Arg *);
+static void user_print_screen(const Arg *);
+static void user_print_sel(const Arg *);
+static void user_send_break(const Arg *);
+static void user_toggle_printer(const Arg *);
 
-int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
+static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 
 static void tdeleteimages(void);
 static inline void tsetsixelattr(Glyph *line, int32 x1, int32 x2);
 
-int32 term_attr_set(int32);
-int32 tisaltscreen(void);
-void term_resize(int32, int32);
-void term_set_dirt_attr(int32);
-void tty_hangup(void);
-int32 tty_new(const char *, char *, const char *, char **);
-int64 tty_read(void);
-void tty_resize(int32, int32);
-void tty_write(const char *, int64, int32);
+static int32 term_attr_set(int32);
+static int32 tisaltscreen(void);
+static void term_resize(int32, int32);
+static void term_set_dirt_attr(int32);
+static void tty_hangup(void);
+static int32 tty_new(const char *, char *, const char *, char **);
+static int64 tty_read(void);
+static void tty_resize(int32, int32);
+static void tty_write(const char *, int64, int32);
 
-void reset_title(void);
+static void reset_title(void);
 
-void selection_clear(void);
-void selection_start(int32, int32, int32);
-void selection_extend(int32, int32, int32, int32);
-int32 selection_is_selected(int32, int32);
-char *selection_get(void);
+static void selection_clear(void);
+static void selection_start(int32, int32, int32);
+static void selection_extend(int32, int32, int32, int32);
+static int32 selection_is_selected(int32, int32);
+static char *selection_get(void);
 
-int64 utf8_encode(uint32, char *);
+static int64 utf8_encode(uint32, char *);
 
-void xfree(void *);
+static void xfree(void *);
 
-int32 isboxdraw(uint32);
-uint16 boxdrawindex(const Glyph *);
+static int32 isboxdraw(uint32);
+static uint16 boxdrawindex(const Glyph *);
 #ifdef XFT_VERSION
 /* only exposed to main.c, otherwise we'll need Xft.h for the types */
 void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
@@ -381,21 +381,6 @@ static char *base64_decode(const char *);
 static char base64_decode_getc(const char **);
 
 static int64 xwrite(int32, const char *, int64);
-
-/* config.def.h globals */
-extern char *CONF_UTMP;
-extern char *CONF_STTY_ARGS;
-extern char *CONF_VTIDEN;
-extern wchar_t *CONF_WORD_DELIMITERS;
-extern int32 CONF_ALLOW_ALT_SCREEN;
-extern int32 CONF_ALLOW_WINDOW_OPS;
-extern char *CONF_TERM_NAME;
-extern int32 CONF_TAB_NSPACES;
-extern int32 CONF_COLOR_INDEX_FONT;
-extern int32 CONF_COLOR_BG;
-extern int32 CONF_COLOR_INDEX_CURSOR;
-extern const int32 CONF_BOXDRAW, CONF_BOXDRAW_BOLD, CONF_BOXDRAW_BRAILLE;
-extern float CONF_ALPHA;
 
 /* function definitions used in config.def.h */
 void user_clipboard_copy(const Arg *);

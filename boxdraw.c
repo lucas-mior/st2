@@ -10,6 +10,7 @@
 #include "st.h"
 #include "boxdraw_data.h"
 #include "cbase/minmax.c"
+#include "config.def.h"
 
 /* Rounded non-negative integers division of n / d  */
 #define DIV(n, d) (((n) + (d) / 2) / (d))

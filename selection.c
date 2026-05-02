@@ -1,7 +1,10 @@
 #if !defined(SELECTION_C)
 #define SELECTION_C
 
-void
+#include "cbase/util.c"
+#include "st.h"
+
+static void
 selection_start(int32 col, int32 row, int32 snap) {
     selection_clear();
     selection.mode = SELECTION_EMPTY;
