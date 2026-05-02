@@ -41,10 +41,10 @@ static uint32 const sixel_default_color_table[] = {
 
 void
 scroll_images(int32 n) {
-    ImageList *im, *next;
+    ImageList *next;
     int32 top = tisaltscreen() ? 0 : term.lines_scrolled_up - HISTORY_SIZE;
 
-    for (im = term.images; im; im = next) {
+    for (ImageList *im = term.images; im; im = next) {
         next = im->next;
         im->y += n;
 
