@@ -862,13 +862,13 @@ string_handle(void) {
         int32 c_char;
         char *p2 = str_escape_seq.buffer;
 
-        str_escape_seq.narg = 0;
+        str_escape_seq.nargs = 0;
         str_escape_seq.buffer[str_escape_seq.len] = '\0';
 
         if (*p2 != '\0') {
-            while (str_escape_seq.narg < STR_ARG_SIZ) {
-                str_escape_seq.args[str_escape_seq.narg] = p2;
-                str_escape_seq.narg += 1;
+            while (str_escape_seq.nargs < STR_ARG_SIZ) {
+                str_escape_seq.args[str_escape_seq.nargs] = p2;
+                str_escape_seq.nargs += 1;
                 while (1) {
                     c_char = *p2;
                     if (c_char == ';' || c_char == '\0') {
@@ -885,7 +885,7 @@ string_handle(void) {
         }
     }
 
-    narg = str_escape_seq.narg;
+    narg = str_escape_seq.nargs;
     if (narg) {
         par = atoi(str_escape_seq.args[0]);
     } else {
@@ -1238,7 +1238,7 @@ term_str_sequence(uchar c) {
     str_escape_seq.buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ);
     str_escape_seq.siz = STR_BUF_SIZ;
     str_escape_seq.len = 0;
-    str_escape_seq.narg = 0;
+    str_escape_seq.nargs = 0;
 
     switch (c) {
     case 0x90:

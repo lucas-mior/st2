@@ -270,7 +270,7 @@ typedef struct STREscape {
     uint64 siz;   /* allocation size */
     uint64 len;   /* raw string length */
     char *args[STR_ARG_SIZ];
-    int32 narg; /* nb of args */
+    int32 nargs;
 } STREscape;
 
 typedef struct StFont {
