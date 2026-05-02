@@ -1,6 +1,7 @@
 #if !defined(BASE64_C)
 #define BASE64_C
 
+#include <ctype.h>
 #include "st.h"
 
 char
