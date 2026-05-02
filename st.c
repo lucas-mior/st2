@@ -2731,10 +2731,20 @@ term_dec_test(char c) {
 }
 
 void
+string_reset(void) {
+    str_escape_seq = (STREscape){
+        .buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ),
+        .siz = STR_BUF_SIZ,
+    };
+}
+
+void
 term_str_sequence(uchar c) {
+	string_reset();
     switch (c) {
     case 0x90: /* DCS -- Device Control String */
         c = 'P';
+		term.esc |= ESC_DCS;
         break;
     case 0x9f: /* APC -- Application Program Command */
         c = '_';
@@ -2749,13 +2759,41 @@ term_str_sequence(uchar c) {
         fprintf(stderr, "term_str_sequence: unhandled switch case.\n");
         break;
     }
-    str_escape_seq = (STREscape){
-        .buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ),
-        .siz = STR_BUF_SIZ,
-    };
+	string_reset();
     str_escape_seq.type = (char)c;
     term.esc |= ESC_STR;
     return;
+}
+
+void
+dcshandle(void) {
+	int bgcolor, transparent;
+	unsigned char r, g, b, a = 255;
+
+	switch (csi_escape_seq.mode[0]) {
+	default:
+	unknown:
+		fprintf(stderr, "erresc: unknown csi ");
+		control_seq_intro_dump();
+		/* die(""); */
+		break;
+	case 'q': /* DECSIXEL */
+		transparent = (csi_escape_seq.narg >= 2 && csi_escape_seq.arg[1] == 1);
+		if (IS_TRUECOL(term.cursor.attr.bg)) {
+			r = term.cursor.attr.bg >> 16 & 255;
+			g = term.cursor.attr.bg >> 8 & 255;
+			b = term.cursor.attr.bg >> 0 & 255;
+		} else {
+			x_get_color(term.cursor.attr.bg, &r, &g, &b);
+			if (term.cursor.attr.bg == CONF_COLOR_BG)
+				a = draw_context.color[CONF_COLOR_BG].pixel >> 24 & 255;
+		}
+		bgcolor = a << 24 | r << 16 | g << 8 | b;
+		if (sixel_parser_init(&sixel_st, transparent, (255 << 24), bgcolor, 1, term_window.cw, term_window.ch) != 0)
+			perror("sixel_parser_init() failed");
+		term.mode |= TERM_MODE_SIXEL;
+		break;
+	}
 }
 
 void
@@ -2875,6 +2913,7 @@ eschandle(uchar ascii) {
         term.esc |= ESC_UTF8;
         return 0;
     case 'P': /* DCS -- Device Control String */
+		term.esc |= ESC_DCS;
     case '_': /* APC -- Application Program Command */
     case '^': /* PM -- Privacy Message */
     case ']': /* OSC -- Operating System Command */
@@ -2982,36 +3021,13 @@ term_putc(uint32 u) {
      */
     if (term.esc & ESC_STR) {
         if (u == '\a' || u == 030 || u == 032 || u == 033 || IS_CONTROL_C1(u)) {
-            if (term.esc & ESC_SIXEL) {
-                ImageList *new_images = NULL;
-                sixel_parser_finalize(&sixel_st, &new_images, term.cursor.x,
-                                      term.cursor.y, term_window.cw,
-                                      term_window.ch);
-
-                if (new_images != NULL) {
-                    if (term.images == NULL) {
-                        term.images = new_images;
-                    } else {
-                        ImageList *tail = term.images;
-                        while (tail->next != NULL) {
-                            tail = tail->next;
-                        }
-                        tail->next = new_images;
-                        new_images->prev = tail;
-                    }
-                }
-                term.esc &= ~ESC_SIXEL;
-            }
-            term.esc &= ~(ESC_START | ESC_STR);
+			term.esc &= ~(ESC_START|ESC_STR|ESC_DCS);
             term.esc |= ESC_STR_END;
             goto check_control_code;
         }
 
-        if (term.esc & ESC_SIXEL) {
-            uchar sixel_char = (uchar)u;
-            sixel_parser_parse(&sixel_st, &sixel_char, 1);
-            return;
-        }
+		if (term.esc & ESC_DCS)
+			goto check_control_code;
 
         if (str_escape_seq.len + (uint64)len >= str_escape_seq.siz) {
             /* ... (keep your existing reallocation logic here) ... */
@@ -3076,6 +3092,20 @@ check_control_code:
                 control_seq_intro_handle();
             }
             return;
+		} else if (term.esc & ESC_DCS) {
+			/* Skip if DCS escape sequence buffer is full */
+			if (csi_escape_seq.len >= sizeof(csi_escape_seq.buffer) - 1) {
+				return;
+			}
+
+			csi_escape_seq.buffer[csi_escape_seq.len++] = u;
+			if (BETWEEN(u, 0x40, 0x7E)
+					|| csi_escape_seq.len >= \
+					sizeof(csi_escape_seq.buffer)-1) {
+				control_seq_intro_parse();
+				dcshandle();
+			}
+			return;
         } else if (term.esc & ESC_UTF8) {
             term_def_utf8((char)u);
         } else if (term.esc & ESC_ALTCHARSET) {
@@ -3161,7 +3191,10 @@ term_write(const char *buffer, int32 buflen, int32 show_ctrl) {
     int32 n;
 
     for (n = 0; n < buflen; n += charsize) {
-        if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
+		if (TERM_MODE_IS_SET(TERM_MODE_SIXEL) && sixel_st.state != PS_ESC) {
+			charsize = sixel_parser_parse(&sixel_st, (const unsigned char*)buffer + n, buflen - n);
+			continue;
+		} else if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
             /* process a complete utf8 char */
             charsize = (int32)utf8_decode(buffer + n, &u, (int64)(buflen - n));
             if (charsize == 0) {

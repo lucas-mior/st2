@@ -11,6 +11,8 @@
 
 #include "st.h"
 
+char *vtiden = "\033[?62;4c"; /* VT200 family (62) with sixel (4) */
+
 /*
  * appearance
  *

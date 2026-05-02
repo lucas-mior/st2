@@ -1145,6 +1145,19 @@ sixd_to_16bit(int32 x) {
 }
 
 int32
+x_get_color(int32 x, uchar *r, uchar *g, uchar *b) {
+    if (!BETWEEN(x, 0, draw_context.collen - 1)) {
+        return 1;
+    }
+
+    *r = draw_context.color[x].color.red >> 8;
+    *g = draw_context.color[x].color.green >> 8;
+    *b = draw_context.color[x].color.blue >> 8;
+
+    return 0;
+}
+
+int32
 x_load_color(int32 i, const char *name, Color *ncolor) {
     XRenderColor color = {.alpha = 0xffff};
 
