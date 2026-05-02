@@ -1616,7 +1616,7 @@ main(void) {
         StGlyph glyph;
 
         term_clear_glyph(&glyph, 0);
-        ASSERT_EQUAL(glyph.mode, ATTR_NONE);
+        ASSERT(glyph.mode == ATTR_NONE);
         ASSERT_EQUAL(glyph.rune, ' ');
         ASSERT_EQUAL(glyph.fg, CONF_COLOR_INDEX_FONT);
         ASSERT_EQUAL(glyph.bg, CONF_COLOR_BG);

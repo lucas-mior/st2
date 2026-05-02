@@ -1133,6 +1133,10 @@ x_bell(void) {
 
 int
 main(void) {
+    opt_title = "st";
+    opt_class = "st";
+    opt_name = "st";
+
     {
         Window parent;
         Window root;
@@ -1171,6 +1175,12 @@ main(void) {
         term_window.cw = 10;
         term_window.ch = 20;
 
+        x_window.attrs.colormap = x_window.color_map;
+        x_window.attrs.background_pixel = 0;
+        x_window.attrs.border_pixel = 0;
+        x_window.attrs.bit_gravity = NorthWestGravity;
+        x_window.attrs.event_mask = FocusChangeMask | KeyPressMask | ExposureMask | StructureNotifyMask | PointerMotionMask;
+
         cw_flags = CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap;
         x_window.win = XCreateWindow(x_window.display, parent,
                                      0, 0,
@@ -1192,8 +1202,20 @@ main(void) {
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
                                           x_window.visual, x_window.color_map);
 
+        x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
+        x_window.wm_delete_win = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
+        x_window.net_wm_name = XInternAtom(x_window.display, "_NET_WM_NAME", False);
+        x_window.net_wm_iconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
+        x_window.net_wm_pid = XInternAtom(x_window.display, "_NET_WM_PID", False);
+
+        xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
+        if (xsel.xtarget == None) {
+            xsel.xtarget = XA_STRING;
+        }
+
         CONF_NUMBER_COLS = 80;
         CONF_NUMBER_ROWS = 24;
+        term.dirty = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.dirty)));
         for (int32 i = 0; i < 2; i += 1) {
             term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
             for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {

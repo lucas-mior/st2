@@ -304,7 +304,7 @@ install)
             if $cmdline; then
                 if ! $test_exe; then
                     gdb --quiet \
-                        -ex run -ex backtrace -ex quit \
+                        -ex 'break exit' -ex run -ex backtrace -ex quit \
                         $test_exe 2>&1 | tee /dev/tty | xsel -b
                     exit 1
                 fi
