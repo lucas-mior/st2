@@ -1173,6 +1173,209 @@ main(void) {
         free(draw_context.colors);
     }
 
+    {
+        uint16 result;
+
+        result = sixd_to_16bit(0);
+        ASSERT_EQUAL(result, 0);
+
+        result = sixd_to_16bit(4);
+        ASSERT_EQUAL(result, 0x3737 + 0x2828*4);
+    }
+
+    {
+        int32 result;
+
+        term_window.cursor = 0;
+        result = x_set_cursor(-1);
+        ASSERT_EQUAL(result, 1);
+
+        result = x_set_cursor(5);
+        ASSERT_EQUAL(result, 0);
+        ASSERT_EQUAL(term_window.cursor, 5);
+    }
+
+    {
+        int32 result;
+
+        term_window.mode = WIN_MODE_VISIBLE;
+        result = x_start_draw();
+        ASSERT_EQUAL(result, WIN_MODE_VISIBLE);
+
+        term_window.mode = 0;
+        result = x_start_draw();
+        ASSERT_EQUAL(result, 0);
+    }
+
+    {
+        int32 result;
+
+        x_window.ime.xic = (XIC)1;
+        result = x_ic_destroy(NULL, NULL, NULL);
+        ASSERT_EQUAL(result, 1);
+        ASSERT_NULL(x_window.ime.xic);
+    }
+
+    {
+        x_window.ime.xic = NULL;
+        x_xim_spot(0, 0);
+    }
+
+    {
+        int32 result;
+
+        draw_context.colors_len = 0;
+        result = x_set_color_name(10, "red");
+        ASSERT_EQUAL(result, 1);
+    }
+
+    {
+        term_window.mode = 0;
+        x_set_mode(WIN_MODE_REVERSE, WIN_MODE_REVERSE);
+        ASSERT_EQUAL(term_window.mode, WIN_MODE_REVERSE);
+    }
+
+    {
+        XftColor ncolor;
+
+        x_load_color(0, "black", &ncolor);
+    }
+
+    {
+        x_load_cols();
+    }
+
+    {
+        x_clear(0, 0, 10, 10);
+    }
+
+    {
+        x_hints();
+    }
+
+    {
+        StFont font;
+
+        font.match = NULL;
+        font.set = NULL;
+        font.pattern = NULL;
+        x_load_font(&font, NULL);
+    }
+
+    {
+        x_load_fonts("monospace", 12.0);
+    }
+
+    {
+        xloadsparefont(NULL, 0);
+    }
+
+    {
+        x_load_spare_fonts();
+    }
+
+    {
+        StFont font;
+
+        font.match = NULL;
+        font.set = NULL;
+        font.pattern = NULL;
+        x_unload_font(&font);
+    }
+
+    {
+        x_unload_fonts();
+    }
+
+    {
+        x_im_open(NULL);
+    }
+
+    {
+        x_im_instantiate(NULL, NULL, NULL);
+    }
+
+    {
+        x_im_destroy(NULL, NULL, NULL);
+    }
+
+    {
+        XftGlyphFontSpec spec;
+        StGlyph glyph;
+
+        glyph.rune = 'a';
+        glyph.mode = 0;
+        glyph.fg = 0;
+        glyph.bg = 0;
+        x_make_glyph_font_specs(&spec, &glyph, 1, 0, 0);
+    }
+
+    {
+        XftGlyphFontSpec spec;
+        StGlyph base;
+
+        base.rune = 'a';
+        base.mode = 0;
+        base.fg = 0;
+        base.bg = 0;
+        x_draw_glyph_font_specs(&spec, base, 1, 0, 0);
+    }
+
+    {
+        StGlyph glyph;
+
+        glyph.rune = 'a';
+        glyph.mode = 0;
+        glyph.fg = 0;
+        glyph.bg = 0;
+        x_draw_glyph(glyph, 0, 0);
+    }
+
+    {
+        StGlyph g;
+        StGlyph og;
+
+        g.rune = 'a';
+        g.mode = 0;
+        g.fg = 0;
+        g.bg = 0;
+        og.rune = 'b';
+        og.mode = 0;
+        og.fg = 0;
+        og.bg = 0;
+        x_draw_cursor(0, 0, g, 0, 0, og);
+    }
+
+    {
+        x_set_icon_title(NULL);
+    }
+
+    {
+        x_set_title(NULL);
+    }
+
+    {
+        StGlyph line[1];
+
+        line[0].rune = 'a';
+        line[0].mode = 0;
+        line[0].fg = 0;
+        line[0].bg = 0;
+        x_draw_line(line, 0, 0, 1);
+    }
+
+    {
+        x_set_pointer_motion(0);
+    }
+
+    {
+        x_set_urgency(0);
+    }
+
+    {
+        x_bell();
+    }
+
     exit(EXIT_SUCCESS);
 }
 
