@@ -1275,18 +1275,16 @@ main(void) {
 
     {
         StFont font;
-        FcPattern *pattern;
+        FcPattern *pattern = FcNameParse((FcChar8 *)"monospace");
 
-        pattern = FcNameParse((FcChar8 *)"monospace");
         x_load_font(&font, pattern);
         x_unload_font(&font);
         FcPatternDestroy(pattern);
     }
 
     {
-        FcPattern *pattern;
+        FcPattern *pattern = FcNameParse((FcChar8 *)"monospace");
 
-        pattern = FcNameParse((FcChar8 *)"monospace");
         xloadsparefont(pattern, 0);
         FcPatternDestroy(pattern);
     }
