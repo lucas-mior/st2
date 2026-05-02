@@ -521,11 +521,11 @@ static struct {
     Visual *visual;
     XSetWindowAttributes attrs;
     int32 screen;
-    int32 is_fixed; /* is fixed geometry? */
-    int32 depth;   /* bit depth */
+    int32 is_fixed;
+    int32 depth;
     int32 left_offset;
-	int32 top_offset;    /* left and top offset */
-    int32 geo_mask;      /* geometry mask */
+	int32 top_offset;
+    int32 geo_mask;
 } x_window;
 
 static struct {
