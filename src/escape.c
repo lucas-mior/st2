@@ -15,7 +15,7 @@
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 
-void
+static void
 term_cursor(int32 mode) {
     static TCursor c[2];
     int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
@@ -31,7 +31,7 @@ term_cursor(int32 mode) {
     return;
 }
 
-void
+static void
 control_seq_intro_parse(void) {
     char *p = csi_escape_seq.buffer;
     char *np;
@@ -75,7 +75,7 @@ control_seq_intro_parse(void) {
     return;
 }
 
-int32_t
+static int32_t
 term_def_color(int32 *attr, int32 *npar, int32 l) {
     int32_t idx = -1;
     uint32 r;
@@ -124,7 +124,7 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
     return idx;
 }
 
-void
+static void
 term_set_attr(int32 *attr, int32 l) {
     int32_t idx;
 
@@ -224,7 +224,7 @@ term_set_attr(int32 *attr, int32 l) {
     return;
 }
 
-void
+static void
 term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
     for (int32 *lim = args + narg; args < lim; args += 1) {
         if (priv) {
@@ -382,7 +382,7 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
     return;
 }
 
-void
+static void
 control_seq_intro_handle(void) {
     char buffer[256];
     int32 n;
@@ -597,6 +597,7 @@ control_seq_intro_handle(void) {
         break;
     case 'M':
         DEFAULT(csi_escape_seq.arg[0], 1);
+        term_move_abs_to(0, 0);
         term_delete_line(csi_escape_seq.arg[0]);
         break;
     case 'X':
@@ -740,7 +741,7 @@ control_seq_intro_handle(void) {
     return;
 }
 
-void
+static void
 control_seq_intro_dump(void) {
     uint32 c;
 
@@ -769,13 +770,13 @@ control_seq_intro_dump(void) {
     return;
 }
 
-void
+static void
 control_seq_intro_reset(void) {
     memset(&csi_escape_seq, 0, SIZEOF(csi_escape_seq));
     return;
 }
 
-void
+static void
 osc_color_response(int32 num, int32 index, int32 is_osc4) {
     int32 n;
     char buffer[128];
@@ -821,7 +822,7 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
     return;
 }
 
-void
+static void
 string_handle(void) {
     char *p = NULL;
     char *dec;
@@ -1165,7 +1166,7 @@ string_handle(void) {
     }
 }
 
-void
+static void
 term_put_tab(int32 n) {
     int32 x = term.cursor.x;
 
@@ -1192,7 +1193,7 @@ term_put_tab(int32 n) {
     return;
 }
 
-void
+static void
 term_def_utf8(char ascii) {
     if (ascii == 'G') {
         term.mode |= TERM_MODE_UTF8;
@@ -1204,7 +1205,7 @@ term_def_utf8(char ascii) {
     return;
 }
 
-void
+static void
 term_def_tran(char ascii) {
     static char cs[] = "0B";
     static int32 vcs[] = {CS_GRAPHIC0, CS_USA};
@@ -1219,7 +1220,7 @@ term_def_tran(char ascii) {
     return;
 }
 
-void
+static void
 term_dec_test(char c) {
     if (c == '8') {
         for (int32 x = 0; x < term.ncols; x += 1) {
@@ -1231,7 +1232,7 @@ term_dec_test(char c) {
     return;
 }
 
-void
+static void
 term_str_sequence(uchar c) {
     str_escape_seq.buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ);
     str_escape_seq.siz = STR_BUF_SIZ;
@@ -1303,7 +1304,7 @@ dcshandle(void) {
     return;
 }
 
-void
+static void
 term_control_code(uchar ascii) {
     switch (ascii) {
     case '\t':
@@ -1400,7 +1401,7 @@ term_control_code(uchar ascii) {
     return;
 }
 
-int32
+static int32
 eschandle(uchar ascii) {
     switch (ascii) {
     case '[':
@@ -1487,7 +1488,7 @@ eschandle(uchar ascii) {
     return 1;
 }
 
-void
+static void
 term_putc(uint32 u) {
     char c[UTF_SIZ];
     int32 control;
@@ -1672,7 +1673,7 @@ check_control_code:
     return;
 }
 
-int32
+static int32
 term_write(char *buffer, int32 buflen, int32 show_ctrl) {
     int32 charsize;
     uint32 u;
@@ -1720,8 +1721,8 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_escape */
