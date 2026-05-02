@@ -24,6 +24,7 @@
 #include "st.h"
 #include "boxdraw.c"
 #include "sixel.c"
+#include "selection.c"
 
 #if defined(__linux)
 #include <pty.h>
@@ -162,8 +163,6 @@ term_get_glyphs(char *buffer, Glyph *gp, Glyph *lgp) {
     }
     return buffer;
 }
-
-#include "selection.c"
 
 void
 die(char *errstr, ...) {
