@@ -138,12 +138,9 @@ run:
     term_reset();
 
     {
-        Cursor cursor;
         Window parent = 0;
         Window root;
         pid_t pid_this = getpid();
-        XColor xmouse_fg;
-        XColor xmouse_bg;
         XWindowAttributes attr;
         XVisualInfo visual;
 
@@ -269,26 +266,31 @@ run:
                                            x_im_instantiate, NULL);
         }
 
-        /* white cursor, black outline */
-        cursor = XCreateFontCursor(x_window.display, (uint32)CONF_MOUSE_SHAPE);
-        XDefineCursor(x_window.display, x_window.win, cursor);
+        {
+            /* white cursor, black outline */
+            XColor xmouse_fg;
+            XColor xmouse_bg;
+            Cursor cursor = XCreateFontCursor(x_window.display,
+                                              (uint32)CONF_MOUSE_SHAPE);
+            XDefineCursor(x_window.display, x_window.win, cursor);
 
-        if (XParseColor(x_window.display, x_window.color_map,
-                        CONF_COLORS[CONF_MOUSE_COLOR_FG], &xmouse_fg)
-            == 0) {
-            xmouse_fg.red = 0xffff;
-            xmouse_fg.green = 0xffff;
-            xmouse_fg.blue = 0xffff;
+            if (XParseColor(x_window.display, x_window.color_map,
+                            CONF_COLORS[CONF_MOUSE_COLOR_FG], &xmouse_fg)
+                == 0) {
+                xmouse_fg.red = 0xffff;
+                xmouse_fg.green = 0xffff;
+                xmouse_fg.blue = 0xffff;
+            }
+
+            if (XParseColor(x_window.display, x_window.color_map,
+                            CONF_COLORS[CONF_MOUSE_COLOR_BG], &xmouse_bg) == 0) {
+                xmouse_bg.red = 0x0000;
+                xmouse_bg.green = 0x0000;
+                xmouse_bg.blue = 0x0000;
+            }
+
+            XRecolorCursor(x_window.display, cursor, &xmouse_fg, &xmouse_bg);
         }
-
-        if (XParseColor(x_window.display, x_window.color_map,
-                        CONF_COLORS[CONF_MOUSE_COLOR_BG], &xmouse_bg) == 0) {
-            xmouse_bg.red = 0x0000;
-            xmouse_bg.green = 0x0000;
-            xmouse_bg.blue = 0x0000;
-        }
-
-        XRecolorCursor(x_window.display, cursor, &xmouse_fg, &xmouse_bg);
 
         x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
         x_window.wm_delete_win = XInternAtom(x_window.display,
