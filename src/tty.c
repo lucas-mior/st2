@@ -259,8 +259,13 @@ tty_hangup(void) {
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 #include "assert.c"
+#include "st.c"
+#include "x.c"
+#include "user.c"
 
 int
 main(void) {
@@ -273,6 +278,65 @@ main(void) {
         term.nrows = 24;
         term.ncols = 80;
         tty_resize(800, 600);
+        ASSERT(true);
+    }
+
+    if (fork() == 0) {
+        char *args[] = {"-a", NULL};
+        stty(args);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        char *args[] = {"true", NULL};
+        tty_new(NULL, "true", NULL, args);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        int32 fds[2];
+        pipe(fds);
+        command_fd = fds[0];
+        write(fds[1], "test", 4);
+        close(fds[1]);
+        term.mode = 0;
+        tty_read();
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        int32 fds[2];
+        pipe(fds);
+        command_fd = fds[1];
+        tty_write_raw("hello", 5);
+        close(fds[0]);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        int32 fds[2];
+        pipe(fds);
+        command_fd = fds[1];
+        term.mode = 0; /* No CRLF */
+        term.lines_scrolled_up = 0;
+        tty_write("hello\rworld", 11, 0);
+        close(fds[0]);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    {
+        pid = fork();
+        if (pid == 0) {
+            sleep(1);
+            exit(EXIT_SUCCESS);
+        }
+        tty_hangup();
+        wait(NULL);
         ASSERT(true);
     }
 
