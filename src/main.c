@@ -352,7 +352,6 @@ run:
         struct timespec trigger;
         float timeout;
 
-        /* Waiting for window mapping */
         do {
             XNextEvent(x_window.display, &xevent);
             /*
