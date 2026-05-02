@@ -3,6 +3,7 @@
 
 #include "cbase/util.c"
 #include "st.h"
+#include "config.def.h"
 
 static struct {
     int32 mode;
