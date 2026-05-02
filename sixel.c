@@ -40,9 +40,9 @@ static uint const sixel_default_color_table[] = {
 };
 
 void
-scroll_images(int n) {
+scroll_images(int32 n) {
     ImageList *im, *next;
-    int top = tisaltscreen() ? 0 : term.lines_scrolled_up - HISTORY_SIZE;
+    int32 top = tisaltscreen() ? 0 : term.lines_scrolled_up - HISTORY_SIZE;
 
     for (im = term.images; im; im = next) {
         next = im->next;
@@ -77,13 +77,13 @@ delete_image(ImageList *im) {
     free(im);
 }
 
-static int
+static int32
 set_default_color(sixel_image_t *image) {
-    int i;
-    int n;
-    int r;
-    int g;
-    int b;
+    int32 i;
+    int32 n;
+    int32 r;
+    int32 g;
+    int32 b;
 
     /* palette initialization */
     for (n = 1; n < 17; n++) {
@@ -115,10 +115,10 @@ set_default_color(sixel_image_t *image) {
     return (0);
 }
 
-static int
-sixel_image_init(sixel_image_t *image, int width, int height, int fgcolor,
-                 int bgcolor, int use_private_register) {
-    int status = (-1);
+static int32
+sixel_image_init(sixel_image_t *image, int32 width, int32 height, int32 fgcolor,
+                 int32 bgcolor, int32 use_private_register) {
+    int32 status = (-1);
     size_t size;
 
     size = (size_t)(width*height) * sizeof(uint);
@@ -134,10 +134,10 @@ sixel_image_init(sixel_image_t *image, int width, int height, int fgcolor,
     }
     memset(image->data, 0, size);
 
-    image->palette[0] = bgcolor;
+    image->palette[0] = (uint)bgcolor;
 
     if (image->use_private_register) {
-        image->palette[1] = fgcolor;
+        image->palette[1] = (uint)fgcolor;
     }
 
     image->palette_modified = 0;
@@ -148,13 +148,13 @@ end:
     return status;
 }
 
-static int
-image_buffer_resize(sixel_image_t *image, int width, int height) {
-    int status = (-1);
+static int32
+image_buffer_resize(sixel_image_t *image, int32 width, int32 height) {
+    int32 status = (-1);
     size_t size;
     ushort *alt_buffer;
-    int n;
-    int min_height;
+    int32 n;
+    int32 min_height;
 
     size = (size_t)(width*height) * sizeof(ushort);
     alt_buffer = (ushort *)malloc(size);
@@ -211,11 +211,11 @@ sixel_image_deinit(sixel_image_t *image) {
     image->data = NULL;
 }
 
-int
-sixel_parser_init(sixel_state_t *st, int transparent, uint fgcolor,
+int32
+sixel_parser_init(sixel_state_t *st, int32 transparent, uint fgcolor,
                   uint bgcolor, unsigned char use_private_register,
-                  int cell_width, int cell_height) {
-    int status = (-1);
+                  int32 cell_width, int32 cell_height) {
+    int32 status = (-1);
 
     st->state = PS_DECSIXEL;
     st->pos_x = 0;
@@ -241,20 +241,20 @@ sixel_parser_init(sixel_state_t *st, int transparent, uint fgcolor,
     return status;
 }
 
-int
+int32
 sixel_parser_set_default_color(sixel_state_t *st) {
     return set_default_color(&st->image);
 }
 
-int
-sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int cx, int cy,
-                      int cw, int ch) {
+int32
+sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int32 cx,
+                      int32 cy, int32 cw, int32 ch) {
     sixel_image_t *image = &st->image;
-    int x, y;
+    int32 x, y;
     ushort *src;
     uint *dst, color;
-    int w, h;
-    int i, j, cols, numimages;
+    int32 w, h;
+    int32 i, j, cols, numimages;
     char trans;
     ImageList *im, *next, *tail;
 
@@ -336,15 +336,15 @@ sixel_parser_finalize(sixel_state_t *st, ImageList **newimages, int cx, int cy,
 }
 
 /* convert sixel data into indexed pixel bytes and palette data */
-int
+int32
 sixel_parser_parse(sixel_state_t *st, const unsigned char *p, size_t len) {
-    int n = 0;
-    int i;
-    int x;
-    int bits;
-    int sx;
-    int sy;
-    int width;
+    int32 n = 0;
+    int32 i;
+    int32 x;
+    int32 bits;
+    int32 sx;
+    int32 sy;
+    int32 width;
     const unsigned char *p0 = p, *p2 = p + len;
     sixel_image_t *image = &st->image;
     ushort *data, color_index;
@@ -691,10 +691,10 @@ sixel_parser_deinit(sixel_state_t *st) {
 }
 
 Pixmap
-sixel_create_clipmask(char *pixels, int width, int height) {
+sixel_create_clipmask(char *pixels, int32 width, int32 height) {
     char c, *clipdata, *dst;
-    int b, i, n, y, w;
-    int msb = (XBitmapBitOrder(x_window.display) == MSBFirst);
+    int32 b, i, n, y, w;
+    int32 msb = (XBitmapBitOrder(x_window.display) == MSBFirst);
     uint *src = (uint *)pixels;
     Pixmap clipmask;
 
