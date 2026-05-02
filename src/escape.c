@@ -1815,11 +1815,22 @@ main(void) {
 
     /* 8. Control Codes and I/O */
     {
+        /* RESET STATE: Clear any pending escape sequences from previous tests */
+        term.esc = 0; 
+        
         term.cursor.x = 10;
         term_control_code('\r');
         ASSERT_EQUAL(term.cursor.x, 0);
 
         term_putc('Z');
+        
+        /* Debugging print to see what's actually there if it fails */
+        if (term.lines[term.cursor.y][0].rune != 'Z') {
+            fprintf(stderr, "Test 8 Failed: Expected 'Z'(90), found '%c'(%d)\n", 
+                    (char)term.lines[term.cursor.y][0].rune, 
+                    term.lines[term.cursor.y][0].rune);
+        }
+
         ASSERT_EQUAL((int32)term.lines[term.cursor.y][0].rune, (int32)'Z');
     }
 
