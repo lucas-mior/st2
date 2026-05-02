@@ -14,8 +14,8 @@
 static void
 stty(char **args) {
     char cmd[_POSIX_ARG_MAX];
-	char *q;
-	char *s;
+    char *q;
+    char *s;
     int64 n;
     int64 siz;
 
@@ -264,7 +264,18 @@ tty_hangup(void) {
 
 int
 main(void) {
-    ASSERT(true);
+    {
+        /* 
+         * Safely test tty_resize with an invalid file descriptor 
+         * to avoid real OS state changes or hanging.
+         */
+        command_fd = -1;
+        term.nrows = 24;
+        term.ncols = 80;
+        tty_resize(800, 600);
+        ASSERT(true);
+    }
+
     exit(EXIT_SUCCESS);
 }
 
