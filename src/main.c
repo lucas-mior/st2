@@ -214,28 +214,28 @@ run:
         x_window.attrs.border_pixel = draw_context.colors[CONF_COLOR_BG].pixel;
         x_window.attrs.bit_gravity = NorthWestGravity;
         x_window.attrs.event_mask = FocusChangeMask
-			                        | KeyPressMask | KeyReleaseMask
-									| ButtonPressMask | ButtonReleaseMask
-									| ButtonMotionMask
-									| ExposureMask
+                                    | KeyPressMask | KeyReleaseMask
+                                    | ButtonPressMask | ButtonReleaseMask
+                                    | ButtonMotionMask
+                                    | ExposureMask
                                     | VisibilityChangeMask
-									| StructureNotifyMask;
+                                    | StructureNotifyMask;
         x_window.attrs.colormap = x_window.color_map;
 
-		{
-			ulong cw_flags = CWBackPixel
-				             | CWBorderPixel
-							 | CWBitGravity
-							 | CWEventMask
-							 | CWColormap;
+        {
+            ulong cw_flags = CWBackPixel
+                             | CWBorderPixel
+                             | CWBitGravity
+                             | CWEventMask
+                             | CWColormap;
         x_window.win = XCreateWindow(x_window.display, parent,
-				                     x_window.left_offset, x_window.top_offset,
+                                     x_window.left_offset, x_window.top_offset,
                                      (uint32)term_window.w, (uint32)term_window.h,
-									 0, x_window.depth,
+                                     0, x_window.depth,
                                      InputOutput, x_window.visual,
                                      cw_flags,
                                      &x_window.attrs);
-		}
+        }
 
         if (parent != root) {
             XReparentWindow(x_window.display, x_window.win, parent,
@@ -247,14 +247,14 @@ run:
         draw_context.graphics = XCreateGC(x_window.display, x_window.win,
                                           GCGraphicsExposures, &xgc_values);
         x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
-				                          (uint32)term_window.w,
-										  (uint32)term_window.h,
-										  (uint32)x_window.depth);
+                                          (uint32)term_window.w,
+                                          (uint32)term_window.h,
+                                          (uint32)x_window.depth);
         XSetForeground(x_window.display, draw_context.graphics,
                        draw_context.colors[CONF_COLOR_BG].pixel);
         XFillRectangle(x_window.display, x_window.drawable,
                        draw_context.graphics,
-					   0, 0, (uint32)term_window.w, (uint32)term_window.h);
+                       0, 0, (uint32)term_window.w, (uint32)term_window.h);
 
         x_window.specbuf = xmalloc(CONF_NUMBER_COLS*SIZEOF(XftGlyphFontSpec));
 
