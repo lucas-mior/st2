@@ -388,8 +388,8 @@ static void
 control_seq_intro_handle(void) {
     char buffer[256];
     int32 n;
-    int pi;
-    int pa;
+    int32 pi;
+    int32 pa;
     int32 x;
 
     switch (csi_escape_seq.mode[0]) {
@@ -833,16 +833,16 @@ string_handle(void) {
     ImageList *newimages = (void *)0xCD;
     ImageList *next_im;
     ImageList *tail = NULL;
-    int x1_im;
-    int y1_im;
-    int x2_im;
-    int y2_im;
-    int y_line;
-    int numimages;
-    int cx_pos;
-    int cy_pos;
+    int32 x1_im;
+    int32 y1_im;
+    int32 x2_im;
+    int32 y2_im;
+    int32 y_line;
+    int32 numimages;
+    int32 cx_pos;
+    int32 cy_pos;
     StGlyph *line_ptr;
-    int scr_offset;
+    int32 scr_offset;
 
     struct {
         int32 idx;
@@ -1038,7 +1038,7 @@ string_handle(void) {
             y2_im = y1_im + numimages;
 
             if (term.images) {
-                char *transparent_rows = xmalloc((int64)numimages);
+                char *transparent_rows = xmalloc(numimages);
                 ImageList *im_ptr;
                 int32 i_idx;
                 for (i_idx = 0, im_ptr = newimages; im_ptr; im_ptr = im_ptr->next, i_idx += 1) {
@@ -1266,7 +1266,7 @@ term_str_sequence(uchar c) {
 static void
 dcshandle(void) {
     uint bgcolor;
-    int transparent;
+    int32 transparent;
     uint r = 0xCD;
     uint g = 0xCD;
     uint b = 0xCD;
@@ -1716,7 +1716,7 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
 
 #include "assert.c"
 
-int
+int32
 main(void) {
     ASSERT(true);
     exit(EXIT_SUCCESS);

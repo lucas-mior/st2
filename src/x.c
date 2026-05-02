@@ -28,14 +28,14 @@ x_resize(int32 col, int32 row) {
     term_window.tty_height = row*term_window.ch;
 
     XFreePixmap(x_window.display, x_window.drawable);
-    x_window.drawable
-        = XCreatePixmap(x_window.display, x_window.win, (uint32)term_window.w,
-                        (uint32)term_window.h, (uint32)x_window.depth);
+    x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
+			                          (uint32)term_window.w,
+									  (uint32)term_window.h,
+									  (uint32)x_window.depth);
     XftDrawChange(x_window.xft_draw, x_window.drawable);
     x_clear(0, 0, term_window.w, term_window.h);
 
-    x_window.specbuf
-        = xrealloc(x_window.specbuf, (int64)col*SIZEOF(XftGlyphFontSpec));
+    x_window.specbuf = xrealloc(x_window.specbuf, col*SIZEOF(XftGlyphFontSpec));
     return;
 }
 
@@ -81,18 +81,17 @@ x_load_color(int32 i, char *name, XftColor *ncolor) {
 static void
 x_load_cols(void) {
     static int32 loaded = 0;
-    XftColor *cp;
 
     if (loaded) {
-        for (cp = draw_context.colors;
-             cp < &draw_context.colors[draw_context.colors_len]; cp += 1) {
-            XftColorFree(x_window.display, x_window.visual, x_window.color_map,
-                         cp);
+        for (XftColor *cp = draw_context.colors;
+             cp < &draw_context.colors[draw_context.colors_len];
+			 cp += 1) {
+            XftColorFree(x_window.display,
+					     x_window.visual, x_window.color_map, cp);
         }
     } else {
         draw_context.colors_len = (int32)MAX(LENGTH(CONF_COLORS), 256);
-        draw_context.colors
-            = xmalloc((uint16)draw_context.colors_len*SIZEOF(XftColor));
+        draw_context.colors = xmalloc(draw_context.colors_len*SIZEOF(XftColor));
     }
 
     for (int32 i = 0; i < draw_context.colors_len; i += 1) {
@@ -125,19 +124,19 @@ x_load_cols(void) {
 
 static int32
 x_set_color_name(int32 x, char *name) {
-    XftColor ncolor;
+    XftColor color;
 
     if (!BETWEEN(x, 0, draw_context.colors_len - 1)) {
         return 1;
     }
 
-    if (!x_load_color(x, name, &ncolor)) {
+    if (!x_load_color(x, name, &color)) {
         return 1;
     }
 
     XftColorFree(x_window.display, x_window.visual, x_window.color_map,
                  &draw_context.colors[x]);
-    draw_context.colors[x] = ncolor;
+    draw_context.colors[x] = color;
 
     if (x == CONF_COLOR_BG) {
         draw_context.colors[CONF_COLOR_BG].color.alpha
@@ -716,8 +715,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs, int32 len,
 }
 
 static void
-x_draw_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph base, int32 len, int32 x,
-                        int32 y) {
+x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
+		                StGlyph base, int32 len, int32 x, int32 y) {
     int32 charlen;
     int32 winx = term_window.hborderpx + x*term_window.cw;
     int32 winy = term_window.vborderpx + y*term_window.ch;
@@ -991,7 +990,9 @@ x_set_icon_title(char *p) {
         p = opt_title;
     }
 
-    if (Xutf8TextListToTextProperty(x_window.display, &p, 1, XUTF8StringStyle, &prop) != Success) {
+    if (Xutf8TextListToTextProperty(x_window.display,
+				                    &p, 1,
+									XUTF8StringStyle, &prop) != Success) {
         return;
     }
     XSetWMIconName(x_window.display, x_window.win, &prop);
@@ -1027,7 +1028,6 @@ x_start_draw(void) {
 static void
 x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     int32 i;
-    int32 x;
     int32 ox;
     int32 numspecs;
     StGlyph base = {0};
@@ -1037,7 +1037,7 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     numspecs = x_make_glyph_font_specs(specs, &line[x1], x2 - x1, x1, y1);
     i = 0;
     ox = 0;
-    for (x = x1; x < x2 && i < numspecs; x += 1) {
+    for (int32 x = x1; x < x2 && i < numspecs; x += 1) {
         new = line[x];
         if (new.mode == ATTR_WDUMMY) {
             continue;
@@ -1072,16 +1072,16 @@ x_xim_spot(int32 x, int32 y) {
     x_window.ime.point.x = (int16)(CONF_BORDER_PIXELS + x*term_window.cw);
     x_window.ime.point.y = (int16)(CONF_BORDER_PIXELS + (y + 1)*term_window.ch);
 
-    XSetICValues(x_window.ime.xic, XNPreeditAttributes, x_window.ime.spotlist,
-                  NULL);
+    XSetICValues(x_window.ime.xic,
+			     XNPreeditAttributes, x_window.ime.spotlist, NULL);
     return;
 }
 
 static void
 x_set_pointer_motion(int32 set) {
     MODBIT(x_window.attrs.event_mask, set, PointerMotionMask);
-    XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
-                            &x_window.attrs);
+    XChangeWindowAttributes(x_window.display,
+			                x_window.win, CWEventMask, &x_window.attrs);
     return;
 }
 
