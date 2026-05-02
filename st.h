@@ -306,7 +306,6 @@ static void tdeleteimages(void);
 static inline void term_set_sixel_attr(Glyph *line, int32 x1, int32 x2);
 
 static int32 term_attr_set(int32);
-static int32 tisaltscreen(void);
 static void term_resize(int32, int32);
 static void term_set_dirt_attr(int32);
 static void tty_hangup(void);

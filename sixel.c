@@ -47,7 +47,12 @@ static uint32 sixel_default_color_table[] = {
 void
 scroll_images(int32 n) {
     ImageList *next;
-    int32 top = tisaltscreen() ? 0 : term.lines_scrolled_up - HISTORY_SIZE;
+    int32 top;
+	if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+		top = 0;
+	} else {
+		top = term.lines_scrolled_up - HISTORY_SIZE;
+	}
 
     for (ImageList *im = term.images; im; im = next) {
         next = im->next;
