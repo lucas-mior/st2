@@ -1709,12 +1709,101 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "assert.c"
 
 int32
 main(void) {
-    ASSERT(true);
+    {
+        /* Test control_seq_intro_parse */
+        char *buf = "?1;23;45m";
+        int32 len = 9;
+
+        control_seq_intro_reset();
+        memcpy64(csi_escape_seq.buffer, buf, len);
+        csi_escape_seq.len = len;
+
+        control_seq_intro_parse();
+
+        ASSERT_EQUAL(csi_escape_seq.priv, 1);
+        ASSERT_EQUAL(csi_escape_seq.narg, 3);
+        ASSERT_EQUAL(csi_escape_seq.arg[0], 1);
+        ASSERT_EQUAL(csi_escape_seq.arg[1], 23);
+        ASSERT_EQUAL(csi_escape_seq.arg[2], 45);
+        ASSERT_EQUAL(csi_escape_seq.mode[0], 'm');
+        ASSERT_EQUAL(csi_escape_seq.mode[1], '\0');
+    }
+
+    {
+        /* Test term_def_color (256 color) */
+        int32 attr[3];
+        int32 npar;
+        int32 res;
+
+        attr[0] = 38;
+        attr[1] = 5;
+        attr[2] = 120;
+        npar = 0;
+
+        res = (int32)term_def_color(attr, &npar, 3);
+        ASSERT_EQUAL(res, 120);
+        ASSERT_EQUAL(npar, 2);
+    }
+
+    {
+        /* Test term_def_color (true color) */
+        int32 attr[5];
+        int32 npar;
+        int32 res;
+
+        attr[0] = 38;
+        attr[1] = 2;
+        attr[2] = 10;
+        attr[3] = 20;
+        attr[4] = 30;
+        npar = 0;
+
+        res = (int32)term_def_color(attr, &npar, 5);
+        ASSERT_EQUAL(res, (int32)TRUECOLOR(10, 20, 30));
+        ASSERT_EQUAL(npar, 4);
+    }
+
+    {
+        /* Test term_def_utf8 */
+        term.mode = 0;
+        term_def_utf8('G');
+        ASSERT_MORE((int32)(term.mode & TERM_MODE_UTF8), 0);
+
+        term_def_utf8('@');
+        ASSERT_EQUAL((int32)(term.mode & TERM_MODE_UTF8), 0);
+    }
+
+    {
+        /* Test term_def_tran */
+        term.icharset = 0;
+        term_def_tran('0');
+        ASSERT_EQUAL(term.translation_table[term.icharset], CS_GRAPHIC0);
+
+        term_def_tran('B');
+        ASSERT_EQUAL(term.translation_table[term.icharset], CS_USA);
+    }
+
+    {
+        /* Test term_str_sequence */
+        term.esc = 0;
+        term_str_sequence(0x90);
+        ASSERT_MORE((int32)(term.esc & ESC_DCS), 0);
+        ASSERT_MORE((int32)(term.esc & ESC_STR), 0);
+        ASSERT_EQUAL(str_escape_seq.type, 'P');
+
+        term.esc = 0;
+        term_str_sequence(0x9d);
+        ASSERT_MORE((int32)(term.esc & ESC_STR), 0);
+        ASSERT_EQUAL((int32)(term.esc & ESC_DCS), 0);
+        ASSERT_EQUAL(str_escape_seq.type, ']');
+    }
+
     exit(EXIT_SUCCESS);
 }
 
