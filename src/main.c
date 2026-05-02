@@ -29,24 +29,20 @@
 static void usage(void) __attribute__((noreturn));
 
 static void (*handler[LASTEvent])(XEvent *) = {
-    [KeyPress] = handler_key_press,
-    [ClientMessage] = handler_client_message,
-    [ConfigureNotify] = handler_configure_notify,
+    [KeyPress]         = handler_key_press,
+    [ClientMessage]    = handler_client_message,
+    [ConfigureNotify]  = handler_configure_notify,
     [VisibilityNotify] = handler_visibility,
-    [UnmapNotify] = handler_unmap,
-    [Expose] = handler_expose,
-    [FocusIn] = handler_focus,
-    [FocusOut] = handler_focus,
-    [MotionNotify] = handler_button_motion,
-    [ButtonPress] = handler_button_press,
-    [ButtonRelease] = handler_button_release,
-    [SelectionClear] = handler_selection_clear,
-    [SelectionNotify] = handler_selection_notify,
-    /*
-     * PropertyNotify is only turned on when there is INCR transfer happening
-     * for the selection retrieval.
-     */
-    [PropertyNotify] = handler_prop_notify,
+    [UnmapNotify]      = handler_unmap,
+    [Expose]           = handler_expose,
+    [FocusIn]          = handler_focus,
+    [FocusOut]         = handler_focus,
+    [MotionNotify]     = handler_button_motion,
+    [ButtonPress]      = handler_button_press,
+    [ButtonRelease]    = handler_button_release,
+    [SelectionClear]   = handler_selection_clear,
+    [SelectionNotify]  = handler_selection_notify,
+    [PropertyNotify]   = handler_prop_notify,
     [SelectionRequest] = handler_selection_request,
 };
 
