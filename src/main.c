@@ -121,19 +121,19 @@ run:
     CONF_NUMBER_ROWS = (int32)MAX(CONF_NUMBER_ROWS, 1);
 
     for (int32 i = 0; i < 2; i += 1) {
-        term.lines = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
+        term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
         for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {
             term.lines[j]
-                = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
+                = xmalloc(CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
         }
         term.ncols = CONF_NUMBER_COLS;
         term.nrows = CONF_NUMBER_ROWS;
         term_swap_screen();
     }
-    term.dirty = xmalloc((int64)CONF_NUMBER_ROWS*SIZEOF(*term.dirty));
-    term.tabs = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(*term.tabs));
+    term.dirty = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*term.dirty));
+    term.tabs = xmalloc(CONF_NUMBER_COLS*SIZEOF(*term.tabs));
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        term.hist[i] = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(Glyph));
+        term.hist[i] = xmalloc(CONF_NUMBER_COLS*SIZEOF(Glyph));
     }
     term_reset();
 
@@ -246,18 +246,18 @@ run:
         xgc_values.graphics_exposures = False;
         draw_context.graphics = XCreateGC(x_window.display, x_window.win,
                                           GCGraphicsExposures, &xgc_values);
-        x_window.drawable = XCreatePixmap(
-            x_window.display, x_window.win, (uint32)term_window.w,
-            (uint32)term_window.h, (uint32)x_window.depth);
+        x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
+				                          (uint32)term_window.w,
+										  (uint32)term_window.h,
+										  (uint32)x_window.depth);
         XSetForeground(x_window.display, draw_context.graphics,
                        draw_context.colors[CONF_COLOR_BG].pixel);
         XFillRectangle(x_window.display, x_window.drawable,
-                       draw_context.graphics, 0, 0, (uint32)term_window.w,
-                       (uint32)term_window.h);
+                       draw_context.graphics,
+					   0, 0, (uint32)term_window.w, (uint32)term_window.h);
 
         /* font spec buffer */
-        x_window.specbuf
-            = xmalloc((int64)CONF_NUMBER_COLS*SIZEOF(XftGlyphFontSpec));
+        x_window.specbuf = xmalloc(CONF_NUMBER_COLS*SIZEOF(XftGlyphFontSpec));
 
         /* Xft rendering context */
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
