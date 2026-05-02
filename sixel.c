@@ -255,7 +255,7 @@ sixel_parser_set_default_color(SixelState *sixel_state) {
 int32
 sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
                       int32 cy, int32 cw, int32 ch) {
-    SixelImage *image = &sixel_state->image;
+    SixelImage *sixel_image = &sixel_state->sixel_image;
     int32 x, y;
     uint16 *src;
     uint32 *dst;
@@ -270,7 +270,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
     ImageList *im;
 	ImageList *tail;
 
-    if (!image->data) {
+    if (!sixel_image->data) {
         return -1;
     }
 
@@ -282,15 +282,15 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
         sixel_state->max_y = sixel_state->attributed_pv;
     }
 
-    if (image->use_private_register && image->ncolors > 2
-        && !image->palette_modified) {
-        if (set_default_color(image) < 0) {
+    if (sixel_image->use_private_register && sixel_image->ncolors > 2
+        && !sixel_image->palette_modified) {
+        if (set_default_color(sixel_image) < 0) {
             return -1;
         }
     }
 
-    w = (int32)MIN(sixel_state->max_x, image->width);
-    h = (int32)MIN(sixel_state->max_y, image->height);
+    w = (int32)MIN(sixel_state->max_x, sixel_image->width);
+    h = (int32)MIN(sixel_state->max_y, sixel_image->height);
 
     if ((numimages = (h + ch - 1) / ch) <= 0) {
         return -1;
@@ -323,9 +323,9 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
         im->ch = ch;
         dst = (uint32 *)im->pixels;
         for (trans = 0, j = 0; j < im->height && y < h; j++, y++) {
-            src = sixel_state->image.data + image->width*y;
+            src = sixel_state->sixel_image.data + sixel_image->width*y;
             for (x = 0; x < w; x++) {
-                color = sixel_state->image.palette[*src++];
+                color = sixel_state->sixel_image.palette[*src++];
                 trans |= (color == 0);
                 *dst++ = color;
             }
