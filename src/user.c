@@ -14,7 +14,7 @@
 #endif
 
 static void
-user_clipboard_copy(Arg *arg) {
+user_clipboard_copy(union Arg *arg) {
     Atom clipboard;
     (void)arg;
 
@@ -31,7 +31,7 @@ user_clipboard_copy(Arg *arg) {
 }
 
 static void
-user_clipboard_paste(Arg *arg) {
+user_clipboard_paste(union Arg *arg) {
     Atom clipboard;
     (void)arg;
 
@@ -42,7 +42,7 @@ user_clipboard_paste(Arg *arg) {
 }
 
 static void
-user_selection_paste(Arg *arg) {
+user_selection_paste(union Arg *arg) {
     (void)arg;
     XConvertSelection(x_window.display, XA_PRIMARY, xsel.xtarget, XA_PRIMARY,
                       x_window.win, CurrentTime);
@@ -50,7 +50,7 @@ user_selection_paste(Arg *arg) {
 }
 
 static void
-user_change_alpha(Arg *arg) {
+user_change_alpha(union Arg *arg) {
     if ((CONF_ALPHA > 0 && arg->f < 0) || (CONF_ALPHA < 1 && arg->f > 0)) {
         CONF_ALPHA += arg->f;
     }
@@ -67,15 +67,15 @@ user_change_alpha(Arg *arg) {
 }
 
 static void
-user_toggle_numlock(Arg *arg) {
+user_toggle_numlock(union Arg *arg) {
     (void)arg;
     term_window.mode ^= WIN_MODE_NUMLOCK;
     return;
 }
 
 static void
-user_zoom(Arg *arg) {
-    Arg larg;
+user_zoom(union Arg *arg) {
+    union Arg larg;
 
     larg.f = usedfontsize + arg->f;
     if (larg.f >= 1.0f) {
@@ -85,8 +85,8 @@ user_zoom(Arg *arg) {
 }
 
 static void
-user_zoom_reset(Arg *arg) {
-    Arg larg;
+user_zoom_reset(union Arg *arg) {
+    union Arg larg;
     (void)arg;
 
     if (defaultfontsize > 0) {
@@ -97,13 +97,13 @@ user_zoom_reset(Arg *arg) {
 }
 
 static void
-user_tty_send(Arg *arg) {
+user_tty_send(union Arg *arg) {
     tty_write(arg->s, strlen32(arg->s), 1);
     return;
 }
 
 static void
-user_scroll_down(Arg *a) {
+user_scroll_down(union Arg *a) {
     int32 n = a->i;
 
     if (!term.lines_scrolled_up || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -128,7 +128,7 @@ user_scroll_down(Arg *a) {
 }
 
 static void
-user_scroll_up(Arg *a) {
+user_scroll_up(union Arg *a) {
     int32 n = a->i;
 
     if (!term.n_hist || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
@@ -154,7 +154,7 @@ user_scroll_up(Arg *a) {
 }
 
 static void
-user_send_break(Arg *arg) {
+user_send_break(union Arg *arg) {
     if (tcsendbreak(command_fd, 0)) {
         perror("Error sending break");
     }
@@ -163,21 +163,21 @@ user_send_break(Arg *arg) {
 }
 
 static void
-user_toggle_printer(Arg *arg) {
+user_toggle_printer(union Arg *arg) {
     term.mode ^= TERM_MODE_PRINT;
     (void)arg;
     return;
 }
 
 static void
-user_print_screen(Arg *arg) {
+user_print_screen(union Arg *arg) {
     term_dump();
     (void)arg;
     return;
 }
 
 static void
-user_print_sel(Arg *arg) {
+user_print_sel(union Arg *arg) {
     term_dump_sel();
     (void)arg;
     return;

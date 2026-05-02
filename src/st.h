@@ -145,19 +145,19 @@ typedef struct {
 	int32 bg;      /* background  */
 } Glyph;
 
-typedef union {
+union Arg {
 	int32 i;
 	uint32 ui;
 	float f;
 	void *v;
 	char *s;
-} Arg;
+};
 
 typedef struct {
     uint32 mod;
     uint32 button;
-    void (*func)(Arg *);
-    Arg arg;
+    void (*func)(union Arg *);
+    union Arg arg;
     uint32 release;
 } MouseShortcut;
 
@@ -422,29 +422,29 @@ static void x_unload_font(StFont *);
 static void x_unload_fonts(void);
 static void x_set_urgency(int32);
 
-static void zoom_abs(Arg *);
+static void zoom_abs(union Arg *);
 
-static void user_clipboard_copy(Arg *);
-static void user_clipboard_paste(Arg *);
-static void user_toggle_numlock(Arg *);
-static void user_selection_paste(Arg *);
-static void user_change_alpha(Arg *);
-static void user_zoom(Arg *);
-static void user_zoom_reset(Arg *);
-static void user_tty_send(Arg *);
-static void user_scroll_down(Arg *);
-static void user_scroll_up(Arg *);
-static void externalpipe(Arg *);
-static void user_print_screen(Arg *);
-static void user_print_sel(Arg *);
-static void user_send_break(Arg *);
-static void user_toggle_printer(Arg *);
+static void user_clipboard_copy(union Arg *);
+static void user_clipboard_paste(union Arg *);
+static void user_toggle_numlock(union Arg *);
+static void user_selection_paste(union Arg *);
+static void user_change_alpha(union Arg *);
+static void user_zoom(union Arg *);
+static void user_zoom_reset(union Arg *);
+static void user_tty_send(union Arg *);
+static void user_scroll_down(union Arg *);
+static void user_scroll_up(union Arg *);
+static void externalpipe(union Arg *);
+static void user_print_screen(union Arg *);
+static void user_print_sel(union Arg *);
+static void user_send_break(union Arg *);
+static void user_toggle_printer(union Arg *);
 
 typedef struct {
     uint32 mod;
     KeySym keysym;
-    void (*func)(Arg *);
-    Arg arg;
+    void (*func)(union Arg *);
+    union Arg arg;
 } Shortcut;
 
 typedef struct {

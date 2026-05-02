@@ -649,7 +649,7 @@ term_delete_line(int32 n) {
 }
 
 static void
-externalpipe(Arg *arg) {
+externalpipe(union Arg *arg) {
     int32 to[2];
     char buffer[UTF_SIZ];
     void (*oldsigpipe)(int32);
@@ -1283,7 +1283,7 @@ redraw(void) {
 }
 
 static void
-zoom_abs(Arg *arg) {
+zoom_abs(union Arg *arg) {
     int32 i;
     ImageList *im;
     x_unload_fonts();

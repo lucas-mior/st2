@@ -144,7 +144,7 @@ static void
 tty_write(char *s, int64 n, int32 may_echo) {
     char *next;
 
-    user_scroll_down(&((Arg){.i = term.lines_scrolled_up}));
+    user_scroll_down(&((union Arg){.i = term.lines_scrolled_up}));
 
     if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHOO)) {
         term_write(s, (int32)n, 1);
