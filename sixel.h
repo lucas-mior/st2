@@ -37,8 +37,8 @@ typedef struct parser_context {
 	int32 max_y;
 	uint32 attributed_pan;
 	uint32 attributed_pad;
-	uint32 attributed_ph;
-	uint32 attributed_pv;
+	int32 attributed_ph;
+	int32 attributed_pv;
 	int32 transparent;
 	int32 repeat_count;
 	int32 color_index;
