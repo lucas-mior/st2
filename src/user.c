@@ -331,7 +331,7 @@ cleanup:
 }
 
 static void
-exec_external_pipe(int32, char **argv) {
+exec_external_pipe(int32 argc, char **argv) {
     int32 pipe[2];
 
     xpipe(pipe);
@@ -345,9 +345,12 @@ exec_external_pipe(int32, char **argv) {
         XCLOSE(&pipe[0]);
         XCLOSE(&pipe[1]);
         execvp(argv[0], argv);
-
-        error("execvp failed");
-        _exit(1);
+        {
+            char cmd[4096];
+            STRING_FROM_ARRAY(cmd, " ", argv, argc);
+            error("Error executing\n%s\n: %s.\n", cmd, strerror(errno));
+            _exit(1);
+        }
     default:
         XCLOSE(&pipe[0]);
         dump_terminal_to_fd(pipe[1]);
