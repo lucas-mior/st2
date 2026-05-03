@@ -135,14 +135,14 @@ user_tty_send(union Arg *arg) {
 
 static void
 user_scroll_down(union Arg *a) {
-    int32 n = a->i;
+    int64 n = a->i;
 
     if (!term.lines_scrolled_up || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         return;
     }
 
     if (n < 0) {
-        n = (int32)MAX(term.nrows / -n, 1);
+        n = MAX(term.nrows / -n, 1);
     }
 
     if (n <= term.lines_scrolled_up) {
@@ -152,7 +152,7 @@ user_scroll_down(union Arg *a) {
         term.lines_scrolled_up = 0;
     }
     if (selection.ob.x != -1 && !selection.alt) {
-        selection_move(-n); /* negate change in term.lines_scrolled_up */
+        selection_move((int32)-n); /* negate change in term.lines_scrolled_up */
     }
     term_full_dirt();
     return;
@@ -160,14 +160,14 @@ user_scroll_down(union Arg *a) {
 
 static void
 user_scroll_up(union Arg *a) {
-    int32 n = a->i;
+    int64 n = a->i;
 
     if (!term.n_hist || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         return;
     }
 
     if (n < 0) {
-        n = (int32)MAX(term.nrows / -n, 1);
+        n = MAX(term.nrows / -n, 1);
     }
 
     if (term.lines_scrolled_up + n <= term.n_hist) {
@@ -178,7 +178,7 @@ user_scroll_up(union Arg *a) {
     }
 
     if (selection.ob.x != -1 && !selection.alt) {
-        selection_move(n); /* negate change in term.lines_scrolled_up */
+        selection_move((int32)n); /* negate change in term.lines_scrolled_up */
     }
     term_full_dirt();
     return;

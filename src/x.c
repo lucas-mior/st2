@@ -319,7 +319,7 @@ x_load_font(StFont *f, FcPattern *pattern) {
 }
 
 static void
-x_load_fonts(char *fontstr, float fontsize) {
+x_load_fonts(char *fontstr, double fontsize) {
     FcPattern *pattern;
     double fontval;
 
@@ -342,7 +342,7 @@ x_load_fonts(char *fontstr, float fontsize) {
     } else {
         if (FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &fontval)
             == FcResultMatch) {
-            usedfontsize = (float)fontval;
+            usedfontsize = (double)fontval;
         } else if (FcPatternGetDouble(pattern, FC_SIZE, 0, &fontval)
                    == FcResultMatch) {
             usedfontsize = -1;
@@ -361,16 +361,16 @@ x_load_fonts(char *fontstr, float fontsize) {
     if (usedfontsize < 0) {
         FcPatternGetDouble(draw_context.font.match->pattern, FC_PIXEL_SIZE, 0,
                            &fontval);
-        usedfontsize = (float)fontval;
-        if (fabsf(fontsize) <= 0) {
-            defaultfontsize = (float)fontval;
+        usedfontsize = (double)fontval;
+        if (fabs(fontsize) <= 0) {
+            defaultfontsize = (double)fontval;
         }
     }
 
     /* Setting character width and height. */
     {
-        float cw = ceilf((float)(draw_context.font.width)*CONF_CHAR_WIDTH_SCALE);
-        float ch = ceilf((float)(draw_context.font.height)*CONF_CHAR_HEIGHT_SCALE);
+        double cw = ceil((double)(draw_context.font.width)*CONF_CHAR_WIDTH_SCALE);
+        double ch = ceil((double)(draw_context.font.height)*CONF_CHAR_HEIGHT_SCALE);
         term_window.cw = (int32)cw;
         term_window.ch = (int32)ch;
     }
@@ -899,13 +899,13 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
 
     if (base.mode & ATTR_UNDERLINE) {
         XftDrawRect(x_window.xft_draw, fg, winx,
-                    winy + (int32)((float)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE) + 1,
+                    winy + (int32)((double)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE) + 1,
                     (uint32)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
         XftDrawRect(x_window.xft_draw, fg, winx,
-                    winy + 2 * (int32)((float)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE / 3),
+                    winy + 2 * (int32)((double)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE / 3),
                     (uint32)width, 1);
     }
 

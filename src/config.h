@@ -120,7 +120,7 @@ static char *CONF_TERM_NAME = "st-256color";
 static int32 CONF_TAB_NSPACES = 4;
 
 /* bg opacity */
-static float CONF_ALPHA = 0.85f;
+static double CONF_ALPHA = 0.85;
 
 /* Terminal colors (16 first used in escape sequence) */
 static char *CONF_COLORS[] = {

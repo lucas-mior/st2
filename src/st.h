@@ -40,8 +40,8 @@
 #define ATTRCMP(a, b)        (((a).mode != (b).mode) \
                            || (a).fg   != (b).fg    \
                            || (a).bg   != (b).bg)
-#define TIMEDIFF(t1, t2)    ((float)(t1.tv_sec - t2.tv_sec)*1000 + \
-                             (float)(t1.tv_nsec - t2.tv_nsec)/1E6f)
+#define TIMEDIFF(t1, t2)    ((double)(t1.tv_sec - t2.tv_sec)*1000 + \
+                             (double)(t1.tv_nsec - t2.tv_nsec)/1E6f)
 #define MODBIT(x, set, bit)    ((set) ? ((x) |= (bit)) : ((x) &= ~(bit)))
 
 #define TRUECOLOR(r,g,b)    (1 << 24 | (r) << 16 | (g) << 8 | (b))
@@ -140,9 +140,9 @@ typedef struct StGlyph {
 } StGlyph;
 
 union Arg {
-    int32 i;
-    uint32 ui;
-    float f;
+    int64 i;
+    uint64 ui;
+    double f;
     void *v;
     char *s;
 };
@@ -445,8 +445,8 @@ static struct {
 #include "sixel.h"
 static SixelState sixel_st;
 
-static float usedfontsize = 0;
-static float defaultfontsize = 0;
+static double usedfontsize = 0;
+static double defaultfontsize = 0;
 static pid_t pid;
 static int32 io_fd = 1;
 static int32 command_fd;
