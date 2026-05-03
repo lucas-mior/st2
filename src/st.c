@@ -372,7 +372,7 @@ term_scroll_down(int32 top, int32 n) {
 }
 
 static void
-term_scroll_up(int32 top, int32 bot, int32 n, int32 mode) {
+term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
     int32 s = 0;
     uint32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
     int32 savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
