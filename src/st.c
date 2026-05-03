@@ -31,6 +31,7 @@
 #include "escape.c"
 #include "arg.h"
 #include "mouse.c"
+#include "base64.c"
 
 #if defined(__linux)
 #include <pty.h>
@@ -62,8 +63,6 @@ xwrite(int32 fd, char *s, int64 len) {
 
     return (int64)len;
 }
-
-#include "base64.c"
 
 static void
 check_consistent_state(void) {
