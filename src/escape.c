@@ -1158,37 +1158,39 @@ string_handle(void) {
 
     error("erresc: unknown string ");
     {
-        uint32 c_code;
-
         error("ESC%c", str_escape_seq.type);
         for (int32 i = 0; i < str_escape_seq.len; i += 1) {
-            c_code = str_escape_seq.buffer[i] & 0xff;
+            uint32 c_code = str_escape_seq.buffer[i] & 0xff;
+
             if (c_code == '\0') {
                 putc('\n', stderr);
                 return;
-            } else {
-                if (isprint(c_code)) {
-                    putc((int32)c_code, stderr);
-                } else {
-                    if (c_code == '\n') {
-                        error("(\\n)");
-                    } else {
-                        if (c_code == '\r') {
-                            error("(\\r)");
-                        } else {
-                            if (c_code == 0x1b) {
-                                error("(\\e)");
-                            } else {
-                                error("(%02x)", c_code);
-                            }
-                        }
-                    }
-                }
+            }
+
+            if (isprint(c_code)) {
+                putc((int32)c_code, stderr);
+                continue;
+            }
+
+            switch (c_code) {
+            case '\n':
+                error("(\\n)");
+                break;
+            case '\r':
+                error("(\\r)");
+                break;
+            case 0x1b:
+                error("(\\e)");
+                break;
+            default:
+                error("(%02x)", c_code);
+                break;
             }
         }
         error("ESC\\\n");
-        return;
     }
+
+    return;
 }
 
 static void
