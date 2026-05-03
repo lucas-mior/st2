@@ -17,7 +17,32 @@
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 
-static void control_seq_intro_dump(void);
+static void
+control_seq_intro_dump(void) {
+    fprintf(stderr, "ESC[");
+    for (int64 i = 0; i < csi_escape_seq.len; i += 1) {
+        uint32 c = csi_escape_seq.buffer[i] & 0xff;
+        if (isprint(c)) {
+            putc((int32)c, stderr);
+        } else {
+            if (c == '\n') {
+                fprintf(stderr, "(\\n)");
+            } else {
+                if (c == '\r') {
+                    fprintf(stderr, "(\\r)");
+                } else {
+                    if (c == 0x1b) {
+                        fprintf(stderr, "(\\e)");
+                    } else {
+                        fprintf(stderr, "(%02x)", c);
+                    }
+                }
+            }
+        }
+    }
+    putc('\n', stderr);
+    return;
+}
 
 static void
 term_cursor(enum CursorMovement mode) {
@@ -739,33 +764,6 @@ control_seq_intro_handle(void) {
         }
         break;
     }
-    return;
-}
-
-static void
-control_seq_intro_dump(void) {
-    fprintf(stderr, "ESC[");
-    for (int64 i = 0; i < csi_escape_seq.len; i += 1) {
-        uint32 c = csi_escape_seq.buffer[i] & 0xff;
-        if (isprint(c)) {
-            putc((int32)c, stderr);
-        } else {
-            if (c == '\n') {
-                fprintf(stderr, "(\\n)");
-            } else {
-                if (c == '\r') {
-                    fprintf(stderr, "(\\r)");
-                } else {
-                    if (c == 0x1b) {
-                        fprintf(stderr, "(\\e)");
-                    } else {
-                        fprintf(stderr, "(%02x)", c);
-                    }
-                }
-            }
-        }
-    }
-    putc('\n', stderr);
     return;
 }
 
