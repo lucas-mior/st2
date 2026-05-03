@@ -339,8 +339,7 @@ term_reset(void) {
     ImageList *image = term.images;
     while (image) {
         ImageList *next = image->next;
-        free(image->pixels);
-        free(image);
+        delete_image(image);
         image = next;
     }
     term.images = NULL;
