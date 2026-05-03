@@ -34,10 +34,19 @@ inject_text(char *text) {
 
 static void
 verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wraps) {
-    /* Do not access term.hist when in the Alternate Screen, as its width does not match term.ncols */
-    bool is_alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
-    int32 active_hist = is_alt ? 0 : term.n_hist;
-    int32 total_lines = active_hist + term.nrows;
+    bool is_alt;
+    int32 active_hist;
+    int32 total_lines;
+    
+    is_alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    
+    if (is_alt) {
+        active_hist = 0;
+    } else {
+        active_hist = term.n_hist;
+    }
+    
+    total_lines = active_hist + term.nrows;
     
     if (total_lines != expected_count) {
         fprintf(stderr, "Total lines mismatch. Expected: %d, Actual: %d (Hist: %d, Rows: %d)\n",
@@ -46,17 +55,24 @@ verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wr
     }
     
     for (int32 idx = 0; idx < total_lines; idx += 1) {
-        StGlyph *line = NULL;
+        StGlyph *line;
         char buffer[1024];
-        char *ptr = buffer;
+        char *ptr;
         int32 len;
         bool actual_wrap;
         
+        line = NULL;
+        ptr = buffer;
+        
         if (idx < active_hist) {
-            int32 hist_idx = (term.i_hist - active_hist + 1 + idx + HISTORY_SIZE) % HISTORY_SIZE;
+            int32 hist_idx;
+            
+            hist_idx = (term.i_hist - active_hist + 1 + idx + HISTORY_SIZE) % HISTORY_SIZE;
             line = term.hist[hist_idx];
         } else {
-            int32 lines_idx = idx - active_hist;
+            int32 lines_idx;
+            
+            lines_idx = idx - active_hist;
             line = term.lines[lines_idx];
         }
         
@@ -95,8 +111,11 @@ verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wr
 
 int
 main(void) {
-    int32 init_cols = 20;
-    int32 init_rows = 10;
+    int32 init_cols;
+    int32 init_rows;
+    
+    init_cols = 20;
+    init_rows = 10;
 
     /* Bootstrap headless terminal memory */
     term.ncols = init_cols;
@@ -127,10 +146,6 @@ main(void) {
 
     term_reset();
 
-    /* 
-     * PADDING: Push cursor to the bottom of the screen to simulate 
-     * a realistic terminal state and bypass the y=0 reflow bug.
-     */
     for (int32 i = 0; i < init_rows - 1; i += 1) {
         term_new_line(true);
     }
@@ -166,7 +181,6 @@ main(void) {
     term_resize(15, 5);
     check_consistent_state();
     {
-        /* Content across history and active lines remains structurally identical */
         char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" };
         bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false };
         verify_full_state(11, state_texts, state_wraps);
@@ -189,32 +203,118 @@ main(void) {
     inject_text("ALT SCREEN TEXT");
     check_consistent_state();
     {
-        /* History is ignored in alt screen. 10 alt screen lines total */
         char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT" };
         bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false };
         verify_full_state(10, state_texts, state_wraps);
     }
     
-    /* Resize while in alternate screen */
     term_resize(25, 12);
     check_consistent_state();
     {
-        /* History is ignored in alt screen. 12 alt screen lines total */
         char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT", "", "" };
         bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false, false, false };
         verify_full_state(12, state_texts, state_wraps);
     }
 
-    /* Switch back to default screen */
     term_load_def_screen(false, true);
     check_consistent_state();
     {
-        /* We are back on the main screen! term_reflow pulls the 1 history line onto the screen. n_hist becomes 0. 12 rows total. */
         char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRSTUVWXY", "Z", "" };
         bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false, false };
         verify_full_state(12, state_texts, state_wraps);
     }
 
-    printf("All resize and reflow tests passed!\n");
+    /* --- Advanced Resizing Scenarios --- */
+    term_reset();
+    for (int32 i = 0; i < init_rows - 1; i += 1) {
+        term_new_line(true);
+    }
+    inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+    check_consistent_state();
+    
+    /* Scenario F: Large to Small (Change both Width and Height) */
+    term_resize(10, 5);
+    check_consistent_state();
+    {
+        char *state_texts[] = { 
+            "", "", "", "", "", "", "", "", "", 
+            "ABCDEFGHIJ", "KLMNOPQRST", "UVWXYZ0123", "456789" 
+        };
+        bool state_wraps[] = { 
+            false, false, false, false, false, false, false, false, false,
+            true, true, true, false 
+        };
+        verify_full_state(13, state_texts, state_wraps);
+    }
+
+    /* Scenario G: Small to Even Smaller (Massive wrapping) */
+    term_resize(5, 8);
+    check_consistent_state();
+    {
+        char *state_texts[] = {
+            "", "", "", "", "", "", "", "", "", 
+            "ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY", "Z0123", "45678", "9" 
+        };
+        bool state_wraps[] = {
+            false, false, false, false, false, false, false, false, false,
+            true, true, true, true, true, true, true, false
+        };
+        verify_full_state(17, state_texts, state_wraps);
+    }
+
+    /* Scenario H: Small to Large (Expansion of both) */
+    term_resize(40, 20);
+    check_consistent_state();
+    {
+        char *state_texts[] = {
+            "", "", "", "", "", "", "", "", "", 
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 
+            "", "", "", "", "", "", "", "", "", "" 
+        };
+        bool state_wraps[] = {
+            false, false, false, false, false, false, false, false, false,
+            false,
+            false, false, false, false, false, false, false, false, false, false
+        };
+        verify_full_state(20, state_texts, state_wraps);
+    }
+
+    /* Scenario I: Random Fuzzing for rare bugs */
+    printf("Running Fuzzing Phase...\n");
+    srand((uint)time(NULL));
+    for (int32 i = 0; i < 5000; i += 1) {
+        int32 new_w;
+        int32 new_h;
+        int32 actions;
+        
+        new_w = (rand() % 150) + 2;
+        new_h = (rand() % 100) + 2;
+        
+        term_resize(new_w, new_h);
+        check_consistent_state();
+        
+        actions = rand() % 5;
+        for (int32 a = 0; a < actions; a += 1) {
+            int32 choice;
+            
+            choice = rand() % 2;
+            if (choice == 0) {
+                term_new_line(true);
+            } else {
+                int32 slen;
+                char buf[128];
+                
+                slen = (rand() % 80) + 1;
+                for (int32 c = 0; c < slen; c += 1) {
+                    buf[c] = 'A' + (rand() % 26);
+                }
+                buf[slen] = '\0';
+                inject_text(buf);
+            }
+        }
+        check_consistent_state();
+    }
+
+    printf("All resize, reflow, and fuzzing tests passed successfully!\n");
     return 0;
 }
