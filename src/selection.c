@@ -189,7 +189,7 @@ selection_start(int32 col, int32 row, enum SelectionSnap snap) {
     selection.oe.y = selection.ob.y = row;
     selection_normalize();
 
-    if (selection.snap != 0) {
+    if (selection.snap != SELECTION_SNAP_NONE) {
         selection.mode = SELECTION_READY;
     }
     term_set_dirt(selection.nb.y, selection.ne.y);
@@ -427,7 +427,7 @@ main(void) {
             term.lines[10][i].mode |= ATTR_SET;
         }
 
-        selection_start(5, 5, 0);
+        selection_start(5, 5, SELECTION_SNAP_NONE);
         ASSERT(selection.mode == SELECTION_EMPTY);
         ASSERT_EQUAL(selection.nb.x, 5);
         ASSERT_EQUAL(selection.nb.y, 5);
@@ -465,7 +465,7 @@ main(void) {
             }
         }
 
-        selection_start(10, 10, 0);
+        selection_start(10, 10, SELECTION_SNAP_NONE);
         selection_extend(20, 15, SELECTION_RECTANGULAR, 0);
         
         ASSERT_EQUAL(selection_is_selected(15, 12), 1);
@@ -482,7 +482,7 @@ main(void) {
         term.lines[10][2].rune = 'B';
         term.lines[10][2].mode |= ATTR_SET;
 
-        selection_start(1, 10, 0);
+        selection_start(1, 10, SELECTION_SNAP_NONE);
         selection_extend(2, 10, SELECTION_NORMAL, 0); 
         selection_extend(2, 10, SELECTION_NORMAL, 1);
         
@@ -499,7 +499,7 @@ main(void) {
             term.lines[y][0].mode |= ATTR_SET;
         }
 
-        selection_start(0, 5, 0);
+        selection_start(0, 5, SELECTION_SNAP_NONE);
         selection_extend(0, 10, SELECTION_NORMAL, 0);
         
         selection_move(2);
