@@ -1025,7 +1025,6 @@ string_handle(void) {
             int32 numimages;
             int32 cx_pos;
             int32 cy_pos;
-            StGlyph *line_ptr;
 
             term.mode &= ~TERM_MODE_SIXEL;
             if (sixel_st.image.data == NULL) {
@@ -1072,7 +1071,7 @@ string_handle(void) {
                     if (im_ptr->y >= y1_im && im_ptr->y < y2_im) {
                         y_line = im_ptr->y - scr_offset;
                         if (y_line >= 0 && y_line < term.nrows && term.dirty[y_line]) {
-                            line_ptr = term.lines[y_line];
+                            StGlyph *line_ptr = term.lines[y_line];
                             j = (int32)MIN(im_ptr->x + im_ptr->cols, term.ncols);
                             for (i_idx = im_ptr->x; i_idx < j; i_idx += 1) {
                                 if (line_ptr[i_idx].mode & ATTR_SIXEL) {
