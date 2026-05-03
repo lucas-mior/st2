@@ -64,8 +64,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
     }
 
     switch (selection.snap) {
-    case 0:
-        /* No snap: do nothing */
+    case SELECTION_SNAP_NONE:
         return;
     case SELECTION_SNAP_WORD: {
         StGlyph *prev_gp = &TERM_LINE(*y)[*x];
