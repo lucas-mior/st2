@@ -5,6 +5,12 @@
 #include "config.def.h"
 #include "selection.c"
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_mouse 1
+#elif !defined(TESTING_mouse)
+#define TESTING_mouse 0
+#endif
+
 static int32
 match_mask_state(uint32 mask, uint32 state) {
     if (mask == XK_ANY_MOD) {
@@ -177,5 +183,20 @@ mouse_action(XEvent *xevent, uint32 release) {
 
     return 0;
 }
+
+#if TESTING_mouse
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_mouse */
 
 #endif /* MOUSE_C */
