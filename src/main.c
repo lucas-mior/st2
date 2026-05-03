@@ -59,7 +59,7 @@ main(int32 argc, char *argv[]) {
         break;
     case 'A':
         CONF_ALPHA = strtof(EARGF(usage()), NULL);
-        LIMIT(CONF_ALPHA, 0.0f, 1.0f);
+        LIMIT(CONF_ALPHA, 0.0, 1.0);
         break;
     case 'c':
         opt_class = EARGF(usage());

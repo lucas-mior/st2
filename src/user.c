@@ -528,8 +528,8 @@ main(void) {
 
         term_reset();
         
-        defaultfontsize = 12.0f;
-        usedfontsize = 12.0f;
+        defaultfontsize = 12.0;
+        usedfontsize = 12.0;
         usedfont = "monospace";
         x_load_fonts(usedfont, 0);
     }
