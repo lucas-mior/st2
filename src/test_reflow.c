@@ -33,42 +33,56 @@ inject_text(char *text) {
 }
 
 static void
-verify_line(int32 row, char *expected_text, bool expected_wrap) {
-    char buffer[1024];
-    char *ptr;
-    StGlyph *fgp;
-    StGlyph *lgp;
+verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wraps) {
+    int32 total_lines = term.n_hist + term.nrows;
     
-    fgp = &term.lines[row][0];
-    lgp = &fgp[term.ncols - 1];
-    
-    while (lgp > fgp) {
-        if (lgp->mode & (ATTR_SET | ATTR_WRAP)) {
-            break;
-        }
-        lgp -= 1;
-    }
-    
-    ptr = buffer;
-    while (fgp <= lgp) {
-        if (!(fgp->mode & ATTR_WDUMMY)) {
-            ptr += utf8_encode(fgp->rune, ptr);
-        }
-        fgp += 1;
-    }
-    *ptr = '\0';
-    
-    if (strcmp(buffer, expected_text) != 0) {
-        fprintf(stderr, "Assertion failed on row %d:\n", row);
-        fprintf(stderr, "  Expected: '%s'\n", expected_text);
-        fprintf(stderr, "  Actual:   '%s'\n", buffer);
+    if (total_lines != expected_count) {
+        fprintf(stderr, "Total lines mismatch. Expected: %d, Actual: %d (Hist: %d, Rows: %d)\n",
+                expected_count, total_lines, term.n_hist, term.nrows);
         assert(false);
     }
     
-    if (expected_wrap) {
-        assert((term.lines[row][term.ncols - 1].mode & ATTR_WRAP) != 0);
-    } else {
-        assert((term.lines[row][term.ncols - 1].mode & ATTR_WRAP) == 0);
+    for (int32 idx = 0; idx < total_lines; idx += 1) {
+        StGlyph *line = NULL;
+        
+        if (idx < term.n_hist) {
+            int32 hist_idx = (term.i_hist - term.n_hist + 1 + idx + HISTORY_SIZE) % HISTORY_SIZE;
+            line = term.hist[hist_idx];
+        } else {
+            int32 lines_idx = idx - term.n_hist;
+            line = term.lines[lines_idx];
+        }
+        
+        char buffer[1024];
+        char *ptr = buffer;
+        int32 len = term_line_len(line);
+        
+        if (len > 0) {
+            ptr = term_get_glyphs(buffer, &line[0], &line[len - 1]);
+        }
+        *ptr = '\0';
+        
+        bool actual_wrap = term_is_wrapped(line);
+        
+        if (strcmp(buffer, expected_texts[idx]) != 0) {
+            char *is_hist;
+            
+            if (idx < term.n_hist) {
+                is_hist = "yes";
+            } else {
+                is_hist = "no";
+            }
+            fprintf(stderr, "Assertion failed at absolute line %d (Hist: %s):\n", idx, is_hist);
+            fprintf(stderr, "  Expected: '%s'\n", expected_texts[idx]);
+            fprintf(stderr, "  Actual:   '%s'\n", buffer);
+            assert(false);
+        }
+        
+        if (expected_wraps[idx] != actual_wrap) {
+            fprintf(stderr, "Wrap assertion failed at absolute line %d:\n", idx);
+            fprintf(stderr, "  Expected wrap: %d, Actual wrap: %d\n", expected_wraps[idx], actual_wrap);
+            assert(false);
+        }
     }
     
     return;
@@ -108,45 +122,55 @@ main(void) {
 
     term_reset();
 
-    /* 
-     * PADDING: Push cursor to the bottom of the screen to simulate 
-     * a realistic terminal state and bypass the y=0 reflow bug.
-     */
     for (int32 i = 0; i < init_rows - 1; i += 1) {
         term_new_line(true);
     }
 
     /* Scenario A: Width Shrinkage (Forcing Wraps) */
-    /* Because cursor is at y=9, the wrap will push the top line up to y=8 */
     inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     check_consistent_state();
-    verify_line(8, "ABCDEFGHIJKLMNOPQRST", true);
-    verify_line(9, "UVWXYZ", false);
+    {
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRST", "UVWXYZ" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false };
+        verify_full_state(11, state_texts, state_wraps);
+    }
 
     /* Scenario B: Width Expansion (Unwrapping) */
     term_resize(30, 10);
     check_consistent_state();
-    verify_line(9, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", false);
+    {
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRSTUVWXYZ" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false };
+        verify_full_state(10, state_texts, state_wraps);
+    }
 
     /* Scenario C: Shrink width to force wrap again before testing history */
     term_resize(15, 10);
     check_consistent_state();
-    verify_line(8, "ABCDEFGHIJKLMNO", true);
-    verify_line(9, "PQRSTUVWXYZ", false);
+    {
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false };
+        verify_full_state(11, state_texts, state_wraps);
+    }
 
     /* Scenario C.2: Height Shrinkage (Push to History) */
     term_resize(15, 5);
     check_consistent_state();
-    /* Cursor is anchored to bottom, which is now y=4 */
-    verify_line(3, "ABCDEFGHIJKLMNO", true);
-    verify_line(4, "PQRSTUVWXYZ", false);
+    {
+        /* Content across history and active lines remains structurally identical */
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false };
+        verify_full_state(11, state_texts, state_wraps);
+    }
     
     /* Scenario D: Height Expansion (Pull from History) */
     term_resize(15, 10);
     check_consistent_state();
-    /* Pulled back from history, anchored back to y=9 */
-    verify_line(8, "ABCDEFGHIJKLMNO", true);
-    verify_line(9, "PQRSTUVWXYZ", false);
+    {
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false };
+        verify_full_state(11, state_texts, state_wraps);
+    }
 
     /* Scenario E: Alternate Screen Integrity */
     term_load_alt_screen(true, true);
@@ -155,23 +179,32 @@ main(void) {
     }
     inject_text("ALT SCREEN TEXT");
     check_consistent_state();
-    verify_line(9, "ALT SCREEN TEXT", false);
+    {
+        /* 1 history line (from main screen) + 10 alt screen lines = 11 total */
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false, false };
+        verify_full_state(11, state_texts, state_wraps);
+    }
     
     /* Resize while in alternate screen */
     term_resize(25, 12);
     check_consistent_state();
-/* Alternate screen has no history; expanding height leaves existing text at its absolute Y coordinate */
-    verify_line(9, "ALT SCREEN TEXT", false);
+    {
+        /* 1 history line + 12 alt screen lines = 13 total */
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT", "", "" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false, false, false, false };
+        verify_full_state(13, state_texts, state_wraps);
+    }
 
-    /* Switch back to default screen - reflows to 25x12 */
+    /* Switch back to default screen */
     term_load_def_screen(false, true);
     check_consistent_state();
-    
-/* Main screen "ABC..." string reflows from 15 to 25 cols. 
-       We expanded height by 2, but only had 1 line in history. 
-       Text shifts down by 1 row, ending up on 9 and 10. */
-    verify_line(9, "ABCDEFGHIJKLMNOPQRSTUVWXY", true);
-    verify_line(10, "Z", false);
+    {
+        /* term_reflow pulls the 1 history line onto the screen. n_hist becomes 0. 12 rows total. */
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRSTUVWXY", "Z", "" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false, false };
+        verify_full_state(12, state_texts, state_wraps);
+    }
 
     printf("All resize and reflow tests passed!\n");
     return 0;
