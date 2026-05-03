@@ -296,9 +296,6 @@ static void term_resize(int32, int32);
 static void term_set_dirt_attr(enum GlyphAttribute);
 
 static void tty_hangup(void);
-static int32 tty_new(char *, char *, char *, char **);
-static int64 tty_read(void);
-static void tty_resize(int32, int32);
 static void tty_write(char *, int64, int32);
 
 static void reset_title(void);
