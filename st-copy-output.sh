@@ -17,14 +17,16 @@ chosen=$(grep -F "$ps1" "$tmpfile" \
              | dmenu -w "$1" -p "Copy output?" -i -l 10 \
              | sed 's/[^^]/[&]/g; s/\^/\\^/g')
 
-if [ -n "$chosen" ]; then
-  eps1=$(echo "$ps1" | sed 's/[^^]/[&]/g; s/\^/\\^/g')
-  awk "/^$chosen$/ {
-          p=1;
-          print;
-          next
-      }
-      p && /$eps1/ {
-          p=0
-      };p" "$tmpfile" | xclip -selection clipboard
+if [ -z "$chosen" ]; then
+    exit
 fi
+
+eps1=$(echo "$ps1" | sed 's/[^^]/[&]/g; s/\^/\\^/g')
+awk "/^$chosen$/ {
+      p=1;
+      print;
+      next
+     }
+     p && /$eps1/ {
+      p=0
+     };p" "$tmpfile" | xclip -selection clipboard
