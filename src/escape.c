@@ -19,22 +19,22 @@ static STREscape str_escape_seq;
 
 static void
 control_seq_intro_dump(void) {
-    fprintf(stderr, "ESC[");
+    error("ESC[");
     for (int64 i = 0; i < csi_escape_seq.len; i += 1) {
         uint32 c = csi_escape_seq.buffer[i] & 0xff;
         if (isprint(c)) {
             putc((int32)c, stderr);
         } else {
             if (c == '\n') {
-                fprintf(stderr, "(\\n)");
+                error("(\\n)");
             } else {
                 if (c == '\r') {
-                    fprintf(stderr, "(\\r)");
+                    error("(\\r)");
                 } else {
                     if (c == 0x1b) {
-                        fprintf(stderr, "(\\e)");
+                        error("(\\e)");
                     } else {
-                        fprintf(stderr, "(%02x)", c);
+                        error("(%02x)", c);
                     }
                 }
             }
@@ -114,7 +114,7 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
     switch (attr[*npar + 1]) {
     case 2:
         if (*npar + 4 >= l) {
-            fprintf(stderr, "erresc(38): Incorrect number of parameters (%d)\n",
+            error("erresc(38): Incorrect number of parameters (%d)\n",
                     *npar);
             break;
         }
@@ -123,20 +123,20 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
         b = (uint32)attr[*npar + 4];
         *npar += 4;
         if (!BETWEEN(r, 0, 255) || !BETWEEN(g, 0, 255) || !BETWEEN(b, 0, 255)) {
-            fprintf(stderr, "erresc: bad rgb color (%u,%u,%u)\n", r, g, b);
+            error("erresc: bad rgb color (%u,%u,%u)\n", r, g, b);
         } else {
             idx = (int32)TRUECOLOR(r, g, b);
         }
         break;
     case 5:
         if (*npar + 2 >= l) {
-            fprintf(stderr, "erresc(38): Incorrect number of parameters (%d)\n",
+            error("erresc(38): Incorrect number of parameters (%d)\n",
                     *npar);
             break;
         }
         *npar += 2;
         if (!BETWEEN(attr[*npar], 0, 255)) {
-            fprintf(stderr, "erresc: bad fgcolor %d\n", attr[*npar]);
+            error("erresc: bad fgcolor %d\n", attr[*npar]);
         } else {
             idx = attr[*npar];
         }
@@ -146,7 +146,7 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
     case 3:
     case 4:
     default:
-        fprintf(stderr, "erresc(38): gfx attr %d unknown\n", attr[*npar]);
+        error("erresc(38): gfx attr %d unknown\n", attr[*npar]);
         break;
     }
 
@@ -243,7 +243,7 @@ term_set_attr(int32 *attr, int32 l) {
             } else if (BETWEEN(attr[i], 100, 107)) {
                 term.cursor.attr.bg = attr[i] - 100 + 8;
             } else {
-                fprintf(stderr, "erresc(default): gfx attr %d unknown\n",
+                error("erresc(default): gfx attr %d unknown\n",
                         attr[i]);
                 control_seq_intro_dump();
             }
@@ -382,7 +382,7 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 MODBIT(term.mode, set, TERM_MODE_SIXEL_CUR_RT);
                 break;
             default:
-                fprintf(stderr, "erresc: unknown private set/reset mode %d\n",
+                error("erresc: unknown private set/reset mode %d\n",
                         *args);
                 break;
             }
@@ -403,7 +403,7 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 MODBIT(term.mode, set, TERM_MODE_CRLF);
                 break;
             default:
-                fprintf(stderr, "erresc: unknown set/reset mode %d\n", *args);
+                error("erresc: unknown set/reset mode %d\n", *args);
                 break;
             }
         }
@@ -420,7 +420,7 @@ control_seq_intro_handle(void) {
     switch (csi_escape_seq.mode[0]) {
     default:
     unknown:
-        fprintf(stderr, "erresc: unknown csi ");
+        error("erresc: unknown csi ");
         control_seq_intro_dump();
         break;
     case '@':
@@ -800,10 +800,10 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
         }
 
         if (is_osc4) {
-            fprintf(stderr, "erresc: failed to fetch %s color %d\n",
+            error("erresc: failed to fetch %s color %d\n",
                     type_str, num);
         } else {
-            fprintf(stderr, "erresc: failed to fetch %s color %d\n",
+            error("erresc: failed to fetch %s color %d\n",
                     type_str, index);
         }
     }
@@ -901,7 +901,7 @@ string_handle(void) {
                     selection_set(dec, CurrentTime);
                     user_clipboard_copy(NULL);
                 } else {
-                    fprintf(stderr, "erresc: invalid base64\n");
+                    error("erresc: invalid base64\n");
                 }
             }
             return;
@@ -921,7 +921,7 @@ string_handle(void) {
                 osc_color_response(par, osc_table[j].idx, 0);
             } else {
                 if (x_set_color_name(osc_table[j].idx, p)) {
-                    fprintf(stderr, "erresc: invalid %s color: %s\n",
+                    error("erresc: invalid %s color: %s\n",
                             osc_table[j].string, p);
                 } else {
                     term_full_dirt();
@@ -950,9 +950,9 @@ string_handle(void) {
                         return;
                     }
                     if (p) {
-                        fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j, p);
+                        error("erresc: invalid color j=%d, p=%s\n", j, p);
                     } else {
-                        fprintf(stderr, "erresc: invalid color j=%d, p=%s\n", j,
+                        error("erresc: invalid color j=%d, p=%s\n", j,
                                 "(null)");
                     }
                 } else {
@@ -971,14 +971,14 @@ string_handle(void) {
                 break;
             }
             if (x_set_color_name(osc_table[j].idx, NULL)) {
-                fprintf(stderr, "erresc: %s color not found\n",
+                error("erresc: %s color not found\n",
                         osc_table[j].string);
             } else {
                 term_full_dirt();
             }
             return;
         default:
-            fprintf(stderr, "string_handle: Unhandled switch case.\n");
+            error("string_handle: Unhandled switch case.\n");
             break;
         }
         break;
@@ -1126,15 +1126,15 @@ string_handle(void) {
     case '^':
         return;
     default:
-        fprintf(stderr, "string_handle: Unhandled switch case.\n");
+        error("string_handle: Unhandled switch case.\n");
         break;
     }
 
-    fprintf(stderr, "erresc: unknown string ");
+    error("erresc: unknown string ");
     {
         uint32 c_code;
 
-        fprintf(stderr, "ESC%c", str_escape_seq.type);
+        error("ESC%c", str_escape_seq.type);
         for (int32 i = 0; i < str_escape_seq.len; i += 1) {
             c_code = str_escape_seq.buffer[i] & 0xff;
             if (c_code == '\0') {
@@ -1145,22 +1145,22 @@ string_handle(void) {
                     putc((int32)c_code, stderr);
                 } else {
                     if (c_code == '\n') {
-                        fprintf(stderr, "(\\n)");
+                        error("(\\n)");
                     } else {
                         if (c_code == '\r') {
-                            fprintf(stderr, "(\\r)");
+                            error("(\\r)");
                         } else {
                             if (c_code == 0x1b) {
-                                fprintf(stderr, "(\\e)");
+                                error("(\\e)");
                             } else {
-                                fprintf(stderr, "(%02x)", c_code);
+                                error("(%02x)", c_code);
                             }
                         }
                     }
                 }
             }
         }
-        fprintf(stderr, "ESC\\\n");
+        error("ESC\\\n");
         return;
     }
 }
@@ -1212,7 +1212,7 @@ term_def_tran(char ascii) {
 
     p = strchr(cs, ascii);
     if (p == NULL) {
-        fprintf(stderr, "esc unhandled charset: ESC ( %c\n", ascii);
+        error("esc unhandled charset: ESC ( %c\n", ascii);
     } else {
         term.translation_table[term.icharset] = (char)vcs[p - cs];
     }
@@ -1253,7 +1253,7 @@ term_str_sequence(uchar c) {
         c = ']';
         break;
     default:
-        fprintf(stderr, "term_str_sequence: unhandled switch case.\n");
+        error("term_str_sequence: unhandled switch case.\n");
         break;
     }
     str_escape_seq.type = (char)c;
@@ -1272,7 +1272,7 @@ dcshandle(void) {
 
     switch (csi_escape_seq.mode[0]) {
     default:
-        fprintf(stderr, "erresc: unknown csi ");
+        error("erresc: unknown csi ");
         control_seq_intro_dump();
         break;
     case 'q':
@@ -1393,7 +1393,7 @@ term_control_code(uchar ascii) {
         term_str_sequence(ascii);
         return;
     default:
-        fprintf(stderr, "term_control_code: unhandled switch case.\n");
+        error("term_control_code: unhandled switch case.\n");
         break;
     }
     term.esc &= ~(ESC_STR_END | ESC_STR);
@@ -1480,8 +1480,8 @@ eschandle(uchar ascii) {
         }
         break;
     default:
-        fprintf(stderr, "erresc: unknown sequence ESC 0x%02X '%c'\n",
-                (uchar)ascii, isprint(ascii) ? ascii : '.');
+        error("erresc: unknown sequence ESC 0x%02X '%c'\n",
+              (uchar)ascii, isprint(ascii) ? ascii : '.');
         break;
     }
     return 1;
