@@ -336,26 +336,26 @@ cleanup:
 
 static void
 exec_external_pipe(char **argv) {
-    int32 to[2];
+    int32 pipe[2];
 
-    xpipe(to);
+    xpipe(pipe);
 
     switch (fork()) {
     case -1:
         error("Error forking: %s.\n", strerror(errno));
         fatal(EXIT_FAILURE);
     case 0:
-        dup2(to[0], STDIN_FILENO);
-        close(to[0]);
-        close(to[1]);
+        xdup2(pipe[0], STDIN_FILENO);
+        XCLOSE(pipe[0]);
+        XCLOSE(pipe[1]);
         execvp(argv[0], argv);
 
         error("execvp failed");
         _exit(1);
     default:
-        close(to[0]);
-        dump_terminal_to_fd(to[1]);
-        close(to[1]);
+        XCLOSE(pipe[0]);
+        dump_terminal_to_fd(pipe[1]);
+        XCLOSE(pipe[1]);
         break;
     }
 
