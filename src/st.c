@@ -328,6 +328,9 @@ term_delete_images(void) {
         next = image->next;
         delete_image(image);
     }
+    
+    term.images = NULL;
+    
     return;
 }
 
@@ -382,16 +385,26 @@ term_swap_screen(void) {
     static StGlyph **altline;
     static int32 altcol;
     static int32 altrow;
-    StGlyph **tmpline = term.lines;
-    int32 tmpcol = term.ncols;
-    int32 tmprow = term.nrows;
+    StGlyph **tmpline;
+    int32 tmpcol;
+    int32 tmprow;
+    ImageList *tmpimages;
+
+    tmpline = term.lines;
+    tmpcol = term.ncols;
+    tmprow = term.nrows;
+    tmpimages = term.images;
 
     term.lines = altline;
     term.ncols = altcol;
     term.nrows = altrow;
+    term.images = term.images_alt;
+
     altline = tmpline;
     altcol = tmpcol;
     altrow = tmprow;
+    term.images_alt = tmpimages;
+
     term.mode ^= TERM_MODE_ALTSCREEN;
     return;
 }
