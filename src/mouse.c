@@ -2,6 +2,8 @@
 #define MOUSE_C
 
 #include "st.h"
+#include "config.def.h"
+#include "selection.c"
 
 static int32
 match_mask_state(uint32 mask, uint32 state) {
