@@ -136,7 +136,7 @@ sixel_image_init(SixelImage *sixel_image,
                  int32 use_private_register) {
     int64 size;
 
-    size = (width*height) * SIZEOF(uint32);
+    size = (width*height)*SIZEOF(uint32);
     sixel_image->width = width;
     sixel_image->height = height;
     sixel_image->data = xmalloc(size);
@@ -322,7 +322,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images, int32 cx,
         image->cols = cols;
         image->width = w;
         image->height = (int32)MIN(h - ch*i, ch);
-        image->pixels = xmalloc(image->width*image->height * 4);
+        image->pixels = xmalloc(image->width*image->height*4);
         image->pixmap = NULL;
         image->clipmask = NULL;
         image->cw = cw;
