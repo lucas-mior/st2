@@ -1227,33 +1227,6 @@ redraw(void) {
     return;
 }
 
-static void
-zoom_abs(union Arg *arg) {
-    int32 i;
-    ImageList *im;
-    x_unload_fonts();
-    x_load_fonts(usedfont, arg->f);
-    x_load_spare_fonts();
-
-    for (im = term.images, i = 0; i < 2; i += 1, im = term.images_alt) {
-        for (; im; im = im->next) {
-            if (im->pixmap) {
-                XFreePixmap(x_window.display, (Drawable)im->pixmap);
-            }
-            if (im->clipmask) {
-                XFreePixmap(x_window.display, (Drawable)im->clipmask);
-            }
-            im->pixmap = NULL;
-            im->clipmask = NULL;
-        }
-    }
-
-    cresize(0, 0);
-    redraw();
-    x_hints();
-    return;
-}
-
 static int32
 xevent_col(XEvent *xevent) {
     int32 x = xevent->xbutton.x - term_window.hborderpx;
