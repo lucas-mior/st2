@@ -121,8 +121,7 @@ exec_shell(char *cmd, char **args) {
         }
     }
 
-    shell = getenv("SHELL");
-    if (shell == NULL) {
+    if ((shell = getenv("SHELL")) == NULL) {
         if (pw->pw_shell[0]) {
             shell = pw->pw_shell;
         } else {
