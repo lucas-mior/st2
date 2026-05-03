@@ -337,33 +337,28 @@ cleanup:
 static void
 exec_external_pipe(char **argv) {
     int32 to[2];
-    pid_t child;
 
-    if (pipe(to) == -1) {
-        perror("pipe failed");
-        return;
-    }
+    xpipe(to);
 
-    child = fork();
-    if (child == -1) {
-        close(to[0]);
-        close(to[1]);
-        return;
-    }
-
-    if (child == 0) {
+    switch (fork()) {
+    case -1:
+        error("Error forking: %s.\n", strerror(errno));
+        fatal(EXIT_FAILURE);
+    case 0:
         dup2(to[0], STDIN_FILENO);
         close(to[0]);
         close(to[1]);
         execvp(argv[0], argv);
 
-        perror("execvp failed");
+        error("execvp failed");
         _exit(1);
+    default:
+        close(to[0]);
+        dump_terminal_to_fd(to[1]);
+        close(to[1]);
+        break;
     }
 
-    close(to[0]);
-    dump_terminal_to_fd(to[1]);
-    close(to[1]);
     return;
 }
 
