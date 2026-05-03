@@ -200,7 +200,8 @@ user_vim_select(union Arg *arg) {
 
     SNPRINTF(tmp_file, "/tmp/st_vimselect_%d", getpid());
 
-    if ((fd = open(tmp_file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) < 0) {
+    if ((fd = open(tmp_file,
+                   O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) < 0) {
         error("Error opening %s: %s\n", tmp_file, strerror(errno));
         return;
     }
