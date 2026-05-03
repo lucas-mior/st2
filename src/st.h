@@ -287,7 +287,6 @@ typedef struct StFont {
 } StFont;
 
 static void redraw(void);
-static void draw(void);
 
 static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 
