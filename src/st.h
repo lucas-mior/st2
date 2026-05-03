@@ -350,12 +350,6 @@ static void term_set_mode(int32, int32, int32 *, int32);
 static void term_str_sequence(uchar);
 static void term_swap_screen(void);
 
-static int64 utf8_encode(uint32, char *);
-static int64 utf8_decode(char *, uint32 *, int64);
-static uint32 utf8_decode_byte(char, int64 *);
-static char utf8_encode_byte(uint32, int64);
-static int64 utf8_validate(uint32 *, int64);
-
 static void mouse_select(XEvent *, int32);
 static void mouse_report(XEvent *);
 static int32 match_mask_state(uint32, uint32);

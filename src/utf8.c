@@ -15,6 +15,33 @@ static uchar utf8_mask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
 static uint32 utf8_min[UTF_SIZ + 1] = {0, 0, 0x80, 0x800, 0x10000};
 static uint32 utf8_max[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
+static uint32
+utf8_decode_byte(char c, int64 *i) {
+    for (*i = 0; *i < LENGTH(utf8_mask); ++(*i)) {
+        if (((uchar)c & utf8_mask[*i]) == utf8_byte[*i]) {
+            return (uchar)c & ~utf8_mask[*i];
+        }
+    }
+
+    return 0;
+}
+
+static char
+utf8_encode_byte(uint32 u, int64 i) {
+    return (char)(utf8_byte[i] | (u & (uint32)~utf8_mask[i]));
+}
+
+static int64
+utf8_validate(uint32 *u, int64 i) {
+    if (!BETWEEN(*u, utf8_min[i], utf8_max[i]) || BETWEEN(*u, 0xD800, 0xDFFF)) {
+        *u = UTF_INVALID;
+    }
+    for (i = 1; *u > utf8_max[i]; i += 1)
+        ;
+
+    return i;
+}
+
 static int64
 utf8_decode(char *c, uint32 *u, int64 clen) {
     int64 len;
@@ -47,17 +74,6 @@ utf8_decode(char *c, uint32 *u, int64 clen) {
     return len;
 }
 
-static uint32
-utf8_decode_byte(char c, int64 *i) {
-    for (*i = 0; *i < LENGTH(utf8_mask); ++(*i)) {
-        if (((uchar)c & utf8_mask[*i]) == utf8_byte[*i]) {
-            return (uchar)c & ~utf8_mask[*i];
-        }
-    }
-
-    return 0;
-}
-
 static int64
 utf8_encode(uint32 u, char *c) {
     int64 len;
@@ -74,22 +90,6 @@ utf8_encode(uint32 u, char *c) {
     c[0] = utf8_encode_byte(u, len);
 
     return len;
-}
-
-static char
-utf8_encode_byte(uint32 u, int64 i) {
-    return (char)(utf8_byte[i] | (u & (uint32)~utf8_mask[i]));
-}
-
-static int64
-utf8_validate(uint32 *u, int64 i) {
-    if (!BETWEEN(*u, utf8_min[i], utf8_max[i]) || BETWEEN(*u, 0xD800, 0xDFFF)) {
-        *u = UTF_INVALID;
-    }
-    for (i = 1; *u > utf8_max[i]; i += 1)
-        ;
-
-    return i;
 }
 
 #if TESTING_utf8
