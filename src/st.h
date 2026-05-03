@@ -448,30 +448,30 @@ typedef struct {
     char appcursor; /* application cursor */
 } Key;
 
-enum WinMode {
-	WIN_MODE_VISIBLE     = 1 << 0,
-	WIN_MODE_FOCUSED     = 1 << 1,
-	WIN_MODE_APPKEYPAD   = 1 << 2,
-	WIN_MODE_MOUSEBTN    = 1 << 3,
-	WIN_MODE_MOUSEMOTION = 1 << 4,
-	WIN_MODE_REVERSE     = 1 << 5,
-	WIN_MODE_KBDLOCK     = 1 << 6,
-	WIN_MODE_HIDE        = 1 << 7,
-	WIN_MODE_APPCURSOR   = 1 << 8,
-	WIN_MODE_MOUSESGR    = 1 << 9,
-	WIN_MODE_8BIT        = 1 << 10,
-	WIN_MODE_BLINK       = 1 << 11,
-	WIN_MODE_FBLINK      = 1 << 12,
-	WIN_MODE_FOCUS       = 1 << 13,
-	WIN_MODE_MOUSEX10    = 1 << 14,
-	WIN_MODE_MOUSEMANY   = 1 << 15,
-	WIN_MODE_BRCKTPASTE  = 1 << 16,
-	WIN_MODE_NUMLOCK     = 1 << 17,
-	WIN_MODE_MOUSE       = WIN_MODE_MOUSEBTN
-                    |WIN_MODE_MOUSEMOTION
-                    |WIN_MODE_MOUSEX10
-                    |WIN_MODE_MOUSEMANY,
-};
+#define ENUM_NAME WinMode
+#define ENUM_PREFIX_ WIN_MODE_
+#define ENUM_BITFLAGS 1
+#define ENUM_FIELDS \
+	X(VISIBLE) \
+	X(FOCUSED) \
+	X(APPKEYPAD) \
+	X(MOUSEBTN) \
+	X(MOUSEMOTION) \
+	X(REVERSE) \
+	X(KBDLOCK) \
+	X(HIDE) \
+	X(APPCURSOR) \
+	X(MOUSESGR) \
+	X(8BIT) \
+	X(BLINK) \
+	X(FBLINK) \
+	X(FOCUS) \
+	X(MOUSEX10) \
+	X(MOUSEMANY) \
+	X(BRCKTPASTE) \
+	X(NUMLOCK) \
+	X(MOUSE, WIN_MODE_MOUSEBTN|WIN_MODE_MOUSEMOTION|WIN_MODE_MOUSEX10|WIN_MODE_MOUSEMANY)
+#include "xenums.c"
 
 static void x_bell(void);
 static void x_draw_cursor(int32, int32, StGlyph, int32, int32, StGlyph);
@@ -498,7 +498,7 @@ static struct {
 	int32 vborderpx;
     int32 ch;     /* char height */
     int32 cw;     /* char width  */
-    int32 mode;   /* window state/mode flags */
+    enum WinMode mode;   /* window state/mode flags */
     int32 cursor; /* cursor style */
 } term_window;
 

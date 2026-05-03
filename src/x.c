@@ -1085,7 +1085,7 @@ x_set_pointer_motion(int32 set) {
 
 static void
 x_set_mode(int32 set, uint32 flags) {
-    int32 mode = term_window.mode;
+    enum WinMode mode = term_window.mode;
     MODBIT(term_window.mode, set, flags);
     if ((term_window.mode & WIN_MODE_REVERSE) != (mode & WIN_MODE_REVERSE)) {
         redraw();
@@ -1350,7 +1350,7 @@ main(void) {
     {
         term_window.mode = 0;
         x_set_mode(WIN_MODE_REVERSE, WIN_MODE_REVERSE);
-        ASSERT_EQUAL(term_window.mode, WIN_MODE_REVERSE);
+        ASSERT(term_window.mode == WIN_MODE_REVERSE);
     }
 
     {
