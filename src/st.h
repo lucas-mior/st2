@@ -300,8 +300,6 @@ static void tty_write(char *, int64, int32);
 
 static void reset_title(void);
 
-static int64 utf8_encode(uint32, char *);
-
 static int32 isboxdraw(uint32);
 static uint16 boxdrawindex(StGlyph *);
 static void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
@@ -352,6 +350,7 @@ static void term_set_mode(int32, int32, int32 *, int32);
 static void term_str_sequence(uchar);
 static void term_swap_screen(void);
 
+static int64 utf8_encode(uint32, char *);
 static int64 utf8_decode(char *, uint32 *, int64);
 static uint32 utf8_decode_byte(char, int64 *);
 static char utf8_encode_byte(uint32, int64);
