@@ -247,8 +247,10 @@ sixel_parser_init(SixelState *sixel_state, int32 transparent, uint32 fg_color,
     if (transparent) {
         bg_color = 0;
     }
-    status = sixel_image_init(&sixel_state->image, 1, 1, (int32)fg_color,
-                              (int32)bg_color, use_private_register);
+    status = sixel_image_init(&sixel_state->image,
+                              1, 1,
+                              (int32)fg_color, (int32)bg_color,
+                              use_private_register);
 
     return status;
 }
