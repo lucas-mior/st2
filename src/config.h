@@ -272,6 +272,7 @@ static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
 	{ ControlMask|ShiftMask, XK_N,          user_change_alpha,    {.f = -0.02f} },
 	{ ControlMask|ShiftMask, XK_M,          user_change_alpha,    {.f = +0.02f} },
 	{ Mod1Mask,              XK_Escape,     user_vim_select,      {.i = 0} },
+	{ Mod1Mask,              XK_c,          user_copy_output,     {.i = 0} },
 };
 
 /*

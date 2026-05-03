@@ -349,6 +349,129 @@ user_external_pipe(union Arg *arg) {
     return;
 }
 
+static void
+user_copy_output(union Arg *arg) {
+    int32 to[2];
+    pid_t child;
+    void (*oldsigpipe)(int32);
+    char winid[32];
+    char *cmd;
+    char *argv[5];
+    int32 newline;
+
+    (void)arg;
+
+    if (pipe(to) == -1) {
+        perror("pipe failed");
+        return;
+    }
+
+    SNPRINTF(winid, "%lu", x_window.win);
+
+    /* 
+     * This logic mirrors your script exactly:
+     * 1. Dump stdin to tmpfile.
+     * 2. Strip null characters.
+     * 3. Extract PS1 from the last non-empty line.
+     * 4. Let user select a command from prompts via dmenu.
+     * 5. Extract output between the selected command and the next prompt.
+     */
+    cmd = "tmpfile=$(mktemp /tmp/st-cmd-output.XXXXXX); "
+          "trap 'rm \"$tmpfile\"' 0 1 15; "
+          "cat > \"$tmpfile\"; "
+          "sed -i 's/\\x0//g' \"$tmpfile\"; "
+          "ps1=$(grep \"\\S\" \"$tmpfile\" | tail -n 1 | sed 's/^\\s*//' | cut -d' ' -f1); "
+          "chosen=$(grep -F \"$ps1\" \"$tmpfile\" | sed '$ d' | tac | dmenu -w \"$1\" -p \"Copy output?\" -i -l 10 | sed 's/[^^]/[&]/g; s/\\^/\\\\^/g'); "
+          "if [ -n \"$chosen\" ]; then "
+          "  eps1=$(echo \"$ps1\" | sed 's/[^^]/[&]/g; s/\\^/\\\\^/g'); "
+          "  awk \"/^$chosen$/{p=1;print;next} p&&/$eps1/{p=0};p\" \"$tmpfile\" | xclip -selection clipboard; "
+          "fi";
+
+    argv[0] = "sh";
+    argv[1] = "-c";
+    argv[2] = cmd;
+    argv[3] = winid;
+    argv[4] = NULL;
+
+    child = fork();
+    if (child == -1) {
+        close(to[0]);
+        close(to[1]);
+        return;
+    }
+
+    if (child == 0) {
+        dup2(to[0], STDIN_FILENO);
+        close(to[0]);
+        close(to[1]);
+        execvp(argv[0], argv);
+        
+        perror("execvp failed");
+        _exit(1);
+    }
+
+    close(to[0]);
+    oldsigpipe = signal(SIGPIPE, SIG_IGN);
+    newline = 0;
+
+    for (int32 n = 0; n <= HISTORY_SIZE + 2; n += 1) {
+        StGlyph *bp;
+        StGlyph *end;
+        char buffer[UTF_SIZ];
+        int32 i_hist;
+        int32 lastpos;
+
+        bp = TERM_LINE_HIST(n);
+        i_hist = term.ncols;
+
+        if (TERM_LINE_HIST(n)[i_hist - 1].mode & ATTR_WRAP) {
+            lastpos = i_hist;
+        } else {
+            while (i_hist > 0 && TERM_LINE_HIST(n)[i_hist - 1].rune == ' ') {
+                i_hist -= 1;
+            }
+            lastpos = i_hist;
+        }
+
+        lastpos = (int32)MIN(lastpos + 1, term.ncols) - 1;
+        
+        if (lastpos < 0) {
+            break;
+        }
+        if (lastpos == 0) {
+            continue;
+        }
+
+        end = &bp[lastpos + 1];
+        for (; bp < end; bp += 1) {
+            if (!(bp->mode & ATTR_WDUMMY)) {
+                if (xwrite(to[1], buffer, utf8_encode(bp->rune, buffer)) < 0) {
+                    goto cleanup;
+                }
+            }
+        }
+
+        if (TERM_LINE_HIST(n)[lastpos].mode & ATTR_WRAP) {
+            newline = 1;
+            continue;
+        }
+
+        newline = 0;
+        if (xwrite(to[1], "\n", 1) < 0) {
+            break;
+        }
+    }
+
+    if (newline) {
+        (void)xwrite(to[1], "\n", 1);
+    }
+
+cleanup:
+    close(to[1]);
+    signal(SIGPIPE, oldsigpipe);
+    return;
+}
+
 #if TESTING_user
 
 #include <stdbool.h>
