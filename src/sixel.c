@@ -226,7 +226,7 @@ sixel_parser_init(SixelState *sixel_state, bool transparent, uint32 fg_color,
                   int32 cell_height) {
     int32 status = (-1);
 
-    sixel_state->state = PS_DECSIXEL;
+    sixel_state->state = PARSE_STATE_DECSIXEL;
     sixel_state->pos_x = 0;
     sixel_state->pos_y = 0;
     sixel_state->max_x = 0;
@@ -361,35 +361,35 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
     int32 color_index;
 
     if (!sixel_image->data) {
-        sixel_state->state = PS_ERROR;
+        sixel_state->state = PARSE_STATE_ERROR;
     }
 
     while (p < p2) {
         switch (sixel_state->state) {
-        case PS_ESC:
+        case PARSE_STATE_ESC:
             goto end;
 
-        case PS_DECSIXEL:
+        case PARSE_STATE_DECSIXEL:
             switch (*p) {
             case '\x1b':
-                sixel_state->state = PS_ESC;
+                sixel_state->state = PARSE_STATE_ESC;
                 break;
             case '"':
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
-                sixel_state->state = PS_DECGRA;
+                sixel_state->state = PARSE_STATE_DECGRA;
                 p++;
                 break;
             case '!':
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
-                sixel_state->state = PS_DECGRI;
+                sixel_state->state = PARSE_STATE_DECGRI;
                 p++;
                 break;
             case '#':
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
-                sixel_state->state = PS_DECGCI;
+                sixel_state->state = PARSE_STATE_DECGCI;
                 p++;
                 break;
             case '$':
@@ -428,7 +428,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
 
                         if (sixel_image_buffer_resize(sixel_image, sx, sy) < 0) {
                             perror("sixel_parser_parse() failed");
-                            sixel_state->state = PS_ERROR;
+                            sixel_state->state = PARSE_STATE_ERROR;
                             p++;
                             break;
                         }
@@ -523,11 +523,11 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             }
             break;
 
-        case PS_DECGRA:
+        case PARSE_STATE_DECGRA:
             /* DECGRA Set Raster Attributes " Pan; Pad; Ph; Pv */
             switch (*p) {
             case '\x1b':
-                sixel_state->state = PS_ESC;
+                sixel_state->state = PARSE_STATE_ESC;
                 break;
             case '0':
             case '1':
@@ -592,21 +592,21 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
 
                     if (sixel_image_buffer_resize(sixel_image, sx, sy) < 0) {
                         perror("sixel_parser_parse() failed");
-                        sixel_state->state = PS_ERROR;
+                        sixel_state->state = PARSE_STATE_ERROR;
                         break;
                     }
                 }
-                sixel_state->state = PS_DECSIXEL;
+                sixel_state->state = PARSE_STATE_DECSIXEL;
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
             }
             break;
 
-        case PS_DECGRI:
+        case PARSE_STATE_DECGRI:
             /* DECGRI Graphics Repeat Introducer ! Pn Ch */
             switch (*p) {
             case '\x1b':
-                sixel_state->state = PS_ESC;
+                sixel_state->state = PARSE_STATE_ESC;
                 break;
             case '0':
             case '1':
@@ -625,18 +625,18 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 break;
             default:
                 sixel_state->repeat_count = (int32)MAX(sixel_state->param, 1);
-                sixel_state->state = PS_DECSIXEL;
+                sixel_state->state = PARSE_STATE_DECSIXEL;
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 break;
             }
             break;
 
-        case PS_DECGCI:
+        case PARSE_STATE_DECGCI:
             /* DECGCI Graphics Color Introducer # Pc; Pu; Px; Py; Pz */
             switch (*p) {
             case '\x1b':
-                sixel_state->state = PS_ESC;
+                sixel_state->state = PARSE_STATE_ESC;
                 break;
             case '0':
             case '1':
@@ -662,7 +662,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 p++;
                 break;
             default:
-                sixel_state->state = PS_DECSIXEL;
+                sixel_state->state = PARSE_STATE_DECSIXEL;
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
                     sixel_state->params[sixel_state->nparams++]
                         = sixel_state->param;
@@ -711,9 +711,9 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             }
             break;
 
-        case PS_ERROR:
+        case PARSE_STATE_ERROR:
             if (*p == '\x1b') {
-                sixel_state->state = PS_ESC;
+                sixel_state->state = PARSE_STATE_ESC;
                 goto end;
             }
             p++;
@@ -914,13 +914,13 @@ main(void) {
 
         status = sixel_parser_init(&state, 0, 1, 0, 1, 10, 20);
         ASSERT_EQUAL(status, 0);
-        ASSERT(state.state == PS_DECSIXEL);
+        ASSERT(state.state == PARSE_STATE_DECSIXEL);
 
         status = sixel_parser_set_default_color(&state);
         ASSERT_EQUAL(status, 0);
 
         sixel_parser_parse(&state, buf, 1);
-        ASSERT(state.state == PS_ESC);
+        ASSERT(state.state == PARSE_STATE_ESC);
 
         newimages = NULL;
         numimages = sixel_parser_finalize(&state, &newimages, 0, 0, 10, 20);

@@ -1701,7 +1701,7 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
 
     for (n = 0; n < buflen; n += charsize) {
         uint32 u;
-        if (TERM_MODE_IS_SET(TERM_MODE_SIXEL) && sixel_st.state != PS_ESC) {
+        if (TERM_MODE_IS_SET(TERM_MODE_SIXEL) && sixel_st.state != PARSE_STATE_ESC) {
             charsize = sixel_parser_parse(
                 &sixel_st, (unsigned char *)buffer + n, buflen - n);
             continue;
