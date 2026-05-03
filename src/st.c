@@ -47,6 +47,57 @@
 #define TESTING_st 0
 #endif
 
+static void
+check_consistent_state(void) {
+    ASSERT_MORE(term.nrows, 0);
+    ASSERT_MORE(term.ncols, 0);
+    ASSERT(term.lines != NULL);
+    ASSERT(term.tabs != NULL);
+    ASSERT(term.dirty != NULL);
+
+    for (int32 row_index = 0; row_index < term.nrows; row_index += 1) {
+        ASSERT(term.lines[row_index] != NULL);
+    }
+
+    for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
+        ASSERT(term.hist[i] != NULL);
+    }
+
+    ASSERT_MORE_EQUAL(term.n_hist, 0);
+    ASSERT_LESS_EQUAL(term.n_hist, HISTORY_SIZE);
+
+    ASSERT_MORE_EQUAL(term.i_hist, 0);
+    ASSERT_LESS(term.i_hist, HISTORY_SIZE);
+
+    ASSERT_MORE_EQUAL(term.lines_scrolled_up, 0);
+    ASSERT_LESS_EQUAL(term.lines_scrolled_up, term.n_hist);
+
+    ASSERT_MORE_EQUAL(term.top_scroll_limit, 0);
+    ASSERT_LESS_EQUAL(term.top_scroll_limit, term.bot_scroll_limit);
+
+    ASSERT_MORE_EQUAL(term.bot_scroll_limit, 0);
+    ASSERT_LESS(term.bot_scroll_limit, term.nrows);
+
+    ASSERT_MORE_EQUAL(term.cursor.x, 0);
+    ASSERT_LESS(term.cursor.x, term.ncols);
+
+    ASSERT_MORE_EQUAL(term.cursor.y, 0);
+    ASSERT_LESS(term.cursor.y, term.nrows);
+
+    return;
+}
+
+static int32
+term_line_len(StGlyph *line) {
+    int32 i = term.ncols - 1;
+
+    while ((i >= 0) && !(line[i].mode & (ATTR_SET | ATTR_WRAP))) {
+        i -= 1;
+    }
+
+    return i + 1;
+}
+
 static int64
 xwrite(int32 fd, char *s, int64 len) {
     int64 r;
@@ -126,57 +177,6 @@ update_wrap_next(int32 alt, int32 col) {
     }
     
     return;
-}
-
-static void
-check_consistent_state(void) {
-    ASSERT_MORE(term.nrows, 0);
-    ASSERT_MORE(term.ncols, 0);
-    ASSERT(term.lines != NULL);
-    ASSERT(term.tabs != NULL);
-    ASSERT(term.dirty != NULL);
-
-    for (int32 row_index = 0; row_index < term.nrows; row_index += 1) {
-        ASSERT(term.lines[row_index] != NULL);
-    }
-
-    for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        ASSERT(term.hist[i] != NULL);
-    }
-
-    ASSERT_MORE_EQUAL(term.n_hist, 0);
-    ASSERT_LESS_EQUAL(term.n_hist, HISTORY_SIZE);
-
-    ASSERT_MORE_EQUAL(term.i_hist, 0);
-    ASSERT_LESS(term.i_hist, HISTORY_SIZE);
-
-    ASSERT_MORE_EQUAL(term.lines_scrolled_up, 0);
-    ASSERT_LESS_EQUAL(term.lines_scrolled_up, term.n_hist);
-
-    ASSERT_MORE_EQUAL(term.top_scroll_limit, 0);
-    ASSERT_LESS_EQUAL(term.top_scroll_limit, term.bot_scroll_limit);
-
-    ASSERT_MORE_EQUAL(term.bot_scroll_limit, 0);
-    ASSERT_LESS(term.bot_scroll_limit, term.nrows);
-
-    ASSERT_MORE_EQUAL(term.cursor.x, 0);
-    ASSERT_LESS(term.cursor.x, term.ncols);
-
-    ASSERT_MORE_EQUAL(term.cursor.y, 0);
-    ASSERT_LESS(term.cursor.y, term.nrows);
-
-    return;
-}
-
-static int32
-term_line_len(StGlyph *line) {
-    int32 i = term.ncols - 1;
-
-    while ((i >= 0) && !(line[i].mode & (ATTR_SET | ATTR_WRAP))) {
-        i -= 1;
-    }
-
-    return i + 1;
 }
 
 static bool
