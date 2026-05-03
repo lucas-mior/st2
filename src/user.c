@@ -373,30 +373,21 @@ user_external_pipe(union Arg *arg) {
     return;
 }
 
+#include "gen/copy_output.h"
+#include "gen/copy_url.h"
+
 static void
 user_copy_output(union Arg *arg) {
     char winid[32];
-    char *cmd;
     char *argv[5];
 
     (void)arg;
 
     SNPRINTF(winid, "%lu", x_window.win);
 
-    cmd = "tmpfile=$(mktemp /tmp/st-cmd-output.XXXXXX); "
-          "trap 'rm \"$tmpfile\"' 0 1 15; "
-          "cat > \"$tmpfile\"; "
-          "sed -i 's/\\x0//g' \"$tmpfile\"; "
-          "ps1=$(grep \"\\S\" \"$tmpfile\" | tail -n 1 | sed 's/^\\s*//' | cut -d' ' -f1); "
-          "chosen=$(grep -F \"$ps1\" \"$tmpfile\" | sed '$ d' | tac | dmenu -w \"$1\" -p \"Copy output?\" -i -l 10 | sed 's/[^^]/[&]/g; s/\\^/\\\\^/g'); "
-          "if [ -n \"$chosen\" ]; then "
-          "  eps1=$(echo \"$ps1\" | sed 's/[^^]/[&]/g; s/\\^/\\\\^/g'); "
-          "  awk \"/^$chosen$/{p=1;print;next} p&&/$eps1/{p=0};p\" \"$tmpfile\" | xclip -selection clipboard; "
-          "fi";
-
     argv[0] = "sh";
     argv[1] = "-c";
-    argv[2] = cmd;
+    argv[2] = (char *)st_copy_output;
     argv[3] = winid;
     argv[4] = NULL;
 
@@ -407,7 +398,6 @@ user_copy_output(union Arg *arg) {
 static void
 user_url_select(union Arg *arg) {
     char winid[32];
-    char *cmd;
     char *argv[6];
     char *mode;
 
@@ -419,21 +409,9 @@ user_url_select(union Arg *arg) {
 
     SNPRINTF(winid, "%lu", x_window.win);
 
-    cmd = "urlregex=\"(((http|https|gopher|gemini|ftp|ftps|git)://|www\\.)[a-zA-Z0-9.]*[:]?[a-zA-Z0-9./@$&%?$\\#=_~-]*)|((magnet:\\?xt=urn:btih:)[a-zA-Z0-9]*)\"; "
-          "urls=$(sed 's/.*│//g' | tr -d '\\n' | grep -aEo \"$urlregex\" | uniq | sed \"s/\\(\\.\\|,\\|;\\|\\!\\|\\?\\)$//; s/^www./http:\\/\\/www\\./\"); "
-          "[ -z \"$urls\" ] && exit 1; "
-          "if [ \"$2\" = \"o\" ]; then "
-          "  chosen=$(echo \"$urls\" | dmenu -w \"$1\" -i -p 'Follow which url?' -l 10); "
-          "  [ -z \"$chosen\" ] && exit 0; "
-          "  echo \"$chosen\" | tr -d '\\n' | xclip -selection clipboard; "
-          "  setsid xdg-open \"$chosen\" >/dev/null 2>&1 & "
-          "else "
-          "  echo \"$urls\" | dmenu -w \"$1\" -p 'Copy which url?' -l 10 | tr -d '\\n' | xclip -selection clipboard; "
-          "fi";
-
     argv[0] = "sh";
     argv[1] = "-c";
-    argv[2] = cmd;
+    argv[2] = (char *)st_copy_url;
     argv[3] = winid;
     argv[4] = mode;
     argv[5] = NULL;

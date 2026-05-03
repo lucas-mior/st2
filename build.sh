@@ -44,6 +44,14 @@ cbase="cbase"
 CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
 CPPFLAGS="$CPPFLAGS -I."
 
+mkdir -p gen
+{ cat st-copy-output.sh; printf '\0'; } \
+    | xxd -i -n st_copy_output > gen/copy_output.h
+{ cat st-copy-url.sh;    printf '\0'; } \
+    | xxd -i -n st_copy_url    > gen/copy_url.h
+
+CPPFLAGS="$CPPFLAGS -I$dir/gen"
+
 cd "$dir" || exit
 program=$(basename "$(readlink -f "$dir")")
 script=$(basename "$0")
