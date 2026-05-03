@@ -186,12 +186,6 @@ user_print_sel(union Arg *arg) {
     return;
 }
 
-static int
-tlinehistlen(int y) {
-    /* dummy function, how should it work? */
-    return 0;
-}
-
 static void
 openvim(char *tmp_file, int cols, int rows, int x, int y) {
     char geo[32];
