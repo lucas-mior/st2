@@ -165,8 +165,9 @@ exec_shell(char *cmd, char **args) {
 
 static void
 term_set_sixel_attr(StGlyph *line, int x1, int x2) {
-    for (; x1 <= x2; x1 += 1) {
+    while (x1 <= x2) {
         line[x1].mode |= ATTR_SIXEL;
+        x1 += 1;
     }
     return;
 }
