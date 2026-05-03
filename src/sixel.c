@@ -735,15 +735,15 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
     char c;
     char *clipdata;
     char *dst;
-    int32 b, i, n, y, w;
     int32 msb = (XBitmapBitOrder(x_window.display) == MSBFirst);
     uint32 *src = (uint32 *)pixels;
-    Pixmap clipmask;
 
     clipdata = dst = xmalloc((width + 7) / 8*height);
 
-    for (y = 0; y < height; y++) {
-        for (w = width; w > 0; w -= n) {
+    for (int32 y = 0; y < height; y++) {
+        int32 b, i, n;
+
+        for (int32 w = width; w > 0; w -= n) {
             n = (int32)MIN(w, 8);
             if (msb) {
                 for (b = 0x80, c = 0, i = 0; i < n; i++, b >>= 1) {
@@ -758,10 +758,13 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
         }
     }
 
-    clipmask = XCreateBitmapFromData(x_window.display, x_window.win, clipdata,
-                                     (uint32)width, (uint32)height);
-    free(clipdata);
-    return clipmask;
+    {
+        Pixmap clipmask = XCreateBitmapFromData(x_window.display, x_window.win,
+                                                clipdata,
+                                                (uint32)width, (uint32)height);
+        free(clipdata);
+        return clipmask;
+    }
 }
 
 static uint32
