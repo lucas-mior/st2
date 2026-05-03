@@ -177,7 +177,7 @@ enum scroll_mode {
     SCROLL_SAVEHIST = 1
 };
 
-enum cursor_movement {
+enum CursorMovement {
     CURSOR_SAVE,
     CURSOR_LOAD
 };
