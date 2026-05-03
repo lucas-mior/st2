@@ -334,11 +334,6 @@ static void term_swap_screen(void);
 static int32 xevent_col(XEvent *);
 static int32 xevent_row(XEvent *);
 
-static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, StGlyph *,
-                                     int32, int32, int32);
-static void x_draw_glyph_font_specs(XftGlyphFontSpec *, StGlyph,
-                                    int32, int32, int32);
-static void x_draw_glyph(StGlyph, int32, int32);
 static void x_clear(int32, int32, int32, int32);
 static int32 x_geom_mask_to_gravity(int32);
 static int32 x_im_open(Display *);
