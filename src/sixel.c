@@ -53,21 +53,22 @@ static void
 scroll_images(int32 n) {
     ImageList *next;
     int32 top;
+
     if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
         top = 0;
     } else {
         top = term.lines_scrolled_up - HISTORY_SIZE;
     }
 
-    for (ImageList *im = term.images; im; im = next) {
-        next = im->next;
-        im->y += n;
+    for (ImageList *image = term.images; image; image = next) {
+        next = image->next;
+        image->y += n;
 
         /* check if the current sixel has exceeded the maximum
          * draw distance, and should therefore be deleted */
-        if (im->y < top) {
-            // error("im@0x%08x exceeded maximum distance\n");
-            delete_image(im);
+        if (image->y < top) {
+            // error("image@0x%08x exceeded maximum distance\n");
+            delete_image(image);
         }
     }
     return;
