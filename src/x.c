@@ -392,14 +392,14 @@ xloadsparefont(FcPattern *pattern, int32 flags) {
         return 1;
     }
 
-    if (!(frc[frclen].font = XftFontOpenPattern(x_window.display, match))) {
+    if (!(frc[frc_len].font = XftFontOpenPattern(x_window.display, match))) {
         FcPatternDestroy(match);
         return 1;
     }
 
-    frc[frclen].flags = flags;
-    frc[frclen].unicodep = 0;
-    frclen += 1;
+    frc[frc_len].flags = flags;
+    frc[frc_len].unicodep = 0;
+    frc_len += 1;
 
     return 0;
 }
@@ -412,7 +412,7 @@ x_load_spare_fonts(void) {
     int32 fc;
     char **fp;
 
-    if (frclen != 0) {
+    if (frc_len != 0) {
         error("can't embed spare fonts. cache isn't empty");
         exit(EXIT_FAILURE);
     }
@@ -424,9 +424,9 @@ x_load_spare_fonts(void) {
     }
 
     /* Allocate memory for cache entries. */
-    if (frccap < 4*fc) {
-        frccap += 4*fc - frccap;
-        frc = xrealloc(frc, (int64)frccap*SIZEOF(FontCache));
+    if (frc_cap < 4*fc) {
+        frc_cap += 4*fc - frc_cap;
+        frc = xrealloc(frc, (int64)frc_cap*SIZEOF(FontCache));
     }
 
     for (fp = CONF_FONT2; fp - CONF_FONT2 < fc; fp += 1) {
@@ -504,9 +504,9 @@ x_unload_font(StFont *f) {
 static void
 x_unload_fonts(void) {
     /* Free the loaded fonts in the font cache.  */
-    while (frclen > 0) {
-        frclen -= 1;
-        XftFontClose(x_window.display, frc[frclen].font);
+    while (frc_len > 0) {
+        frc_len -= 1;
+        XftFontClose(x_window.display, frc[frc_len].font);
     }
 
     x_unload_font(&draw_context.font);
@@ -642,7 +642,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             continue;
         }
 
-        for (f = 0; f < frclen; f += 1) {
+        for (f = 0; f < frc_len; f += 1) {
             glyphidx = XftCharIndex(x_window.display, frc[f].font, rune);
             if (glyphidx) {
                 if (frc[f].flags == frcflags) {
@@ -658,7 +658,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             }
         }
 
-        if (f >= frclen) {
+        if (f >= frc_len) {
             FcResult fcres;
             FcPattern *fcpattern;
             FcPattern *fontpattern;
@@ -682,24 +682,24 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
             fontpattern = FcFontSetMatch(0, fcsets, 1, fcpattern, &fcres);
 
-            if (frclen >= frccap) {
-                frccap += 16;
-                frc = xrealloc(frc, (int64)frccap*SIZEOF(FontCache));
+            if (frc_len >= frc_cap) {
+                frc_cap += 16;
+                frc = xrealloc(frc, (int64)frc_cap*SIZEOF(FontCache));
             }
 
-            frc[frclen].font = XftFontOpenPattern(x_window.display, fontpattern);
-            if (!frc[frclen].font) {
+            frc[frc_len].font = XftFontOpenPattern(x_window.display, fontpattern);
+            if (!frc[frc_len].font) {
                 error("XftFontOpenPattern failed seeking fallback font: %s\n",
                       strerror(errno));
                 exit(EXIT_FAILURE);
             }
-            frc[frclen].flags = frcflags;
-            frc[frclen].unicodep = rune;
+            frc[frc_len].flags = frcflags;
+            frc[frc_len].unicodep = rune;
 
-            glyphidx = XftCharIndex(x_window.display, frc[frclen].font, rune);
+            glyphidx = XftCharIndex(x_window.display, frc[frc_len].font, rune);
 
-            f = frclen;
-            frclen += 1;
+            f = frc_len;
+            frc_len += 1;
 
             FcPatternDestroy(fcpattern);
             FcCharSetDestroy(fccharset);
