@@ -987,7 +987,7 @@ string_handle(void) {
         return;
     case 'P':
         if (TERM_MODE_IS_SET(TERM_MODE_SIXEL)) {
-            ImageList *newimages = (void *)0xCD;
+            ImageList *newimages = NULL;
             ImageList *next_im;
             ImageList *tail = NULL;
             int32 x1_im;
@@ -1115,7 +1115,9 @@ string_handle(void) {
                     term.cursor.x = (int32)MIN(term.cursor.x + newimages->cols,
                                                term.ncols - 1);
                 } else {
-                    term_new_line(1);
+                    /* Reset X to 0 on the current row. Trailing \n in the stream 
+                       will move to the next physical row without a gap. */
+                    term.cursor.x = 0;
                 }
             }
         }
