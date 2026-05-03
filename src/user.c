@@ -276,7 +276,7 @@ dump_terminal_to_fd(int32 fd) {
     oldsigpipe = signal(SIGPIPE, SIG_IGN);
     newline = 0;
 
-    for (int32 n = 0; n <= HISTORY_SIZE + 2; n += 1) {
+    for (int32 n = 0; n <= (HISTORY_SIZE + 2); n += 1) {
         StGlyph *bp = TERM_LINE_HIST(n);
         StGlyph *end;
         char buffer[UTF_SIZ];
