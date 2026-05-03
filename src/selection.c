@@ -54,7 +54,7 @@ selection_clear(void) {
 }
 
 static void
-SelectionSnap(int32 *x, int32 *y, int32 direction) {
+selection_snap(int32 *x, int32 *y, int32 direction) {
     int32 rtop = 0;
     int32 rbot = term.nrows - 1;
 
@@ -157,8 +157,8 @@ selection_normalize(void) {
     selection.nb.y = (int32)MIN(selection.ob.y, selection.oe.y);
     selection.ne.y = (int32)MAX(selection.ob.y, selection.oe.y);
 
-    SelectionSnap(&selection.nb.x, &selection.nb.y, -1);
-    SelectionSnap(&selection.ne.x, &selection.ne.y, +1);
+    selection_snap(&selection.nb.x, &selection.nb.y, -1);
+    selection_snap(&selection.ne.x, &selection.ne.y, +1);
 
     /* expand selection over line breaks */
     if (selection.type == SELECTION_RECTANGULAR) {
