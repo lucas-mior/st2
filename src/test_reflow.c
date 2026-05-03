@@ -384,6 +384,84 @@ main(void) {
         }
     }
 
+    /* Scenario N: The "Push-Down" Bug (Text below image wraps) */
+    printf("Testing Image Displacement when text BELOW wraps...\n");
+    
+    /* 1. Setup a small 20x5 terminal */
+    term_resize(20, 5);
+    term_reset();
+    
+    /* 2. Inject: 
+       Row 0: TOP
+       Row 1: ANCHOR (We will put the image here)
+       Row 2: A very long line that will wrap significantly 
+    */
+    inject_text("TOP\n");
+    inject_text("ANCHOR\n");
+    inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_MANY_ROWS_WHEN_SHRINKING");
+    
+    {
+        ImageList *img;
+        int32 expected_abs_y;
+        
+        img = xmalloc(SIZEOF(ImageList));
+        memset64(img, 0, SIZEOF(ImageList));
+        img->x = 0;
+        img->y = 1; /* Anchored to "ANCHOR" at Row 1 */
+        img->ch = 16;
+        img->cw = 8;
+        img->height = 16;
+        img->width = 16;
+        img->next = NULL;
+        term.images = img;
+
+        /* 
+         * 3. Shrink width to 10.
+         * "TOP" -> 1 row.
+         * "ANCHOR" -> 1 row.
+         * "THIS_IS_A..." (68 chars) -> Wraps into 7 rows at width 10.
+         * Total lines: 1 + 1 + 7 = 9 lines.
+         *
+         * Since screen height is 5, the terminal will show the last 5 rows 
+         * (the wrapped parts of the long line). 
+         * The "ANCHOR" line (originally at Row 1) is now at Absolute Row 1,
+         * but since the viewport shows the last 5 rows (Rows 4-8), 
+         * the "ANCHOR" line should now be in HISTORY (y = -3).
+         */
+        term_resize(10, 5);
+        check_consistent_state();
+
+        /* 
+         * If the bug is present, img->y will still be 1, which puts it 
+         * on the visible screen at Row 1, hiding the 2nd line of the wrapped text.
+         * It SHOULD have been updated to Row 1 in the new absolute coordinate system.
+         */
+        
+        /* In a 9-line buffer with a 5-row screen, Row 1 is at index -3 
+           relative to the current screen top. */
+        expected_abs_y = 1; 
+        
+        if (term.images->y != expected_abs_y) {
+            fprintf(stderr, "Scenario N failed! Image Y is %d, expected %d\n", 
+                    term.images->y, expected_abs_y);
+            fprintf(stderr, "Note: If Y stayed 1 but the text 'ANCHOR' is now in history,\n");
+            fprintf(stderr, "the image is now floating over the wrong text!\n");
+            assert(false);
+        }
+        
+        /* Final Check: Is the image actually where the text 'ANCHOR' is? */
+        StGlyph *target_line = term_line(term.images->y);
+        char buf[16];
+        term_get_glyphs(buf, &target_line[0], &target_line[5]);
+        buf[6] = '\0';
+        
+        if (strcmp(buf, "ANCHOR") != 0) {
+            fprintf(stderr, "Image desync! It's at Y=%d, but that line contains: '%s'\n", 
+                    term.images->y, buf);
+            assert(false);
+        }
+    }
+
     printf("All resize, reflow, image translation, and viewport tests passed successfully!\n");
     return 0;
 }
