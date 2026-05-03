@@ -559,15 +559,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
 
             /* FIX: Only delete if the BOTTOM of the image is past the history limit */
             if (image->y + height_in_rows < -term.n_hist) {
-                *pim = image->next;
-                if (image->pixmap) {
-                    XFreePixmap(x_window.display, (Pixmap)image->pixmap);
-                }
-                if (image->clipmask) {
-                    XFreePixmap(x_window.display, (Pixmap)image->clipmask);
-                }
-                free(image->pixels);
-                free(image);
+                delete_image(image);
                 continue;
             }
             pim = &(*pim)->next;
