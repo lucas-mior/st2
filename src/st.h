@@ -325,8 +325,6 @@ static void stty(char **);
 static void handler_sigchld(int32);
 static void tty_write_raw(char *, int64);
 
-static void control_seq_intro_dump(void);
-
 static void term_printer(char *, int64);
 static void term_dump_sel(void);
 static void term_dump_line(int32);

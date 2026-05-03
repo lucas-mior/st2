@@ -17,6 +17,8 @@
 static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 
+static void control_seq_intro_dump(void);
+
 static void
 term_cursor(enum CursorMovement mode) {
     static TCursor c[2];
