@@ -20,27 +20,33 @@ static STREscape str_escape_seq;
 
 static void
 control_seq_intro_dump(void) {
+    uint32 c;
+
     error("ESC[");
     for (int64 i = 0; i < csi_escape_seq.len; i += 1) {
-        uint32 c = csi_escape_seq.buffer[i] & 0xff;
+        c = csi_escape_seq.buffer[i] & 0xff;
+
         if (isprint(c)) {
             putc((int32)c, stderr);
-        } else {
-            if (c == '\n') {
-                error("(\\n)");
-            } else {
-                if (c == '\r') {
-                    error("(\\r)");
-                } else {
-                    if (c == 0x1b) {
-                        error("(\\e)");
-                    } else {
-                        error("(%02x)", c);
-                    }
-                }
-            }
+            continue;
+        }
+
+        switch (c) {
+        case '\n':
+            error("(\\n)");
+            break;
+        case '\r':
+            error("(\\r)");
+            break;
+        case 0x1b:
+            error("(\\e)");
+            break;
+        default:
+            error("(%02x)", c);
+            break;
         }
     }
+
     putc('\n', stderr);
     return;
 }
