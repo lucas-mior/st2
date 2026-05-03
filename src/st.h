@@ -250,28 +250,6 @@ static struct {
     ImageList *images_alt;
 } term;
 
-/* CSI Escape sequence structs */
-/* ESC '[' [[ [<priv>] <arg> [;]] <mode> [<mode>]] */
-typedef struct CSIEscape {
-    char buffer[ESC_BUF_SIZ]; /* raw string */
-    int64 len;                /* raw string length */
-    char priv;
-    int32 arg[ESC_ARG_SIZ];
-    int32 narg; /* nb of args */
-    char mode[2];
-} CSIEscape;
-
-/* STR Escape sequence structs */
-/* ESC type [[ [<priv>] <arg> [;]] <mode>] ESC '\' */
-typedef struct STREscape {
-    char type;    /* ESC type ... */
-    char *buffer; /* allocated raw string */
-    int32 siz;    /* allocation size */
-    int32 len;    /* raw string length */
-    char *args[STR_ARG_SIZ];
-    int32 nargs;
-} STREscape;
-
 typedef struct StFont {
     int32 height;
     int32 width;
