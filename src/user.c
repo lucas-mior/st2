@@ -187,67 +187,37 @@ user_print_sel(union Arg *arg) {
 }
 
 static void
-openvim(char *tmp_file, int cols, int rows, int x, int y) {
-    char geo[32];
-    char win[32];
-    char cur[64];
-
-    /* Match the geometry of the current window */
-    snprintf(geo, sizeof(geo), "%dx%d", cols, rows);
-    snprintf(win, sizeof(win), "%lu", x_window.win);
-    
-    /* Position the cursor in Vim to match the terminal cursor */
-    snprintf(cur, sizeof(cur), "call cursor(%d, %d)", y, x);
-
-    execlp("st", "st", "-w", win, "-g", geo, "-e",
-           "vim", "-c", "set nonumber norelativenumber wrap",
-           "-c", "set laststatus=0 buftype=nowrite",
-           "-c", cur, tmp_file, NULL);
-    
-    perror("execlp st failed");
-    _exit(1);
-}
-
-static void
 user_vim_select(union Arg *arg) {
     (void)arg;
     char buf[UTF_SIZ];
-    StGlyph *line;
-    int32 x, y, lastpos;
     char tmp_file[64];
-    int fd;
+    int32 fd;
     pid_t child;
 
     snprintf(tmp_file, sizeof(tmp_file), "/tmp/st_vimselect_%d", getpid());
 
-    /* Use O_TRUNC to ensure we start with a clean file if the PID was reused */
     if ((fd = open(tmp_file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) < 0) {
         error("Error opening %s: %s\n", tmp_file, strerror(errno));
         return;
     }
 
-    /* Iterate through History (-term.n_hist to -1) then the Screen (0 to term.nrows-1) */
-    for (y = -term.n_hist; y < term.nrows; y += 1) {
-        line = TERM_LINE_ABS(y);
-        
-        /* Find the actual end of the line (skip trailing empty cells) */
-        lastpos = term.ncols - 1;
+    for (int32 y = -term.n_hist; y < term.nrows; y += 1) {
+        StGlyph *line = TERM_LINE_ABS(y);
+        int32 lastpos = term.ncols - 1;
+
         for (; lastpos >= 0 && !(line[lastpos].mode & (ATTR_SET | ATTR_WRAP)); lastpos -= 1);
         lastpos += 1;
 
-        /* If we are on the cursor line, ensure we include up to the cursor position */
         if (y == term.cursor.y) {
             lastpos = (int32)MAX(lastpos, term.cursor.x + 1);
         }
 
-        for (x = 0; x < lastpos; x += 1) {
-            /* Skip 'dummy' cells created by wide characters (CJK, etc) */
+        for (int32 x = 0; x < lastpos; x += 1) {
             if (!(line[x].mode & ATTR_WDUMMY)) {
                 xwrite(fd, buf, utf8_encode(line[x].rune, buf));
             }
         }
         
-        /* Add newline if it's a hard break (not wrapped) or the last line of the screen */
         if (lastpos == 0 || !(line[lastpos - 1].mode & ATTR_WRAP) || y == term.nrows - 1) {
             xwrite(fd, "\n", 1);
         }
@@ -260,13 +230,25 @@ user_vim_select(union Arg *arg) {
         error("fork failed: %s\n", strerror(errno));
         break;
     case 0:
-        /* Child process replaces itself with the new st instance */
-        openvim(tmp_file, term.ncols, term.nrows, 
-                term.cursor.x + 1, term.n_hist + term.cursor.y + 1);
-        break;
+        {
+            char geo[32];
+            char win[32];
+            char cur[64];
+
+            snprintf(geo, sizeof(geo), "%dx%d", term.ncols, term.nrows);
+            snprintf(win, sizeof(win), "%lu", x_window.win);
+            snprintf(cur, sizeof(cur), "call cursor(%d, %d)", 
+                     term.n_hist + term.cursor.y + 1, term.cursor.x + 1);
+
+            execlp("st", "st", "-w", win, "-g", geo, "-e",
+                   "vim", "-c", "set nonumber norelativenumber wrap",
+                   "-c", "set laststatus=0 buftype=nowrite",
+                   "-c", cur, tmp_file, NULL);
+            
+            perror("execlp st failed");
+            _exit(1);
+        }
     default:
-        /* Parent process: Wait long enough for Vim to read the file, then delete it.
-           500ms is usually enough for local I/O. */
         usleep(500000);
         unlink(tmp_file);
         break;
