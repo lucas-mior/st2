@@ -342,7 +342,6 @@ static void x_draw_glyph(StGlyph, int32, int32);
 static void x_clear(int32, int32, int32, int32);
 static int32 x_geom_mask_to_gravity(int32);
 static int32 x_im_open(Display *);
-static void x_im_instantiate(Display *, XPointer, XPointer);
 static void x_im_destroy(XIM, XPointer, XPointer);
 static int32 x_ic_destroy(XIC, XPointer, XPointer);
 static void cresize(int32, int32);

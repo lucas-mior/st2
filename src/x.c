@@ -516,37 +516,6 @@ x_unload_fonts(void) {
     return;
 }
 
-static int32
-x_im_open(Display *display) {
-    XIMCallback imdestroy = {.client_data = NULL, .callback = x_im_destroy};
-    XICCallback icdestroy = {.client_data = NULL, .callback = x_ic_destroy};
-    (void)display;
-
-    x_window.ime.xim = XOpenIM(x_window.display, NULL, NULL, NULL);
-    if (x_window.ime.xim == NULL) {
-        return 0;
-    }
-
-    if (XSetIMValues(x_window.ime.xim, XNDestroyCallback, &imdestroy, NULL)) {
-        fprintf(stderr, "XSetIMValues: Could not set XNDestroyCallback.\n");
-    }
-
-    x_window.ime.spotlist
-        = XVaCreateNestedList(0, XNSpotLocation, &x_window.ime.point, NULL);
-
-    if (x_window.ime.xic == NULL) {
-        x_window.ime.xic
-            = XCreateIC(x_window.ime.xim, XNInputStyle,
-                        XIMPreeditNothing | XIMStatusNothing, XNClientWindow,
-                        x_window.win, XNDestroyCallback, &icdestroy, NULL);
-    }
-    if (x_window.ime.xic == NULL) {
-        fprintf(stderr, "XCreateIC: Could not create input context.\n");
-    }
-
-    return 1;
-}
-
 static void
 x_im_instantiate(Display *display, XPointer client, XPointer call) {
     (void)client;
@@ -576,6 +545,37 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
     (void)client;
     (void)call;
     x_window.ime.xic = NULL;
+    return 1;
+}
+
+static int32
+x_im_open(Display *display) {
+    XIMCallback imdestroy = {.client_data = NULL, .callback = x_im_destroy};
+    XICCallback icdestroy = {.client_data = NULL, .callback = x_ic_destroy};
+    (void)display;
+
+    x_window.ime.xim = XOpenIM(x_window.display, NULL, NULL, NULL);
+    if (x_window.ime.xim == NULL) {
+        return 0;
+    }
+
+    if (XSetIMValues(x_window.ime.xim, XNDestroyCallback, &imdestroy, NULL)) {
+        fprintf(stderr, "XSetIMValues: Could not set XNDestroyCallback.\n");
+    }
+
+    x_window.ime.spotlist
+        = XVaCreateNestedList(0, XNSpotLocation, &x_window.ime.point, NULL);
+
+    if (x_window.ime.xic == NULL) {
+        x_window.ime.xic
+            = XCreateIC(x_window.ime.xim, XNInputStyle,
+                        XIMPreeditNothing | XIMStatusNothing, XNClientWindow,
+                        x_window.win, XNDestroyCallback, &icdestroy, NULL);
+    }
+    if (x_window.ime.xic == NULL) {
+        fprintf(stderr, "XCreateIC: Could not create input context.\n");
+    }
+
     return 1;
 }
 
