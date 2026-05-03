@@ -18,7 +18,7 @@ static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 
 static void
-term_cursor(int32 mode) {
+term_cursor(enum CursorMovement mode) {
     static TCursor c[2];
     int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 

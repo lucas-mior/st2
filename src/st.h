@@ -339,7 +339,7 @@ static void term_dump_sel(void);
 static void term_dump_line(int32);
 static void term_dump(void);
 static void term_clear_region(int32, int32, int32, int32, int32);
-static void term_cursor(int32);
+static void term_cursor(enum CursorMovement);
 static void term_clear_glyph(StGlyph *, int32);
 static void term_delete_char(int32);
 static void term_delete_line(int32);
