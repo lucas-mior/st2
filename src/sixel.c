@@ -130,8 +130,10 @@ set_default_color(SixelImage *sixel_image) {
 }
 
 static int32
-sixel_image_init(SixelImage *image, int32 width, int32 height, int32 fgcolor,
-                 int32 bgcolor, int32 use_private_register) {
+sixel_image_init(SixelImage *image,
+                 int32 width, int32 height,
+                 int32 fgcolor, int32 bgcolor,
+                 int32 use_private_register) {
     int64 size;
 
     size = (width*height) * SIZEOF(uint32);
