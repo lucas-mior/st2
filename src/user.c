@@ -346,16 +346,16 @@ exec_external_pipe(char **argv) {
         fatal(EXIT_FAILURE);
     case 0:
         xdup2(pipe[0], STDIN_FILENO);
-        XCLOSE(pipe[0]);
-        XCLOSE(pipe[1]);
+        XCLOSE(&pipe[0]);
+        XCLOSE(&pipe[1]);
         execvp(argv[0], argv);
 
         error("execvp failed");
         _exit(1);
     default:
-        XCLOSE(pipe[0]);
+        XCLOSE(&pipe[0]);
         dump_terminal_to_fd(pipe[1]);
-        XCLOSE(pipe[1]);
+        XCLOSE(&pipe[1]);
         break;
     }
 
