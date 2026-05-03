@@ -236,9 +236,9 @@ user_vim_select(union Arg *arg) {
             char win[32];
             char cur[64];
 
-            snprintf(geo, sizeof(geo), "%dx%d", term.ncols, term.nrows);
-            snprintf(win, sizeof(win), "%lu", x_window.win);
-            snprintf(cur, sizeof(cur), "call cursor(%d, %d)", 
+            SNPRINTF(geo, "%dx%d", term.ncols, term.nrows);
+            SNPRINTF(win, "%lu", x_window.win);
+            SNPRINTF(cur, "call cursor(%d, %d)", 
                      term.n_hist + term.cursor.y + 1, term.cursor.x + 1);
 
             execlp("st", "st", "-w", win, "-g", geo, "-e",
