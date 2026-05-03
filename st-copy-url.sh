@@ -15,10 +15,13 @@ if [ -z "$urls" ]; then
 fi
 
 chosen=$(echo "$urls" | dmenu -w "$1" -i -p 'Follow which url?' -l 10)
+
 if [ -z "$chosen" ]; then
     exit 0
 fi
+
 echo "$chosen" \
     | tr -d '\n' \
     | xclip -selection clipboard
+
 setsid xdg-open "$chosen" >/dev/null 2>&1 &
