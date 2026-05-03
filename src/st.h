@@ -343,16 +343,6 @@ static void x_clear(int32, int32, int32, int32);
 static int32 x_geom_mask_to_gravity(int32);
 static int32 x_im_open(Display *);
 static void cresize(int32, int32);
-static void x_resize(int32, int32);
-static void x_hints(void);
-static int32 x_load_color(int32, char *, XftColor *);
-static int32 x_load_font(StFont *, FcPattern *);
-static void x_load_fonts(char *, float);
-static int32 xloadsparefont(FcPattern *, int32);
-static void x_load_spare_fonts(void);
-static void x_unload_font(StFont *);
-static void x_unload_fonts(void);
-static void x_set_urgency(int32);
 
 static void zoom_abs(union Arg *);
 
