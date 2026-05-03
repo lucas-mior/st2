@@ -221,7 +221,7 @@ sixel_image_deinit(SixelImage *image) {
 }
 
 static int32
-sixel_parser_init(SixelState *sixel_state, int32 transparent, uint32 fg_color,
+sixel_parser_init(SixelState *sixel_state, bool transparent, uint32 fg_color,
                   uint32 bg_color, uchar use_private_register, int32 cell_width,
                   int32 cell_height) {
     int32 status = (-1);

@@ -39,7 +39,7 @@ typedef struct SixelState {
     uint32 attributed_pad;
     int32 attributed_ph;
     int32 attributed_pv;
-    int32 transparent;
+    bool transparent;
     int32 repeat_count;
     int32 color_index;
     int32 bgindex;
@@ -55,7 +55,7 @@ struct ImageList;
 static void scroll_images(int32 n);
 static void delete_image(struct ImageList *im);
 static int32 sixel_parser_init(SixelState *st,
-                               int32 transparent,
+                               bool transparent,
                                uint32 fgcolor, uint32 bgcolor,
                                uchar use_private_register,
                                int32 cell_width, int32 cell_height);
