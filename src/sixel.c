@@ -160,7 +160,7 @@ sixel_image_init(SixelImage *sixel_image,
 }
 
 static int32
-image_buffer_resize(SixelImage *image, int32 width, int32 height) {
+image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
     int32 status = (-1);
     int64 size;
     uint16 *alt_buffer;
@@ -169,41 +169,41 @@ image_buffer_resize(SixelImage *image, int32 width, int32 height) {
     size = (width*height)*SIZEOF(uint16);
     alt_buffer = (uint16 *)xmalloc(size);
     if (alt_buffer == NULL) {
-        free(image->data);
-        image->data = NULL;
+        free(sixel_image->data);
+        sixel_image->data = NULL;
         status = (-1);
         goto end;
     }
 
-    min_height = height > image->height ? image->height : height;
-    if (width > image->width) { /* if width is extended */
+    min_height = height > sixel_image->height ? sixel_image->height : height;
+    if (width > sixel_image->width) { /* if width is extended */
         for (int32 n = 0; n < min_height; ++n) {
-            /* copy from source image */
-            memcpy64(alt_buffer + width*n, image->data + image->width*n,
-                     image->width*SIZEOF(uint16));
+            /* copy from source sixel_image */
+            memcpy64(alt_buffer + width*n, sixel_image->data + sixel_image->width*n,
+                     sixel_image->width*SIZEOF(uint16));
             /* fill extended area with background color */
-            memset64(alt_buffer + width*n + image->width, 0,
-                     (width - image->width)*SIZEOF(uint16));
+            memset64(alt_buffer + width*n + sixel_image->width, 0,
+                     (width - sixel_image->width)*SIZEOF(uint16));
         }
     } else {
         for (int32 n = 0; n < min_height; ++n) {
-            /* copy from source image */
-            memcpy64(alt_buffer + width*n, image->data + image->width*n,
+            /* copy from source sixel_image */
+            memcpy64(alt_buffer + width*n, sixel_image->data + sixel_image->width*n,
                      width*SIZEOF(uint16));
         }
     }
 
-    if (height > image->height) { /* if height is extended */
+    if (height > sixel_image->height) { /* if height is extended */
         /* fill extended area with background color */
-        memset64(alt_buffer + width*image->height, 0,
-                 (width*(height - image->height))*SIZEOF(uint16));
+        memset64(alt_buffer + width*sixel_image->height, 0,
+                 (width*(height - sixel_image->height))*SIZEOF(uint16));
     }
 
-    free(image->data);
+    free(sixel_image->data);
 
-    image->data = alt_buffer;
-    image->width = width;
-    image->height = height;
+    sixel_image->data = alt_buffer;
+    sixel_image->width = width;
+    sixel_image->height = height;
 
     status = (0);
 
