@@ -171,7 +171,7 @@ typedef struct ImageList {
 	int32 transparent;
 } ImageList;
 
-enum scroll_mode {
+enum ScrollMode {
     SCROLL_RESIZE = -1,
     SCROLL_NOSAVEHIST = 0,
     SCROLL_SAVEHIST = 1
