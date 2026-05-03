@@ -224,7 +224,7 @@ user_vim_select(union Arg *arg) {
         }
     }
 
-    close(fd);
+    XCLOSE(fd);
 
     switch (child = fork()) {
     case -1:
