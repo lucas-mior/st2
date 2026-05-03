@@ -327,12 +327,8 @@ static void term_resize_alt(int32, int32);
 static void term_resize_def(int32, int32);
 static void term_scroll_down(int32, int32);
 static void term_scroll_up(int32, int32, int32, enum ScrollMode);
-static void term_set_attr(int32 *, int32);
 static void term_set_char(uint32, StGlyph *, int32, int32);
 static void term_set_dirt(int32, int32);
-static void term_set_dirt_attr(enum GlyphAttribute);
-static void term_set_mode(int32, int32, int32 *, int32);
-static void term_str_sequence(uchar);
 static void term_swap_screen(void);
 
 static void mouse_select(XEvent *, int32);
