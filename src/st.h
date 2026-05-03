@@ -354,7 +354,7 @@ static void term_new_line(int32);
 static void term_put_tab(int32);
 static void term_putc(uint32);
 static void term_reset(void);
-static void term_scroll_up(int32, int32, int32, int32);
+static void term_scroll_up(int32, int32, int32, enum ScrollMode);
 static void term_scroll_down(int32, int32);
 static void term_reflow(int32, int32);
 static void reflow_scroll_down(int32);
