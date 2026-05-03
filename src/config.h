@@ -1,5 +1,5 @@
-#ifndef CONFIG_DEF_H
-#define CONFIG_DEF_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include <stdint.h>
 #include <limits.h>
@@ -546,4 +546,4 @@ static char CONF_ASCII_PRINTABLE[] =
 	"@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
 	"`abcdefghijklmnopqrstuvwxyz{|}~";
 
-#endif /* CONFIG_DEF_H */
+#endif /* CONFIG_H */
