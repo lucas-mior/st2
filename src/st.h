@@ -376,6 +376,22 @@ static void user_send_break(union Arg *);
 static void user_toggle_printer(union Arg *);
 static void user_vim_select(union Arg *arg);
 
+static void x_bell(void);
+static void x_draw_cursor(int32, int32, StGlyph, int32, int32, StGlyph);
+static void x_draw_line(StGlyph *, int32, int32, int32);
+static void x_load_cols(void);
+static int32 x_set_color_name(int32, char *);
+static void x_set_icon_title(char *);
+static void x_set_title(char *);
+static int32 x_set_cursor(int32);
+static void x_set_mode(int32, uint32);
+static void x_set_pointer_motion(int32);
+static int32 x_start_draw(void);
+static void x_xim_spot(int32, int32);
+
+static void selection_set(char *, Time);
+static int64 xwrite(int32 fd, char *s, int64 len);
+
 typedef struct Shortcut {
     uint32 mod;
     KeySym keysym;
@@ -416,22 +432,6 @@ typedef struct Key {
 	X(NUMLOCK) \
 	X(MOUSE, WIN_MODE_MOUSEBTN|WIN_MODE_MOUSEMOTION|WIN_MODE_MOUSEX10|WIN_MODE_MOUSEMANY)
 #include "xenums.c"
-
-static void x_bell(void);
-static void x_draw_cursor(int32, int32, StGlyph, int32, int32, StGlyph);
-static void x_draw_line(StGlyph *, int32, int32, int32);
-static void x_load_cols(void);
-static int32 x_set_color_name(int32, char *);
-static void x_set_icon_title(char *);
-static void x_set_title(char *);
-static int32 x_set_cursor(int32);
-static void x_set_mode(int32, uint32);
-static void x_set_pointer_motion(int32);
-static int32 x_start_draw(void);
-static void x_xim_spot(int32, int32);
-
-static void selection_set(char *, Time);
-static int64 xwrite(int32 fd, char *s, int64 len);
 
 static struct {
     int32 tty_width;
