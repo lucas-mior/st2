@@ -265,6 +265,93 @@ typedef struct StFont {
     FcPattern *pattern;
 } StFont;
 
+#define ENUM_NAME WinMode
+#define ENUM_PREFIX_ WIN_MODE_
+#define ENUM_BITFLAGS 1
+#define ENUM_FIELDS \
+    X(VISIBLE) \
+    X(FOCUSED) \
+    X(APPKEYPAD) \
+    X(MOUSEBTN) \
+    X(MOUSEMOTION) \
+    X(REVERSE) \
+    X(KBDLOCK) \
+    X(HIDE) \
+    X(APPCURSOR) \
+    X(MOUSESGR) \
+    X(8BIT) \
+    X(BLINK) \
+    X(FBLINK) \
+    X(FOCUS) \
+    X(MOUSEX10) \
+    X(MOUSEMANY) \
+    X(BRCKTPASTE) \
+    X(NUMLOCK) \
+    X(MOUSE, WIN_MODE_MOUSEBTN    \
+            |WIN_MODE_MOUSEMOTION \
+            |WIN_MODE_MOUSEX10    \
+            |WIN_MODE_MOUSEMANY)
+#include "xenums.c"
+
+static struct {
+    int32 tty_width;
+    int32 tty_height;
+    int32 w;
+    int32 h;
+    int32 hborderpx;
+    int32 vborderpx;
+    int32 ch;     /* char height */
+    int32 cw;     /* char width  */
+    enum WinMode mode;   /* window state/mode flags */
+    int32 cursor; /* cursor style */
+} term_window;
+
+static struct {
+    Display *display;
+    Colormap color_map;
+    Window win;
+    Drawable drawable;
+    XftGlyphFontSpec *specbuf; /* font spec buffer used for rendering */
+    Atom xembed;
+    Atom wm_delete_win;
+    Atom net_wm_name;
+    Atom net_wm_iconname;
+    Atom net_wm_pid;
+    struct {
+        XIM xim;
+        XIC xic;
+        XPoint point;
+        XVaNestedList spotlist;
+    } ime;
+    XftDraw *xft_draw;
+    Visual *visual;
+    XSetWindowAttributes attrs;
+    int32 screen;
+    int32 is_fixed;
+    int32 depth;
+    int32 left_offset;
+    int32 top_offset;
+    int32 geo_mask;
+} x_window;
+
+static struct {
+    XftColor *colors;
+    int32 colors_len;
+    StFont font;
+    StFont bfont;
+    StFont ifont;
+    StFont ibfont;
+    GC graphics;
+} draw_context;
+
+static struct {
+    Atom xtarget;
+    char *primary;
+    char *clipboard;
+    struct timespec tclick1;
+    struct timespec tclick2;
+} xsel;
+
 static void redraw(void);
 static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 static void term_delete_images(void);
@@ -355,93 +442,6 @@ typedef struct Key {
     char appkey;    /* application keypad */
     char appcursor; /* application cursor */
 } Key;
-
-#define ENUM_NAME WinMode
-#define ENUM_PREFIX_ WIN_MODE_
-#define ENUM_BITFLAGS 1
-#define ENUM_FIELDS \
-    X(VISIBLE) \
-    X(FOCUSED) \
-    X(APPKEYPAD) \
-    X(MOUSEBTN) \
-    X(MOUSEMOTION) \
-    X(REVERSE) \
-    X(KBDLOCK) \
-    X(HIDE) \
-    X(APPCURSOR) \
-    X(MOUSESGR) \
-    X(8BIT) \
-    X(BLINK) \
-    X(FBLINK) \
-    X(FOCUS) \
-    X(MOUSEX10) \
-    X(MOUSEMANY) \
-    X(BRCKTPASTE) \
-    X(NUMLOCK) \
-    X(MOUSE, WIN_MODE_MOUSEBTN    \
-            |WIN_MODE_MOUSEMOTION \
-            |WIN_MODE_MOUSEX10    \
-            |WIN_MODE_MOUSEMANY)
-#include "xenums.c"
-
-static struct {
-    int32 tty_width;
-    int32 tty_height;
-    int32 w;
-    int32 h;
-    int32 hborderpx;
-    int32 vborderpx;
-    int32 ch;     /* char height */
-    int32 cw;     /* char width  */
-    enum WinMode mode;   /* window state/mode flags */
-    int32 cursor; /* cursor style */
-} term_window;
-
-static struct {
-    Display *display;
-    Colormap color_map;
-    Window win;
-    Drawable drawable;
-    XftGlyphFontSpec *specbuf; /* font spec buffer used for rendering */
-    Atom xembed;
-    Atom wm_delete_win;
-    Atom net_wm_name;
-    Atom net_wm_iconname;
-    Atom net_wm_pid;
-    struct {
-        XIM xim;
-        XIC xic;
-        XPoint point;
-        XVaNestedList spotlist;
-    } ime;
-    XftDraw *xft_draw;
-    Visual *visual;
-    XSetWindowAttributes attrs;
-    int32 screen;
-    int32 is_fixed;
-    int32 depth;
-    int32 left_offset;
-    int32 top_offset;
-    int32 geo_mask;
-} x_window;
-
-static struct {
-    XftColor *colors;
-    int32 colors_len;
-    StFont font;
-    StFont bfont;
-    StFont ifont;
-    StFont ibfont;
-    GC graphics;
-} draw_context;
-
-static struct {
-    Atom xtarget;
-    char *primary;
-    char *clipboard;
-    struct timespec tclick1;
-    struct timespec tclick2;
-} xsel;
 
 #include "sixel.h"
 static SixelState sixel_st;
