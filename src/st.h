@@ -300,14 +300,11 @@ static void tty_write_raw(char *, int64);
 
 static char *term_get_glyphs(char *, StGlyph *, StGlyph *);
 static inline void term_set_sixel_attr(StGlyph *line, int32 x1, int32 x2);
-static int32 term_attr_set(enum GlyphAttribute);
 static int32 term_is_wrapped(StGlyph *line);
 static int32 term_line_len(StGlyph *len);
 static int32 term_write(char *, int32, int32);
-static int32_t term_def_color(int32 *, int32 *, int32);
 static void term_clear_glyph(StGlyph *, int32);
 static void term_clear_region(int32, int32, int32, int32, int32);
-static void term_control_code(uchar);
 static void term_cursor(enum CursorMovement);
 static void term_dec_test(char);
 static void term_def_tran(char);
