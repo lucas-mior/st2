@@ -39,8 +39,6 @@ if [ -n "$BASH_VERSION" ]; then
     shopt -s expand_aliases
 fi
 
-export LC_ALL=C
-
 dir=$(dirname "$(readlink -f "$0")")
 cbase="cbase"
 CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
