@@ -56,30 +56,6 @@
 #define IS_CONTROl(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
 #define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
 
-#define TERM_LINE(y)                                                                               \
-  ((y) < term.lines_scrolled_up                                                                    \
-       ? term.hist[(term.i_hist + (y) - term.lines_scrolled_up + 1 + HISTORY_SIZE) % HISTORY_SIZE] \
-       : term.lines[(y) - term.lines_scrolled_up])
-
-#define TERM_LINE_ABS(y)                                                    \
-  ((y) < 0                                                                \
-       ? term.hist[(term.i_hist + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] \
-       : term.lines[(y)])
-
-#define TERM_LINE_HIST(y)                                                   \
-    ((y) <= HISTORY_SIZE - term.nrows + 2                                   \
-         ? term.hist[(y)]                                                   \
-         : term.lines[(y - HISTORY_SIZE + term.nrows - 3)])
-
-#define UPDATE_WRAP_NEXT(alt, col)                                          \
-    do {                                                                    \
-        if ((term.cursor.state & CURSOR_WRAPNEXT)                           \
-            && term.cursor.x + term.wrap_char_width[alt] < col) {           \
-            term.cursor.x += term.wrap_char_width[alt];                     \
-            term.cursor.state &= ~CURSOR_WRAPNEXT;                          \
-        }                                                                   \
-    } while (0)
-
 #define ENUM_NAME GlyphAttribute
 #define ENUM_PREFIX_ ATTR_ 
 #define ENUM_BITFLAGS 1
@@ -397,6 +373,10 @@ static void term_swap_screen(void);
 static void check_consistent_state(void);
 static bool term_mode_is_set(enum TermMode flag);
 static bool term_window_is_set(enum WinMode flag);
+static StGlyph *term_line(int32 y);
+static StGlyph *term_line_abs(int32 y);
+static StGlyph *term_line_hist(int32 y);
+static void update_wrap_next(int32 alt, int32 col);
 
 static int32 xevent_col(XEvent *xevent);
 static int32 xevent_row(XEvent *xevent);

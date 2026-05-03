@@ -234,7 +234,7 @@ user_vim_select(union Arg *arg) {
     }
 
     for (int32 y = -term.n_hist; y < term.nrows; y += 1) {
-        StGlyph *line = TERM_LINE_ABS(y);
+        StGlyph *line = term_line_abs(y);
         int32 lastpos = term.ncols - 1;
 
         for (; lastpos >= 0 && !(line[lastpos].mode & (ATTR_SET | ATTR_WRAP)); lastpos -= 1);
@@ -302,16 +302,16 @@ dump_terminal_to_fd(int32 fd) {
     void (*oldsigpipe)(int32) = signal(SIGPIPE, SIG_IGN);
 
     for (int32 n = 0; n <= (HISTORY_SIZE + 2); n += 1) {
-        StGlyph *line = TERM_LINE_HIST(n);
+        StGlyph *line = term_line_hist(n);
         StGlyph *end;
         char buffer[UTF_SIZ];
         int32 i_hist = term.ncols;
         int32 lastpos;
 
-        if (TERM_LINE_HIST(n)[i_hist - 1].mode & ATTR_WRAP) {
+        if (term_line_hist(n)[i_hist - 1].mode & ATTR_WRAP) {
             lastpos = i_hist;
         } else {
-            while (i_hist > 0 && TERM_LINE_HIST(n)[i_hist - 1].rune == ' ') {
+            while (i_hist > 0 && term_line_hist(n)[i_hist - 1].rune == ' ') {
                 i_hist -= 1;
             }
             lastpos = i_hist;
@@ -335,7 +335,7 @@ dump_terminal_to_fd(int32 fd) {
             }
         }
 
-        if (TERM_LINE_HIST(n)[lastpos].mode & ATTR_WRAP) {
+        if (term_line_hist(n)[lastpos].mode & ATTR_WRAP) {
             newline = 1;
             continue;
         }

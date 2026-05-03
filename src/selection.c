@@ -67,7 +67,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
     case SELECTION_SNAP_NONE:
         return;
     case SELECTION_SNAP_WORD: {
-        StGlyph *prev_gp = &TERM_LINE(*y)[*x];
+        StGlyph *prev_gp = &term_line(*y)[*x];
         int32 prev_delim = IS_DELIM(prev_gp->rune);
 
         while (1) {
@@ -91,17 +91,17 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
                     yt = newy;
                     xt = newx;
                 }
-                if (!(TERM_LINE(yt)[xt].mode & ATTR_WRAP)) {
+                if (!(term_line(yt)[xt].mode & ATTR_WRAP)) {
                     break;
                 }
             }
 
-            if (newx >= term_line_len(TERM_LINE(newy))) {
+            if (newx >= term_line_len(term_line(newy))) {
                 break;
             }
 
             {
-                StGlyph *gp = &TERM_LINE(newy)[newx];
+                StGlyph *gp = &term_line(newy)[newx];
                 int32 delim = IS_DELIM(gp->rune);
 
                 if (!(gp->mode & ATTR_WDUMMY)
@@ -122,13 +122,13 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
         *x = (direction < 0) ? 0 : term.ncols - 1;
         if (direction < 0) {
             for (; *y > rtop; *y -= 1) {
-                if (!term_is_wrapped(TERM_LINE(*y - 1))) {
+                if (!term_is_wrapped(term_line(*y - 1))) {
                     break;
                 }
             }
         } else if (direction > 0) {
             for (; *y < rbot; *y += 1) {
-                if (!term_is_wrapped(TERM_LINE(*y))) {
+                if (!term_is_wrapped(term_line(*y))) {
                     break;
                 }
             }
@@ -165,12 +165,12 @@ selection_normalize(void) {
     }
 
     {
-        int32 len = term_line_len(TERM_LINE(selection.nb.y));
+        int32 len = term_line_len(term_line(selection.nb.y));
 
         if (selection.nb.x > len) {
             selection.nb.x = len;
         }
-        if (selection.ne.x >= term_line_len(TERM_LINE(selection.ne.y))) {
+        if (selection.ne.x >= term_line_len(term_line(selection.ne.y))) {
             selection.ne.x = term.ncols - 1;
         }
     }
@@ -285,7 +285,7 @@ selection_get(void) {
     ptr = string;
 
     for (int32 y = selection.nb.y; y <= selection.ne.y; y += 1) {
-        StGlyph *line = TERM_LINE(y);
+        StGlyph *line = term_line(y);
         int32 line_len = term_line_len(line);
 
         if (line_len == 0) {

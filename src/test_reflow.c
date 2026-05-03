@@ -8,8 +8,8 @@ verify_viewport_line(int32 screen_y, char *expected_text) {
     char *ptr;
     int32 len;
 
-    /* TERM_LINE handles the math to pull from hist or active screen based on scroll */
-    line = TERM_LINE(screen_y);
+    /* term_line handles the math to pull from hist or active screen based on scroll */
+    line = term_line(screen_y);
     len = term_line_len(line);
     ptr = buffer;
 

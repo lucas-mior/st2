@@ -74,6 +74,60 @@ term_window_is_set(enum WinMode flag) {
     return !(!(term_window.mode & flag));
 }
 
+static StGlyph *
+term_line(int32 y) {
+    StGlyph *line_ptr = NULL;
+
+    if (y < term.lines_scrolled_up) {
+        int32 hist_index = (term.i_hist + y - term.lines_scrolled_up + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+        line_ptr = term.hist[hist_index];
+    } else {
+        int32 lines_index = y - term.lines_scrolled_up;
+        line_ptr = term.lines[lines_index];
+    }
+
+    return line_ptr;
+}
+
+static StGlyph *
+term_line_abs(int32 y) {
+    StGlyph *line_ptr = NULL;
+
+    if (y < 0) {
+        int32 hist_index = (term.i_hist + y + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+        line_ptr = term.hist[hist_index];
+    } else {
+        line_ptr = term.lines[y];
+    }
+
+    return line_ptr;
+}
+
+static StGlyph *
+term_line_hist(int32 y) {
+    StGlyph *line_ptr = NULL;
+
+    if (y <= HISTORY_SIZE - term.nrows + 2) {
+        line_ptr = term.hist[y];
+    } else {
+        int32 lines_index = y - HISTORY_SIZE + term.nrows - 3;
+        line_ptr = term.lines[lines_index];
+    }
+
+    return line_ptr;
+}
+
+static void
+update_wrap_next(int32 alt, int32 col) {
+    if ((term.cursor.state & CURSOR_WRAPNEXT) 
+        && term.cursor.x + term.wrap_char_width[alt] < col) {
+        term.cursor.x += term.wrap_char_width[alt];
+        term.cursor.state &= ~CURSOR_WRAPNEXT;
+    }
+    
+    return;
+}
+
 static void
 check_consistent_state(void) {
     ASSERT_MORE(term.nrows, 0);
@@ -910,7 +964,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         term.cursor.state &= ~CURSOR_WRAPNEXT;
         term.cursor.x = new_ncols - 1;
     } else {
-        UPDATE_WRAP_NEXT(1, new_ncols);
+        update_wrap_next(1, new_ncols);
     }
     term.ncols = new_ncols;
     term.nrows = new_nrows;
@@ -984,7 +1038,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         }
 
         if (!old_x_offset) {
-            line = TERM_LINE_ABS(old_y_index);
+            line = term_line_abs(old_y_index);
             len = term_line_len(line);
         }
 
@@ -1005,7 +1059,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                 if (term.cursor.x - old_x_offset < new_ncols - new_x_offset) {
                     term.cursor.x = new_x_offset + term.cursor.x - old_x_offset;
                     new_cursor_y_proxy = new_y_index;
-                    UPDATE_WRAP_NEXT(0, new_ncols);
+                    update_wrap_next(0, new_ncols);
                 }
             }
         }
@@ -1195,7 +1249,7 @@ draw(void) {
         }
 
         term.dirty[y] = 0;
-        x_draw_line(TERM_LINE(y), 0, y, term.ncols);
+        x_draw_line(term_line(y), 0, y, term.ncols);
     }
 
     x_draw_cursor(cx, term.cursor.y, term.lines[term.cursor.y][cx],
