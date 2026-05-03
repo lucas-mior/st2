@@ -566,11 +566,11 @@ main(void) {
         ASSERT(xsel.clipboard != NULL);
 
         /* Visuals & Scaling */
-        a.f = 0.1f;
+        a.f = 0.1;
         user_change_alpha(&a);
         
         /* This triggers x_resize via cresize(0, 0) */
-        a.f = 2.0f; 
+        a.f = 2.0; 
         user_zoom(&a);
         user_zoom_reset(NULL);
     }
