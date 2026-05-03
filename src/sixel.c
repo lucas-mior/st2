@@ -160,7 +160,7 @@ sixel_image_init(SixelImage *sixel_image,
 }
 
 static int32
-image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
+sixel_image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
     int32 status = (-1);
     int64 size;
     uint16 *alt_buffer;
@@ -424,7 +424,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sx = (int32)MIN(sx, DECSIXEL_WIDTH_MAX);
                         sy = (int32)MIN(sy, DECSIXEL_HEIGHT_MAX);
 
-                        if (image_buffer_resize(sixel_image, sx, sy) < 0) {
+                        if (sixel_image_buffer_resize(sixel_image, sx, sy) < 0) {
                             perror("sixel_parser_parse() failed");
                             sixel_state->state = PS_ERROR;
                             p++;
@@ -588,7 +588,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     sx = (int32)MIN(sx, DECSIXEL_WIDTH_MAX);
                     sy = (int32)MIN(sy, DECSIXEL_HEIGHT_MAX);
 
-                    if (image_buffer_resize(sixel_image, sx, sy) < 0) {
+                    if (sixel_image_buffer_resize(sixel_image, sx, sy) < 0) {
                         perror("sixel_parser_parse() failed");
                         sixel_state->state = PS_ERROR;
                         break;
@@ -894,7 +894,7 @@ main(void) {
         status = set_default_color(&img);
         ASSERT_EQUAL(status, 0);
 
-        status = image_buffer_resize(&img, 20, 20);
+        status = sixel_image_buffer_resize(&img, 20, 20);
         ASSERT_EQUAL(status, 0);
         ASSERT_EQUAL(img.width, 20);
         ASSERT_EQUAL(img.height, 20);
