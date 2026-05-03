@@ -191,10 +191,32 @@ static void
 user_vim_select(union Arg *arg) {
     char buf[UTF_SIZ];
     char tmp_file[64];
+    char needle[32];
+    char cur[128];
     int32 fd;
+    int32 target_line = 1;
+    int32 current_line = 1;
+    int32 needle_len = 0;
     pid_t child;
 
     (void)arg;
+
+    int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    int32 y_start = alt ? 0 : -term.n_hist;
+
+    /* 1. Extract the 'needle' (text under the cursor) for the Vim search anchor */
+    StGlyph *c_line = TERM_LINE_ABS(term.cursor.y);
+    for (int32 i = 0; i < 25 && (term.cursor.x + i) < term.ncols; i += 1) {
+        uint32 r = c_line[term.cursor.x + i].rune;
+        if (r == ' ' || r == 0) {
+            break;
+        }
+        needle_len += (int32)utf8_encode(r, &needle[needle_len]);
+        if (needle_len > 28) {
+            break;
+        }
+    }
+    needle[needle_len] = '\0';
 
     SNPRINTF(tmp_file, "/tmp/st_vimselect_%d", getpid());
 
@@ -203,9 +225,14 @@ user_vim_select(union Arg *arg) {
         return;
     }
 
-    for (int32 y = -term.n_hist; y < term.nrows; y += 1) {
+    /* 2. Dump the content to the temporary file */
+    for (int32 y = y_start; y < term.nrows; y += 1) {
         StGlyph *line = TERM_LINE_ABS(y);
         int32 lastpos = term.ncols - 1;
+
+        if (y == term.cursor.y) {
+            target_line = current_line;
+        }
 
         for (; lastpos >= 0 && !(line[lastpos].mode & (ATTR_SET | ATTR_WRAP)); lastpos -= 1);
         lastpos += 1;
@@ -216,16 +243,38 @@ user_vim_select(union Arg *arg) {
 
         for (int32 x = 0; x < lastpos; x += 1) {
             if (!(line[x].mode & ATTR_WDUMMY)) {
-                xwrite(fd, buf, utf8_encode(line[x].rune, buf));
+                xwrite(fd, buf, (int32)utf8_encode(line[x].rune, buf));
             }
         }
         
         if (lastpos == 0 || !(line[lastpos - 1].mode & ATTR_WRAP) || y == term.nrows - 1) {
             xwrite(fd, "\n", 1);
+            current_line += 1;
         }
     }
 
     XCLOSE(&fd);
+
+    /* 3. Prepare the Vim command */
+    if (needle_len > 0) {
+        /* Escape potential slashes in the needle for Vim search */
+        char escaped[64];
+        int32 e_idx = 0;
+        for (int32 i = 0; i < needle_len; i += 1) {
+            if (needle[i] == '/' || needle[i] == '\\') {
+                escaped[e_idx] = '\\';
+                e_idx += 1;
+            }
+            escaped[e_idx] = needle[i];
+            e_idx += 1;
+        }
+        escaped[e_idx] = '\0';
+
+        /* Move to the calculated line, then search for the needle verbatim (\V) */
+        SNPRINTF(cur, "%d | /\\V%s", target_line, escaped);
+    } else {
+        SNPRINTF(cur, "call cursor(%d, %d)", target_line, term.cursor.x + 1);
+    }
 
     switch (child = fork()) {
     case -1:
@@ -235,12 +284,9 @@ user_vim_select(union Arg *arg) {
         {
             char geo[32];
             char win[32];
-            char cur[64];
 
             SNPRINTF(geo, "%dx%d", term.ncols, term.nrows);
             SNPRINTF(win, "%lu", x_window.win);
-            SNPRINTF(cur, "call cursor(%d, %d)", 
-                     term.n_hist + term.cursor.y + 1, term.cursor.x + 1);
 
             execlp("st", "st", "-w", win, "-g", geo, "-e",
                    "vim", "-c", "set nonumber norelativenumber wrap",
