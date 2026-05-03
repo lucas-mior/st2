@@ -558,8 +558,8 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
 }
 
 static void
-term_clear_glyph(StGlyph *glyph, int32 usecurattr) {
-    if (usecurattr) {
+term_clear_glyph(StGlyph *glyph, int32 use_current_attr) {
+    if (use_current_attr) {
         glyph->fg = term.cursor.attr.fg;
         glyph->bg = term.cursor.attr.bg;
     } else {
@@ -572,7 +572,7 @@ term_clear_glyph(StGlyph *glyph, int32 usecurattr) {
 }
 
 static void
-term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, int32 usecurattr) {
+term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, int32 use_current_attr) {
     /* selection_is_selected4() takes relative coordinates */
     if (selection_is_selected4(
             x1 + term.lines_scrolled_up, y1 + term.lines_scrolled_up,
@@ -583,7 +583,7 @@ term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, int32 usecurattr) {
     for (int32 y = y1; y <= y2; y += 1) {
         term.dirty[y] = 1;
         for (int32 x = x1; x <= x2; x += 1) {
-            term_clear_glyph(&term.lines[y][x], usecurattr);
+            term_clear_glyph(&term.lines[y][x], use_current_attr);
         }
     }
     return;
