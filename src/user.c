@@ -277,7 +277,7 @@ dump_terminal_to_fd(int32 fd) {
     newline = 0;
 
     for (int32 n = 0; n <= (HISTORY_SIZE + 2); n += 1) {
-        StGlyph *bp = TERM_LINE_HIST(n);
+        StGlyph *line = TERM_LINE_HIST(n);
         StGlyph *end;
         char buffer[UTF_SIZ];
         int32 i_hist = term.ncols;
@@ -301,10 +301,10 @@ dump_terminal_to_fd(int32 fd) {
             continue;
         }
 
-        end = &bp[lastpos + 1];
-        for (; bp < end; bp += 1) {
-            if (!(bp->mode & ATTR_WDUMMY)) {
-                if (xwrite(fd, buffer, utf8_encode(bp->rune, buffer)) < 0) {
+        end = &line[lastpos + 1];
+        for (; line < end; line += 1) {
+            if (!(line->mode & ATTR_WDUMMY)) {
+                if (xwrite(fd, buffer, utf8_encode(line->rune, buffer)) < 0) {
                     goto cleanup;
                 }
             }
