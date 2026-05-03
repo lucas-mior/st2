@@ -314,11 +314,9 @@ static int64 utf8_encode(uint32, char *);
 
 static int32 isboxdraw(uint32);
 static uint16 boxdrawindex(StGlyph *);
-#ifdef XFT_VERSION
-/* only exposed to main.c, otherwise we'll need Xft.h for the types */
 static void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
-static void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, XftGlyphFontSpec *, int32);
-#endif
+static void drawboxes(int32, int32, int32, int32,
+                      XftColor *, XftColor *, XftGlyphFontSpec *, int32);
 
 static void exec_shell(char *, char **) __attribute__((noreturn));
 static void tty_write_raw(char *, int64);
