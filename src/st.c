@@ -923,6 +923,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 new_y_index = -1;
     int32 len = 0;
     int32 new_cursor_y_proxy = -1; /* proxy for new y coordinate of cursor */
+    int32 new_viewport_top_y_proxy = -1; /* proxy for scroll anchor */
+    int32 active_screen_top_proxy = 0; /* proxy for active screen top */
     int32 nlines;
     static StGlyph **reflow_lines = NULL;
     StGlyph *line = 0;
@@ -930,7 +932,9 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     /* --- determine end of current cursor line --- */
     old_cursor_end_line = term.cursor.y;
     while (old_cursor_end_line < (term.nrows - 1)) {
-        int32 wrap_len = term_line_len(term.lines[old_cursor_end_line]);
+        int32 wrap_len;
+        
+        wrap_len = term_line_len(term.lines[old_cursor_end_line]);
         if (wrap_len > 0 && (term.lines[old_cursor_end_line][wrap_len - 1].mode & ATTR_WRAP)) {
             old_cursor_end_line += 1;
         } else {
@@ -941,13 +945,14 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     /* --- compute required number of lines --- */
     nlines = term.n_hist + old_cursor_end_line + 1;
     if (new_ncols < term.ncols) {
-        int32 lines_per_old_line = (term.ncols + new_ncols - 1) / new_ncols;
-        nlines = lines_per_old_line*nlines;
+        int32 lines_per_old_line;
+        
+        lines_per_old_line = (term.ncols + new_ncols - 1) / new_ncols;
+        nlines = lines_per_old_line * nlines;
 
         if (nlines > (HISTORY_SIZE + RESIZE_BUFFER + new_nrows)) {
             nlines = HISTORY_SIZE + RESIZE_BUFFER + new_nrows;
-            old_y_index
-                = -(nlines / lines_per_old_line - old_cursor_end_line - 1);
+            old_y_index = -(nlines / lines_per_old_line - old_cursor_end_line - 1);
         }
     }
 
@@ -971,6 +976,13 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         if (!old_x_offset) {
             line = TERM_LINE_ABS(old_y_index);
             len = term_line_len(line);
+        }
+
+        /* --- anchor viewport top --- */
+        if (old_y_index == -term.lines_scrolled_up) {
+            if (new_viewport_top_y_proxy < 0) {
+                new_viewport_top_y_proxy = new_y_index;
+            }
         }
 
         /* update cursor tracking */
@@ -1051,7 +1063,9 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     term.cursor.y = new_cursor_end_line - (new_y_index - new_cursor_y_proxy);
 
     if (term.cursor.y < 0) {
-        int32 j_prev = new_cursor_end_line;
+        int32 j_prev;
+
+        j_prev = new_cursor_end_line;
         new_cursor_end_line = (int32)MIN(new_cursor_end_line - term.cursor.y,
                                          bottom_visible_line);
         term.cursor.y += new_cursor_end_line - j_prev;
@@ -1062,6 +1076,9 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             term.cursor.y += 1;
         }
     }
+
+    /* CAPTURE THE TOP PROXY BEFORE MUTATING new_y_index */
+    active_screen_top_proxy = new_y_index - new_cursor_end_line;
 
     /* --- allocate additional rows if needed --- */
     for (i = new_nrows - 1; i > new_cursor_end_line; i -= 1) {
@@ -1086,9 +1103,12 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     /* --- update history reflow_lines --- */
     {
         int32 k_idx;
+        
         k_idx = -1;
         while (new_y_index >= 0 && k_idx >= -HISTORY_SIZE) {
-            int32 j_hist = (term.i_hist + k_idx + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+            int32 j_hist;
+            
+            j_hist = (term.i_hist + k_idx + 1 + HISTORY_SIZE) % HISTORY_SIZE;
             free(term.hist[j_hist]);
             term.hist[j_hist] = reflow_lines[new_y_index];
             k_idx -= 1;
@@ -1097,11 +1117,11 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         term.n_hist = -k_idx - 1;
     }
 
-    term.lines_scrolled_up = (int32)MIN(term.lines_scrolled_up, term.n_hist);
-
     /* --- reallocate remaining history lines --- */
     for (int32 k_rem = -term.n_hist - 1; k_rem >= -HISTORY_SIZE; k_rem -= 1) {
-        int32 j_rem = (term.i_hist + k_rem + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+        int32 j_rem;
+        
+        j_rem = (term.i_hist + k_rem + 1 + HISTORY_SIZE) % HISTORY_SIZE;
         term.hist[j_rem] = xrealloc(term.hist[j_rem],
                                     (int64)new_ncols*SIZEOF(*(term.hist[j_rem])));
         if (new_ncols > term.ncols) {
@@ -1110,6 +1130,27 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             }
         }
     }
+
+    /* --- update scroll anchor --- */
+    if (new_viewport_top_y_proxy >= 0) {
+        int32 new_lines_scrolled_up;
+        
+        /* Calculate exact delta using our preserved active_screen_top_proxy */
+        new_lines_scrolled_up = active_screen_top_proxy - new_viewport_top_y_proxy;
+        
+        if (new_lines_scrolled_up < 0) {
+            term.lines_scrolled_up = 0;
+        } else {
+            if (new_lines_scrolled_up > term.n_hist) {
+                term.lines_scrolled_up = term.n_hist;
+            } else {
+                term.lines_scrolled_up = new_lines_scrolled_up;
+            }
+        }
+    } else {
+        term.lines_scrolled_up = 0;
+    }
+
     return;
 }
 
