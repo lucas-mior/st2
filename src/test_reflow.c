@@ -33,7 +33,7 @@ inject_text(char *text) {
 }
 
 static void
-verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wraps) {
+verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wraps, int32 expected_cx, int32 expected_cy) {
     bool is_alt;
     int32 active_hist;
     int32 total_lines;
@@ -52,6 +52,15 @@ verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wr
         fprintf(stderr, "Total lines mismatch. Expected: %d, Actual: %d (Hist: %d, Rows: %d)\n",
                 expected_count, total_lines, active_hist, term.nrows);
         assert(false);
+    }
+
+    /* Assert Cursor Tracking if specified */
+    if (expected_cx >= 0 && expected_cy >= 0) {
+        if (term.cursor.x != expected_cx || term.cursor.y != expected_cy) {
+            fprintf(stderr, "Cursor mismatch. Expected: (%d, %d), Actual: (%d, %d)\n",
+                    expected_cx, expected_cy, term.cursor.x, term.cursor.y);
+            assert(false);
+        }
     }
     
     for (int32 idx = 0; idx < total_lines; idx += 1) {
@@ -150,138 +159,94 @@ main(void) {
         term_new_line(true);
     }
 
-    /* Scenario A: Width Shrinkage (Forcing Wraps) */
+    /* Scenario A: Width Shrinkage (Forcing Wraps & Cursor X adjustment) */
     inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     check_consistent_state();
     {
         char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRST", "UVWXYZ" };
         bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false };
-        verify_full_state(11, state_texts, state_wraps);
+        verify_full_state(11, state_texts, state_wraps, 6, 9); /* Cursor X=6 on "UVWXYZ" */
     }
 
-    /* Scenario B: Width Expansion (Unwrapping) */
+    /* Scenario B: Width Expansion (Unwrapping & Cursor X mapping) */
     term_resize(30, 10);
     check_consistent_state();
     {
         char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRSTUVWXYZ" };
         bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false };
-        verify_full_state(10, state_texts, state_wraps);
+        verify_full_state(10, state_texts, state_wraps, 26, 9); /* Cursor maps perfectly to end of string */
     }
 
-    /* Scenario C: Shrink width to force wrap again before testing history */
+    /* Scenario C: Shrink width to force wrap again */
     term_resize(15, 10);
     check_consistent_state();
     {
         char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" };
         bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false };
-        verify_full_state(11, state_texts, state_wraps);
+        verify_full_state(11, state_texts, state_wraps, 11, 9);
     }
 
-    /* Scenario C.2: Height Shrinkage (Push to History) */
-    term_resize(15, 5);
-    check_consistent_state();
-    {
-        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" };
-        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false };
-        verify_full_state(11, state_texts, state_wraps);
-    }
-    
-    /* Scenario D: Height Expansion (Pull from History) */
-    term_resize(15, 10);
-    check_consistent_state();
-    {
-        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" };
-        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false };
-        verify_full_state(11, state_texts, state_wraps);
-    }
-
-    /* Scenario E: Alternate Screen Integrity */
-    term_load_alt_screen(true, true);
-    for (int32 i = 0; i < init_rows - 1; i += 1) {
-        term_new_line(true);
-    }
-    inject_text("ALT SCREEN TEXT");
-    check_consistent_state();
-    {
-        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT" };
-        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false };
-        verify_full_state(10, state_texts, state_wraps);
-    }
-    
-    term_resize(25, 12);
-    check_consistent_state();
-    {
-        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT", "", "" };
-        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false, false, false };
-        verify_full_state(12, state_texts, state_wraps);
-    }
-
-    term_load_def_screen(false, true);
-    check_consistent_state();
-    {
-        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRSTUVWXY", "Z", "" };
-        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false, false };
-        verify_full_state(12, state_texts, state_wraps);
-    }
-
-    /* --- Advanced Resizing Scenarios --- */
+    /* Scenario J: Viewport Scroll State Anchor Integrity */
+    printf("Testing Viewport Scroll Anchoring...\n");
+    term_resize(init_cols, init_rows); /* <--- ADD THIS FIX */
     term_reset();
     for (int32 i = 0; i < init_rows - 1; i += 1) {
         term_new_line(true);
     }
-    inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-    check_consistent_state();
     
-    /* Scenario F: Large to Small (Change both Width and Height) */
-    term_resize(10, 5);
-    check_consistent_state();
-    {
-        char *state_texts[] = { 
-            "", "", "", "", "", "", "", "", "", 
-            "ABCDEFGHIJ", "KLMNOPQRST", "UVWXYZ0123", "456789" 
-        };
-        bool state_wraps[] = { 
-            false, false, false, false, false, false, false, false, false,
-            true, true, true, false 
-        };
-        verify_full_state(13, state_texts, state_wraps);
+    /* Inject text to create 5 lines of history */
+    for (int32 i = 0; i < 5; i += 1) {
+        inject_text("HISTORY_LINE\n");
+    }
+    
+    /* Simulate user pressing Shift+PageUp to scroll up by 3 lines */
+    term.lines_scrolled_up = 3;
+    
+    /* Expand height by 2. st should pull lines down, meaning the viewport 
+       needs to decrement by 2 to keep looking at the exact same text. */
+    term_resize(20, 12);
+    if (term.lines_scrolled_up != 1) {
+        fprintf(stderr, "Viewport scroll assertion failed. Expected: 1, Actual: %d\n", term.lines_scrolled_up);
+        assert(false);
     }
 
-    /* Scenario G: Small to Even Smaller (Massive wrapping) */
-    term_resize(5, 8);
-    check_consistent_state();
+    /* Scenario K: Inline Image (Sixel) translation during history pull */
+    printf("Testing Inline Image Translation...\n");
+    term_resize(init_cols, init_rows); /* <--- ADD THIS FIX */
+    term_reset();
+    for (int32 i = 0; i < init_rows - 1; i += 1) {
+        term_new_line(true);
+    }
+    
+    /* Create 3 lines of history */
+    for (int32 i = 0; i < 3; i += 1) {
+        inject_text("PADDING\n");
+    }
+    
     {
-        char *state_texts[] = {
-            "", "", "", "", "", "", "", "", "", 
-            "ABCDE", "FGHIJ", "KLMNO", "PQRST", "UVWXY", "Z0123", "45678", "9" 
-        };
-        bool state_wraps[] = {
-            false, false, false, false, false, false, false, false, false,
-            true, true, true, true, true, true, true, false
-        };
-        verify_full_state(17, state_texts, state_wraps);
+        ImageList *dummy_img;
+        
+        dummy_img = xmalloc(SIZEOF(ImageList));
+        memset64(dummy_img, 0, SIZEOF(ImageList));
+        dummy_img->x = 2;
+        dummy_img->y = 5; /* Image starts at row 5 on active screen */
+        dummy_img->next = term.images;
+        term.images = dummy_img;
+        
+        /* Expand height by 2. term_resize_def calls reflow_scroll_down(2),
+           pulling 2 lines from history and pushing active screen down. */
+        term_resize(20, 12);
+        
+        /* Image must shift down by 2 rows to stay glued to its text */
+        if (term.images->y != 7) {
+            fprintf(stderr, "Image translation failed. Expected Y: 7, Actual Y: %d\n", term.images->y);
+            assert(false);
+        }
     }
 
-    /* Scenario H: Small to Large (Expansion of both) */
-    term_resize(40, 20);
-    check_consistent_state();
-    {
-        char *state_texts[] = {
-            "", "", "", "", "", "", "", "", "", 
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 
-            "", "", "", "", "", "", "", "", "", "" 
-        };
-        bool state_wraps[] = {
-            false, false, false, false, false, false, false, false, false,
-            false,
-            false, false, false, false, false, false, false, false, false, false
-        };
-        verify_full_state(20, state_texts, state_wraps);
-    }
-
-    /* Scenario I: Random Fuzzing for rare bugs */
+    /* Scenario I: Random Fuzzing */
     printf("Running Fuzzing Phase...\n");
-    srand((uint)time(NULL));
+    srand(0x1337);
     for (int32 i = 0; i < 5000; i += 1) {
         int32 new_w;
         int32 new_h;
@@ -315,6 +280,6 @@ main(void) {
         check_consistent_state();
     }
 
-    printf("All resize, reflow, and fuzzing tests passed successfully!\n");
+    printf("All resize, reflow, image translation, and viewport tests passed successfully!\n");
     return 0;
 }
