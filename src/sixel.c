@@ -7,7 +7,7 @@
 #define SIXEL_C
 
 #include <stdlib.h>
-#include <string.h> /* memcpy64 */
+#include <string.h>
 
 #include "st.h"
 #include "sixel.h"
