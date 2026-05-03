@@ -96,7 +96,6 @@ delete_image(ImageList *im) {
 
 static int32
 set_default_color(SixelImage *image) {
-    int32 i;
     int32 n;
 
     /* palette initialization */
@@ -114,7 +113,7 @@ set_default_color(SixelImage *image) {
     }
 
     /* colors 233-256 are a grayscale ramp, intentionally leaving out */
-    for (i = 0; i < 24; i++) {
+    for (int32 i = 0; i < 24; i++) {
         image->palette[n++] = SIXEL_RGB(i*11, i*11, i*11);
     }
 
