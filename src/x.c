@@ -225,7 +225,7 @@ x_geom_mask_to_gravity(int32 mask) {
     case YNegative:
         return SouthWestGravity;
     default:
-        fprintf(stderr, "x_geom_mask_to_gravity: Unhandled switch case.\n");
+        error("x_geom_mask_to_gravity: Unhandled switch case.\n");
         break;
     }
 
@@ -560,7 +560,7 @@ x_im_open(Display *display) {
     }
 
     if (XSetIMValues(x_window.ime.xim, XNDestroyCallback, &imdestroy, NULL)) {
-        fprintf(stderr, "XSetIMValues: Could not set XNDestroyCallback.\n");
+        error("XSetIMValues: Could not set XNDestroyCallback.\n");
     }
 
     x_window.ime.spotlist
@@ -573,7 +573,7 @@ x_im_open(Display *display) {
                         x_window.win, XNDestroyCallback, &icdestroy, NULL);
     }
     if (x_window.ime.xic == NULL) {
-        fprintf(stderr, "XCreateIC: Could not create input context.\n");
+        error("XCreateIC: Could not create input context.\n");
     }
 
     return 1;
@@ -957,7 +957,7 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph g, int32 ox, int32 oy, StGlyph og) {
                         CONF_CURSOR_THICKNESS, (uint32)term_window.ch);
             break;
         default:
-            fprintf(stderr, "x_draw_cursor: Unhandled switch case.\n");
+            error("x_draw_cursor: Unhandled switch case.\n");
             break;
         }
     } else {

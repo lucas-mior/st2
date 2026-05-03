@@ -284,7 +284,7 @@ user_external_pipe(union Arg *arg) {
         close(to[0]);
         close(to[1]);
         execvp(argv[0], argv);
-        fprintf(stderr, "st: execvp %s\n", argv[0]);
+        error("st: execvp %s\n", argv[0]);
         perror("failed");
         exit(0);
     default:
