@@ -136,7 +136,7 @@ SelectionSnap(int32 *x, int32 *y, int32 direction) {
         }
         break;
     default:
-        fprintf(stderr, "SelectionSnap: did not match.\n");
+        error("SelectionSnap: did not match.\n");
         break;
     }
     return;

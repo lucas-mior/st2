@@ -455,8 +455,7 @@ control_seq_intro_handle(void) {
             term.mode |= TERM_MODE_PRINT;
             break;
         default:
-            fprintf(stderr,
-                    "control_seq_intro_handle: Unhandled switch case.\n");
+            error("control_seq_intro_handle: Unhandled switch case.\n");
             break;
         }
         break;
@@ -578,8 +577,7 @@ control_seq_intro_handle(void) {
                               1);
             break;
         default:
-            fprintf(stderr,
-                    "control_seq_intro_handle: Unhandled switch case.\n");
+            error("control_seq_intro_handle: Unhandled switch case.\n");
             break;
         }
         break;
