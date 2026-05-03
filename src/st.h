@@ -146,7 +146,7 @@ union Arg {
 	char *s;
 };
 
-typedef struct {
+typedef struct MouseShortcut {
     uint32 mod;
     uint32 button;
     void (*func)(union Arg *);
@@ -216,7 +216,7 @@ enum charset {
     X(DCS)
 #include "cbase/xenums.c"
 
-typedef struct {
+typedef struct TCursor {
     StGlyph attr; /* current char attributes */
     int32 x;
     int32 y;
@@ -252,7 +252,7 @@ static struct {
 
 /* CSI Escape sequence structs */
 /* ESC '[' [[ [<priv>] <arg> [;]] <mode> [<mode>]] */
-typedef struct {
+typedef struct CSIEscape {
     char buffer[ESC_BUF_SIZ]; /* raw string */
     int64 len;                /* raw string length */
     char priv;
@@ -432,14 +432,14 @@ static void user_send_break(union Arg *);
 static void user_toggle_printer(union Arg *);
 static void user_vim_select(union Arg *arg);
 
-typedef struct {
+typedef struct Shortcut {
     uint32 mod;
     KeySym keysym;
     void (*func)(union Arg *);
     union Arg arg;
 } Shortcut;
 
-typedef struct {
+typedef struct Key {
     KeySym k;
     uint32 mask;
     char *s;
@@ -575,14 +575,14 @@ enum {
     FRC_ITALICBOLD
 };
 
-typedef struct {
+typedef struct FontCache {
     XftFont *font;
     int32 flags;
     uint32 unicodep;
-} Fontcache;
+} FontCache;
 
 /* Fontcache is an array now. A new font will be appended to the array. */
-static Fontcache *frc = NULL;
+static FontCache *frc = NULL;
 static int32 frclen = 0;
 static int32 frccap = 0;
 static char *usedfont = NULL;
