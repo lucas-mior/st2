@@ -229,8 +229,8 @@ static struct {
     int32 ncols;
     StGlyph **lines;             /* screen */
     StGlyph *hist[HISTORY_SIZE]; /* history buffer */
-    int32 i_hist;              /* history index */
-    int32 n_hist;              /* nb history available */
+    int32 i_hist;               /* history index */
+    int32 n_hist;               /* nb history available */
     int32 lines_scrolled_up;   /* scroll back */
     int32 wrap_char_width[2];  /* used in updating WRAPNEXT when resizing */
     bool *dirty;               /* dirtyness of lines */
@@ -269,69 +269,69 @@ static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 static void term_delete_images(void);
 
 static void tty_hangup(void);
-static void tty_write(char *, int64, int32);
+static void tty_write(char *s, int64 len, int32 fd);
 
 static void reset_title(void);
 
-static void exec_shell(char *, char **) __attribute__((noreturn));
-static void tty_write_raw(char *, int64);
+static void exec_shell(char *cmd, char **args) __attribute__((noreturn));
+static void tty_write_raw(char *s, int64 len);
 
-static char *term_get_glyphs(char *, StGlyph *, StGlyph *);
+static char *term_get_glyphs(char *buffer, StGlyph *glyph, StGlyph *lgp);
 static inline void term_set_sixel_attr(StGlyph *line, int32 x1, int32 x2);
 static bool term_is_wrapped(StGlyph *line);
-static int32 term_line_len(StGlyph *len);
-static int32 term_write(char *, int32, int32);
-static void term_clear_glyph(StGlyph *, bool);
-static void term_clear_region(int32, int32, int32, int32, bool);
-static void term_delete_char(int32);
-static void term_delete_line(int32);
+static int32 term_line_len(StGlyph *line);
+static int32 term_write(char *buf, int32 len, int32 show_ctrl);
+static void term_clear_glyph(StGlyph *glyph, bool use_current_attr);
+static void term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, bool use_current_attr);
+static void term_delete_char(int32 n);
+static void term_delete_line(int32 n);
 static void term_dump(void);
-static void term_dump_line(int32);
+static void term_dump_line(int32 n);
 static void term_dump_sel(void);
 static void term_full_dirt(void);
-static void term_insert_blank(int32);
-static void term_insert_blank_line(int32);
-static void term_load_alt_screen(bool, bool);
-static void term_load_def_screen(bool, bool);
-static void term_move_abs_to(int32, int32);
-static void term_move_to(int32, int32);
-static void term_new_line(bool);
-static void term_printer(char *, int64);
-static void term_put_tab(int32);
-static void term_putc(uint32);
-static void term_reflow(int32, int32);
+static void term_insert_blank(int32 n);
+static void term_insert_blank_line(int32 n);
+static void term_load_alt_screen(bool clear, bool savecursor);
+static void term_load_def_screen(bool clear, bool loadcursor);
+static void term_move_abs_to(int32 x, int32 y);
+static void term_move_to(int32 x, int32 y);
+static void term_new_line(bool first_col);
+static void term_printer(char *s, int64 len);
+static void term_put_tab(int32 inst);
+static void term_putc(uint32 u);
+static void term_reflow(int32 new_ncols, int32 new_nrows);
 static void term_reset(void);
-static void term_resize_alt(int32, int32);
-static void term_resize_def(int32, int32);
-static void term_scroll_down(int32, int32);
-static void term_scroll_up(int32, int32, int32, enum ScrollMode);
-static void term_set_char(uint32, StGlyph *, int32, int32);
-static void term_set_dirt(int32, int32);
+static void term_resize_alt(int32 new_ncols, int32 new_nrows);
+static void term_resize_def(int32 new_ncols, int32 new_nrows);
+static void term_scroll_down(int32 top, int32 n);
+static void term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode);
+static void term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y);
+static void term_set_dirt(int32 top, int32 bot);
 static void term_swap_screen(void);
 
-static int32 xevent_col(XEvent *);
-static int32 xevent_row(XEvent *);
+static int32 xevent_col(XEvent *xevent);
+static int32 xevent_row(XEvent *xevent);
 
-static void x_clear(int32, int32, int32, int32);
-static int32 x_geom_mask_to_gravity(int32);
-static int32 x_im_open(Display *);
-static void cresize(int32, int32);
+static void x_clear(int32 x1, int32 y1, int32 x2, int32 y2);
+static int32 x_geom_mask_to_gravity(int32 mask);
+static int32 x_im_open(Display *display);
+static void cresize(int32 width, int32 height);
 
-static void user_clipboard_copy(union Arg *);
-static void user_clipboard_paste(union Arg *);
-static void user_toggle_numlock(union Arg *);
-static void user_selection_paste(union Arg *);
-static void user_change_alpha(union Arg *);
-static void user_zoom(union Arg *);
-static void user_zoom_reset(union Arg *);
-static void user_tty_send(union Arg *);
-static void user_scroll_down(union Arg *);
-static void user_scroll_up(union Arg *);
-static void user_external_pipe(union Arg *);
-static void user_print_screen(union Arg *);
-static void user_print_sel(union Arg *);
-static void user_send_break(union Arg *);
-static void user_toggle_printer(union Arg *);
+static void user_clipboard_copy(union Arg *arg);
+static void user_clipboard_paste(union Arg *arg);
+static void user_toggle_numlock(union Arg *arg);
+static void user_selection_paste(union Arg *arg);
+static void user_change_alpha(union Arg *arg);
+static void user_zoom(union Arg *arg);
+static void user_zoom_reset(union Arg *arg);
+static void user_tty_send(union Arg *arg);
+static void user_scroll_down(union Arg *arg);
+static void user_scroll_up(union Arg *arg);
+static void user_external_pipe(union Arg *arg);
+static void user_print_screen(union Arg *arg);
+static void user_print_sel(union Arg *arg);
+static void user_send_break(union Arg *arg);
+static void user_toggle_printer(union Arg *arg);
 static void user_vim_select(union Arg *arg);
 static void user_copy_output(union Arg *arg);
 static void user_url_select(union Arg *arg);
