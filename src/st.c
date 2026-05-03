@@ -221,21 +221,21 @@ static void
 term_delete_images(void) {
     ImageList *next;
 
-    for (ImageList *im = term.images; im; im = next) {
-        next = im->next;
-        delete_image(im);
+    for (ImageList *image = term.images; image; image = next) {
+        next = image->next;
+        delete_image(image);
     }
     return;
 }
 
 static void
 term_reset(void) {
-    ImageList *im = term.images;
-    while (im) {
-        ImageList *next = im->next;
-        free(im->pixels);
-        free(im);
-        im = next;
+    ImageList *image = term.images;
+    while (image) {
+        ImageList *next = image->next;
+        free(image->pixels);
+        free(image);
+        image = next;
     }
     term.images = NULL;
     
@@ -363,12 +363,12 @@ term_scroll_down(int32 top, int32 n) {
     }
 
     {
-        ImageList *im = term.images;
-        while (im) {
-            if (im->y >= top && im->y <= bot) {
-                im->y += n;
+        ImageList *image = term.images;
+        while (image) {
+            if (image->y >= top && image->y <= bot) {
+                image->y += n;
             }
-            im = im->next;
+            image = image->next;
         }
     }
     return;
@@ -433,25 +433,25 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
     {
         ImageList **pim = &term.images;
         while (*pim) {
-            ImageList *im = *pim;
-            int32 height_in_rows = (im->height + im->ch - 1) / im->ch;
+            ImageList *image = *pim;
+            int32 height_in_rows = (image->height + image->ch - 1) / image->ch;
 
             /* FIX: Allow images in history (y < 0) to keep moving if we are saving history */
-            if (im->y <= bot && (im->y >= top || (savehist && im->y < 0))) {
-                im->y -= n;
+            if (image->y <= bot && (image->y >= top || (savehist && image->y < 0))) {
+                image->y -= n;
             }
 
             /* FIX: Only delete if the BOTTOM of the image is past the history limit */
-            if (im->y + height_in_rows < -term.n_hist) {
-                *pim = im->next;
-                if (im->pixmap) {
-                    XFreePixmap(x_window.display, (Pixmap)im->pixmap);
+            if (image->y + height_in_rows < -term.n_hist) {
+                *pim = image->next;
+                if (image->pixmap) {
+                    XFreePixmap(x_window.display, (Pixmap)image->pixmap);
                 }
-                if (im->clipmask) {
-                    XFreePixmap(x_window.display, (Pixmap)im->clipmask);
+                if (image->clipmask) {
+                    XFreePixmap(x_window.display, (Pixmap)image->clipmask);
                 }
-                free(im->pixels);
-                free(im);
+                free(image->pixels);
+                free(image);
                 continue;
             }
             pim = &(*pim)->next;
@@ -743,10 +743,10 @@ reflow_scroll_down(int32 n) {
     }
 
     {
-        ImageList *im = term.images;
-        while (im) {
-            im->y += n;
-            im = im->next;
+        ImageList *image = term.images;
+        while (image) {
+            image->y += n;
+            image = image->next;
         }
     }
     return;
@@ -1123,31 +1123,31 @@ draw(void) {
 
         XSetClipMask(x_window.display, draw_context.graphics, None);
 
-        for (ImageList *im = term.images; im; im = next) {
-            int32 rel_y = im->y + term.lines_scrolled_up;
-            int32 height_in_rows = (im->height + im->ch - 1) / im->ch;
-            int32 width = im->width;
-            int32 height = im->height;
-            next = im->next;
+        for (ImageList *image = term.images; image; image = next) {
+            int32 rel_y = image->y + term.lines_scrolled_up;
+            int32 height_in_rows = (image->height + image->ch - 1) / image->ch;
+            int32 width = image->width;
+            int32 height = image->height;
+            next = image->next;
 
             /* Check if ANY part of the image is on the visible screen */
-            if (im->x >= term.ncols || rel_y >= term.nrows || rel_y + height_in_rows <= 0) {
+            if (image->x >= term.ncols || rel_y >= term.nrows || rel_y + height_in_rows <= 0) {
                 continue;
             }
 
-            if (im->pixmap == NULL) {
+            if (image->pixmap == NULL) {
                 XImage ximage;
-                im->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win,
+                image->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win,
                                                    (uint32)width, (uint32)height,
                                                    (uint32)x_window.depth);
 
-                if (im->transparent) {
-                    im->clipmask = (void *)sixel_create_clipmask((char *)im->pixels,
+                if (image->transparent) {
+                    image->clipmask = (void *)sixel_create_clipmask((char *)image->pixels,
                                                                  width, height);
                 }
 
                 ximage.format = ZPixmap;
-                ximage.data = (char *)im->pixels;
+                ximage.data = (char *)image->pixels;
                 ximage.width = width;
                 ximage.height = height;
                 ximage.depth = x_window.depth;
@@ -1157,7 +1157,7 @@ draw(void) {
                 ximage.bitmap_unit = 32;
                 ximage.bitmap_pad = 32;
 
-                XPutImage(x_window.display, (Drawable)im->pixmap,
+                XPutImage(x_window.display, (Drawable)image->pixmap,
                           draw_context.graphics, &ximage, 0, 0, 0, 0, (uint32)width,
                           (uint32)height);
             }
@@ -1188,17 +1188,17 @@ draw(void) {
                 }
 
                 if (draw_h > 0 && draw_w > 0) {
-                    if (im->transparent && im->clipmask) {
+                    if (image->transparent && image->clipmask) {
                         /* Mask origin must track the logical position (rel_y) */
-                        XSetClipOrigin(x_window.display, gc, bw + im->x * term_window.cw, bh + rel_y * term_window.ch);
-                        XSetClipMask(x_window.display, gc, (Pixmap)im->clipmask);
+                        XSetClipOrigin(x_window.display, gc, bw + image->x * term_window.cw, bh + rel_y * term_window.ch);
+                        XSetClipMask(x_window.display, gc, (Pixmap)image->clipmask);
                     } else {
                         XSetClipMask(x_window.display, gc, None);
                     }
 
-                    XCopyArea(x_window.display, (Drawable)im->pixmap, x_window.drawable, gc,
+                    XCopyArea(x_window.display, (Drawable)image->pixmap, x_window.drawable, gc,
                               0, src_y, (uint32)draw_w, (uint32)draw_h,
-                              bw + im->x * term_window.cw, dest_y);
+                              bw + image->x * term_window.cw, dest_y);
                 }
             }
         }
