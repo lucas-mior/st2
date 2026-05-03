@@ -290,11 +290,6 @@ static void redraw(void);
 static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
 static void term_delete_images(void);
 
-static inline void term_set_sixel_attr(StGlyph *line, int32 x1, int32 x2);
-static int32 term_attr_set(enum GlyphAttribute);
-static void term_resize(int32, int32);
-static void term_set_dirt_attr(enum GlyphAttribute);
-
 static void tty_hangup(void);
 static void tty_write(char *, int64, int32);
 
@@ -304,6 +299,8 @@ static void exec_shell(char *, char **) __attribute__((noreturn));
 static void tty_write_raw(char *, int64);
 
 static char *term_get_glyphs(char *, StGlyph *, StGlyph *);
+static inline void term_set_sixel_attr(StGlyph *line, int32 x1, int32 x2);
+static int32 term_attr_set(enum GlyphAttribute);
 static int32 term_is_wrapped(StGlyph *line);
 static int32 term_line_len(StGlyph *len);
 static int32 term_write(char *, int32, int32);
@@ -333,6 +330,7 @@ static void term_put_tab(int32);
 static void term_putc(uint32);
 static void term_reflow(int32, int32);
 static void term_reset(void);
+static void term_resize(int32, int32);
 static void term_resize_alt(int32, int32);
 static void term_resize_def(int32, int32);
 static void term_scroll_down(int32, int32);
@@ -340,6 +338,7 @@ static void term_scroll_up(int32, int32, int32, enum ScrollMode);
 static void term_set_attr(int32 *, int32);
 static void term_set_char(uint32, StGlyph *, int32, int32);
 static void term_set_dirt(int32, int32);
+static void term_set_dirt_attr(enum GlyphAttribute);
 static void term_set_mode(int32, int32, int32 *, int32);
 static void term_str_sequence(uchar);
 static void term_swap_screen(void);
