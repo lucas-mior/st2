@@ -339,8 +339,6 @@ static int32 x_geom_mask_to_gravity(int32);
 static int32 x_im_open(Display *);
 static void cresize(int32, int32);
 
-static void zoom_abs(union Arg *);
-
 static void user_clipboard_copy(union Arg *);
 static void user_clipboard_paste(union Arg *);
 static void user_toggle_numlock(union Arg *);
