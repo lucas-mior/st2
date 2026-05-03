@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "st.c"
+#include "user.c"
 
 static void
 verify_viewport_line(int32 screen_y, char *expected_text) {
