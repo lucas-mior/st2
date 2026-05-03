@@ -5,7 +5,7 @@
 #include <ctype.h>
 
 #include "st.h"
-#include "config.def.h"
+#include "config.h"
 #include "base64.c"
 #include "x.c"
 

@@ -3,7 +3,7 @@
 
 #include <pty.h>
 #include "st.h"
-#include "config.def.h"
+#include "config.h"
 #include "handlers.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)

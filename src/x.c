@@ -3,7 +3,7 @@
 
 #include "st.h"
 #include "math.h"
-#include "config.def.h"
+#include "config.h"
 #include "boxdraw.c"
 #include "selection.c"
 #include "utf8.c"

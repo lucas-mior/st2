@@ -2,7 +2,7 @@
 #define HANDLERS_C
 
 #include "st.h"
-#include "config.def.h"
+#include "config.h"
 #include "selection.c"
 #include "utf8.c"
 #include "mouse.c"

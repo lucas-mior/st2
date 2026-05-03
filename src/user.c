@@ -4,7 +4,7 @@
 #include <termios.h>
 #include "st.h"
 #include "util.c"
-#include "config.def.h"
+#include "config.h"
 #include "selection.c"
 #include "utf8.c"
 #include "x.c"

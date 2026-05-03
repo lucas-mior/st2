@@ -24,7 +24,7 @@
 #include "user.c"
 
 #include <Imlib2.h>
-#include "config.def.h"
+#include "config.h"
 
 static void usage(void) __attribute__((noreturn));
 

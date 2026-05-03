@@ -3,7 +3,7 @@
 
 #include "util.c"
 #include "st.h"
-#include "config.def.h"
+#include "config.h"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_selection 1

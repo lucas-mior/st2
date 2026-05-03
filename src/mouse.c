@@ -2,7 +2,7 @@
 #define MOUSE_C
 
 #include "st.h"
-#include "config.def.h"
+#include "config.h"
 #include "selection.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
