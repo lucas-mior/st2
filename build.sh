@@ -50,8 +50,6 @@ cd "$dir" || exit
 program=$(basename "$(readlink -f "$dir")")
 script=$(basename "$0")
 
-LANGS="pt_BR"
-
 . ./targets
 target="${1:-build}"
 
@@ -105,7 +103,6 @@ CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
 LDFLAGS="$LDFLAGS -lm -lrt -lX11 -lutil -lXft -lImlib2"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
-OS=$(uname -a)
 
 CC="${CC:-cc}"
 
@@ -335,8 +332,7 @@ case "$target" in
     vg_flags="$vg_flags --main-stacksize=18388608"
 
     trace_on
-    G_DEBUG=gc-friendly G_SLICE=always-malloc \
-        valgrind $vg_flags -s --tool=memcheck bin/$program 2>&1 \
+    valgrind $vg_flags -s --tool=memcheck bin/$program 2>&1 \
         | tee "valgrind_output_$(date +%s).txt"
     trace_off
     exit
