@@ -96,33 +96,33 @@ delete_image(ImageList *image) {
 }
 
 static int32
-set_default_color(SixelImage *image) {
+set_default_color(SixelImage *sixel_image) {
     int32 n;
 
     /* palette initialization */
     for (n = 1; n < 17; n += 1) {
-        image->palette[n] = sixel_default_color_table[n - 1];
+        sixel_image->palette[n] = sixel_default_color_table[n - 1];
     }
 
     /* colors 17-232 are a 6x6x6 color cube */
     for (int32 r = 0; r < 6; r += 1) {
         for (int32 g = 0; g < 6; g += 1) {
             for (int32 b = 0; b < 6; b += 1) {
-                image->palette[n++] = SIXEL_RGB(r*51, g*51, b*51);
+                sixel_image->palette[n++] = SIXEL_RGB(r*51, g*51, b*51);
             }
         }
     }
 
     /* colors 233-256 are a grayscale ramp, intentionally leaving out */
     for (int32 i = 0; i < 24; i += 1) {
-        image->palette[n++] = SIXEL_RGB(i*11, i*11, i*11);
+        sixel_image->palette[n++] = SIXEL_RGB(i*11, i*11, i*11);
     }
 
     /* sixels rarely use more than 256 colors and if they do, they use a custom
      * palette, so we don't need to initialize these colors */
     /*
     for (; n < DECSIXEL_PALETTE_MAX; n++) {
-            image->palette[n] = SIXEL_RGB(255, 255, 255);
+            sixel_image->palette[n] = SIXEL_RGB(255, 255, 255);
     }
     */
 
