@@ -376,7 +376,10 @@ typedef struct Key {
     X(MOUSEMANY) \
     X(BRCKTPASTE) \
     X(NUMLOCK) \
-    X(MOUSE, WIN_MODE_MOUSEBTN|WIN_MODE_MOUSEMOTION|WIN_MODE_MOUSEX10|WIN_MODE_MOUSEMANY)
+    X(MOUSE, WIN_MODE_MOUSEBTN    \
+            |WIN_MODE_MOUSEMOTION \
+            |WIN_MODE_MOUSEX10    \
+            |WIN_MODE_MOUSEMANY)
 #include "xenums.c"
 
 static struct {
