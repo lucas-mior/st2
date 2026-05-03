@@ -460,14 +460,6 @@ static char *opt_line = NULL;
 static char *opt_name = NULL;
 static char *opt_title = NULL;
 
-/* StFont Ring Cache */
-enum {
-    FRC_NORMAL,
-    FRC_ITALIC,
-    FRC_BOLD,
-    FRC_ITALICBOLD
-};
-
 static char *usedfont = NULL;
 
 #endif /* ST_H */

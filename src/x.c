@@ -14,6 +14,14 @@
 #define TESTING_x 0
 #endif
 
+/* StFont Ring Cache */
+enum {
+    FRC_NORMAL,
+    FRC_ITALIC,
+    FRC_BOLD,
+    FRC_ITALICBOLD
+};
+
 typedef struct FontCache {
     XftFont *font;
     int32 flags;
