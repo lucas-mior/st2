@@ -472,6 +472,136 @@ cleanup:
     return;
 }
 
+static void
+user_url_select(union Arg *arg) {
+    int32 to[2];
+    pid_t child;
+    void (*oldsigpipe)(int32);
+    char winid[32];
+    char *cmd;
+    char *argv[6];
+    char *mode;
+    int32 newline;
+
+    if (pipe(to) == -1) {
+        perror("pipe failed");
+        return;
+    }
+
+    if (arg->i == 'c') {
+        mode = "c";
+    } else {
+        mode = "o";
+    }
+
+    SNPRINTF(winid, "%lu", x_window.win);
+
+    /* 
+     * The shell logic handles:
+     * 1. Regex definition.
+     * 2. Cleaning input (mutt sidebars and linebreaks).
+     * 3. Grepping and formatting URLs.
+     * 4. Dmenu selection and xdg-open/xclip action based on mode.
+     */
+    cmd = "urlregex=\"(((http|https|gopher|gemini|ftp|ftps|git)://|www\\.)[a-zA-Z0-9.]*[:]?[a-zA-Z0-9./@$&%?$\\#=_~-]*)|((magnet:\\?xt=urn:btih:)[a-zA-Z0-9]*)\"; "
+          "urls=$(sed 's/.*│//g' | tr -d '\\n' | grep -aEo \"$urlregex\" | uniq | sed \"s/\\(\\.\\|,\\|;\\|\\!\\|\\?\\)$//; s/^www./http:\\/\\/www\\./\"); "
+          "[ -z \"$urls\" ] && exit 1; "
+          "if [ \"$2\" = \"o\" ]; then "
+          "  chosen=$(echo \"$urls\" | dmenu -w \"$1\" -i -p 'Follow which url?' -l 10); "
+          "  [ -z \"$chosen\" ] && exit 0; "
+          "  echo \"$chosen\" | tr -d '\\n' | xclip -selection clipboard; "
+          "  setsid xdg-open \"$chosen\" >/dev/null 2>&1 & "
+          "else "
+          "  echo \"$urls\" | dmenu -w \"$1\" -p 'Copy which url?' -l 10 | tr -d '\\n' | xclip -selection clipboard; "
+          "fi";
+
+    argv[0] = "sh";
+    argv[1] = "-c";
+    argv[2] = cmd;
+    argv[3] = winid;
+    argv[4] = mode;
+    argv[5] = NULL;
+
+    child = fork();
+    if (child == -1) {
+        close(to[0]);
+        close(to[1]);
+        return;
+    }
+
+    if (child == 0) {
+        dup2(to[0], STDIN_FILENO);
+        close(to[0]);
+        close(to[1]);
+        execvp(argv[0], argv);
+        
+        perror("execvp failed");
+        _exit(1);
+    }
+
+    close(to[0]);
+    oldsigpipe = signal(SIGPIPE, SIG_IGN);
+    newline = 0;
+
+    /* Buffer dumping logic compatible with user_external_pipe */
+    for (int32 n = 0; n <= HISTORY_SIZE + 2; n += 1) {
+        StGlyph *bp;
+        StGlyph *end;
+        char buffer[UTF_SIZ];
+        int32 i_hist;
+        int32 lastpos;
+
+        bp = TERM_LINE_HIST(n);
+        i_hist = term.ncols;
+
+        if (TERM_LINE_HIST(n)[i_hist - 1].mode & ATTR_WRAP) {
+            lastpos = i_hist;
+        } else {
+            while (i_hist > 0 && TERM_LINE_HIST(n)[i_hist - 1].rune == ' ') {
+                i_hist -= 1;
+            }
+            lastpos = i_hist;
+        }
+
+        lastpos = (int32)MIN(lastpos + 1, term.ncols) - 1;
+        
+        if (lastpos < 0) {
+            break;
+        }
+        if (lastpos == 0) {
+            continue;
+        }
+
+        end = &bp[lastpos + 1];
+        for (; bp < end; bp += 1) {
+            if (!(bp->mode & ATTR_WDUMMY)) {
+                if (xwrite(to[1], buffer, utf8_encode(bp->rune, buffer)) < 0) {
+                    goto cleanup;
+                }
+            }
+        }
+
+        if (TERM_LINE_HIST(n)[lastpos].mode & ATTR_WRAP) {
+            newline = 1;
+            continue;
+        }
+
+        newline = 0;
+        if (xwrite(to[1], "\n", 1) < 0) {
+            break;
+        }
+    }
+
+    if (newline) {
+        (void)xwrite(to[1], "\n", 1);
+    }
+
+cleanup:
+    close(to[1]);
+    signal(SIGPIPE, oldsigpipe);
+    return;
+}
+
 #if TESTING_user
 
 #include <stdbool.h>

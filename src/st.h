@@ -356,6 +356,7 @@ static void user_send_break(union Arg *);
 static void user_toggle_printer(union Arg *);
 static void user_vim_select(union Arg *arg);
 static void user_copy_output(union Arg *arg);
+static void user_url_select(union Arg *arg);
 
 static int64 xwrite(int32 fd, char *s, int64 len);
 
