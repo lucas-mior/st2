@@ -412,7 +412,7 @@ static void user_zoom_reset(union Arg *);
 static void user_tty_send(union Arg *);
 static void user_scroll_down(union Arg *);
 static void user_scroll_up(union Arg *);
-static void externalpipe(union Arg *);
+static void user_external_pipe(union Arg *);
 static void user_print_screen(union Arg *);
 static void user_print_sel(union Arg *);
 static void user_send_break(union Arg *);
