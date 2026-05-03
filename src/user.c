@@ -270,11 +270,8 @@ user_vim_select(union Arg *arg) {
 
 static void
 dump_terminal_to_fd(int32 fd) {
-    int32 newline;
-    void (*oldsigpipe)(int32);
-
-    oldsigpipe = signal(SIGPIPE, SIG_IGN);
-    newline = 0;
+    int32 newline = 0;
+    void (*oldsigpipe)(int32) = signal(SIGPIPE, SIG_IGN);
 
     for (int32 n = 0; n <= (HISTORY_SIZE + 2); n += 1) {
         StGlyph *line = TERM_LINE_HIST(n);
