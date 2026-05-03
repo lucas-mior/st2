@@ -300,12 +300,6 @@ static void tty_write(char *, int64, int32);
 
 static void reset_title(void);
 
-static int32 isboxdraw(uint32);
-static uint16 boxdrawindex(StGlyph *);
-static void boxdraw_xinit(Display *, Colormap, XftDraw *, Visual *);
-static void drawboxes(int32, int32, int32, int32,
-                      XftColor *, XftColor *, XftGlyphFontSpec *, int32);
-
 static void exec_shell(char *, char **) __attribute__((noreturn));
 static void tty_write_raw(char *, int64);
 
