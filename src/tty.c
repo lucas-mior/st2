@@ -206,7 +206,8 @@ tty_write_raw(char *s, int64 n) {
             int64 size = ((n < lim) ? n : lim);
             int64 r;
             if ((r = write64(command_fd, s, size)) < 0) {
-                goto write_error;
+                error("write error on tty: %s\n", strerror(errno));
+                exit(EXIT_FAILURE);
             }
             if (r < n) {
                 /*
@@ -229,10 +230,6 @@ tty_write_raw(char *s, int64 n) {
         }
     }
     return;
-
-write_error:
-    error("write error on tty: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
 }
 
 static void
