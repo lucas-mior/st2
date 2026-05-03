@@ -130,31 +130,31 @@ set_default_color(SixelImage *sixel_image) {
 }
 
 static int32
-sixel_image_init(SixelImage *image,
+sixel_image_init(SixelImage *sixel_image,
                  int32 width, int32 height,
                  int32 fgcolor, int32 bgcolor,
                  int32 use_private_register) {
     int64 size;
 
     size = (width*height) * SIZEOF(uint32);
-    image->width = width;
-    image->height = height;
-    image->data = xmalloc(size);
-    image->ncolors = 2;
-    image->use_private_register = use_private_register;
+    sixel_image->width = width;
+    sixel_image->height = height;
+    sixel_image->data = xmalloc(size);
+    sixel_image->ncolors = 2;
+    sixel_image->use_private_register = use_private_register;
 
-    if (image->data == NULL) {
+    if (sixel_image->data == NULL) {
         return -1;
     }
-    memset64(image->data, 0, size);
+    memset64(sixel_image->data, 0, size);
 
-    image->palette[0] = (uint32)bgcolor;
+    sixel_image->palette[0] = (uint32)bgcolor;
 
-    if (image->use_private_register) {
-        image->palette[1] = (uint32)fgcolor;
+    if (sixel_image->use_private_register) {
+        sixel_image->palette[1] = (uint32)fgcolor;
     }
 
-    image->palette_modified = 0;
+    sixel_image->palette_modified = 0;
 
     return 0;
 }
