@@ -89,13 +89,13 @@ term_is_wrapped(StGlyph *line) {
 }
 
 static char *
-term_get_glyphs(char *buffer, StGlyph *gp, StGlyph *lgp) {
-    while (gp <= lgp) {
-        if (gp->mode & ATTR_WDUMMY) {
-            gp += 1;
+term_get_glyphs(char *buffer, StGlyph *glyph, StGlyph *lgp) {
+    while (glyph <= lgp) {
+        if (glyph->mode & ATTR_WDUMMY) {
+            glyph += 1;
         } else {
-            buffer += utf8_encode(gp->rune, buffer);
-            gp += 1;
+            buffer += utf8_encode(glyph->rune, buffer);
+            glyph += 1;
         }
     }
     return buffer;
@@ -558,16 +558,16 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
 }
 
 static void
-term_clear_glyph(StGlyph *gp, int32 usecurattr) {
+term_clear_glyph(StGlyph *glyph, int32 usecurattr) {
     if (usecurattr) {
-        gp->fg = term.cursor.attr.fg;
-        gp->bg = term.cursor.attr.bg;
+        glyph->fg = term.cursor.attr.fg;
+        glyph->bg = term.cursor.attr.bg;
     } else {
-        gp->fg = CONF_COLOR_INDEX_FONT;
-        gp->bg = CONF_COLOR_BG;
+        glyph->fg = CONF_COLOR_INDEX_FONT;
+        glyph->bg = CONF_COLOR_BG;
     }
-    gp->mode = ATTR_NONE;
-    gp->rune = ' ';
+    glyph->mode = ATTR_NONE;
+    glyph->rune = ' ';
     return;
 }
 
