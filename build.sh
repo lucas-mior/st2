@@ -40,6 +40,7 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 
 dir=$(dirname "$(readlink -f "$0")")
+cd "$dir"
 cbase="cbase"
 CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
 CPPFLAGS="$CPPFLAGS -I."
