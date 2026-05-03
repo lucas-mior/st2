@@ -4,6 +4,9 @@
 #include "st.h"
 #include "math.h"
 #include "config.def.h"
+#include "boxdraw.c"
+#include "selection.c"
+#include "utf8.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_x 1
@@ -1130,6 +1133,7 @@ x_bell(void) {
 #include "assert.c"
 #include "user.c"
 #include "st.c"
+#include "boxdraw.c"
 
 int
 main(void) {

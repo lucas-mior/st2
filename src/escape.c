@@ -7,6 +7,7 @@
 #include "st.h"
 #include "config.def.h"
 #include "base64.c"
+#include "x.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_escape 1
@@ -1720,6 +1721,7 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
 #include "st.c"
 #include "x.c"
 #include "user.c"
+#include "boxdraw.c"
 
 int32
 main(void) {

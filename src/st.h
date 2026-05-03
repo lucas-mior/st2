@@ -376,7 +376,6 @@ static void user_send_break(union Arg *);
 static void user_toggle_printer(union Arg *);
 static void user_vim_select(union Arg *arg);
 
-static void x_bell(void);
 static void x_draw_cursor(int32, int32, StGlyph, int32, int32, StGlyph);
 static void x_draw_line(StGlyph *, int32, int32, int32);
 static void x_load_cols(void);
