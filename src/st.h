@@ -287,15 +287,14 @@ typedef struct StFont {
 } StFont;
 
 static void redraw(void);
-
 static int32 x_get_color(int32 x, uint *r, uint *g, uint *b);
+static void term_delete_images(void);
 
-static void tdeleteimages(void);
 static inline void term_set_sixel_attr(StGlyph *line, int32 x1, int32 x2);
-
 static int32 term_attr_set(enum GlyphAttribute);
 static void term_resize(int32, int32);
 static void term_set_dirt_attr(enum GlyphAttribute);
+
 static void tty_hangup(void);
 static int32 tty_new(char *, char *, char *, char **);
 static int64 tty_read(void);

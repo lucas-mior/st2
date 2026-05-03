@@ -215,7 +215,7 @@ term_full_dirt(void) {
 }
 
 static void
-tdeleteimages(void) {
+term_delete_images(void) {
     ImageList *next;
 
     for (ImageList *im = term.images; im; im = next) {
@@ -263,7 +263,7 @@ term_reset(void) {
                 term_clear_glyph(&term.lines[y][x], 0);
             }
         }
-        tdeleteimages();
+        term_delete_images();
         term_swap_screen();
     }
     term_full_dirt();

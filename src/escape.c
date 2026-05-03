@@ -537,7 +537,7 @@ control_seq_intro_handle(void) {
         case 2:
             if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
                 term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, 1);
-                tdeleteimages();
+                term_delete_images();
                 break;
             }
             n = term.nrows - 1;
@@ -552,10 +552,10 @@ control_seq_intro_handle(void) {
             }
             term_scroll_up(0, term.nrows - 1, term.nrows - n - 1,
                            SCROLL_NOSAVEHIST);
-            tdeleteimages();
+            term_delete_images();
             break;
         case 6:
-            tdeleteimages();
+            term_delete_images();
             term_full_dirt();
             break;
         default:
