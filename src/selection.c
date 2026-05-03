@@ -44,6 +44,16 @@ selection_remove(void) {
 }
 
 static void
+selection_clear(void) {
+    if (selection.ob.x == -1) {
+        return;
+    }
+    selection_remove();
+    term_set_dirt(selection.nb.y, selection.ne.y);
+    return;
+}
+
+static void
 SelectionSnap(int32 *x, int32 *y, int32 direction) {
     int32 rtop = 0;
     int32 rbot = term.nrows - 1;
@@ -309,16 +319,6 @@ selection_get(void) {
     }
     *ptr = '\0';
     return string;
-}
-
-static void
-selection_clear(void) {
-    if (selection.ob.x == -1) {
-        return;
-    }
-    selection_remove();
-    term_set_dirt(selection.nb.y, selection.ne.y);
-    return;
 }
 
 static void

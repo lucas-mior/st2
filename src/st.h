@@ -304,12 +304,6 @@ static void tty_write(char *, int64, int32);
 
 static void reset_title(void);
 
-static void selection_clear(void);
-static void selection_start(int32, int32, int32);
-static void selection_extend(int32, int32, enum SelectionType, int32);
-static int32 selection_is_selected(int32, int32);
-static char *selection_get(void);
-
 static int64 utf8_encode(uint32, char *);
 
 static int32 isboxdraw(uint32);
