@@ -395,17 +395,7 @@ main(void) {
     term_resize(20, 5);
     term_reset();
     
-    /* 
-     * 2. Inject text:
-     * "TOP\n" (Absolute Row 0)
-     * "ANCHOR\n" (Absolute Row 1)
-     * "THIS_IS_A..." (68 chars)
-     * 
-     * At width 20, the long line takes 4 rows.
-     * Total rows: 1 + 1 + 4 = 6.
-     * Screen is 5 rows high, so the first line ("TOP") is pushed to history.
-     * "ANCHOR" is now at visible Row 0.
-     */
+    /* 2. Inject text */
     inject_text("TOP\n");
     inject_text("ANCHOR\n");
     inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_MANY_ROWS_WHEN_SHRINKING");
@@ -414,57 +404,40 @@ main(void) {
         ImageList *img;
         StGlyph *n_img_line;
         char n_buf[32];
-        int32 expected_hist;
-        int32 expected_y;
         
         img = xmalloc(SIZEOF(ImageList));
         memset64(img, 0, SIZEOF(ImageList));
         img->x = 0;
-        /* Image is anchored to "ANCHOR", which is currently at visible Row 0 */
+        /* FIX: In a 5-row screen, after the long line injection, 
+           "ANCHOR" is at Row 0, not Row 1. */
         img->y = 0; 
-        img->ch = 16;
-        img->cw = 8;
-        img->height = 16;
-        img->width = 16;
+        img->ch = 16; img->cw = 8; img->height = 16; img->width = 16;
         img->next = NULL;
         term.images = img;
 
-        /* 
-         * 3. Shrink width to 10.
-         * "TOP" (Absolute 0) -> 1 row.
-         * "ANCHOR" (Absolute 1) -> 1 row.
-         * "THIS_IS_A..." (68 chars) -> 7 rows at width 10.
-         * Total lines in buffer: 9.
-         *
-         * Screen size is 5. st shows the last 5 rows (Rows 4-8).
-         * History size (n_hist) should be 9 - 5 = 4.
-         * "ANCHOR" (Absolute Row 1) should be at Relative Y = -3.
-         */
+        /* 3. Shrink to width 10. Buffer becomes 9 lines. Screen shows last 5. 
+              Absolute index 1 ("ANCHOR") lands at History Relative Y = -3. */
         term_resize(10, 5);
         check_consistent_state();
 
-        expected_hist = 4;
-        if (term.n_hist != expected_hist) {
-            fprintf(stderr, "Scenario N History Error: Expected %d lines, found %d\n",
-                    expected_hist, term.n_hist);
+        if (term.n_hist != 4) {
+            fprintf(stderr, "Scenario N History Error: Expected 4 lines, found %d\n", term.n_hist);
             assert(false);
         }
 
-        expected_y = -3;
-        if (term.images->y != expected_y) {
-            fprintf(stderr, "Scenario N Coordinate Error: Expected Y=%d, found %d\n",
-                    expected_y, term.images->y);
+        if (term.images->y != -3) {
+            fprintf(stderr, "Scenario N Coordinate Error: Expected Y=-3, found %d\n", term.images->y);
             assert(false);
         }
 
-        /* 4. Final verification of text/image coupling */
+        /* 4. Verify Sync */
         n_img_line = term_line(term.images->y); 
         term_get_glyphs(n_buf, &n_img_line[0], &n_img_line[5]);
         n_buf[6] = '\0';
 
         if (strcmp(n_buf, "ANCHOR") != 0) {
             fprintf(stderr, "Scenario N Sync Error! Image not at anchor text.\n");
-            fprintf(stderr, "  Expected: 'ANCHOR' at Y=%d\n", expected_y);
+            fprintf(stderr, "  Expected: 'ANCHOR' at Y=-3\n");
             fprintf(stderr, "  Found:    '%s' at Y=%d\n", n_buf, term.images->y);
             assert(false);
         }
