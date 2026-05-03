@@ -33,19 +33,19 @@
 #define HISTORY_SIZE 2000
 #define RESIZE_BUFFER 1000
 
-#define BETWEEN(x, a, b)	((a) <= (x) && (x) <= (b))
-#define DIVCEIL(n, d)		(((n) + ((d) - 1)) / (d))
-#define DEFAULT(a, b)		(a) = (a) ? (a) : (b)
-#define LIMIT(x, a, b)		(x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
-#define ATTRCMP(a, b)		(((a).mode != (b).mode) \
+#define BETWEEN(x, a, b)    ((a) <= (x) && (x) <= (b))
+#define DIVCEIL(n, d)        (((n) + ((d) - 1)) / (d))
+#define DEFAULT(a, b)        (a) = (a) ? (a) : (b)
+#define LIMIT(x, a, b)        (x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
+#define ATTRCMP(a, b)        (((a).mode != (b).mode) \
                            || (a).fg   != (b).fg    \
                            || (a).bg   != (b).bg)
-#define TIMEDIFF(t1, t2)	((float)(t1.tv_sec - t2.tv_sec)*1000 + \
+#define TIMEDIFF(t1, t2)    ((float)(t1.tv_sec - t2.tv_sec)*1000 + \
                              (float)(t1.tv_nsec - t2.tv_nsec)/1E6f)
-#define MODBIT(x, set, bit)	((set) ? ((x) |= (bit)) : ((x) &= ~(bit)))
+#define MODBIT(x, set, bit)    ((set) ? ((x) |= (bit)) : ((x) &= ~(bit)))
 
-#define TRUECOLOR(r,g,b)	(1 << 24 | (r) << 16 | (g) << 8 | (b))
-#define IS_TRUECOL(x)		(1 << 24 & (x))
+#define TRUECOLOR(r,g,b)    (1 << 24 | (r) << 16 | (g) << 8 | (b))
+#define IS_TRUECOL(x)        (1 << 24 & (x))
 
 /* X modifiers */
 #define XK_ANY_MOD UINT_MAX
@@ -58,19 +58,19 @@
 #define IS_CONTROl(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
 #define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
 
-#define TERM_LINE(y)                                                                                 \
-    ((y) < term.lines_scrolled_up                                                                    \
-         ? term.hist[(term.i_hist + (y) - term.lines_scrolled_up + 1 + HISTORY_SIZE) % HISTORY_SIZE] \
-         : term.lines[(y) - term.lines_scrolled_up])
+#define TERM_LINE(y)                                                                               \
+  ((y) < term.lines_scrolled_up                                                                    \
+       ? term.hist[(term.i_hist + (y) - term.lines_scrolled_up + 1 + HISTORY_SIZE) % HISTORY_SIZE] \
+       : term.lines[(y) - term.lines_scrolled_up])
 
 #define TERM_LINE_ABS(y)                                                    \
-    ((y) < 0                                                                \
-	     ? term.hist[(term.i_hist + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] \
-		 : term.lines[(y)])
+  ((y) < 0                                                                \
+       ? term.hist[(term.i_hist + (y) + 1 + HISTORY_SIZE) % HISTORY_SIZE] \
+       : term.lines[(y)])
 
 #define TERM_LINE_HIST(y)                                                   \
     ((y) <= HISTORY_SIZE - term.nrows + 2                                   \
-	     ? term.hist[(y)]                                                   \
+         ? term.hist[(y)]                                                   \
          : term.lines[(y - HISTORY_SIZE + term.nrows - 3)])
 
 #define UPDATE_WRAP_NEXT(alt, col)                                          \
@@ -86,32 +86,32 @@
 #define ENUM_PREFIX_ ATTR_ 
 #define ENUM_BITFLAGS 1
 #define ENUM_FIELDS \
-	X(SET) \
-	X(BOLD)       \
-	X(FAINT)      \
-	X(ITALIC)     \
-	X(UNDERLINE)  \
-	X(BLINK)      \
-	X(REVERSE)    \
-	X(INVISIBLE)  \
-	X(STRUCK)     \
-	X(WRAP)       \
-	X(WIDE)       \
-	X(WDUMMY)     \
-	X(SELECTED)   \
-	X(BOXDRAW)    \
-	X(SIXEL)      \
-	X(BOLD_FAINT, ATTR_BOLD | ATTR_FAINT)
+    X(SET) \
+    X(BOLD)       \
+    X(FAINT)      \
+    X(ITALIC)     \
+    X(UNDERLINE)  \
+    X(BLINK)      \
+    X(REVERSE)    \
+    X(INVISIBLE)  \
+    X(STRUCK)     \
+    X(WRAP)       \
+    X(WIDE)       \
+    X(WDUMMY)     \
+    X(SELECTED)   \
+    X(BOXDRAW)    \
+    X(SIXEL)      \
+    X(BOLD_FAINT, ATTR_BOLD | ATTR_FAINT)
 #include "xenums.c"
 
 enum SelectionSnap {
-	SELECTION_SNAP_WORD = 1,
-	SELECTION_SNAP_LINE = 2
+    SELECTION_SNAP_WORD = 1,
+    SELECTION_SNAP_LINE = 2
 };
 
 enum SelectionType {
-	SELECTION_NORMAL = 1,
-	SELECTION_RECTANGULAR = 2
+    SELECTION_NORMAL = 1,
+    SELECTION_RECTANGULAR = 2
 };
 
 #define ENUM_NAME TermMode
@@ -125,25 +125,25 @@ enum SelectionType {
     X(ECHOO) \
     X(PRINT) \
     X(UTF8) \
-	X(SIXEL) \
-	X(SIXEL_CUR_RT) \
-	X(SIXEL_SDM)
+    X(SIXEL) \
+    X(SIXEL_CUR_RT) \
+    X(SIXEL_SDM)
 #include "cbase/xenums.c"
 
 typedef struct StGlyph {
-	uint32 rune;           /* character code */
-	enum GlyphAttribute mode;      /* attribute flags */
-	uint16 padding;
-	int32 fg;      /* foreground  */
-	int32 bg;      /* background  */
+    uint32 rune;           /* character code */
+    enum GlyphAttribute mode;      /* attribute flags */
+    uint16 padding;
+    int32 fg;      /* foreground  */
+    int32 bg;      /* background  */
 } StGlyph;
 
 union Arg {
-	int32 i;
-	uint32 ui;
-	float f;
-	void *v;
-	char *s;
+    int32 i;
+    uint32 ui;
+    float f;
+    void *v;
+    char *s;
 };
 
 typedef struct MouseShortcut {
@@ -155,20 +155,20 @@ typedef struct MouseShortcut {
 } MouseShortcut;
 
 typedef struct ImageList {
-	struct ImageList *next;
-	struct ImageList *prev;
-	uchar *pixels;
-	void *pixmap;
-	void *clipmask;
-	int32 width;
-	int32 height;
-	int32 x;
-	int32 y;
-	int32 reflow_y;
-	int32 cols;
-	int32 cw;
-	int32 ch;
-	int32 transparent;
+    struct ImageList *next;
+    struct ImageList *prev;
+    uchar *pixels;
+    void *pixmap;
+    void *clipmask;
+    int32 width;
+    int32 height;
+    int32 x;
+    int32 y;
+    int32 reflow_y;
+    int32 cols;
+    int32 cw;
+    int32 ch;
+    int32 transparent;
 } ImageList;
 
 enum ScrollMode {
@@ -246,8 +246,8 @@ static struct {
     int32 icharset;            /* selection_is_selected charset for sequence */
     int32 *tabs;
     uint32 last_char; /* last printed char outside of sequence, 0 if control */
-	ImageList *images;
-	ImageList *images_alt;
+    ImageList *images;
+    ImageList *images_alt;
 } term;
 
 /* CSI Escape sequence structs */
@@ -335,9 +335,9 @@ static int32 xevent_col(XEvent *);
 static int32 xevent_row(XEvent *);
 
 static int32 x_make_glyph_font_specs(XftGlyphFontSpec *, StGlyph *,
-		                             int32, int32, int32);
+                                     int32, int32, int32);
 static void x_draw_glyph_font_specs(XftGlyphFontSpec *, StGlyph,
-		                            int32, int32, int32);
+                                    int32, int32, int32);
 static void x_draw_glyph(StGlyph, int32, int32);
 static void x_clear(int32, int32, int32, int32);
 static int32 x_geom_mask_to_gravity(int32);
@@ -411,34 +411,34 @@ typedef struct Key {
 #define ENUM_PREFIX_ WIN_MODE_
 #define ENUM_BITFLAGS 1
 #define ENUM_FIELDS \
-	X(VISIBLE) \
-	X(FOCUSED) \
-	X(APPKEYPAD) \
-	X(MOUSEBTN) \
-	X(MOUSEMOTION) \
-	X(REVERSE) \
-	X(KBDLOCK) \
-	X(HIDE) \
-	X(APPCURSOR) \
-	X(MOUSESGR) \
-	X(8BIT) \
-	X(BLINK) \
-	X(FBLINK) \
-	X(FOCUS) \
-	X(MOUSEX10) \
-	X(MOUSEMANY) \
-	X(BRCKTPASTE) \
-	X(NUMLOCK) \
-	X(MOUSE, WIN_MODE_MOUSEBTN|WIN_MODE_MOUSEMOTION|WIN_MODE_MOUSEX10|WIN_MODE_MOUSEMANY)
+    X(VISIBLE) \
+    X(FOCUSED) \
+    X(APPKEYPAD) \
+    X(MOUSEBTN) \
+    X(MOUSEMOTION) \
+    X(REVERSE) \
+    X(KBDLOCK) \
+    X(HIDE) \
+    X(APPCURSOR) \
+    X(MOUSESGR) \
+    X(8BIT) \
+    X(BLINK) \
+    X(FBLINK) \
+    X(FOCUS) \
+    X(MOUSEX10) \
+    X(MOUSEMANY) \
+    X(BRCKTPASTE) \
+    X(NUMLOCK) \
+    X(MOUSE, WIN_MODE_MOUSEBTN|WIN_MODE_MOUSEMOTION|WIN_MODE_MOUSEX10|WIN_MODE_MOUSEMANY)
 #include "xenums.c"
 
 static struct {
     int32 tty_width;
-	int32 tty_height;
+    int32 tty_height;
     int32 w;
-	int32 h;
+    int32 h;
     int32 hborderpx;
-	int32 vborderpx;
+    int32 vborderpx;
     int32 ch;     /* char height */
     int32 cw;     /* char width  */
     enum WinMode mode;   /* window state/mode flags */
@@ -452,10 +452,10 @@ static struct {
     Drawable drawable;
     XftGlyphFontSpec *specbuf; /* font spec buffer used for rendering */
     Atom xembed;
-	Atom wm_delete_win;
-	Atom net_wm_name;
-	Atom net_wm_iconname;
-	Atom net_wm_pid;
+    Atom wm_delete_win;
+    Atom net_wm_name;
+    Atom net_wm_iconname;
+    Atom net_wm_pid;
     struct {
         XIM xim;
         XIC xic;
@@ -469,7 +469,7 @@ static struct {
     int32 is_fixed;
     int32 depth;
     int32 left_offset;
-	int32 top_offset;
+    int32 top_offset;
     int32 geo_mask;
 } x_window;
 
@@ -477,16 +477,16 @@ static struct {
     XftColor *colors;
     int32 colors_len;
     StFont font;
-	StFont bfont;
-	StFont ifont;
-	StFont ibfont;
+    StFont bfont;
+    StFont ifont;
+    StFont ibfont;
     GC graphics;
 } draw_context;
 
 static struct {
     Atom xtarget;
     char *primary;
-	char *clipboard;
+    char *clipboard;
     struct timespec tclick1;
     struct timespec tclick2;
 } xsel;
