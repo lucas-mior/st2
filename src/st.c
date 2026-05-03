@@ -261,7 +261,7 @@ term_reset(void) {
         term_cursor(CURSOR_SAVE); /* reset saved cursor */
         for (int32 y = 0; y < term.nrows; y += 1) {
             for (int32 x = 0; x < term.ncols; x += 1) {
-                term_clear_glyph(&term.lines[y][x], 0);
+                term_clear_glyph(&term.lines[y][x], false);
             }
         }
         term_delete_images();
@@ -389,7 +389,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
             term.i_hist = (term.i_hist + 1) % HISTORY_SIZE;
             temp = term.hist[term.i_hist];
             for (int32 j = 0; j < term.ncols; j += 1) {
-                term_clear_glyph(&temp[j], 1);
+                term_clear_glyph(&temp[j], true);
             }
             term.hist[term.i_hist] = term.lines[i];
             term.lines[i] = temp;
@@ -804,7 +804,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
         for (int32 i = term.nrows; i < new_nrows; i += 1) {
             term.lines[i] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
             for (int32 j = 0; j < new_ncols; j += 1) {
-                term_clear_glyph(&term.lines[i][j], 0);
+                term_clear_glyph(&term.lines[i][j], false);
             }
         }
         reflow_scroll_down(new_nrows - term.nrows);
@@ -847,13 +847,13 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         term.lines[j] = xrealloc(term.lines[j],
                                 (int64)new_ncols*SIZEOF(*(term.lines[j])));
         for (int32 k = term.ncols; k < new_ncols; k += 1) {
-            term_clear_glyph(&term.lines[j][k], 0);
+            term_clear_glyph(&term.lines[j][k], false);
         }
     }
     for (int32 j = (int32)MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
         term.lines[j] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
         for (int32 k = 0; k < new_ncols; k += 1) {
-            term_clear_glyph(&term.lines[j][k], 0);
+            term_clear_glyph(&term.lines[j][k], false);
         }
     }
     if (term.cursor.x >= new_ncols) {
@@ -959,7 +959,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
             if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
                 for (int32 j = new_x_offset; j < new_ncols; j += 1) {
-                    term_clear_glyph(&reflow_lines[new_y_index][j], 0);
+                    term_clear_glyph(&reflow_lines[new_y_index][j], false);
                 }
                 new_x_offset = 0;
             } else {
@@ -991,7 +991,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     /* --- finalize last partially filled line --- */
     if (new_x_offset) {
         for (int32 j = new_x_offset; j < new_ncols; j += 1) {
-            term_clear_glyph(&reflow_lines[new_y_index][j], 0);
+            term_clear_glyph(&reflow_lines[new_y_index][j], false);
         }
     }
 
@@ -1027,7 +1027,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     for (i = new_nrows - 1; i > new_cursor_end_line; i -= 1) {
         term.lines[i] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
         for (int32 j = 0; j < new_ncols; j += 1) {
-            term_clear_glyph(&term.lines[i][j], 0);
+            term_clear_glyph(&term.lines[i][j], false);
         }
     }
 
@@ -1066,7 +1066,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                                     (int64)new_ncols*SIZEOF(*(term.hist[j_rem])));
         if (new_ncols > term.ncols) {
             for (int32 c_col = term.ncols; c_col < new_ncols; c_col += 1) {
-                term_clear_glyph(&term.hist[j_rem][c_col], 0);
+                term_clear_glyph(&term.hist[j_rem][c_col], false);
             }
         }
     }
@@ -1487,7 +1487,7 @@ main(void) {
 
     {
         StGlyph glyph_val;
-        term_clear_glyph(&glyph_val, 0);
+        term_clear_glyph(&glyph_val, false);
         ASSERT(glyph_val.mode == ATTR_NONE);
         ASSERT_EQUAL(glyph_val.rune, ' ');
         ASSERT_EQUAL(glyph_val.fg, CONF_COLOR_INDEX_FONT);
