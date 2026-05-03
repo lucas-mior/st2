@@ -547,23 +547,24 @@ control_seq_intro_handle(void) {
     case 'J':
         switch (csi_escape_seq.arg[0]) {
         case 0:
-            term_clear_region(term.cursor.x, term.cursor.y, term.ncols - 1,
-                              term.cursor.y, 1);
+            term_clear_region(term.cursor.x, term.cursor.y,
+                              term.ncols - 1, term.cursor.y, true);
             if (term.cursor.y < term.nrows - 1) {
-                term_clear_region(0, term.cursor.y + 1, term.ncols - 1,
-                                  term.nrows - 1, 1);
+                term_clear_region(0, term.cursor.y + 1,
+                                  term.ncols - 1, term.nrows - 1, true);
             }
             break;
         case 1:
             if (term.cursor.y >= 1) {
-                term_clear_region(0, 0, term.ncols - 1, term.cursor.y - 1, 1);
+                term_clear_region(0, 0,
+                                  term.ncols - 1, term.cursor.y - 1, true);
             }
-            term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y,
-                              1);
+            term_clear_region(0, term.cursor.y,
+                              term.cursor.x, term.cursor.y, true);
             break;
         case 2:
             if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
-                term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, 1);
+                term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, true);
                 term_delete_images();
                 break;
             }
@@ -592,16 +593,16 @@ control_seq_intro_handle(void) {
     case 'K':
         switch (csi_escape_seq.arg[0]) {
         case 0:
-            term_clear_region(term.cursor.x, term.cursor.y, term.ncols - 1,
-                              term.cursor.y, 1);
+            term_clear_region(term.cursor.x, term.cursor.y,
+                              term.ncols - 1, term.cursor.y, true);
             break;
         case 1:
-            term_clear_region(0, term.cursor.y, term.cursor.x, term.cursor.y,
-                              1);
+            term_clear_region(0, term.cursor.y,
+                              term.cursor.x, term.cursor.y, true);
             break;
         case 2:
-            term_clear_region(0, term.cursor.y, term.ncols - 1, term.cursor.y,
-                              1);
+            term_clear_region(0, term.cursor.y,
+                              term.ncols - 1, term.cursor.y, true);
             break;
         default:
             error("control_seq_intro_handle: Unhandled switch case.\n");
@@ -619,10 +620,10 @@ control_seq_intro_handle(void) {
                     break;
                 } else {
                     if (pi == 2 && (pa == 1 || pa == 2 || pa == 4)) {
-                        long long mw;
-                        long long mh;
-                        mw = (long long)MIN(term.ncols*term_window.cw, DECSIXEL_WIDTH_MAX);
-                        mh = (long long)MIN(term.nrows*term_window.ch, DECSIXEL_HEIGHT_MAX);
+                        llong mw = (llong)MIN(term.ncols*term_window.cw,
+                                              DECSIXEL_WIDTH_MAX);
+                        llong mh = (llong)MIN(term.nrows*term_window.ch,
+                                              DECSIXEL_HEIGHT_MAX);
                         n = SNPRINTF(buffer, "\033[?2;0;%lld;%lldS", mw, mh);
                         tty_write(buffer, n, 1);
                         break;
@@ -658,7 +659,7 @@ control_seq_intro_handle(void) {
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
         x = (int32)MIN(term.cursor.x + csi_escape_seq.arg[0], term.ncols) - 1;
-        term_clear_region(term.cursor.x, term.cursor.y, x, term.cursor.y, 1);
+        term_clear_region(term.cursor.x, term.cursor.y, x, term.cursor.y, true);
         break;
     case 'P':
         DEFAULT(csi_escape_seq.arg[0], 1);
