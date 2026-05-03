@@ -99,21 +99,21 @@ set_default_color(SixelImage *image) {
     int32 n;
 
     /* palette initialization */
-    for (n = 1; n < 17; n++) {
+    for (n = 1; n < 17; n += 1) {
         image->palette[n] = sixel_default_color_table[n - 1];
     }
 
     /* colors 17-232 are a 6x6x6 color cube */
-    for (int32 r = 0; r < 6; r++) {
-        for (int32 g = 0; g < 6; g++) {
-            for (int32 b = 0; b < 6; b++) {
+    for (int32 r = 0; r < 6; r += 1) {
+        for (int32 g = 0; g < 6; g += 1) {
+            for (int32 b = 0; b < 6; b += 1) {
                 image->palette[n++] = SIXEL_RGB(r*51, g*51, b*51);
             }
         }
     }
 
     /* colors 233-256 are a grayscale ramp, intentionally leaving out */
-    for (int32 i = 0; i < 24; i++) {
+    for (int32 i = 0; i < 24; i += 1) {
         image->palette[n++] = SIXEL_RGB(i*11, i*11, i*11);
     }
 
@@ -303,7 +303,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
 
     *newimages = NULL;
     tail = NULL;
-    for (y = 0, i = 0; i < numimages; i++) {
+    for (y = 0, i = 0; i < numimages; i += 1) {
         im = xmalloc(sizeof(*im));
         if (!tail) {
             *newimages = tail = im;
@@ -325,9 +325,9 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
         im->cw = cw;
         im->ch = ch;
         dst = (uint32 *)im->pixels;
-        for (trans = 0, j = 0; j < im->height && y < h; j++, y++) {
+        for (trans = 0, j = 0; j < im->height && y < h; j += 1, y += 1) {
             src = sixel_state->image.data + sixel_image->width*y;
-            for (x = 0; x < w; x++) {
+            for (x = 0; x < w; x += 1) {
                 color = sixel_state->image.palette[*src++];
                 trans |= (color == 0);
                 *dst++ = color;
