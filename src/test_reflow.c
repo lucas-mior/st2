@@ -223,13 +223,20 @@ main(void) {
         inject_text("PADDING\n");
     }
     
-    {
+{
         ImageList *dummy_img;
         
         dummy_img = xmalloc(SIZEOF(ImageList));
         memset64(dummy_img, 0, SIZEOF(ImageList));
         dummy_img->x = 2;
         dummy_img->y = 5; /* Image starts at row 5 on active screen */
+        
+        /* FIX: Provide valid pixel dimensions to prevent Division by Zero */
+        dummy_img->ch = 16;     /* Mock character height */
+        dummy_img->cw = 8;      /* Mock character width */
+        dummy_img->height = 32; /* Mock image height (spans 2 rows) */
+        dummy_img->width = 32;  /* Mock image width */
+        
         dummy_img->next = term.images;
         term.images = dummy_img;
         
