@@ -259,7 +259,7 @@ sixel_parser_set_default_color(SixelState *sixel_state) {
 }
 
 static int32
-sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
+sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images, int32 cx,
                       int32 cy, int32 cw, int32 ch) {
     SixelImage *sixel_image = &sixel_state->image;
     int32 x, y;
@@ -273,7 +273,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
     int32 cols;
     int32 numimages;
     char trans;
-    ImageList *im;
+    ImageList *image;
     ImageList *tail;
 
     if (!sixel_image->data) {
@@ -304,31 +304,31 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
 
     cols = (w + cw - 1) / cw;
 
-    *newimages = NULL;
+    *new_images = NULL;
     tail = NULL;
     for (y = 0, i = 0; i < numimages; i += 1) {
-        im = xmalloc(sizeof(*im));
+        image = xmalloc(sizeof(*image));
         if (!tail) {
-            *newimages = tail = im;
-            im->prev = im->next = NULL;
+            *new_images = tail = image;
+            image->prev = image->next = NULL;
         } else {
-            tail->next = im;
-            im->prev = tail;
-            im->next = NULL;
-            tail = im;
+            tail->next = image;
+            image->prev = tail;
+            image->next = NULL;
+            tail = image;
         }
-        im->x = cx;
-        im->y = cy + i;
-        im->cols = cols;
-        im->width = w;
-        im->height = (int32)MIN(h - ch*i, ch);
-        im->pixels = xmalloc(im->width*im->height * 4);
-        im->pixmap = NULL;
-        im->clipmask = NULL;
-        im->cw = cw;
-        im->ch = ch;
-        dst = (uint32 *)im->pixels;
-        for (trans = 0, j = 0; j < im->height && y < h; j += 1, y += 1) {
+        image->x = cx;
+        image->y = cy + i;
+        image->cols = cols;
+        image->width = w;
+        image->height = (int32)MIN(h - ch*i, ch);
+        image->pixels = xmalloc(image->width*image->height * 4);
+        image->pixmap = NULL;
+        image->clipmask = NULL;
+        image->cw = cw;
+        image->ch = ch;
+        dst = (uint32 *)image->pixels;
+        for (trans = 0, j = 0; j < image->height && y < h; j += 1, y += 1) {
             src = sixel_state->image.data + sixel_image->width*y;
             for (x = 0; x < w; x += 1) {
                 color = sixel_state->image.palette[*src++];
@@ -336,7 +336,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **newimages, int32 cx,
                 *dst++ = color;
             }
         }
-        im->transparent = (sixel_state->transparent && trans);
+        image->transparent = (sixel_state->transparent && trans);
     }
 
     return numimages;
