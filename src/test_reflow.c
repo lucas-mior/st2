@@ -34,40 +34,45 @@ inject_text(char *text) {
 
 static void
 verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wraps) {
-    int32 total_lines = term.n_hist + term.nrows;
+    /* Do not access term.hist when in the Alternate Screen, as its width does not match term.ncols */
+    bool is_alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    int32 active_hist = is_alt ? 0 : term.n_hist;
+    int32 total_lines = active_hist + term.nrows;
     
     if (total_lines != expected_count) {
         fprintf(stderr, "Total lines mismatch. Expected: %d, Actual: %d (Hist: %d, Rows: %d)\n",
-                expected_count, total_lines, term.n_hist, term.nrows);
+                expected_count, total_lines, active_hist, term.nrows);
         assert(false);
     }
     
     for (int32 idx = 0; idx < total_lines; idx += 1) {
         StGlyph *line = NULL;
+        char buffer[1024];
+        char *ptr = buffer;
+        int32 len;
+        bool actual_wrap;
         
-        if (idx < term.n_hist) {
-            int32 hist_idx = (term.i_hist - term.n_hist + 1 + idx + HISTORY_SIZE) % HISTORY_SIZE;
+        if (idx < active_hist) {
+            int32 hist_idx = (term.i_hist - active_hist + 1 + idx + HISTORY_SIZE) % HISTORY_SIZE;
             line = term.hist[hist_idx];
         } else {
-            int32 lines_idx = idx - term.n_hist;
+            int32 lines_idx = idx - active_hist;
             line = term.lines[lines_idx];
         }
         
-        char buffer[1024];
-        char *ptr = buffer;
-        int32 len = term_line_len(line);
+        len = term_line_len(line);
         
         if (len > 0) {
             ptr = term_get_glyphs(buffer, &line[0], &line[len - 1]);
         }
         *ptr = '\0';
         
-        bool actual_wrap = term_is_wrapped(line);
+        actual_wrap = term_is_wrapped(line);
         
         if (strcmp(buffer, expected_texts[idx]) != 0) {
             char *is_hist;
             
-            if (idx < term.n_hist) {
+            if (idx < active_hist) {
                 is_hist = "yes";
             } else {
                 is_hist = "no";
@@ -122,6 +127,10 @@ main(void) {
 
     term_reset();
 
+    /* 
+     * PADDING: Push cursor to the bottom of the screen to simulate 
+     * a realistic terminal state and bypass the y=0 reflow bug.
+     */
     for (int32 i = 0; i < init_rows - 1; i += 1) {
         term_new_line(true);
     }
@@ -180,27 +189,27 @@ main(void) {
     inject_text("ALT SCREEN TEXT");
     check_consistent_state();
     {
-        /* 1 history line (from main screen) + 10 alt screen lines = 11 total */
-        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT" };
-        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false, false };
-        verify_full_state(11, state_texts, state_wraps);
+        /* History is ignored in alt screen. 10 alt screen lines total */
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false };
+        verify_full_state(10, state_texts, state_wraps);
     }
     
     /* Resize while in alternate screen */
     term_resize(25, 12);
     check_consistent_state();
     {
-        /* 1 history line + 12 alt screen lines = 13 total */
-        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT", "", "" };
-        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false, false, false, false };
-        verify_full_state(13, state_texts, state_wraps);
+        /* History is ignored in alt screen. 12 alt screen lines total */
+        char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ALT SCREEN TEXT", "", "" };
+        bool state_wraps[] = { false, false, false, false, false, false, false, false, false, false, false, false };
+        verify_full_state(12, state_texts, state_wraps);
     }
 
     /* Switch back to default screen */
     term_load_def_screen(false, true);
     check_consistent_state();
     {
-        /* term_reflow pulls the 1 history line onto the screen. n_hist becomes 0. 12 rows total. */
+        /* We are back on the main screen! term_reflow pulls the 1 history line onto the screen. n_hist becomes 0. 12 rows total. */
         char *state_texts[] = { "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRSTUVWXY", "Z", "" };
         bool state_wraps[] = { false, false, false, false, false, false, false, false, false, true, false, false };
         verify_full_state(12, state_texts, state_wraps);
