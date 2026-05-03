@@ -64,6 +64,11 @@ xwrite(int32 fd, char *s, int64 len) {
     return (int64)len;
 }
 
+static bool
+term_mode_is_set(enum TermMode flag) {
+    return !(!(term.mode & flag));
+}
+
 static void
 check_consistent_state(void) {
     ASSERT_MORE(term.nrows, 0);
@@ -336,7 +341,7 @@ static void
 term_load_def_screen(bool clear, bool loadcursor) {
     int32 col = 0;
     int32 row = 0;
-    int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    int32 alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
 
     if (alt) {
         if (clear) {
@@ -359,7 +364,7 @@ static void
 term_load_alt_screen(bool clear, bool savecursor) {
     int32 col;
     int32 row;
-    int32 def = !TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    int32 def = !term_mode_is_set(TERM_MODE_ALTSCREEN);
 
     if (savecursor) {
         term_cursor(CURSOR_SAVE);
@@ -397,7 +402,7 @@ term_scroll_down(int32 top, int32 n) {
     }
 
     if ((selection.ob.x != -1)
-        && (selection.alt == TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN))) {
+        && (selection.alt == term_mode_is_set(TERM_MODE_ALTSCREEN))) {
         selection_scroll(top, bot, n);
     }
 
@@ -416,7 +421,7 @@ term_scroll_down(int32 top, int32 n) {
 static void
 term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
     int32 s = 0;
-    uint32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    uint32 alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
     bool savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
     StGlyph *temp;
 
@@ -810,7 +815,7 @@ term_resize(int32 col, int32 row) {
         }
     }
 
-    if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         term_resize_alt(col, row);
     } else {
         term_resize_def(col, row);

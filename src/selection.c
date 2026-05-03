@@ -58,7 +58,7 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
     int32 rtop = 0;
     int32 rbot = term.nrows - 1;
 
-    if (!TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (!term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         rtop += term.lines_scrolled_up - term.n_hist;
         rbot += term.lines_scrolled_up;
     }
@@ -182,7 +182,7 @@ selection_start(int32 col, int32 row, enum SelectionSnap snap) {
     selection_clear();
     selection.mode = SELECTION_EMPTY;
     selection.type = SELECTION_NORMAL;
-    selection.alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    selection.alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
     selection.snap = snap;
     selection.oe.x = selection.ob.x = col;
     selection.oe.y = selection.ob.y = row;
@@ -246,7 +246,7 @@ selection_is_selected4(int32 x1, int32 y1, int32 x2, int32 y2) {
     if (selection.mode == SELECTION_EMPTY) {
         return 0;
     }
-    if (selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (selection.alt != term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         return 0;
     }
 
@@ -276,7 +276,7 @@ selection_get(void) {
     char *ptr;
 
     if (selection.ob.x == -1
-        || selection.alt != TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+        || selection.alt != term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         return NULL;
     }
 

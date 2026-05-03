@@ -146,11 +146,11 @@ static void
 tty_write(char *s, int64 n, int32 may_echo) {
     user_scroll_down(&((union Arg){.i = term.lines_scrolled_up}));
 
-    if (may_echo && TERM_MODE_IS_SET(TERM_MODE_ECHOO)) {
+    if (may_echo && term_mode_is_set(TERM_MODE_ECHOO)) {
         term_write(s, (int32)n, 1);
     }
 
-    if (!TERM_MODE_IS_SET(TERM_MODE_CRLF)) {
+    if (!term_mode_is_set(TERM_MODE_CRLF)) {
         tty_write_raw(s, n);
         return;
     }

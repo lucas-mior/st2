@@ -137,7 +137,7 @@ static void
 user_scroll_down(union Arg *a) {
     int64 n = a->i;
 
-    if (!term.lines_scrolled_up || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (!term.lines_scrolled_up || term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         return;
     }
 
@@ -162,7 +162,7 @@ static void
 user_scroll_up(union Arg *a) {
     int64 n = a->i;
 
-    if (!term.n_hist || TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (!term.n_hist || term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         return;
     }
 
@@ -257,7 +257,7 @@ user_vim_select(union Arg *arg) {
 
     XCLOSE(&fd);
 
-    if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         target_line = term.n_hist + 1;
         target_col = 1;
     } else {

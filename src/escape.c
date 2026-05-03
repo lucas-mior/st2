@@ -75,7 +75,7 @@ control_seq_intro_dump(void) {
 static void
 term_cursor(enum CursorMovement mode) {
     static TCursor c[2];
-    int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    int32 alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
 
     if (mode == CURSOR_SAVE) {
         c[alt] = term.cursor;
@@ -563,7 +563,7 @@ control_seq_intro_handle(void) {
                               term.cursor.x, term.cursor.y, true);
             break;
         case 2:
-            if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+            if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
                 term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, true);
                 term_delete_images();
                 break;
@@ -702,14 +702,14 @@ control_seq_intro_handle(void) {
                           0);
                 break;
             case 80:
-                if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+                if (term_mode_is_set(TERM_MODE_SIXEL_SDM)) {
                     tty_write("\033[?80;1$y", 9, 0);
                 } else {
                     tty_write("\033[?80;2$y", 9, 0);
                 }
                 break;
             case 8452:
-                if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT)) {
+                if (term_mode_is_set(TERM_MODE_SIXEL_CUR_RT)) {
                     tty_write("\033[?8452;1$y", 11, 0);
                 } else {
                     tty_write("\033[?8452;2$y", 11, 0);
@@ -861,7 +861,7 @@ string_handle(void) {
                      {CONF_COLOR_BG, "background"},
                      {CONF_COLOR_INDEX_CURSOR, "cursor"}};
 
-    if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         scr_offset = 0;
     } else {
         scr_offset = term.lines_scrolled_up;
@@ -1013,7 +1013,7 @@ string_handle(void) {
         x_set_title(str_escape_seq.args[0]);
         return;
     case 'P':
-        if (TERM_MODE_IS_SET(TERM_MODE_SIXEL)) {
+        if (term_mode_is_set(TERM_MODE_SIXEL)) {
             ImageList *newimages = NULL;
             ImageList *next_im;
             ImageList *tail = NULL;
@@ -1031,12 +1031,12 @@ string_handle(void) {
                 sixel_parser_deinit(&sixel_st);
                 return;
             }
-            if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+            if (term_mode_is_set(TERM_MODE_SIXEL_SDM)) {
                 cx_pos = 0;
             } else {
                 cx_pos = term.cursor.x;
             }
-            if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+            if (term_mode_is_set(TERM_MODE_SIXEL_SDM)) {
                 cy_pos = 0;
             } else {
                 cy_pos = term.cursor.y;
@@ -1103,7 +1103,7 @@ string_handle(void) {
 
             x2_im = (int32)MIN(x2_im, term.ncols) - 1;
 
-            if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_SDM)) {
+            if (term_mode_is_set(TERM_MODE_SIXEL_SDM)) {
                 ImageList *im_sdm;
                 int32 i_sdm;
                 for (i_sdm = 0, im_sdm = newimages; im_sdm; im_sdm = next_im, i_sdm += 1) {
@@ -1121,7 +1121,7 @@ string_handle(void) {
                 int32 i_cur;
                 for (i_cur = 0, im_cur = newimages; im_cur; im_cur = next_im, i_cur += 1) {
                     next_im = im_cur->next;
-                    if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+                    if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
                         scr_offset = 0;
                     } else {
                         scr_offset = term.lines_scrolled_up;
@@ -1137,7 +1137,7 @@ string_handle(void) {
                     }
                 }
 
-                if (TERM_MODE_IS_SET(TERM_MODE_SIXEL_CUR_RT)) {
+                if (term_mode_is_set(TERM_MODE_SIXEL_CUR_RT)) {
                     term.cursor.x = (int32)MIN(term.cursor.x + newimages->cols,
                                                term.ncols - 1);
                 } else {
@@ -1346,7 +1346,7 @@ term_control_code(uchar ascii) {
     case '\f':
     case '\v':
     case '\n':
-        term_new_line(TERM_MODE_IS_SET(TERM_MODE_CRLF));
+        term_new_line(term_mode_is_set(TERM_MODE_CRLF));
         return;
     case '\a':
         if (term.esc & ESC_STR_END) {
@@ -1524,7 +1524,7 @@ term_putc(uint32 u) {
     StGlyph *glyph;
 
     control = IS_CONTROl(u);
-    if (u < 127 || !TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
+    if (u < 127 || !term_mode_is_set(TERM_MODE_UTF8)) {
         c[0] = (char)u;
         width = 1;
         len = 1;
@@ -1538,7 +1538,7 @@ term_putc(uint32 u) {
         }
     }
 
-    if (TERM_MODE_IS_SET(TERM_MODE_PRINT)) {
+    if (term_mode_is_set(TERM_MODE_PRINT)) {
         term_printer(c, len);
     }
 
@@ -1583,7 +1583,7 @@ term_putc(uint32 u) {
 
 check_control_code:
     if (control) {
-        if (TERM_MODE_IS_SET(TERM_MODE_UTF8) && IS_CONTROL_C1(u)) {
+        if (term_mode_is_set(TERM_MODE_UTF8) && IS_CONTROL_C1(u)) {
             return;
         }
         term_control_code((uchar)u);
@@ -1644,7 +1644,7 @@ check_control_code:
     }
 
     glyph = &term.lines[term.cursor.y][term.cursor.x];
-    if (TERM_MODE_IS_SET(TERM_MODE_WRAP)) {
+    if (term_mode_is_set(TERM_MODE_WRAP)) {
         if (term.cursor.state & CURSOR_WRAPNEXT) {
             glyph->mode |= ATTR_WRAP;
             term_new_line(1);
@@ -1652,7 +1652,7 @@ check_control_code:
         }
     }
 
-    if (TERM_MODE_IS_SET(TERM_MODE_INSERT)) {
+    if (term_mode_is_set(TERM_MODE_INSERT)) {
         if (term.cursor.x + width < term.ncols) {
             memmove64(glyph + width, glyph,
                       (term.ncols - term.cursor.x - width)*SIZEOF(StGlyph));
@@ -1661,7 +1661,7 @@ check_control_code:
     }
 
     if (term.cursor.x + width > term.ncols) {
-        if (TERM_MODE_IS_SET(TERM_MODE_WRAP)) {
+        if (term_mode_is_set(TERM_MODE_WRAP)) {
             term_new_line(1);
         } else {
             term_move_to(term.ncols - width, term.cursor.y);
@@ -1686,7 +1686,7 @@ check_control_code:
     if (term.cursor.x + width < term.ncols) {
         term_move_to(term.cursor.x + width, term.cursor.y);
     } else {
-        if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+        if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
             term.wrap_char_width[1] = width;
         } else {
             term.wrap_char_width[0] = width;
@@ -1703,12 +1703,12 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
 
     for (n = 0; n < buflen; n += charsize) {
         uint32 u;
-        if (TERM_MODE_IS_SET(TERM_MODE_SIXEL) && sixel_st.state != PARSE_STATE_ESC) {
+        if (term_mode_is_set(TERM_MODE_SIXEL) && sixel_st.state != PARSE_STATE_ESC) {
             charsize = sixel_parser_parse(
                 &sixel_st, (unsigned char *)buffer + n, buflen - n);
             continue;
         } else {
-            if (TERM_MODE_IS_SET(TERM_MODE_UTF8)) {
+            if (term_mode_is_set(TERM_MODE_UTF8)) {
                 charsize = (int32)utf8_decode(buffer + n, &u, (int64)(buflen - n));
                 if (charsize == 0) {
                     break;

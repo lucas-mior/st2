@@ -52,7 +52,6 @@
 #define XK_NO_MOD 0
 #define XK_SWITCH_MOD (1 << 13 | 1 << 14)
 
-#define TERM_MODE_IS_SET(flag) !(!(term.mode & (flag)))
 #define IS_CONTROL_C0(c) (BETWEEN(c, 0, 0x1f) || (c) == 0x7f)
 #define IS_CONTROL_C1(c) (BETWEEN(c, 0x80, 0x9f))
 #define IS_CONTROl(c) (IS_CONTROL_C0(c) || IS_CONTROL_C1(c))
@@ -397,6 +396,7 @@ static void term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y);
 static void term_set_dirt(int32 top, int32 bot);
 static void term_swap_screen(void);
 static void check_consistent_state(void);
+static bool term_mode_is_set(enum TermMode flag);
 
 static int32 xevent_col(XEvent *xevent);
 static int32 xevent_row(XEvent *xevent);

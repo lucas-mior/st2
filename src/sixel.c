@@ -54,7 +54,7 @@ scroll_images(int32 n) {
     ImageList *next;
     int32 top;
 
-    if (TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN)) {
+    if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         top = 0;
     } else {
         top = term.lines_scrolled_up - HISTORY_SIZE;
@@ -868,6 +868,7 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
 #include <string.h>
 
 #include "assert.c"
+#include "st.c"
 
 int
 main(void) {

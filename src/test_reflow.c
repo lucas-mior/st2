@@ -64,7 +64,7 @@ verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wr
     int32 active_hist;
     int32 total_lines;
     
-    is_alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
+    is_alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
     
     if (is_alt) {
         active_hist = 0;
