@@ -331,12 +331,6 @@ static void term_set_char(uint32, StGlyph *, int32, int32);
 static void term_set_dirt(int32, int32);
 static void term_swap_screen(void);
 
-static void mouse_select(XEvent *, int32);
-static void mouse_report(XEvent *);
-static int32 match_mask_state(uint32, uint32);
-static uint32 button_mask(uint32);
-static int32 mouse_action(XEvent *, uint32);
-
 static int32 xevent_col(XEvent *);
 static int32 xevent_row(XEvent *);
 

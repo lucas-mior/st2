@@ -5,6 +5,7 @@
 #include "config.def.h"
 #include "selection.c"
 #include "utf8.c"
+#include "mouse.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_handlers 1
