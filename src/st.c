@@ -69,7 +69,9 @@ static int32
 term_line_len(StGlyph *line) {
     int32 i = term.ncols - 1;
 
-    for (; i >= 0 && !(line[i].mode & (ATTR_SET | ATTR_WRAP)); i -= 1);
+    while ((i >= 0) && !(line[i].mode & (ATTR_SET | ATTR_WRAP))) {
+        i -= 1;
+    }
 
     return i + 1;
 }
