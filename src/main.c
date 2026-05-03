@@ -459,6 +459,8 @@ run:
 
             draw();
 
+            check_consistent_state();
+
             XFlush(x_window.display);
             drawing = 0;
         }

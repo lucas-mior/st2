@@ -309,6 +309,7 @@ static void term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode);
 static void term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y);
 static void term_set_dirt(int32 top, int32 bot);
 static void term_swap_screen(void);
+static void check_consistent_state(void);
 
 static int32 xevent_col(XEvent *xevent);
 static int32 xevent_row(XEvent *xevent);

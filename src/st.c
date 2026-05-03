@@ -65,6 +65,46 @@ xwrite(int32 fd, char *s, int64 len) {
 
 #include "base64.c"
 
+static void
+check_consistent_state(void) {
+    ASSERT_MORE(term.nrows, 0);
+    ASSERT_MORE(term.ncols, 0);
+    ASSERT(term.lines != NULL);
+    ASSERT(term.tabs != NULL);
+    ASSERT(term.dirty != NULL);
+
+    for (int32 row_index = 0; row_index < term.nrows; row_index += 1) {
+        ASSERT(term.lines[row_index] != NULL);
+    }
+
+    for (int32 history_index = 0; history_index < HISTORY_SIZE; history_index += 1) {
+        ASSERT(term.hist[history_index] != NULL);
+    }
+
+    ASSERT_MORE_EQUAL(term.n_hist, 0);
+    ASSERT_LESS_EQUAL(term.n_hist, HISTORY_SIZE);
+
+    ASSERT_MORE_EQUAL(term.i_hist, 0);
+    ASSERT_LESS(term.i_hist, HISTORY_SIZE);
+
+    ASSERT_MORE_EQUAL(term.lines_scrolled_up, 0);
+    ASSERT_LESS_EQUAL(term.lines_scrolled_up, term.n_hist);
+
+    ASSERT_MORE_EQUAL(term.top_scroll_limit, 0);
+    ASSERT_LESS_EQUAL(term.top_scroll_limit, term.bot_scroll_limit);
+
+    ASSERT_MORE_EQUAL(term.bot_scroll_limit, 0);
+    ASSERT_LESS(term.bot_scroll_limit, term.nrows);
+
+    ASSERT_MORE_EQUAL(term.cursor.x, 0);
+    ASSERT_LESS(term.cursor.x, term.ncols);
+
+    ASSERT_MORE_EQUAL(term.cursor.y, 0);
+    ASSERT_LESS(term.cursor.y, term.nrows);
+
+    return;
+}
+
 static int32
 term_line_len(StGlyph *line) {
     int32 i = term.ncols - 1;
