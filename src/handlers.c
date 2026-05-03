@@ -116,7 +116,7 @@ handler_selection_notify(XEvent *xevent) {
         if (XGetWindowProperty(x_window.display, x_window.win, property,
                                (int64)ofs, BUFSIZ / 4, False, AnyPropertyType,
                                &type, &format, &nitems, &rem, &data)) {
-            fprintf(stderr, "Clipboard allocation failed\n");
+            error("Clipboard allocation failed\n");
             return;
         }
 
@@ -223,7 +223,7 @@ handler_selection_request(XEvent *xevent) {
         } else if (xselection_request_event->selection == clipboard) {
             selection_text = xsel.clipboard;
         } else {
-            fprintf(stderr, "Unhandled clipboard selection 0x%lx\n",
+            error("Unhandled clipboard selection 0x%lx\n",
                     xselection_request_event->selection);
             return;
         }
@@ -242,7 +242,7 @@ handler_selection_request(XEvent *xevent) {
     if (!XSendEvent(xselection_request_event->display,
                     xselection_request_event->requestor, 1, 0,
                     (XEvent *)&xselection_event)) {
-        fprintf(stderr, "Error sending SelectionNotify event\n");
+        error("Error sending SelectionNotify event\n");
     }
     return;
 }
