@@ -50,7 +50,7 @@ static void
 handler_button_press(XEvent *xevent) {
     int32 button = (int32)xevent->xbutton.button;
     struct timespec tnow;
-    int32 snap;
+    enum SelectionSnap snap;
 
     if (1 <= button && button <= 11) {
         buttons |= 1 << (button - 1);

@@ -105,6 +105,7 @@
 #include "xenums.c"
 
 enum SelectionSnap {
+    SELECTION_SNAP_NONE = 0,
     SELECTION_SNAP_WORD = 1,
     SELECTION_SNAP_LINE = 2
 };

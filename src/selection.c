@@ -20,7 +20,7 @@ enum SelectionMode {
 static struct {
     enum SelectionMode mode;
     enum SelectionType type;
-    int32 snap;
+    enum SelectionSnap snap;
     /*
      * Selection variables:
      * nb – normalized coordinates of the beginning of the selection
@@ -179,7 +179,7 @@ selection_normalize(void) {
 }
 
 static void
-selection_start(int32 col, int32 row, int32 snap) {
+selection_start(int32 col, int32 row, enum SelectionSnap snap) {
     selection_clear();
     selection.mode = SELECTION_EMPTY;
     selection.type = SELECTION_NORMAL;
