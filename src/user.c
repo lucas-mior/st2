@@ -331,7 +331,7 @@ cleanup:
 }
 
 static void
-exec_external_pipe(char **argv) {
+exec_external_pipe(int32, char **argv) {
     int32 pipe[2];
 
     xpipe(pipe);
@@ -360,7 +360,7 @@ exec_external_pipe(char **argv) {
 
 static void
 user_external_pipe(union Arg *arg) {
-    exec_external_pipe(arg->v);
+    exec_external_pipe(0, arg->v);
     return;
 }
 
@@ -370,26 +370,28 @@ user_external_pipe(union Arg *arg) {
 static void
 user_copy_output(union Arg *arg) {
     char winid[32];
-    char *argv[5];
+    char *argv[32];
+    int32 argc = 0;
 
     (void)arg;
 
     SNPRINTF(winid, "%lu", x_window.win);
 
-    argv[0] = "sh";
-    argv[1] = "-c";
-    argv[2] = (char *)st_copy_output;
-    argv[3] = winid;
-    argv[4] = NULL;
+    argv[argc++] = "sh";
+    argv[argc++] = "-c";
+    argv[argc++] = (char *)st_copy_output;
+    argv[argc++] = winid;
+    argv[argc++] = NULL;
 
-    exec_external_pipe(argv);
+    exec_external_pipe(argc, argv);
     return;
 }
 
 static void
 user_url_select(union Arg *arg) {
     char winid[32];
-    char *argv[6];
+    char *argv[32];
+    int32 argc = 0;
     char *mode;
 
     if (arg->i == 'c') {
@@ -400,14 +402,14 @@ user_url_select(union Arg *arg) {
 
     SNPRINTF(winid, "%lu", x_window.win);
 
-    argv[0] = "sh";
-    argv[1] = "-c";
-    argv[2] = (char *)st_copy_url;
-    argv[3] = winid;
-    argv[4] = mode;
-    argv[5] = NULL;
+    argv[argc++] = "sh";
+    argv[argc++] = "-c";
+    argv[argc++] = (char *)st_copy_url;
+    argv[argc++] = winid;
+    argv[argc++] = mode;
+    argv[argc++] = NULL;
 
-    exec_external_pipe(argv);
+    exec_external_pipe(argc, argv);
     return;
 }
 
