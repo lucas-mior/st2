@@ -386,6 +386,8 @@ user_copy_output(union Arg *arg) {
     argv[argc++] = winid;
     argv[argc++] = NULL;
 
+    (void)st_copy_output_len;
+
     exec_external_pipe(argc, argv);
     return;
 }
@@ -411,6 +413,8 @@ user_url_select(union Arg *arg) {
     argv[argc++] = winid;
     argv[argc++] = mode;
     argv[argc++] = NULL;
+
+    (void)st_copy_url_len;
 
     exec_external_pipe(argc, argv);
     return;

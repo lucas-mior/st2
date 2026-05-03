@@ -46,9 +46,9 @@ CPPFLAGS="$CPPFLAGS -I."
 
 mkdir -p gen
 { cat st-copy-output.sh; printf '\0'; } \
-    | xxd -i -n st_copy_output > gen/copy_output.h
+    | xxd -i -n st_copy_output | sed 's/unsigned/static unsigned/' > gen/copy_output.h
 { cat st-copy-url.sh;    printf '\0'; } \
-    | xxd -i -n st_copy_url    > gen/copy_url.h
+    | xxd -i -n st_copy_url    | sed 's/unsigned/static unsigned/' > gen/copy_url.h
 
 CPPFLAGS="$CPPFLAGS -I$dir/gen"
 
