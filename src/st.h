@@ -321,8 +321,6 @@ static void drawboxes(int32, int32, int32, int32, XftColor *, XftColor *, XftGly
 #endif
 
 static void exec_shell(char *, char **) __attribute__((noreturn));
-static void stty(char **);
-static void handler_sigchld(int32);
 static void tty_write_raw(char *, int64);
 
 static void term_printer(char *, int64);
