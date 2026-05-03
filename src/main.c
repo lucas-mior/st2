@@ -133,7 +133,7 @@ run:
     term.dirty = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*term.dirty));
     term.tabs = xmalloc(CONF_NUMBER_COLS*SIZEOF(*term.tabs));
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        term.hist[i] = xmalloc(CONF_NUMBER_COLS*SIZEOF(Glyph));
+        term.hist[i] = xmalloc(CONF_NUMBER_COLS*SIZEOF(StGlyph));
     }
     term_reset();
 
