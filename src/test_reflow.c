@@ -376,10 +376,14 @@ main(void) {
         term_resize(10, 10);
         check_consistent_state();
 
-        expected_y = 1;
-        if (term.images->y != expected_y) {
-            fprintf(stderr, "Scenario M failed! Image displaced.\n");
-            fprintf(stderr, "  Expected Y: %d, Actual Y: %d\n", expected_y, term.images->y);
+        /* Corrected Scenario M Assertion */
+        StGlyph *img_line = term_line_abs(term.images->y);
+        char buf[32];
+        /* Only read up to term.ncols to stay within the allocated line width */
+        term_get_glyphs(buf, &img_line[0], &img_line[term.ncols - 1]);
+
+        if (strstr(buf, "IMAGE_ANCH") == NULL) {
+            fprintf(stderr, "Scenario M failed! Image not at anchor text. Found: %s\n", buf);
             assert(false);
         }
     }
@@ -391,23 +395,33 @@ main(void) {
     term_resize(20, 5);
     term_reset();
     
-    /* 2. Inject: 
-       Row 0: TOP
-       Row 1: ANCHOR (We will put the image here)
-       Row 2: A very long line that will wrap significantly 
-    */
+    /* 
+     * 2. Inject text:
+     * "TOP\n" (Absolute Row 0)
+     * "ANCHOR\n" (Absolute Row 1)
+     * "THIS_IS_A..." (68 chars)
+     * 
+     * At width 20, the long line takes 4 rows.
+     * Total rows: 1 + 1 + 4 = 6.
+     * Screen is 5 rows high, so the first line ("TOP") is pushed to history.
+     * "ANCHOR" is now at visible Row 0.
+     */
     inject_text("TOP\n");
     inject_text("ANCHOR\n");
     inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_MANY_ROWS_WHEN_SHRINKING");
     
     {
         ImageList *img;
-        int32 expected_abs_y;
+        StGlyph *n_img_line;
+        char n_buf[32];
+        int32 expected_hist;
+        int32 expected_y;
         
         img = xmalloc(SIZEOF(ImageList));
         memset64(img, 0, SIZEOF(ImageList));
         img->x = 0;
-        img->y = 1; /* Anchored to "ANCHOR" at Row 1 */
+        /* Image is anchored to "ANCHOR", which is currently at visible Row 0 */
+        img->y = 0; 
         img->ch = 16;
         img->cw = 8;
         img->height = 16;
@@ -417,47 +431,41 @@ main(void) {
 
         /* 
          * 3. Shrink width to 10.
-         * "TOP" -> 1 row.
-         * "ANCHOR" -> 1 row.
-         * "THIS_IS_A..." (68 chars) -> Wraps into 7 rows at width 10.
-         * Total lines: 1 + 1 + 7 = 9 lines.
+         * "TOP" (Absolute 0) -> 1 row.
+         * "ANCHOR" (Absolute 1) -> 1 row.
+         * "THIS_IS_A..." (68 chars) -> 7 rows at width 10.
+         * Total lines in buffer: 9.
          *
-         * Since screen height is 5, the terminal will show the last 5 rows 
-         * (the wrapped parts of the long line). 
-         * The "ANCHOR" line (originally at Row 1) is now at Absolute Row 1,
-         * but since the viewport shows the last 5 rows (Rows 4-8), 
-         * the "ANCHOR" line should now be in HISTORY (y = -3).
+         * Screen size is 5. st shows the last 5 rows (Rows 4-8).
+         * History size (n_hist) should be 9 - 5 = 4.
+         * "ANCHOR" (Absolute Row 1) should be at Relative Y = -3.
          */
         term_resize(10, 5);
         check_consistent_state();
 
-        /* 
-         * If the bug is present, img->y will still be 1, which puts it 
-         * on the visible screen at Row 1, hiding the 2nd line of the wrapped text.
-         * It SHOULD have been updated to Row 1 in the new absolute coordinate system.
-         */
-        
-        /* In a 9-line buffer with a 5-row screen, Row 1 is at index -3 
-           relative to the current screen top. */
-        expected_abs_y = 1; 
-        
-        if (term.images->y != expected_abs_y) {
-            fprintf(stderr, "Scenario N failed! Image Y is %d, expected %d\n", 
-                    term.images->y, expected_abs_y);
-            fprintf(stderr, "Note: If Y stayed 1 but the text 'ANCHOR' is now in history,\n");
-            fprintf(stderr, "the image is now floating over the wrong text!\n");
+        expected_hist = 4;
+        if (term.n_hist != expected_hist) {
+            fprintf(stderr, "Scenario N History Error: Expected %d lines, found %d\n",
+                    expected_hist, term.n_hist);
             assert(false);
         }
-        
-        /* Final Check: Is the image actually where the text 'ANCHOR' is? */
-        StGlyph *target_line = term_line(term.images->y);
-        char buf[16];
-        term_get_glyphs(buf, &target_line[0], &target_line[5]);
-        buf[6] = '\0';
-        
-        if (strcmp(buf, "ANCHOR") != 0) {
-            fprintf(stderr, "Image desync! It's at Y=%d, but that line contains: '%s'\n", 
-                    term.images->y, buf);
+
+        expected_y = -3;
+        if (term.images->y != expected_y) {
+            fprintf(stderr, "Scenario N Coordinate Error: Expected Y=%d, found %d\n",
+                    expected_y, term.images->y);
+            assert(false);
+        }
+
+        /* 4. Final verification of text/image coupling */
+        n_img_line = term_line(term.images->y); 
+        term_get_glyphs(n_buf, &n_img_line[0], &n_img_line[5]);
+        n_buf[6] = '\0';
+
+        if (strcmp(n_buf, "ANCHOR") != 0) {
+            fprintf(stderr, "Scenario N Sync Error! Image not at anchor text.\n");
+            fprintf(stderr, "  Expected: 'ANCHOR' at Y=%d\n", expected_y);
+            fprintf(stderr, "  Found:    '%s' at Y=%d\n", n_buf, term.images->y);
             assert(false);
         }
     }
