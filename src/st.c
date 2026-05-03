@@ -1028,7 +1028,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         reflow_lines = xmalloc((int64)2 * HISTORY_SIZE * SIZEOF(*reflow_lines));
     }
 
-    /* --- Reflow Loop --- */
+    /* Reflow Loop */
     do {
         if (!new_x_offset) {
             new_y_index += 1;
@@ -1078,7 +1078,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         }
     } while (old_y_index <= old_cursor_end_line);
 
-    /* --- Distribution --- */
+    /* Distribution Phase */
     for (i = new_nrows; i < old_nrows; i += 1) free(term.lines[i]);
     term.lines = xrealloc(term.lines, (int64)new_nrows * SIZEOF(*(term.lines)));
 
@@ -1100,7 +1100,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     active_screen_top_proxy = new_y_index - new_cursor_end_line;
 
-    /* Fill Screen */
     for (i = new_nrows - 1; i > new_cursor_end_line; i -= 1) {
         if (i < old_nrows) free(term.lines[i]);
         term.lines[i] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
@@ -1120,7 +1119,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         }
     }
 
-    /* Fill History and Explicitly Realignment i_hist */
     int32 k_idx = -1;
     while (new_y_index >= 0 && k_idx >= -HISTORY_SIZE) {
         int32 j_hist = (term.i_hist + k_idx + 1 + HISTORY_SIZE) % HISTORY_SIZE;
@@ -1133,16 +1131,16 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
     term.n_hist = -k_idx - 1;
 
-    /* Cleanup remaining processed images */
     for (ImageList *im = term.images; im; im = im->next) {
         if (im->y >= OFFSET_REF) im->y -= OFFSET_REF;
         else if (im->y >= OFFSET_OLD) im->y -= OFFSET_OLD;
     }
 
-    /* Wipe ALL stale history slots to prevent "ghosting" from previous tests */
+    /* Final Wipe: Re-allocate and clear ALL remaining stale history pointers */
     for (int32 k_rem = -term.n_hist - 1; k_rem >= -HISTORY_SIZE; k_rem -= 1) {
         int32 j_rem = (term.i_hist + k_rem + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-        term.hist[j_rem] = xrealloc(term.hist[j_rem], (int64)new_ncols * SIZEOF(StGlyph));
+        free(term.hist[j_rem]);
+        term.hist[j_rem] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
         for (int32 c_col = 0; c_col < new_ncols; c_col += 1) term_clear_glyph(&term.hist[j_rem][c_col], false);
     }
 
