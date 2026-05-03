@@ -20,7 +20,6 @@ typedef struct FontCache {
     uint32 unicodep;
 } FontCache;
 
-/* Fontcache is an array now. A new font will be appended to the array. */
 static FontCache *frc = NULL;
 static int32 frc_len = 0;
 static int32 frc_cap = 0;
