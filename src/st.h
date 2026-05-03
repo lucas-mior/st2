@@ -448,7 +448,7 @@ typedef struct {
     char appcursor; /* application cursor */
 } Key;
 
-enum win_mode {
+enum WinMode {
 	WIN_MODE_VISIBLE     = 1 << 0,
 	WIN_MODE_FOCUSED     = 1 << 1,
 	WIN_MODE_APPKEYPAD   = 1 << 2,
