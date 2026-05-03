@@ -74,14 +74,14 @@ term_line_len(StGlyph *line) {
     return i + 1;
 }
 
-static int32
+static bool
 term_is_wrapped(StGlyph *line) {
     int32 len = term_line_len(line);
-    int32 wrapped = 0;
+    bool wrapped = false;
 
     if (len > 0) {
         if (line[len - 1].mode & ATTR_WRAP) {
-            wrapped = 1;
+            wrapped = true;
         }
     }
 
@@ -170,17 +170,17 @@ term_set_sixel_attr(StGlyph *line, int x1, int x2) {
     return;
 }
 
-static int32
+static bool
 term_attr_set(enum GlyphAttribute attr) {
     for (int32 i = 0; i < term.nrows - 1; i += 1) {
         for (int32 j = 0; j < term.ncols - 1; j += 1) {
             if (term.lines[i][j].mode & attr) {
-                return 1;
+                return true;
             }
         }
     }
 
-    return 0;
+    return false;
 }
 
 static void
@@ -292,14 +292,14 @@ term_swap_screen(void) {
 }
 
 static void
-term_load_def_screen(int32 clear, int32 loadcursor) {
+term_load_def_screen(bool clear, bool loadcursor) {
     int32 col = 0;
     int32 row = 0;
     int32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
 
     if (alt) {
         if (clear) {
-            term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, 1);
+            term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, true);
         }
         col = term.ncols;
         row = term.nrows;
@@ -315,7 +315,7 @@ term_load_def_screen(int32 clear, int32 loadcursor) {
 }
 
 static void
-term_load_alt_screen(int32 clear, int32 savecursor) {
+term_load_alt_screen(bool clear, bool savecursor) {
     int32 col;
     int32 row;
     int32 def = !TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
@@ -331,7 +331,7 @@ term_load_alt_screen(int32 clear, int32 savecursor) {
         term_resize_alt(col, row);
     }
     if (clear) {
-        term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, 1);
+        term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, true);
     }
     return;
 }
@@ -347,7 +347,7 @@ term_scroll_down(int32 top, int32 n) {
     n = (int32)MIN(n, bot - top + 1);
 
     term_set_dirt(top, bot - n);
-    term_clear_region(0, bot - n + 1, term.ncols - 1, bot, 1);
+    term_clear_region(0, bot - n + 1, term.ncols - 1, bot, true);
 
     for (int32 i = bot; i >= top + n; i -= 1) {
         temp = term.lines[i];
@@ -376,7 +376,7 @@ static void
 term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
     int32 s = 0;
     uint32 alt = TERM_MODE_IS_SET(TERM_MODE_ALTSCREEN);
-    int32 savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
+    bool savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
     StGlyph *temp;
 
     if (n <= 0) {
@@ -405,7 +405,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
             term_full_dirt();
         }
     } else {
-        term_clear_region(0, top, term.ncols - 1, top + n - 1, 1);
+        term_clear_region(0, top, term.ncols - 1, top + n - 1, true);
         term_set_dirt(top + n, bot);
     }
 
@@ -459,7 +459,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
 }
 
 static void
-term_new_line(int32 first_col) {
+term_new_line(bool first_col) {
     int32 y = term.cursor.y;
     int32 x_pos;
 
@@ -611,8 +611,7 @@ term_delete_char(int32 n) {
         line = term.lines[term.cursor.y];
         memmove64(&line[dst], &line[src], size*SIZEOF(StGlyph));
     }
-    term_clear_region(dst + size, term.cursor.y, term.ncols - 1, term.cursor.y,
-                      1);
+    term_clear_region(dst + size, term.cursor.y, term.ncols - 1, term.cursor.y, true);
     return;
 }
 
@@ -633,7 +632,7 @@ term_insert_blank(int32 n) {
         line = term.lines[term.cursor.y];
         memmove64(&line[dst], &line[src], size*SIZEOF(StGlyph));
     }
-    term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, 1);
+    term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, true);
     return;
 }
 
@@ -1341,15 +1340,15 @@ main(void) {
 
     {
         StGlyph line[10];
-        int32 wrapped;
+        bool wrapped;
         term.ncols = 10;
         for (int32 i = 0; i < 10; i += 1) { line[i].mode = ATTR_NONE; }
         line[4].mode = ATTR_SET;
         wrapped = term_is_wrapped(line);
-        ASSERT_EQUAL(wrapped, 0);
+        ASSERT_EQUAL((int)wrapped, 0);
         line[4].mode = ATTR_SET | ATTR_WRAP;
         wrapped = term_is_wrapped(line);
-        ASSERT_EQUAL(wrapped, 1);
+        ASSERT_EQUAL((int)wrapped, 1);
     }
 
     {
@@ -1374,13 +1373,13 @@ main(void) {
     }
 
     {
-        int32 res;
+        bool res;
         term_reset();
         res = term_attr_set(ATTR_BOLD);
-        ASSERT_EQUAL(res, 0);
+        ASSERT_EQUAL((int)res, 0);
         term.lines[0][0].mode |= ATTR_BOLD;
         res = term_attr_set(ATTR_BOLD);
-        ASSERT_EQUAL(res, 1);
+        ASSERT_EQUAL((int)res, 1);
     }
 
     {
@@ -1453,15 +1452,15 @@ main(void) {
     }
 
     {
-        term_load_alt_screen(1, 1);
+        term_load_alt_screen(true, true);
         ASSERT(term.mode & TERM_MODE_ALTSCREEN);
-        term_load_def_screen(1, 1);
+        term_load_def_screen(true, true);
         ASSERT(!(term.mode & TERM_MODE_ALTSCREEN));
     }
 
     {
         term_reset();
-        term_new_line(1);
+        term_new_line(true);
         ASSERT_EQUAL(term.cursor.y, 1);
         ASSERT_EQUAL(term.cursor.x, 0);
     }
