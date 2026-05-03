@@ -6,6 +6,7 @@
 #include "util.c"
 #include "config.def.h"
 #include "selection.c"
+#include "utf8.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_user 1
@@ -183,6 +184,94 @@ user_print_sel(union Arg *arg) {
     term_dump_sel();
     (void)arg;
     return;
+}
+
+static int
+tlinehistlen(int y) {
+    /* dummy function, how should it work? */
+    return 0;
+}
+
+static void
+openvim(char *tmp_file, int cols, int rows, int x, int y) {
+	char geo[16];
+	char win[16];
+	char cur[64];
+
+	snprintf(geo, sizeof (geo), "%dx%d", cols, rows);
+	snprintf(win, sizeof (win), "%lu", x_window.win);
+	snprintf(cur, sizeof (cur), "call cursor(%d, %d)", y, x);
+
+	execl("/usr/local/bin/st", "st", "-w", win, "-g", geo, "-e",
+		  "vim", "-c" "set nonumber norelativenumber wrap",
+				 "-c" "set laststatus=0 buftype=nowrite",
+				 "-c" "normal G", "-c", "sleep 10m",
+				 "-c", cur, tmp_file, NULL);
+	fprintf(stderr, "st: openvim() failed.\n");
+	exit(0);
+}
+
+static void
+user_vim_select(union Arg *arg) {
+	(void) arg;
+	char buf[UTF_SIZ];
+	int buflen = 0;
+	StGlyph *bp;
+    StGlyph *end;
+	int lastpos, n, newline;
+
+	char tmp_file[50];
+	int TMP_FILE;
+	pid_t child;
+
+	pid_t stpid = getpid();
+	snprintf(tmp_file, sizeof(tmp_file), "/tmp/st_vimselect_%d", stpid);
+
+	switch (child = fork()) {
+	case -1:
+		error("fork failed: %s\n", strerror(errno));
+        fatal(EXIT_FAILURE);
+	case 0:
+		if ((TMP_FILE = open(tmp_file, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR, O_TRUNC)) == -1) {
+			printf("erro = %s\n", strerror(errno));
+			exit(0);
+		}
+
+		newline = 0;
+		for (n = 0; n <= HISTORY_SIZE + 2; n++) {
+			bp = TERM_LINE_HIST(n);
+			lastpos = MIN(tlinehistlen(n) + 1, term.ncols) - 1;
+			if (lastpos < 0)
+				break;
+			end = &bp[lastpos + 1];
+			for (; bp < end; ++bp) {
+				buflen = utf8_encode(bp->rune, buf);
+				if (buflen == 1) {
+					if (buf[0] > 011) {
+						if (xwrite(TMP_FILE, buf, buflen) < 0)
+							break;
+					}
+				} else {
+					if (xwrite(TMP_FILE, buf, buflen) < 0)
+						break;
+				}
+			}
+			if ((newline = TERM_LINE_HIST(n)[lastpos].mode & ATTR_WRAP))
+				continue;
+			if (xwrite(TMP_FILE, "\n", 1) < 0)
+				break;
+			newline = 0;
+		}
+		if (newline)
+			(void)xwrite(TMP_FILE, "\n", 1);
+		close(TMP_FILE);
+		int firsty = HISTORY_SIZE - term.nrows + 4;
+		openvim(tmp_file, (term.ncols + 2), (term.nrows + 1), term.cursor.x, firsty);
+	}
+	sleep(MAX(HISTORY_SIZE / 5000, 1));
+	unlink(tmp_file);
+
+	return;
 }
 
 #if TESTING_user

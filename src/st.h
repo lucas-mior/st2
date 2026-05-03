@@ -430,6 +430,7 @@ static void user_print_screen(union Arg *);
 static void user_print_sel(union Arg *);
 static void user_send_break(union Arg *);
 static void user_toggle_printer(union Arg *);
+static void user_vim_select(union Arg *arg);
 
 typedef struct {
     uint32 mod;
