@@ -597,7 +597,6 @@ control_seq_intro_handle(void) {
         break;
     case 'M':
         DEFAULT(csi_escape_seq.arg[0], 1);
-        term_move_abs_to(0, 0);
         term_delete_line(csi_escape_seq.arg[0]);
         break;
     case 'X':
