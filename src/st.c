@@ -77,8 +77,8 @@ check_consistent_state(void) {
         ASSERT(term.lines[row_index] != NULL);
     }
 
-    for (int32 history_index = 0; history_index < HISTORY_SIZE; history_index += 1) {
-        ASSERT(term.hist[history_index] != NULL);
+    for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
+        ASSERT(term.hist[i] != NULL);
     }
 
     ASSERT_MORE_EQUAL(term.n_hist, 0);
