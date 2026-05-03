@@ -2,6 +2,32 @@
 #include "st.c"
 
 static void
+verify_viewport_line(int32 screen_y, char *expected_text) {
+    StGlyph *line;
+    char buffer[1024];
+    char *ptr;
+    int32 len;
+
+    /* TERM_LINE handles the math to pull from hist or active screen based on scroll */
+    line = TERM_LINE(screen_y);
+    len = term_line_len(line);
+    ptr = buffer;
+
+    if (len > 0) {
+        ptr = term_get_glyphs(buffer, &line[0], &line[len - 1]);
+    }
+    *ptr = '\0';
+
+    if (strcmp(buffer, expected_text) != 0) {
+        fprintf(stderr, "Viewport assertion failed at screen row %d:\n", screen_y);
+        fprintf(stderr, "  Expected: '%s'\n", expected_text);
+        fprintf(stderr, "  Actual:   '%s'\n", buffer);
+        assert(false);
+    }
+    return;
+}
+
+static void
 inject_text(char *text) {
     StGlyph attr;
     
@@ -286,6 +312,47 @@ main(void) {
         }
         check_consistent_state();
     }
+
+    /* Scenario L: The Viewport Desync Bug */
+    printf("Testing Viewport Desync on Width Resize...\n");
+    term_resize(20, 5);
+    term_reset();
+    
+    /* Inject 8 lines of exactly 20 characters */
+    inject_text("00000000000000000000\n");
+    inject_text("11111111111111111111\n");
+    inject_text("22222222222222222222\n");
+    inject_text("33333333333333333333\n");
+    inject_text("44444444444444444444\n");
+    inject_text("55555555555555555555\n");
+    inject_text("66666666666666666666\n");
+    inject_text("77777777777777777777");
+    check_consistent_state();
+    
+    /* 
+     * Screen is 5 rows high. 
+     * Active screen: 333..., 444..., 555..., 666..., 777...
+     * History (n_hist=3): 000..., 111..., 222...
+     */
+    
+    /* Scroll up by 2 lines. 
+     * Viewport should now show: 111..., 222..., 333..., 444..., 555...
+     */
+    term.lines_scrolled_up = 2;
+    
+    /* Top of the viewport (row 0) is "111..." */
+    verify_viewport_line(0, "11111111111111111111");
+    
+    /* Shrink the width to 10. 
+     * Every 20-character line will wrap into TWO 10-character lines.
+     * The line "111..." should still be at the top of the viewport 
+     * if the terminal correctly anchors the scroll position.
+     */
+    term_resize(10, 5);
+    check_consistent_state();
+    
+    /* The top of the viewport SHOULD be the first half of "111..." */
+    verify_viewport_line(0, "1111111111");
 
     printf("All resize, reflow, image translation, and viewport tests passed successfully!\n");
     return 0;
