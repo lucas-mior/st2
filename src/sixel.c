@@ -170,7 +170,6 @@ image_buffer_resize(SixelImage *image, int32 width, int32 height) {
     size = (width*height)*SIZEOF(uint16);
     alt_buffer = (uint16 *)xmalloc(size);
     if (alt_buffer == NULL) {
-        /* free source image */
         free(image->data);
         image->data = NULL;
         status = (-1);
