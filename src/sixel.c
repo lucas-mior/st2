@@ -132,7 +132,7 @@ set_default_color(SixelImage *sixel_image) {
 static int32
 sixel_image_init(SixelImage *sixel_image,
                  int32 width, int32 height,
-                 int32 fgcolor, int32 bgcolor,
+                 int32 fg_color, int32 bg_color,
                  int32 use_private_register) {
     int64 size;
 
@@ -148,10 +148,10 @@ sixel_image_init(SixelImage *sixel_image,
     }
     memset64(sixel_image->data, 0, size);
 
-    sixel_image->palette[0] = (uint32)bgcolor;
+    sixel_image->palette[0] = (uint32)bg_color;
 
     if (sixel_image->use_private_register) {
-        sixel_image->palette[1] = (uint32)fgcolor;
+        sixel_image->palette[1] = (uint32)fg_color;
     }
 
     sixel_image->palette_modified = 0;
@@ -221,8 +221,8 @@ sixel_image_deinit(SixelImage *image) {
 }
 
 static int32
-sixel_parser_init(SixelState *sixel_state, int32 transparent, uint32 fgcolor,
-                  uint32 bgcolor, uchar use_private_register, int32 cell_width,
+sixel_parser_init(SixelState *sixel_state, int32 transparent, uint32 fg_color,
+                  uint32 bg_color, uchar use_private_register, int32 cell_width,
                   int32 cell_height) {
     int32 status = (-1);
 
@@ -245,10 +245,10 @@ sixel_parser_init(SixelState *sixel_state, int32 transparent, uint32 fgcolor,
 
     /* buffer initialization */
     if (transparent) {
-        bgcolor = 0;
+        bg_color = 0;
     }
-    status = sixel_image_init(&sixel_state->image, 1, 1, (int32)fgcolor,
-                              (int32)bgcolor, use_private_register);
+    status = sixel_image_init(&sixel_state->image, 1, 1, (int32)fg_color,
+                              (int32)bg_color, use_private_register);
 
     return status;
 }
