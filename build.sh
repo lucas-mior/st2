@@ -219,6 +219,7 @@ case "$target" in
 "fast_feedback")
     trace_on
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS && "$exe"
+    $CC $CPPFLAGS $CFLAGS src/test_reflow.c -o test_reflow $LDFLAGS
     trace_off
     ;;
 "build"|"debug"|"run"|"release"|"valgrind"|"callgrind"|"perf"|"profile"|"cross")
@@ -232,6 +233,7 @@ case "$target" in
         with_other cproc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
     else
         $measure $CC          $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
+        $CC $CPPFLAGS $CFLAGS src/test_reflow.c -o test_reflow $LDFLAGS
     fi
 
     if [ $target = "debug" ]; then
