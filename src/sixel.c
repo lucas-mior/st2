@@ -98,9 +98,6 @@ static int32
 set_default_color(SixelImage *image) {
     int32 i;
     int32 n;
-    int32 r;
-    int32 g;
-    int32 b;
 
     /* palette initialization */
     for (n = 1; n < 17; n++) {
@@ -108,9 +105,9 @@ set_default_color(SixelImage *image) {
     }
 
     /* colors 17-232 are a 6x6x6 color cube */
-    for (r = 0; r < 6; r++) {
-        for (g = 0; g < 6; g++) {
-            for (b = 0; b < 6; b++) {
+    for (int32 r = 0; r < 6; r++) {
+        for (int32 g = 0; g < 6; g++) {
+            for (int32 b = 0; b < 6; b++) {
                 image->palette[n++] = SIXEL_RGB(r*51, g*51, b*51);
             }
         }
