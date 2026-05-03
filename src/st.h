@@ -326,12 +326,6 @@ static void handler_sigchld(int32);
 static void tty_write_raw(char *, int64);
 
 static void control_seq_intro_dump(void);
-static void control_seq_intro_handle(void);
-static void control_seq_intro_parse(void);
-static void control_seq_intro_reset(void);
-static void osc_color_response(int32, int32, int32);
-static int32 eschandle(uchar);
-static void string_handle(void);
 
 static void term_printer(char *, int64);
 static void term_dump_sel(void);
