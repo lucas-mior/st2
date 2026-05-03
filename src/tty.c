@@ -53,7 +53,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
         term.mode |= TERM_MODE_PRINT;
         io_fd = (!strcmp(out, "-")) ? 1 : open(out, O_WRONLY | O_CREAT, 0666);
         if (io_fd < 0) {
-            fprintf(stderr, "Error opening %s:%s\n", out, strerror(errno));
+            error("Error opening %s:%s\n", out, strerror(errno));
         }
     }
 
@@ -241,7 +241,7 @@ tty_resize(int32 tty_width, int32 tty_height) {
     winsize.ws_xpixel = (uint16)tty_width;
     winsize.ws_ypixel = (uint16)tty_height;
     if (ioctl(command_fd, TIOCSWINSZ, &winsize) < 0) {
-        fprintf(stderr, "Couldn't set window size: %s\n", strerror(errno));
+        error("Couldn't set window size: %s\n", strerror(errno));
     }
     return;
 }
