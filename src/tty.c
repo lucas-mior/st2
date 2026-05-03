@@ -4,6 +4,7 @@
 #include <pty.h>
 #include "st.h"
 #include "config.def.h"
+#include "handlers.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_tty 1
