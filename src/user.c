@@ -188,13 +188,14 @@ user_print_sel(union Arg *arg) {
 
 static void
 user_vim_select(union Arg *arg) {
-    (void)arg;
     char buf[UTF_SIZ];
     char tmp_file[64];
     int32 fd;
     pid_t child;
 
-    snprintf(tmp_file, sizeof(tmp_file), "/tmp/st_vimselect_%d", getpid());
+    (void)arg;
+
+    SNPRINTF(tmp_file, "/tmp/st_vimselect_%d", getpid());
 
     if ((fd = open(tmp_file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) < 0) {
         error("Error opening %s: %s\n", tmp_file, strerror(errno));
