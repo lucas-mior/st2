@@ -78,14 +78,13 @@ main(void) {
     int32 init_cols = 20;
     int32 init_rows = 10;
 
-    /* Bootstrap headless terminal memory manually instead of using term_resize */
+    /* Bootstrap headless terminal memory */
     term.ncols = init_cols;
     term.nrows = init_rows;
     term.dirty = xmalloc(init_rows * SIZEOF(*(term.dirty)));
     term.tabs = xmalloc(init_cols * SIZEOF(*(term.tabs)));
     memset64(term.tabs, 0, init_cols * SIZEOF(*(term.tabs)));
 
-    /* Allocate history buffer to pass check_consistent_state */
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
         term.hist[i] = xmalloc(init_cols * SIZEOF(StGlyph));
         for (int32 j = 0; j < init_cols; j += 1) {
@@ -94,7 +93,6 @@ main(void) {
         }
     }
 
-    /* Allocate both main and alternate screens */
     for (int32 i = 0; i < 2; i += 1) {
         term.lines = xmalloc(init_rows * SIZEOF(*(term.lines)));
         for (int32 j = 0; j < init_rows; j += 1) {
@@ -135,6 +133,27 @@ main(void) {
     check_consistent_state();
     verify_line(0, "ABCDEFGHIJKLMNO", true);
     verify_line(1, "PQRSTUVWXYZ", false);
+
+    /* Scenario E: Alternate Screen Integrity */
+    term_load_alt_screen(true, true);
+    inject_text("ALT SCREEN TEXT");
+    check_consistent_state();
+    verify_line(0, "ALT SCREEN TEXT", false);
+    
+    /* Resize while in alternate screen (triggers term_resize_alt instead of term_reflow) */
+    term_resize(25, 12);
+    check_consistent_state();
+    verify_line(0, "ALT SCREEN TEXT", false);
+
+    /* Switch back to default screen - it should trigger a reflow to the new 25x12 dimensions */
+    term_load_def_screen(false, true);
+    check_consistent_state();
+    
+    /* The main screen was "ABCDEFGHIJKLMNO" (wrap) + "PQRSTUVWXYZ". 
+       Expanded to 25 cols, it should now reflow to one line wrapped and one short line, 
+       or since 25 < 26, it should be: "ABCDEFGHIJKLMNOPQRSTUVWXY" (wrap) + "Z" */
+    verify_line(0, "ABCDEFGHIJKLMNOPQRSTUVWXY", true);
+    verify_line(1, "Z", false);
 
     printf("All resize and reflow tests passed!\n");
     return 0;
