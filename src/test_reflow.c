@@ -215,7 +215,7 @@ main(void) {
 
     /* Scenario J: Viewport Scroll State Anchor Integrity */
     printf("Testing Viewport Scroll Anchoring...\n");
-    term_resize(init_cols, init_rows); /* <--- ADD THIS FIX */
+    term_resize(init_cols, init_rows); 
     term_reset();
     for (int32 i = 0; i < init_rows - 1; i += 1) {
         term_new_line(true);
@@ -239,7 +239,7 @@ main(void) {
 
     /* Scenario K: Inline Image (Sixel) translation during history pull */
     printf("Testing Inline Image Translation...\n");
-    term_resize(init_cols, init_rows); /* <--- ADD THIS FIX */
+    term_resize(init_cols, init_rows); 
     term_reset();
     for (int32 i = 0; i < init_rows - 1; i += 1) {
         term_new_line(true);
@@ -250,7 +250,7 @@ main(void) {
         inject_text("PADDING\n");
     }
     
-{
+    {
         ImageList *dummy_img;
         
         dummy_img = xmalloc(SIZEOF(ImageList));
@@ -258,7 +258,7 @@ main(void) {
         dummy_img->x = 2;
         dummy_img->y = 5; /* Image starts at row 5 on active screen */
         
-        /* FIX: Provide valid pixel dimensions to prevent Division by Zero */
+        /* Provide valid pixel dimensions to prevent Division by Zero */
         dummy_img->ch = 16;     /* Mock character height */
         dummy_img->cw = 8;      /* Mock character width */
         dummy_img->height = 32; /* Mock image height (spans 2 rows) */
@@ -330,30 +330,59 @@ main(void) {
     inject_text("77777777777777777777");
     check_consistent_state();
     
-    /* 
-     * Screen is 5 rows high. 
-     * Active screen: 333..., 444..., 555..., 666..., 777...
-     * History (n_hist=3): 000..., 111..., 222...
-     */
-    
-    /* Scroll up by 2 lines. 
-     * Viewport should now show: 111..., 222..., 333..., 444..., 555...
-     */
+    /* Scroll up by 2 lines. Viewport shows: 111..., 222..., 333..., 444..., 555... */
     term.lines_scrolled_up = 2;
-    
-    /* Top of the viewport (row 0) is "111..." */
     verify_viewport_line(0, "11111111111111111111");
     
-    /* Shrink the width to 10. 
-     * Every 20-character line will wrap into TWO 10-character lines.
-     * The line "111..." should still be at the top of the viewport 
-     * if the terminal correctly anchors the scroll position.
-     */
+    /* Shrink the width to 10. Lines wrap. Anchor must hold. */
     term_resize(10, 5);
     check_consistent_state();
-    
-    /* The top of the viewport SHOULD be the first half of "111..." */
     verify_viewport_line(0, "1111111111");
+
+    /* Scenario M: Image displacement when lines below wrap (The Bug) */
+    printf("Testing Image position when lines below wrap...\n");
+    term_resize(20, 10);
+    term_reset();
+
+    /* 1. Inject some text */
+    inject_text("TOP_LINE\n");
+    inject_text("IMAGE_ANCHOR_LINE\n");
+    /* 2. Inject a line long enough to wrap when width drops to 10 */
+    inject_text("THIS_LONG_LINE_WILL_WRAP_INTO_MULTIPLE_ROWS_LATER\n");
+    check_consistent_state();
+
+    {
+        ImageList *img;
+        int32 expected_y;
+        
+        img = xmalloc(SIZEOF(ImageList));
+        memset64(img, 0, SIZEOF(ImageList));
+        img->x = 0;
+        img->y = 1; /* Aligned with "IMAGE_ANCHOR_LINE" */
+        img->ch = 16;
+        img->cw = 8;
+        img->height = 16;
+        img->width = 16;
+        img->next = NULL;
+        term.images = img;
+
+        /* Shrink width to 10.
+         * "TOP_LINE" (8 chars) -> Stays 1 row (Row 0).
+         * "IMAGE_ANCHOR_LINE" (17 chars) -> Wraps to 2 rows (Row 1, 2).
+         * "THIS_LONG_LINE..." -> Wraps extensively.
+         * 
+         * The image should be anchored to Row 1. If text BELOW it 
+         * causes the buffer to grow, the image Y should NOT increase. */
+        term_resize(10, 10);
+        check_consistent_state();
+
+        expected_y = 1;
+        if (term.images->y != expected_y) {
+            fprintf(stderr, "Scenario M failed! Image displaced.\n");
+            fprintf(stderr, "  Expected Y: %d, Actual Y: %d\n", expected_y, term.images->y);
+            assert(false);
+        }
+    }
 
     printf("All resize, reflow, image translation, and viewport tests passed successfully!\n");
     return 0;
