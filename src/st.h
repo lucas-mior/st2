@@ -487,6 +487,7 @@ static int32 x_start_draw(void);
 static void x_xim_spot(int32, int32);
 
 static void selection_set(char *, Time);
+static int64 xwrite(int32 fd, char *s, int64 len);
 
 static struct {
     int32 tty_width;
