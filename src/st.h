@@ -19,7 +19,6 @@
 #define XEMBED_FOCUS_IN 4
 #define XEMBED_FOCUS_OUT 5
 
-#define TERM_WINDOW_IS_SET(flag) ((term_window.mode & (flag)) != 0)
 #define TRUE_RED(x) (uint16)(((x) & 0xff0000) >> 8)
 #define TRUE_GREEN(x) (uint16)(((x) & 0xff00))
 #define TRUE_BLUE(x) (uint16)(((x) & 0xff) << 8)
@@ -397,6 +396,7 @@ static void term_set_dirt(int32 top, int32 bot);
 static void term_swap_screen(void);
 static void check_consistent_state(void);
 static bool term_mode_is_set(enum TermMode flag);
+static bool term_window_is_set(enum WinMode flag);
 
 static int32 xevent_col(XEvent *xevent);
 static int32 xevent_row(XEvent *xevent);

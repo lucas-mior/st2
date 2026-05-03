@@ -173,7 +173,7 @@ x_set_color_name(int32 x, char *name) {
 static void
 x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
     int32 color_index;
-    if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
+    if (term_window_is_set(WIN_MODE_REVERSE)) {
         color_index = CONF_COLOR_INDEX_FONT;
     } else {
         color_index = CONF_COLOR_BG;
@@ -794,7 +794,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         bg = &draw_context.colors[base.bg];
     }
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
+    if (term_window_is_set(WIN_MODE_REVERSE)) {
         XftColor revfg;
         XftColor revbg;
         if (fg == &draw_context.colors[CONF_COLOR_INDEX_FONT]) {
@@ -932,14 +932,14 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph g, int32 ox, int32 oy, StGlyph og) {
     }
     x_draw_glyph(og, ox, oy);
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_HIDE)) {
+    if (term_window_is_set(WIN_MODE_HIDE)) {
         return;
     }
 
     g.mode &= ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK | ATTR_WIDE
               | ATTR_BOXDRAW;
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_REVERSE)) {
+    if (term_window_is_set(WIN_MODE_REVERSE)) {
         g.mode |= ATTR_REVERSE;
         g.fg = CONF_COLOR_INDEX_CURSOR;
         g.bg = CONF_COLOR_INDEX_FONT;
@@ -950,7 +950,7 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph g, int32 ox, int32 oy, StGlyph og) {
         drawcol = draw_context.colors[CONF_COLOR_INDEX_CURSOR];
     }
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUSED)) {
+    if (term_window_is_set(WIN_MODE_FOCUSED)) {
         switch (term_window.cursor) {
         case 7:
             g.rune = 0x2603;
@@ -1041,7 +1041,7 @@ x_set_title(char *p) {
 
 static int32
 x_start_draw(void) {
-    return TERM_WINDOW_IS_SET(WIN_MODE_VISIBLE);
+    return term_window_is_set(WIN_MODE_VISIBLE);
 }
 
 static void
@@ -1134,7 +1134,7 @@ x_set_urgency(int32 add) {
 
 static void
 x_bell(void) {
-    if (!(TERM_WINDOW_IS_SET(WIN_MODE_FOCUSED))) {
+    if (!(term_window_is_set(WIN_MODE_FOCUSED))) {
         x_set_urgency(1);
     }
     if (CONF_BELL_VOLUME) {

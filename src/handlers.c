@@ -56,7 +56,7 @@ handler_button_press(XEvent *xevent) {
         buttons |= 1 << (button - 1);
     }
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE)) {
+    if (term_window_is_set(WIN_MODE_MOUSE)) {
         if (!(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
             mouse_report(xevent);
             return;
@@ -145,11 +145,11 @@ handler_selection_notify(XEvent *xevent) {
             repl += 1;
         }
 
-        if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && ofs == 0) {
+        if (term_window_is_set(WIN_MODE_BRCKTPASTE) && ofs == 0) {
             tty_write("\033[200~", 6, 0);
         }
         tty_write((char *)data, nitems*(uint64)format / 8, 1);
-        if (TERM_WINDOW_IS_SET(WIN_MODE_BRCKTPASTE) && rem == 0) {
+        if (term_window_is_set(WIN_MODE_BRCKTPASTE) && rem == 0) {
             tty_write("\033[201~", 6, 0);
         }
         XFree(data);
@@ -255,7 +255,7 @@ handler_button_release(XEvent *xevent) {
         buttons &= (uint32) ~(1 << (button - 1));
     }
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE)) {
+    if (term_window_is_set(WIN_MODE_MOUSE)) {
         if (!(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
             mouse_report(xevent);
             return;
@@ -274,7 +274,7 @@ handler_button_release(XEvent *xevent) {
 
 static void
 handler_button_motion(XEvent *xevent) {
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSE)) {
+    if (term_window_is_set(WIN_MODE_MOUSE)) {
         if (!(xevent->xbutton.state & CONF_FORCE_MOUSE_MOD)) {
             mouse_report(xevent);
             return;
@@ -326,7 +326,7 @@ handler_focus(XEvent *xevent) {
         }
         term_window.mode |= WIN_MODE_FOCUSED;
         x_set_urgency(0);
-        if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUS)) {
+        if (term_window_is_set(WIN_MODE_FOCUS)) {
             tty_write("\033[I", 3, 0);
         }
     } else {
@@ -334,7 +334,7 @@ handler_focus(XEvent *xevent) {
             XUnsetICFocus(x_window.ime.xic);
         }
         term_window.mode &= ~WIN_MODE_FOCUSED;
-        if (TERM_WINDOW_IS_SET(WIN_MODE_FOCUS)) {
+        if (term_window_is_set(WIN_MODE_FOCUS)) {
             tty_write("\033[O", 3, 0);
         }
     }
@@ -352,7 +352,7 @@ handler_key_press(XEvent *xevent) {
     Status status;
     Shortcut *bp;
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_KBDLOCK)) {
+    if (term_window_is_set(WIN_MODE_KBDLOCK)) {
         return;
     }
 
@@ -396,7 +396,7 @@ handler_key_press(XEvent *xevent) {
             if (!match_mask_state(kp->mask, key_event->state)) {
                 continue;
             }
-            if (TERM_WINDOW_IS_SET(WIN_MODE_APPKEYPAD)) {
+            if (term_window_is_set(WIN_MODE_APPKEYPAD)) {
                 if (kp->appkey < 0) {
                     continue;
                 }
@@ -405,10 +405,10 @@ handler_key_press(XEvent *xevent) {
                     continue;
                 }
             }
-            if (TERM_WINDOW_IS_SET(WIN_MODE_NUMLOCK) && kp->appkey == 2) {
+            if (term_window_is_set(WIN_MODE_NUMLOCK) && kp->appkey == 2) {
                 continue;
             }
-            if (TERM_WINDOW_IS_SET(WIN_MODE_APPCURSOR)) {
+            if (term_window_is_set(WIN_MODE_APPCURSOR)) {
                 if (kp->appcursor < 0) {
                     continue;
                 }
@@ -432,7 +432,7 @@ tried_custom_keys:
         return;
     }
     if (len == 1 && key_event->state & Mod1Mask) {
-        if (TERM_WINDOW_IS_SET(WIN_MODE_8BIT)) {
+        if (term_window_is_set(WIN_MODE_8BIT)) {
             if (*buffer < 0177) {
                 c = (uint32)(*buffer | 0x80);
                 len = (int32)utf8_encode(c, buffer);

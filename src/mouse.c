@@ -56,12 +56,12 @@ mouse_report(XEvent *xevent) {
         if (x == ox && y == oy) {
             return;
         }
-        if (!TERM_WINDOW_IS_SET(WIN_MODE_MOUSEMOTION)
-            && !TERM_WINDOW_IS_SET(WIN_MODE_MOUSEMANY)) {
+        if (!term_window_is_set(WIN_MODE_MOUSEMOTION)
+            && !term_window_is_set(WIN_MODE_MOUSEMANY)) {
             return;
         }
         /* WIN_MODE_MOUSEMOTION: no reporting if no button is pressed */
-        if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSEMOTION) && buttons == 0) {
+        if (term_window_is_set(WIN_MODE_MOUSEMOTION) && buttons == 0) {
             return;
         }
         /* Set button to lowest-numbered pressed button, or 12 if no
@@ -79,7 +79,7 @@ mouse_report(XEvent *xevent) {
         }
         if (xevent->type == ButtonRelease) {
             /* WIN_MODE_MOUSEX10: no button release reporting */
-            if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSEX10)) {
+            if (term_window_is_set(WIN_MODE_MOUSEX10)) {
                 return;
             }
             /* Don't send release events for the scroll wheel */
@@ -95,7 +95,7 @@ mouse_report(XEvent *xevent) {
 
     /* Encode button into code. If no button is pressed for a motion event in
      * WIN_MODE_MOUSEMANY, then encode it as a release. */
-    if (!TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR) && xevent->type == ButtonRelease) {
+    if (!term_window_is_set(WIN_MODE_MOUSESGR) && xevent->type == ButtonRelease) {
         code += 3;
     } else if (button == 12) {
         code += 3;
@@ -107,7 +107,7 @@ mouse_report(XEvent *xevent) {
         code += button - 1;
     }
 
-    if (!TERM_WINDOW_IS_SET(WIN_MODE_MOUSEX10)) {
+    if (!term_window_is_set(WIN_MODE_MOUSEX10)) {
         if (state & ShiftMask) {
             code += 4;
         }
@@ -119,7 +119,7 @@ mouse_report(XEvent *xevent) {
         }
     }
 
-    if (TERM_WINDOW_IS_SET(WIN_MODE_MOUSESGR)) {
+    if (term_window_is_set(WIN_MODE_MOUSESGR)) {
         char c;
         if (xevent->type == ButtonRelease) {
             c = 'm';
