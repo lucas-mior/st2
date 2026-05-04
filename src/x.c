@@ -424,15 +424,15 @@ xloadsparefont(FcPattern *pattern, int32 flags) {
 
 static void
 x_load_spare_fonts(void) {
+    int32 nspare_fonts;
+
+    if ((nspare_fonts = LENGTH(CONF_FONT2)) <= 0) {
+        return;
+    }
+
     if (frc_len > 0) {
         error("can't embed spare fonts. cache isn't empty");
         exit(EXIT_FAILURE);
-    }
-
-    /* Calculate count of spare fonts */
-    int32 nspare_fonts = (int32)LENGTH(CONF_FONT2);
-    if (nspare_fonts == 0) {
-        return;
     }
 
     /* Allocate memory for cache entries. */
