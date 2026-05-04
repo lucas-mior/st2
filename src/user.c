@@ -55,6 +55,13 @@ user_selection_paste(union Arg *arg) {
 
 static void
 user_change_alpha(union Arg *arg) {
+    // TODO: Macro Assignment / Compile Error.
+    // By convention and usage in st forks, CONF_* values are macros.  If
+    // CONF_ALPHA is defined as a macro (e.g., `#define CONF_ALPHA 0.8`),
+    // attempting to assign to it (`CONF_ALPHA += arg->f`) will result in a
+    // compilation error (lvalue required). If it is meant to be a mutable
+    // global, it should be declared as a variable (e.g., `float conf_alpha;`)
+    // instead.
     if ((CONF_ALPHA > 0 && arg->f < 0) || (CONF_ALPHA < 1 && arg->f > 0)) {
         CONF_ALPHA += arg->f;
     }
@@ -227,6 +234,12 @@ user_vim_select(union Arg *arg) {
 
     (void)arg;
 
+    // TODO: Insecure Temporary File Creation (Symlink Attack).
+    // Using a predictable filename in `/tmp` without `O_EXCL` allows an
+    // attacker to create a symlink with this name pointing to a critical file
+    // (like ~/.bashrc).  When this process opens it with `O_TRUNC | O_WRONLY`,
+    // it will overwrite the target file.  Use `mkstemp()` instead of `SNPRINTF`
+    // + `open` to safely create temporary files.
     SNPRINTF(tmp_file, "/tmp/st_vimselect_%d", getpid());
 
     if ((fd = open(tmp_file,
@@ -294,6 +307,13 @@ user_vim_select(union Arg *arg) {
             _exit(1);
         }
     default:
+        // TODO: Race Condition.
+        // Hardcoding a delay (`usleep(500000)`) before deleting the file
+        // introduces a race condition.  If system load is high and `vim` takes
+        // longer than 0.5s to start and read the file, the parent will `unlink`
+        // it before `vim` reads it, resulting in an empty buffer.  The child
+        // should ideally take ownership of unlinking the file, or the parent
+        // should wait for the child process to finish before cleaning up.
         usleep(500000);
         unlink(tmp_file);
         break;

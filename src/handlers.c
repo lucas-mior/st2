@@ -26,6 +26,15 @@ handler_sigchld(int32 unused) {
     }
 
     if (pid != p) {
+        // TODO: UI Freeze / Blocking Wait.
+        // `waitpid` with `WNOHANG` returns 0 if the target process (the primary
+        // shell) has not yet changed state. If a SIGCHLD was triggered by
+        // another child (like a background fork from `user_external_pipe`), or
+        // by the primary shell stopping (SIGSTOP), `p` will be 0.  Calling the
+        // blocking `wait(&stat)` here will cause the main terminal thread to
+        // completely freeze until *some* child exits. Use a non-blocking loop
+        // with `waitpid(-1, &stat, WNOHANG)` to reap orphaned/background
+        // processes without blocking.
         if (p == 0 && wait(&stat) < 0) {
             error("wait: %s\n", strerror(errno));
             exit(EXIT_FAILURE);
@@ -131,9 +140,17 @@ handler_selection_notify(XEvent *xevent) {
             XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
                                     &x_window.attrs);
             XDeleteProperty(x_window.display, x_window.win, (ulong)property);
-            continue;
+            // TODO: Memory Leak.
+            // If `type == incratom`, `XGetWindowProperty` allocated memory for
+            // `data`, but the loop `continue`s without calling `XFree(data)`,
+            // leaking memory.
+            continue; 
         }
 
+        // TODO: Potential Null Pointer Dereference.
+        // If `nitems == 0`, `XGetWindowProperty` might set `data` to NULL.
+        // Calling `memchr64` passing a NULL pointer leads to Undefined
+        // Behavior.  Ensure `data != NULL` before processing the chunk.
         repl = data;
         last = data + nitems*(uint64)format / 8;
         while (1) {
