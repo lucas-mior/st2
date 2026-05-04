@@ -16,8 +16,8 @@ typedef struct SixelImage {
     int32 height;
     uint32 palette[DECSIXEL_PALETTE_MAX + 1];
     int32 ncolors;
-    int32 palette_modified;
-    int32 use_private_register;
+    bool palette_modified;
+    bool use_private_register;
 } SixelImage;
 
 enum ParseState {
@@ -57,7 +57,7 @@ static void delete_image(struct ImageList *im);
 static int32 sixel_parser_init(SixelState *st,
                                bool transparent,
                                uint32 fgcolor, uint32 bgcolor,
-                               uchar use_private_register,
+                               bool use_private_register,
                                int32 cell_width, int32 cell_height);
 static int32 sixel_parser_parse(SixelState *st, uchar *p, int32 len);
 static int32 sixel_parser_set_default_color(SixelState *st);

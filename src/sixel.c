@@ -133,7 +133,7 @@ static int32
 sixel_image_init(SixelImage *sixel_image,
                  int32 width, int32 height,
                  int32 fg_color, int32 bg_color,
-                 int32 use_private_register) {
+                 bool use_private_register) {
     int64 size;
 
     size = (width*height)*SIZEOF(uint32);
@@ -154,7 +154,7 @@ sixel_image_init(SixelImage *sixel_image,
         sixel_image->palette[1] = (uint32)fg_color;
     }
 
-    sixel_image->palette_modified = 0;
+    sixel_image->palette_modified = false;
 
     return 0;
 }
@@ -222,7 +222,7 @@ sixel_image_deinit(SixelImage *image) {
 
 static int32
 sixel_parser_init(SixelState *sixel_state, bool transparent, uint32 fg_color,
-                  uint32 bg_color, uchar use_private_register, int32 cell_width,
+                  uint32 bg_color, bool use_private_register, int32 cell_width,
                   int32 cell_height) {
     int32 status = (-1);
 
@@ -650,7 +650,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 }
 
                 if (sixel_state->nparams > 4) {
-                    sixel_state->image.palette_modified = 1;
+                    sixel_state->image.palette_modified = true;
                     if (sixel_state->params[1] == 1) {
                         /* HLS */
                         sixel_state->params[2]
