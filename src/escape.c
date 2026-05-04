@@ -1090,7 +1090,7 @@ string_handle(void) {
                                 continue;
                             }
                         }
-                        // TODO: Memory Error / Use-After-Free / Corrupted Linked List.
+                        // TODO: Use-After-Free / Corrupted Linked List.
                         // Similar to above, `im_ptr` is freed but not unlinked
                         // from the linked list.
                         if (im_ptr->x >= x1_im && im_ptr->x + im_ptr->cols <= x2_im
