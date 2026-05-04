@@ -224,7 +224,6 @@ user_vim_select(union Arg *arg) {
     int32 fd;
     int32 target_line;
     int32 target_col;
-    pid_t child;
 
     (void)arg;
 
@@ -272,7 +271,7 @@ user_vim_select(union Arg *arg) {
         target_col = term.cursor.x + 1;
     }
 
-    switch (child = fork()) {
+    switch (fork()) {
     case -1:
         error("fork failed: %s\n", strerror(errno));
         break;
