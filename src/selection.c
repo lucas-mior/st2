@@ -282,6 +282,14 @@ selection_get(void) {
         return NULL;
     }
 
+    // TODO: Integer Overflow Allocation.
+    // If a user maliciously creates an exceptionally large window and makes an
+    // enormous selection (where `term.ncols * (selection.ne.y - selection.nb.y
+    // + 1)` overflows a 32-bit integer), the `xmalloc` allocation could wrap
+    // around to a very small size.  The loop underneath will then write way
+    // past the bounds of that small buffer, resulting in a severe heap buffer
+    // overflow. Cast the multiplicands to int64 _before_ multiplication to
+    // guarantee 64-bit math is used.
     string = xmalloc((int64)((term.ncols + 1)
                     * (selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
     ptr = string;
