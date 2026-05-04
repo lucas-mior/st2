@@ -313,8 +313,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
     st_font->rbearing = (int16)st_font->match->max_advance_width;
 
     st_font->height = st_font->ascent + st_font->descent;
-    st_font->width
-        = DIVCEIL(extents.xOff, strlen32(CONF_ASCII_PRINTABLE));
+    st_font->width = DIVCEIL(extents.xOff, strlen32(CONF_ASCII_PRINTABLE));
 
     return 0;
 }
