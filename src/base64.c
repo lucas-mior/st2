@@ -12,6 +12,10 @@
 
 static char
 base64_decode_getc(char **src) {
+    // TODO: isprint() evaluates to true for spaces (' '). Because base64_digits[' '] 
+    // implicitly evaluates to 0 (which is the mapping for 'A'), spaces are not skipped 
+    // and will silently corrupt the decoded output. You should explicitly filter out 
+    // spaces (e.g., using isspace).
     while (**src && !isprint((uchar)**src)) {
         (*src)++;
     }
@@ -28,6 +32,14 @@ base64_decode(char *src) {
     int64 in_len = strlen32(src);
     char *result;
     char *dst;
+    
+    // TODO: On platforms where 'char' is unsigned by default (like ARM), the -1 
+    // evaluates to 255. The 'a == -1' checks below will never be true, leading to 
+    // infinite padding reads and garbage output. Use 'signed char' or 'int8_t'.
+    //
+    // TODO: Any unmapped characters (like '!') are implicitly initialized to 0. 
+    // If an invalid character bypasses the filter, it will be decoded as 'A' (0) 
+    // rather than failing safely. Unmapped entries should be initialized to -1.
     static char base64_digits[256] = {
         [43] = 62, 0,  0,  0,  63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0,
         0,         0,  -1, 0,  0,  0,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
@@ -41,6 +53,9 @@ base64_decode(char *src) {
     result = xmalloc(in_len / 4*3 + 1);
     dst = result;
     while (*src) {
+        // TODO: Because invalid/unmapped characters default to 0 in the array above, 
+        // if this encounters an unexpected character, 'a' through 'd' become 0 instead 
+        // of -1, leading to silent logical errors rather than breaking the loop.
         int32 a = base64_digits[(uchar)base64_decode_getc(&src)];
         int32 b = base64_digits[(uchar)base64_decode_getc(&src)];
         int32 c = base64_digits[(uchar)base64_decode_getc(&src)];
@@ -109,6 +124,19 @@ main(void) {
         free(decoded);
 
         decoded = base64_decode(" \n\r");
+        ASSERT_EQUAL(decoded, "");
+        free(decoded);
+
+        /* Expose the space bug: space evaluates to 0 ('A') instead of being skipped. 
+         * "SGVsb G8=" evaluates improperly instead of skipping the space to decode "Hello". */
+        decoded = base64_decode("SGVsb G8=");
+        ASSERT_EQUAL(decoded, "Hello");
+        free(decoded);
+
+        /* Expose the unmapped character bug: '!' evaluates to 0 ('A') instead of -1. 
+         * The presence of an invalid character should abort the decode (returning ""), 
+         * but instead it silently corrupts the data. */
+        decoded = base64_decode("S!VsbG8=");
         ASSERT_EQUAL(decoded, "");
         free(decoded);
     }
