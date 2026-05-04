@@ -153,12 +153,12 @@ main(void) {
 
     term.ncols = init_cols;
     term.nrows = init_rows;
-    term.dirts = xmalloc((int64)init_rows*SIZEOF(*(term.dirts)));
-    term.tabs = xmalloc((int64)init_cols*SIZEOF(*(term.tabs)));
+    term.dirts = xmalloc(init_rows*SIZEOF(*(term.dirts)));
+    term.tabs = xmalloc(init_cols*SIZEOF(*(term.tabs)));
     memset64(term.tabs, 0, init_cols*SIZEOF(*(term.tabs)));
 
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        term.hist[i] = xmalloc((int64)init_cols*SIZEOF(StGlyph));
+        term.hist[i] = xmalloc(init_cols*SIZEOF(StGlyph));
         for (int32 j = 0; j < init_cols; j += 1) {
             term.hist[i][j].mode = ATTR_NONE;
             term.hist[i][j].rune = ' ';
@@ -166,9 +166,9 @@ main(void) {
     }
 
     for (int32 i = 0; i < 2; i += 1) {
-        term.lines = xmalloc((int64)init_rows*SIZEOF(*(term.lines)));
+        term.lines = xmalloc(init_rows*SIZEOF(*(term.lines)));
         for (int32 j = 0; j < init_rows; j += 1) {
-            term.lines[j] = xmalloc((int64)init_cols*SIZEOF(StGlyph));
+            term.lines[j] = xmalloc(init_cols*SIZEOF(StGlyph));
             for (int32 k = 0; k < init_cols; k += 1) {
                 term_clear_glyph(&term.lines[j][k], false);
             }
