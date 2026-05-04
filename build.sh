@@ -226,8 +226,10 @@ case "$target" in
     ctags --kinds-C=+l+d cbase/*.c src/*.h src/*.c  2> /dev/null || true
     vtags.sed tags | sort | uniq > .tags.vim 2> /dev/null || true
     if [ "$CC" = "chibicc" ]; then
+        CPPFLAGS="$CPPFLAGS -D__attribute=__attribute__"
         with_other chibicc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
     elif [ "$CC" = "cproc" ]; then
+        CPPFLAGS="$CPPFLAGS -D__attribute=__attribute__"
         with_other cproc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
     else
         $measure $CC          $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
