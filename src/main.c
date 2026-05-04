@@ -365,7 +365,7 @@ run:
         struct timespec now;
         struct timespec lastblink;
         struct timespec trigger = {0};
-        float timeout;
+        double timeout;
 
         do {
             XNextEvent(x_window.display, &xevent);
