@@ -187,7 +187,7 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
 static void
 x_hints(void) {
     XClassHint class_hints;
-    XWMHints wm = {.flags = InputHint, .input = 1};
+    XWMHints wm_hints = {.flags = InputHint, .input = 1};
     XSizeHints *size_hints;
 
     if (opt_name) {
@@ -229,7 +229,7 @@ x_hints(void) {
     }
 
     XSetWMProperties(x_window.display, x_window.win,
-                     NULL, NULL, NULL, 0, size_hints, &wm, &class_hints);
+                     NULL, NULL, NULL, 0, size_hints, &wm_hints, &class_hints);
     XFree(size_hints);
     return;
 }
