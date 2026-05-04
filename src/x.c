@@ -747,7 +747,6 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     XftColor truebg;
     XRenderColor colfg;
     XRenderColor colbg;
-    XRectangle r;
 
     if (base.mode & ATTR_WIDE) {
         charlen = len * 2;
@@ -884,12 +883,15 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     XftDrawRect(x_window.xft_draw, bg, winx, winy, (uint32)width,
                 (uint32)term_window.ch);
 
-    /* Set the clip region because Xft is sometimes dirty. */
-    r.x = 0;
-    r.y = 0;
-    r.height = (uint16)term_window.ch;
-    r.width = (uint16)width;
-    XftDrawSetClipRectangles(x_window.xft_draw, winx, winy, &r, 1);
+    {
+        /* Set the clip region because Xft is sometimes dirty. */
+        XRectangle rect;
+        rect.x = 0;
+        rect.y = 0;
+        rect.height = (uint16)term_window.ch;
+        rect.width = (uint16)width;
+        XftDrawSetClipRectangles(x_window.xft_draw, winx, winy, &rect, 1);
+    }
 
     if (base.mode & ATTR_BOXDRAW) {
         drawboxes(winx, winy, width / len, term_window.ch, fg, bg, specs, len);
