@@ -350,7 +350,7 @@ x_load_fonts(char *fontstr, double font_size) {
             FcPatternAddDouble(pattern, FC_PIXEL_SIZE, 12);
             used_font_size = 12;
         }
-        defaultfontsize = used_font_size;
+        default_font_size = used_font_size;
     }
 
     if (x_load_font(&draw_context.font, pattern)) {
@@ -363,7 +363,7 @@ x_load_fonts(char *fontstr, double font_size) {
                            &fontval);
         used_font_size = (double)fontval;
         if (fabs(font_size) <= 0) {
-            defaultfontsize = (double)fontval;
+            default_font_size = (double)fontval;
         }
     }
 
@@ -455,8 +455,8 @@ x_load_spare_fonts(void) {
             exit(EXIT_FAILURE);
         }
 
-        if (defaultfontsize > 0) {
-            double sizeshift = (double)(used_font_size - defaultfontsize);
+        if (default_font_size > 0) {
+            double sizeshift = (double)(used_font_size - default_font_size);
             if (fabs(sizeshift) >= 0.001) {
                 double fontval;
                 if (FcPatternGetDouble(fc_pattern, FC_PIXEL_SIZE, 0, &fontval)
