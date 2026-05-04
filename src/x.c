@@ -229,7 +229,8 @@ x_hints(void) {
     }
 
     XSetWMProperties(x_window.display, x_window.win,
-                     NULL, NULL, NULL, 0, size_hints, &wm_hints, &class_hints);
+                     NULL, NULL, NULL, 0,
+                     size_hints, &wm_hints, &class_hints);
     XFree(size_hints);
     return;
 }
