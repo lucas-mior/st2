@@ -136,12 +136,7 @@ sixel_image_init(SixelImage *sixel_image,
                  bool use_private_register) {
     int64 size;
 
-    // TODO: Memory Allocation Mismatch.
-    // 'size' is computed using 'SIZEOF(uint32)', but 'sixel_image->data' is a
-    // pointer to 'ushort' (typically 16-bit) and subsequent buffer resizes
-    // correctly use 'SIZEOF(uint16)'. This allocates twice as much memory as
-    // necessary for the initial buffer.
-    size = (width*height)*SIZEOF(uint32);
+    size = (width*height)*SIZEOF(*(sixel_image->data));
     sixel_image->width = width;
     sixel_image->height = height;
     sixel_image->data = xmalloc(size);
