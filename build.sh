@@ -34,12 +34,6 @@ error () {
 alias trace_on='set -x'
 alias trace_off='{ set +x; } 2>/dev/null'
 
-if command -v measure; then
-    measure=$(which measure)
-else
-    measure=""
-fi
-
 if [ -n "$BASH_VERSION" ]; then
     # shellcheck disable=SC3044
     shopt -s expand_aliases
@@ -254,7 +248,7 @@ case "$target" in
         CPPFLAGS="$CPPFLAGS -D__attribute=__attribute__"
         with_other cproc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
     else
-        $measure $CC          $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
+        $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
         $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
             src/test_resize_scroll.c -o bin/test_resize_scroll $LDFLAGS
     fi
