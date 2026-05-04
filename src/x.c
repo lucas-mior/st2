@@ -256,7 +256,7 @@ x_load_font(StFont *f, FcPattern *pattern) {
     FcPattern *match;
     FcResult result;
     XGlyphInfo extents;
-    int32 wantattr;
+    int32 want_attr;
     int32 have_attr;
 
     configured = FcPatternDuplicate(pattern);
@@ -279,21 +279,21 @@ x_load_font(StFont *f, FcPattern *pattern) {
         return 1;
     }
 
-    if ((XftPatternGetInteger(pattern, "slant", 0, &wantattr)
+    if ((XftPatternGetInteger(pattern, "slant", 0, &want_attr)
          == XftResultMatch)) {
         if ((XftPatternGetInteger(f->match->pattern, "slant", 0, &have_attr)
              != XftResultMatch)
-            || have_attr < wantattr) {
+            || have_attr < want_attr) {
             f->badslant = 1;
             fputs("font slant does not match\n", stderr);
         }
     }
 
-    if ((XftPatternGetInteger(pattern, "weight", 0, &wantattr)
+    if ((XftPatternGetInteger(pattern, "weight", 0, &want_attr)
          == XftResultMatch)) {
         if ((XftPatternGetInteger(f->match->pattern, "weight", 0, &have_attr)
              != XftResultMatch)
-            || have_attr != wantattr) {
+            || have_attr != want_attr) {
             f->badweight = 1;
             fputs("font weight does not match\n", stderr);
         }
