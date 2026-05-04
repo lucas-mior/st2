@@ -55,8 +55,8 @@ check_consistent_state(void) {
     ASSERT(term.tabs != NULL);
     ASSERT(term.dirty != NULL);
 
-    for (int32 row_index = 0; row_index < term.nrows; row_index += 1) {
-        ASSERT(term.lines[row_index]);
+    for (int32 i = 0; i < term.nrows; i += 1) {
+        ASSERT(term.lines[i]);
     }
 
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
