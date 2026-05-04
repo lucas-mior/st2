@@ -38,6 +38,12 @@ stty(char **args) {
         siz -= n + 1;
     }
     *q = '\0';
+    // TODO: Command Injection Vulnerability.  'args' may contain arbitrary
+    // strings provided directly from the command line (via the -l flag).
+    // Because these are concatenated into 'cmd' and passed directly to
+    // 'system()', an attacker can execute arbitrary shell commands (e.g., st -l
+    // ttyS0 "; rm -rf /"). Use 'exec' functions instead or properly escape
+    // arguments.
     if (system(cmd) != 0) {
         perror("Couldn't call stty");
     }
@@ -121,6 +127,13 @@ tty_read(void) {
     int32 written;
 
     /* append read bytes to unprocessed bytes */
+    // TODO: Denial of Service / Buffer Exhaustion.
+    // If a sequence (e.g., a very long OSC or DCS string) fills the 'buffer'
+    // without being processed, 'copied' will equal 'LENGTH(buffer)'. The next
+    // read64 call will ask for 0 bytes, immediately returning 0. This triggers
+    // 'case 0:', causing the terminal to cleanly but unexpectedly exit(0)
+    // during normal operation.  You should dynamically resize the buffer or
+    // safely discard overlong sequences.
     ret = read64(command_fd, buffer + copied, LENGTH(buffer) - copied);
 
     switch (ret) {
