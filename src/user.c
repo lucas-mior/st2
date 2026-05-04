@@ -231,6 +231,7 @@ user_vim_select(union Arg *arg) {
     int32 fd;
     int32 target_row;
     int32 target_col;
+    pid_t child;
 
     (void)arg;
 
@@ -284,7 +285,7 @@ user_vim_select(union Arg *arg) {
         target_col = term.cursor.x + 1;
     }
 
-    switch (fork()) {
+    switch (child = fork()) {
     case -1:
         error("fork failed: %s\n", strerror(errno));
         break;
@@ -314,7 +315,7 @@ user_vim_select(union Arg *arg) {
         // it before `vim` reads it, resulting in an empty buffer.  The child
         // should ideally take ownership of unlinking the file, or the parent
         // should wait for the child process to finish before cleaning up.
-        usleep(500000);
+        waitpid(child, NULL, 0);
         unlink(tmp_file);
         break;
     }
