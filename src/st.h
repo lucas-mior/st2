@@ -86,9 +86,9 @@
 #include "xenums.c"
 
 enum SelectionSnap {
-    SELECTION_SNAP_NONE = 0,
-    SELECTION_SNAP_WORD = 1,
-    SELECTION_SNAP_LINE = 2
+    SELECTION_SNAP_NONE,
+    SELECTION_SNAP_WORD,
+    SELECTION_SNAP_LINE,
 };
 
 enum SelectionType {
