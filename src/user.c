@@ -108,7 +108,7 @@ static void
 user_zoom(union Arg *arg) {
     union Arg larg;
 
-    larg.f = usedfontsize + arg->f;
+    larg.f = used_font_size + arg->f;
     if (larg.f >= 1.0f) {
         zoom_abs(&larg);
     }
@@ -529,7 +529,7 @@ main(void) {
         term_reset();
         
         defaultfontsize = 12.0;
-        usedfontsize = 12.0;
+        used_font_size = 12.0;
         usedfont = "monospace";
         x_load_fonts(usedfont, 0);
     }

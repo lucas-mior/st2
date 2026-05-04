@@ -319,7 +319,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
 }
 
 static void
-x_load_fonts(char *fontstr, double fontsize) {
+x_load_fonts(char *fontstr, double font_size) {
     FcPattern *pattern;
     double fontval;
 
@@ -334,23 +334,23 @@ x_load_fonts(char *fontstr, double fontsize) {
         exit(EXIT_FAILURE);
     }
 
-    if (fontsize > 1) {
+    if (font_size > 1) {
         FcPatternDel(pattern, FC_PIXEL_SIZE);
         FcPatternDel(pattern, FC_SIZE);
-        FcPatternAddDouble(pattern, FC_PIXEL_SIZE, (double)fontsize);
-        usedfontsize = fontsize;
+        FcPatternAddDouble(pattern, FC_PIXEL_SIZE, (double)font_size);
+        used_font_size = font_size;
     } else {
         if (FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &fontval)
             == FcResultMatch) {
-            usedfontsize = (double)fontval;
+            used_font_size = (double)fontval;
         } else if (FcPatternGetDouble(pattern, FC_SIZE, 0, &fontval)
                    == FcResultMatch) {
-            usedfontsize = -1;
+            used_font_size = -1;
         } else {
             FcPatternAddDouble(pattern, FC_PIXEL_SIZE, 12);
-            usedfontsize = 12;
+            used_font_size = 12;
         }
-        defaultfontsize = usedfontsize;
+        defaultfontsize = used_font_size;
     }
 
     if (x_load_font(&draw_context.font, pattern)) {
@@ -358,11 +358,11 @@ x_load_fonts(char *fontstr, double fontsize) {
         exit(EXIT_FAILURE);
     }
 
-    if (usedfontsize < 0) {
+    if (used_font_size < 0) {
         FcPatternGetDouble(draw_context.font.match->pattern, FC_PIXEL_SIZE, 0,
                            &fontval);
-        usedfontsize = (double)fontval;
-        if (fabs(fontsize) <= 0) {
+        used_font_size = (double)fontval;
+        if (fabs(font_size) <= 0) {
             defaultfontsize = (double)fontval;
         }
     }
@@ -456,7 +456,7 @@ x_load_spare_fonts(void) {
         }
 
         if (defaultfontsize > 0) {
-            double sizeshift = (double)(usedfontsize - defaultfontsize);
+            double sizeshift = (double)(used_font_size - defaultfontsize);
             if (fabs(sizeshift) >= 0.001) {
                 double fontval;
                 if (FcPatternGetDouble(fc_pattern, FC_PIXEL_SIZE, 0, &fontval)

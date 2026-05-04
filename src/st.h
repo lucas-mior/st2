@@ -425,7 +425,7 @@ typedef struct Key {
 #include "sixel.h"
 static SixelState sixel_st;
 
-static double usedfontsize = 0;
+static double used_font_size = 0;
 static double defaultfontsize = 0;
 static pid_t pid;
 static int32 io_fd = 1;
