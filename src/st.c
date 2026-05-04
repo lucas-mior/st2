@@ -1580,7 +1580,7 @@ main(void) {
     }
 
     {
-        int32 mode = term.mode & TERM_MODE_ALTSCREEN;
+        enum TermMode mode = term.mode & TERM_MODE_ALTSCREEN;
         term_swap_screen();
         ASSERT((term.mode & TERM_MODE_ALTSCREEN) != mode);
         term_swap_screen();
