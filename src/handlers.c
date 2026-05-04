@@ -79,7 +79,7 @@ handler_button_press(XEvent *xevent) {
     if (button == Button1) {
         /* Snapping behavior based on double/triple click timeouts. */
         clock_gettime(CLOCK_MONOTONIC, &tnow);
-        if (timediff(tnow, xsel.tclick2) <= (float)CONF_TRIPLE_CLICK_TIMEOUT) {
+        if (timediff(tnow, xsel.tclick2) <= CONF_TRIPLE_CLICK_TIMEOUT) {
             snap = SELECTION_SNAP_LINE;
         } else if (timediff(tnow, xsel.tclick1)
                    <= (float)CONF_DOUBLE_CLICK_TIMEOUT) {

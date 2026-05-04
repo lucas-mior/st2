@@ -394,8 +394,8 @@ run:
                 timeout = 0;
             }
 
-            seltv.tv_sec = (long)(timeout / 1E3f);
-            seltv.tv_nsec = (long)(1E6f*(timeout - 1E3f*(float)seltv.tv_sec));
+            seltv.tv_sec = (long)(timeout / 1E3);
+            seltv.tv_nsec = (long)(1E6*(timeout - 1E3*seltv.tv_sec));
             if (timeout >= 0) {
                 tv = &seltv;
             } else {
