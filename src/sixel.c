@@ -867,7 +867,7 @@ main(void) {
         ASSERT_EQUAL(status, 0);
         ASSERT_EQUAL(img.width, 10);
         ASSERT_EQUAL(img.height, 10);
-        ASSERT_EQUAL(img.use_private_register, 1);
+        ASSERT(img.use_private_register);
         ASSERT_EQUAL(img.palette[0], 0);
         ASSERT_EQUAL(img.palette[1], 1);
 
