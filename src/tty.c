@@ -2,6 +2,7 @@
 #define TTY_C
 
 #include <pty.h>
+#include <pwd.h>
 #include "st.h"
 #include "config.h"
 #include "handlers.c"
@@ -61,6 +62,66 @@ stty(char **args) {
     }
 
     return;
+}
+
+static void __attribute((noreturn))
+exec_shell(char *cmd, char **args) {
+    char *shell;
+    char *arg;
+    struct passwd *pw;
+
+    errno = 0;
+    pw = getpwuid(getuid());
+    if (pw == NULL) {
+        if (errno) {
+            error("getpwuid: %s\n", strerror(errno));
+            exit(EXIT_FAILURE);
+        } else {
+            error("who are you?\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if ((shell = getenv("SHELL")) == NULL) {
+        if (pw->pw_shell[0]) {
+            shell = pw->pw_shell;
+        } else {
+            shell = cmd;
+        }
+    }
+
+    if (args) {
+        program = args[0];
+        arg = NULL;
+    } else {
+        if (CONF_UTMP) {
+            program = CONF_UTMP;
+            arg = NULL;
+        } else {
+            program = shell;
+            arg = NULL;
+        }
+    }
+    DEFAULT(args, ((char *[]){program, arg, NULL}));
+
+    unsetenv("COLUMNS");
+    unsetenv("LINES");
+    unsetenv("TERMCAP");
+    setenv("LOGNAME", pw->pw_name, 1);
+    setenv("USER", pw->pw_name, 1);
+    setenv("SHELL", shell, 1);
+    setenv("HOME", pw->pw_dir, 1);
+    setenv("TERM", CONF_TERM_NAME, 1);
+
+    signal(SIGCHLD, SIG_DFL);
+    signal(SIGHUP, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+    signal(SIGTERM, SIG_DFL);
+    signal(SIGALRM, SIG_DFL);
+
+    execvp(program, args);
+    _exit(1);
 }
 
 static int32

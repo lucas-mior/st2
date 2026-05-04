@@ -329,7 +329,6 @@ static void tty_write(char *s, int64 len, int32 fd);
 
 static void reset_title(void);
 
-static void exec_shell(char *cmd, char **args) __attribute__((noreturn));
 static void tty_write_raw(char *s, int64 len);
 
 static char *term_get_glyphs(char *buffer, StGlyph *glyph, StGlyph *lgp);
