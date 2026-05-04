@@ -222,7 +222,7 @@ user_vim_select(union Arg *arg) {
     char buf[UTF_SIZ];
     char tmp_file[64];
     int32 fd;
-    int32 target_line;
+    int32 target_row;
     int32 target_col;
 
     (void)arg;
@@ -264,10 +264,10 @@ user_vim_select(union Arg *arg) {
     XCLOSE(&fd);
 
     if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
-        target_line = term.n_hist + 1;
+        target_row = term.n_hist + 1;
         target_col = 1;
     } else {
-        target_line = term.n_hist + term.cursor.y + 1;
+        target_row = term.n_hist + term.cursor.y + 1;
         target_col = term.cursor.x + 1;
     }
 
@@ -283,7 +283,7 @@ user_vim_select(union Arg *arg) {
 
             SNPRINTF(geo, "%dx%d", term.ncols, term.nrows);
             SNPRINTF(win, "%lu", x_window.win);
-            SNPRINTF(cur, "call cursor(%d, %d)", target_line, target_col);
+            SNPRINTF(cur, "call cursor(%d, %d)", target_row, target_col);
 
             execlp("st", "st", "-w", win, "-g", geo, "-e",
                    "vim", "-c", "set nonumber norelativenumber wrap",
