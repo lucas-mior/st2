@@ -147,6 +147,22 @@ with_other () {
     return 0
 }
 
+if [ "$target" = "cross" ]; then
+    cross="$2"
+    CC="zig cc"
+    CFLAGS="$CFLAGS -target $cross"
+    CFLAGS=$(option_remove "$CFLAGS" "-D_GNU_SOURCE")
+
+    case $cross in
+    "x86_64-macos"|"aarch64-macos")
+        CFLAGS="$CFLAGS -fno-lto"
+        ;;
+    *windows*)
+        exe="bin/$program.exe"
+        ;;
+    esac
+fi
+
 case "$target" in
 "debug")
     CFLAGS="$CFLAGS -g3 -fsanitize-trap=undefined"
