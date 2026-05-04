@@ -1271,20 +1271,15 @@ draw(void) {
 
     LIMIT(term.old_cursor_x, 0, term.ncols - 1);
     LIMIT(term.old_cursor_y, 0, term.nrows - 1);
-    // TODO: Out-of-bounds Array Read.
-    // If the cursor is at column 0 (term.old_cursor_x == 0 or cx == 0) and the
-    // cell inexplicably contains the ATTR_WDUMMY flag, 'term.old_cursor_x' or
-    // 'cx' will underflow to -1. The subsequent 'x_draw_cursor' call will read
-    // from 'term.lines[...][-1]'.  Add a boundary check (e.g., 'if
-    // (term.old_cursor_x > 0 && ...)') to prevent this.
     if (term.lines[term.old_cursor_y][term.old_cursor_x].mode & ATTR_WDUMMY) {
-        term.old_cursor_x -= 1;
+        if (term.old_cursor_x > 0) {
+            term.old_cursor_x -= 1;
+        }
     }
-    // TODO: Out-of-bounds Array Read.
-    // If cx is 0 and the cell contains ATTR_WDUMMY, 'cx' will underflow to -1.
-    // Add a boundary check (e.g., 'if (cx > 0 && ...)') to prevent this.
     if (term.lines[term.cursor.y][cx].mode & ATTR_WDUMMY) {
-        cx -= 1;
+        if (cx > 0) {
+            cx -= 1;
+        }
     }
 
     for (int32 y = 0; y < term.nrows; y += 1) {
