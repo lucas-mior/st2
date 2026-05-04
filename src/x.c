@@ -227,8 +227,8 @@ x_hints(void) {
         size_hints->win_gravity = x_geom_mask_to_gravity(x_window.geo_mask);
     }
 
-    XSetWMProperties(x_window.display, x_window.win, NULL, NULL, NULL, 0, size_hints,
-                     &wm, &class);
+    XSetWMProperties(x_window.display, x_window.win,
+                     NULL, NULL, NULL, 0, size_hints, &wm, &class);
     XFree(size_hints);
     return;
 }
