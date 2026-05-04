@@ -297,6 +297,9 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images, int32 cx,
     tail = NULL;
     for (int32 i = 0; i < numimages; i += 1) {
         ImageList *image = xmalloc(sizeof(*image));
+        char trans = 0;
+        uint32 *dst;
+
         if (!tail) {
             *new_images = tail = image;
             image->prev = image->next = NULL;
@@ -306,6 +309,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images, int32 cx,
             image->next = NULL;
             tail = image;
         }
+
         image->x = cx;
         image->y = cy + i;
         image->cols = cols;
@@ -316,8 +320,8 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images, int32 cx,
         image->clipmask = NULL;
         image->cw = cw;
         image->ch = ch;
-        uint32 *dst = (uint32 *)image->pixels;
-        char trans = 0;
+
+        dst = (uint32 *)image->pixels;
         for (int32 j = 0; j < image->height && y < h; j += 1) {
             uint16 *src = sixel_state->image.data + sixel_image->width*y;
             for (int32 x = 0; x < w; x += 1) {
