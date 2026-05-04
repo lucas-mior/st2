@@ -363,7 +363,7 @@ case "$target" in
     ;;
 "check")
     # CC=gcc CFLAGS="-fanalyzer" ./build.sh
-    scan-build --view -analyze-headers --status-bugs ./build.sh
+    setsid -f scan-build --view -analyze-headers --status-bugs ./build.sh > /dev/null
     exit
     ;;
 "perf")

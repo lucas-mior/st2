@@ -868,11 +868,16 @@ static void
 term_resize(int32 col, int32 row) {
     bool *bp;
 
-    term.dirts = xrealloc(term.dirts, (int64)row*SIZEOF(*(term.dirts)));
-    term.tabs = xrealloc(term.tabs, (int64)col*SIZEOF(*(term.tabs)));
+    /* Ensure we never allocate a 0-width or 0-height screen */
+    col = (int32)MAX(1, col);
+    row = (int32)MAX(1, row);
+
+    term.dirts = xrealloc(term.dirts, (int64)row * SIZEOF(*(term.dirts)));
+    term.tabs = xrealloc(term.tabs, (int64)col * SIZEOF(*(term.tabs)));
+    
     if (col > term.ncols) {
         bp = term.tabs + term.ncols;
-        memset64(bp, 0, SIZEOF(*term.tabs)*(col - term.ncols));
+        memset64(bp, 0, SIZEOF(*term.tabs) * (col - term.ncols));
         bp -= 1;
         while (bp > term.tabs && !*bp) {
             bp -= 1;
@@ -934,6 +939,7 @@ static void
 term_resize_alt(int32 new_ncols, int32 new_nrows) {
     int32 shift = 0;
 
+    /* Defense in depth: new_ncols and new_nrows are guaranteed >= 1 by term_resize */
     if (term.ncols == new_ncols && term.nrows == new_nrows) {
         term_full_dirt();
         return;
@@ -942,39 +948,51 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         selection_remove();
     }
 
-    while (shift <= term.cursor.y - new_nrows) {
-        free(term.lines[shift]);
-        shift += 1;
+    /* Only shift if shrinking and the cursor would be pushed off the top */
+    if (new_nrows < term.nrows && term.cursor.y >= new_nrows) {
+        while (shift <= term.cursor.y - new_nrows) {
+            free(term.lines[shift]);
+            shift += 1;
+        }
     }
+
     if (shift > 0) {
-        memmove64(term.lines, term.lines + shift,
-                  new_nrows*SIZEOF(*(term.lines)));
+        /* Move the remaining pointers that fit in the new height */
+        int32 to_move = (int32)MIN(new_nrows, term.nrows - shift);
+        memmove64(term.lines, term.lines + shift, (int64)to_move * SIZEOF(*(term.lines)));
         term.cursor.y = new_nrows - 1;
     }
-    for (int32 i = shift + new_nrows; i < term.nrows; i += 1) {
+
+    /* Free pointers that are now out of bounds */
+    for (int32 i = (int32)MAX(new_nrows, shift + new_nrows); i < term.nrows; i += 1) {
         free(term.lines[i]);
     }
-    term.lines = xrealloc(term.lines, (int64)new_nrows*SIZEOF(*(term.lines)));
+    
+    term.lines = xrealloc(term.lines, (int64)new_nrows * SIZEOF(*(term.lines)));
 
-    for (int32 j = 0; j < MIN(new_nrows, term.nrows); j += 1) {
-        term.lines[j] = xrealloc(term.lines[j],
-                                (int64)new_ncols*SIZEOF(*(term.lines[j])));
+    /* Resize existing rows to the new width */
+    for (int32 j = 0; j < (int32)MIN(new_nrows, term.nrows); j += 1) {
+        term.lines[j] = xrealloc(term.lines[j], (int64)new_ncols * SIZEOF(*(term.lines[j])));
         for (int32 k = term.ncols; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], false);
         }
     }
+
+    /* Allocate entirely new rows if the terminal height increased */
     for (int32 j = (int32)MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
-        term.lines[j] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
+        term.lines[j] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
         for (int32 k = 0; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], false);
         }
     }
+
     if (term.cursor.x >= new_ncols) {
         term.cursor.state &= ~CURSOR_WRAPNEXT;
         term.cursor.x = new_ncols - 1;
     } else {
         update_wrap_next(1, new_ncols);
     }
+
     term.ncols = new_ncols;
     term.nrows = new_nrows;
     term.top_scroll_limit = 0;
