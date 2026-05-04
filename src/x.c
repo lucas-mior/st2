@@ -677,14 +677,14 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         }
 
         if (f >= frc_len) {
-            FcResult fcres;
+            FcResult fc_result;
             FcPattern *fc_pattern;
             FcPattern *fontpattern;
             FcFontSet *fcsets[] = {NULL};
             FcCharSet *fccharset;
 
             if (!font_local->set) {
-                font_local->set = FcFontSort(0, font_local->pattern, 1, 0, &fcres);
+                font_local->set = FcFontSort(0, font_local->pattern, 1, 0, &fc_result);
             }
             fcsets[0] = font_local->set;
 
@@ -698,7 +698,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             FcConfigSubstitute(0, fc_pattern, FcMatchPattern);
             FcDefaultSubstitute(fc_pattern);
 
-            fontpattern = FcFontSetMatch(0, fcsets, 1, fc_pattern, &fcres);
+            fontpattern = FcFontSetMatch(0, fcsets, 1, fc_pattern, &fc_result);
 
             if (frc_len >= frc_cap) {
                 frc_cap += 16;
