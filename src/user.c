@@ -253,7 +253,9 @@ user_vim_select(union Arg *arg) {
             }
         }
         
-        if (lastpos == 0 || !(line[lastpos - 1].mode & ATTR_WRAP) || y == term.nrows - 1) {
+        if ((lastpos == 0)
+                || !(line[lastpos - 1].mode & ATTR_WRAP)
+                || (y == term.nrows - 1)) {
             xwrite(fd, "\n", 1);
         }
     }
