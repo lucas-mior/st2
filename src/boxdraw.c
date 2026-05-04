@@ -21,10 +21,10 @@
 #define TESTING_boxdraw 0
 #endif
 
-static Display *xdpy;
-static Colormap xcmap;
-static XftDraw *xd;
-static Visual *xvis;
+static Display *x_display;
+static Colormap x_color_map;
+static XftDraw *xft_draw;
+static Visual *x_visual;
 
 static void drawbox(int32, int32, int32, int32, XftColor *, XftColor *, uint16);
 static void drawboxlines(int32, int32, int32, int32, XftColor *, uint16);
@@ -34,10 +34,10 @@ static void drawboxlines(int32, int32, int32, int32, XftColor *, uint16);
 static void
 boxdraw_xinit(Display *display, Colormap color_map, XftDraw *draw,
               Visual *visual) {
-    xdpy = display;
-    xcmap = color_map;
-    xd = draw;
-    xvis = visual;
+    x_display = display;
+    x_color_map = color_map;
+    xft_draw = draw;
+    x_visual = visual;
     return;
 }
 
@@ -85,35 +85,35 @@ drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg,
     } else if (cat == BBD) {
         /* lower (8-X)/8 block */
         int32 d = DIV((uint8_t)bd*h, 8);
-        XftDrawRect(xd, fg, x, y + d, (uint32)w, (uint32)(h - d));
+        XftDrawRect(xft_draw, fg, x, y + d, (uint32)w, (uint32)(h - d));
 
     } else if (cat == BBU) {
         /* upper X/8 block */
-        XftDrawRect(xd, fg, x, y, (uint32)w, (uint32)DIV((uint8_t)bd*h, 8));
+        XftDrawRect(xft_draw, fg, x, y, (uint32)w, (uint32)DIV((uint8_t)bd*h, 8));
 
     } else if (cat == BBL) {
         /* left X/8 block */
-        XftDrawRect(xd, fg, x, y, (uint32)DIV((uint8_t)bd*w, 8), (uint32)h);
+        XftDrawRect(xft_draw, fg, x, y, (uint32)DIV((uint8_t)bd*w, 8), (uint32)h);
 
     } else if (cat == BBR) {
         /* right (8-X)/8 block */
         int32 d = DIV((uint8_t)bd*w, 8);
-        XftDrawRect(xd, fg, x + d, y, (uint32)(w - d), (uint32)h);
+        XftDrawRect(xft_draw, fg, x + d, y, (uint32)(w - d), (uint32)h);
 
     } else if (cat == BBQ) {
         /* Quadrants */
         int32 w2 = DIV(w, 2), h2 = DIV(h, 2);
         if (bd & TL) {
-            XftDrawRect(xd, fg, x, y, (uint32)w2, (uint32)h2);
+            XftDrawRect(xft_draw, fg, x, y, (uint32)w2, (uint32)h2);
         }
         if (bd & TR) {
-            XftDrawRect(xd, fg, x + w2, y, (uint32)(w - w2), (uint32)h2);
+            XftDrawRect(xft_draw, fg, x + w2, y, (uint32)(w - w2), (uint32)h2);
         }
         if (bd & BL) {
-            XftDrawRect(xd, fg, x, y + h2, (uint32)w2, (uint32)(h - h2));
+            XftDrawRect(xft_draw, fg, x, y + h2, (uint32)w2, (uint32)(h - h2));
         }
         if (bd & BR) {
-            XftDrawRect(xd, fg, x + w2, y + h2, (uint32)(w - w2),
+            XftDrawRect(xft_draw, fg, x + w2, y + h2, (uint32)(w - w2),
                         (uint32)(h - h2));
         }
 
@@ -129,9 +129,9 @@ drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg,
         xrc.blue
             = (uint16)DIV(fg->color.blue*d + bg->color.blue*(4 - d), 4);
 
-        XftColorAllocValue(xdpy, xvis, xcmap, &xrc, &xfc);
-        XftDrawRect(xd, &xfc, x, y, (uint32)w, (uint32)h);
-        XftColorFree(xdpy, xvis, xcmap, &xfc);
+        XftColorAllocValue(x_display, x_visual, x_color_map, &xrc, &xfc);
+        XftDrawRect(xft_draw, &xfc, x, y, (uint32)w, (uint32)h);
+        XftColorFree(x_display, x_visual, x_color_map, &xfc);
 
     } else if (cat == BRL) {
         /* braille, each data bit corresponds to one dot at 2x4 grid */
@@ -139,30 +139,30 @@ drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg,
         int32 h1 = DIV(h, 4), h2 = DIV(h, 2), h3 = DIV(3*h, 4);
 
         if (bd & 1) {
-            XftDrawRect(xd, fg, x, y, (uint32)w1, (uint32)h1);
+            XftDrawRect(xft_draw, fg, x, y, (uint32)w1, (uint32)h1);
         }
         if (bd & 2) {
-            XftDrawRect(xd, fg, x, y + h1, (uint32)w1, (uint32)(h2 - h1));
+            XftDrawRect(xft_draw, fg, x, y + h1, (uint32)w1, (uint32)(h2 - h1));
         }
         if (bd & 4) {
-            XftDrawRect(xd, fg, x, y + h2, (uint32)w1, (uint32)(h3 - h2));
+            XftDrawRect(xft_draw, fg, x, y + h2, (uint32)w1, (uint32)(h3 - h2));
         }
         if (bd & 8) {
-            XftDrawRect(xd, fg, x + w1, y, (uint32)(w - w1), (uint32)h1);
+            XftDrawRect(xft_draw, fg, x + w1, y, (uint32)(w - w1), (uint32)h1);
         }
         if (bd & 16) {
-            XftDrawRect(xd, fg, x + w1, y + h1, (uint32)(w - w1),
+            XftDrawRect(xft_draw, fg, x + w1, y + h1, (uint32)(w - w1),
                         (uint32)(h2 - h1));
         }
         if (bd & 32) {
-            XftDrawRect(xd, fg, x + w1, y + h2, (uint32)(w - w1),
+            XftDrawRect(xft_draw, fg, x + w1, y + h2, (uint32)(w - w1),
                         (uint32)(h3 - h2));
         }
         if (bd & 64) {
-            XftDrawRect(xd, fg, x, y + h3, (uint32)w1, (uint32)(h - h3));
+            XftDrawRect(xft_draw, fg, x, y + h3, (uint32)w1, (uint32)(h - h3));
         }
         if (bd & 128) {
-            XftDrawRect(xd, fg, x + w1, y + h3, (uint32)(w - w1),
+            XftDrawRect(xft_draw, fg, x + w1, y + h3, (uint32)(w - w1),
                         (uint32)(h - h3));
         }
     }
@@ -195,17 +195,17 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
         int32 d = arc || (multi_double && !multi_light) ? -s : 0;
 
         if (bd & LL) {
-            XftDrawRect(xd, fg, x, y + h2, (uint32)(w2 + s + d), (uint32)s);
+            XftDrawRect(xft_draw, fg, x, y + h2, (uint32)(w2 + s + d), (uint32)s);
         }
         if (bd & LU) {
-            XftDrawRect(xd, fg, x + w2, y, (uint32)s, (uint32)(h2 + s + d));
+            XftDrawRect(xft_draw, fg, x + w2, y, (uint32)s, (uint32)(h2 + s + d));
         }
         if (bd & LR) {
-            XftDrawRect(xd, fg, x + w2 - d, y + h2, (uint32)(w - w2 + d),
+            XftDrawRect(xft_draw, fg, x + w2 - d, y + h2, (uint32)(w - w2 + d),
                         (uint32)s);
         }
         if (bd & LD) {
-            XftDrawRect(xd, fg, x + w2, y + h2 - d, (uint32)s,
+            XftDrawRect(xft_draw, fg, x + w2, y + h2 - d, (uint32)s,
                         (uint32)(h - h2 + d));
         }
     }
@@ -227,26 +227,26 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
 
         if (dl) {
             int32 p = dd ? -s : 0, n = du ? -s : dd ? s : 0;
-            XftDrawRect(xd, fg, x, y + h2 + s, (uint32)(w2 + s + p), (uint32)s);
-            XftDrawRect(xd, fg, x, y + h2 - s, (uint32)(w2 + s + n), (uint32)s);
+            XftDrawRect(xft_draw, fg, x, y + h2 + s, (uint32)(w2 + s + p), (uint32)s);
+            XftDrawRect(xft_draw, fg, x, y + h2 - s, (uint32)(w2 + s + n), (uint32)s);
         }
         if (du) {
             int32 p = dl ? -s : 0, n = dr ? -s : dl ? s : 0;
-            XftDrawRect(xd, fg, x + w2 - s, y, (uint32)s, (uint32)(h2 + s + p));
-            XftDrawRect(xd, fg, x + w2 + s, y, (uint32)s, (uint32)(h2 + s + n));
+            XftDrawRect(xft_draw, fg, x + w2 - s, y, (uint32)s, (uint32)(h2 + s + p));
+            XftDrawRect(xft_draw, fg, x + w2 + s, y, (uint32)s, (uint32)(h2 + s + n));
         }
         if (dr) {
             int32 p = du ? -s : 0, n = dd ? -s : du ? s : 0;
-            XftDrawRect(xd, fg, x + w2 - p, y + h2 - s, (uint32)(w - w2 + p),
+            XftDrawRect(xft_draw, fg, x + w2 - p, y + h2 - s, (uint32)(w - w2 + p),
                         (uint32)s);
-            XftDrawRect(xd, fg, x + w2 - n, y + h2 + s, (uint32)(w - w2 + n),
+            XftDrawRect(xft_draw, fg, x + w2 - n, y + h2 + s, (uint32)(w - w2 + n),
                         (uint32)s);
         }
         if (dd) {
             int32 p = dr ? -s : 0, n = dl ? -s : dr ? s : 0;
-            XftDrawRect(xd, fg, x + w2 + s, y + h2 - p, (uint32)s,
+            XftDrawRect(xft_draw, fg, x + w2 + s, y + h2 - p, (uint32)s,
                         (uint32)(h - h2 + p));
-            XftDrawRect(xd, fg, x + w2 - s, y + h2 - n, (uint32)s,
+            XftDrawRect(xft_draw, fg, x + w2 - s, y + h2 - n, (uint32)s,
                         (uint32)(h - h2 + n));
         }
     }
@@ -273,10 +273,10 @@ main(void) {
         Visual *dummy_vis = NULL;
 
         boxdraw_xinit(dummy_dpy, dummy_cmap, dummy_draw, dummy_vis);
-        ASSERT(xdpy == dummy_dpy);
-        ASSERT(xcmap == dummy_cmap);
-        ASSERT(xd == dummy_draw);
-        ASSERT(xvis == dummy_vis);
+        ASSERT(x_display == dummy_dpy);
+        ASSERT(x_color_map == dummy_cmap);
+        ASSERT(xft_draw == dummy_draw);
+        ASSERT(x_visual == dummy_vis);
     }
 
     {
