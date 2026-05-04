@@ -430,18 +430,18 @@ x_load_spare_fonts(void) {
     }
 
     /* Calculate count of spare fonts */
-    int32 fc = (int32)LENGTH(CONF_FONT2);
-    if (fc == 0) {
+    int32 nspare_fonts = (int32)LENGTH(CONF_FONT2);
+    if (nspare_fonts == 0) {
         return;
     }
 
     /* Allocate memory for cache entries. */
-    if (frc_cap < 4*fc) {
-        frc_cap += 4*fc - frc_cap;
+    if (frc_cap < 4*nspare_fonts) {
+        frc_cap += 4*nspare_fonts - frc_cap;
         frc = xrealloc(frc, (int64)frc_cap*SIZEOF(FontCache));
     }
 
-    for (int32 i = 0; i < fc; i += 1) {
+    for (int32 i = 0; i < nspare_fonts; i += 1) {
         FcPattern *pattern;
         char *font_name = CONF_FONT2[i];
 
