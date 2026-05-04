@@ -402,7 +402,7 @@ x_load_fonts(char *fontstr, double fontsize) {
 }
 
 static int32
-xloadsparefont(FcPattern *pattern, int32 flags) {
+x_load_spare_font(FcPattern *pattern, int32 flags) {
     FcPattern *match;
     FcResult fc_result;
 
@@ -475,28 +475,28 @@ x_load_spare_fonts(void) {
         FcConfigSubstitute(NULL, fc_pattern, FcMatchPattern);
         XftDefaultSubstitute(x_window.display, x_window.screen, fc_pattern);
 
-        if (xloadsparefont(fc_pattern, FRC_NORMAL)) {
+        if (x_load_spare_font(fc_pattern, FRC_NORMAL)) {
             error("can't open spare font %s\n", font_name);
             exit(EXIT_FAILURE);
         }
 
         FcPatternDel(fc_pattern, FC_SLANT);
         FcPatternAddInteger(fc_pattern, FC_SLANT, FC_SLANT_ITALIC);
-        if (xloadsparefont(fc_pattern, FRC_ITALIC)) {
+        if (x_load_spare_font(fc_pattern, FRC_ITALIC)) {
             error("can't open spare font %s\n", font_name);
             exit(EXIT_FAILURE);
         }
 
         FcPatternDel(fc_pattern, FC_WEIGHT);
         FcPatternAddInteger(fc_pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
-        if (xloadsparefont(fc_pattern, FRC_ITALICBOLD)) {
+        if (x_load_spare_font(fc_pattern, FRC_ITALICBOLD)) {
             error("can't open spare font %s\n", font_name);
             exit(EXIT_FAILURE);
         }
 
         FcPatternDel(fc_pattern, FC_SLANT);
         FcPatternAddInteger(fc_pattern, FC_SLANT, FC_SLANT_ROMAN);
-        if (xloadsparefont(fc_pattern, FRC_BOLD)) {
+        if (x_load_spare_font(fc_pattern, FRC_BOLD)) {
             error("can't open spare font %s\n", font_name);
             exit(EXIT_FAILURE);
         }
@@ -1336,7 +1336,7 @@ main(void) {
     {
         FcPattern *pattern = FcNameParse((FcChar8 *)"monospace");
 
-        xloadsparefont(pattern, 0);
+        x_load_spare_font(pattern, 0);
         FcPatternDestroy(pattern);
     }
 
