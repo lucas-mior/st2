@@ -142,8 +142,7 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
     switch (attr[*npar + 1]) {
     case 2:
         if (*npar + 4 >= l) {
-            error("erresc(38): Incorrect number of parameters (%d)\n",
-                    *npar);
+            error("erresc(38): Incorrect number of parameters (%d)\n", *npar);
             break;
         }
         r = (uint32)attr[*npar + 2];
@@ -158,8 +157,7 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
         break;
     case 5:
         if (*npar + 2 >= l) {
-            error("erresc(38): Incorrect number of parameters (%d)\n",
-                    *npar);
+            error("erresc(38): Incorrect number of parameters (%d)\n", *npar);
             break;
         }
         *npar += 2;
@@ -271,8 +269,7 @@ term_set_attr(int32 *attr, int32 l) {
             } else if (BETWEEN(attr[i], 100, 107)) {
                 term.cursor.attr.bg = attr[i] - 100 + 8;
             } else {
-                error("erresc(default): gfx attr %d unknown\n",
-                        attr[i]);
+                error("erresc(default): gfx attr %d unknown\n", attr[i]);
                 control_seq_intro_dump();
             }
             break;
@@ -831,11 +828,9 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
         }
 
         if (is_osc4) {
-            error("erresc: failed to fetch %s color %d\n",
-                    type_str, num);
+            error("erresc: failed to fetch %s color %d\n", type_str, num);
         } else {
-            error("erresc: failed to fetch %s color %d\n",
-                    type_str, index);
+            error("erresc: failed to fetch %s color %d\n", type_str, index);
         }
     }
 
@@ -927,6 +922,10 @@ string_handle(void) {
             return;
         case 52:
             if (narg > 2 && CONF_ALLOW_WINDOW_OPS) {
+                // TODO: Memory Error (Leak).
+                // If `base64_decode` dynamically allocates the returned string
+                // `dec`, it is never freed after being used by `selection_set`,
+                // causing a memory leak.
                 char *dec = base64_decode(str_escape_seq.args[2]);
                 if (dec) {
                     selection_set(dec, CurrentTime);
@@ -953,7 +952,7 @@ string_handle(void) {
             } else {
                 if (x_set_color_name(osc_table[j].idx, p)) {
                     error("erresc: invalid %s color: %s\n",
-                            osc_table[j].string, p);
+                          osc_table[j].string, p);
                 } else {
                     term_full_dirt();
                 }
@@ -983,8 +982,7 @@ string_handle(void) {
                     if (p) {
                         error("erresc: invalid color j=%d, p=%s\n", j, p);
                     } else {
-                        error("erresc: invalid color j=%d, p=%s\n", j,
-                                "(null)");
+                        error("erresc: invalid color j=%d, p=%s\n", j, "(null)");
                     }
                 } else {
                     term_full_dirt();
@@ -1002,8 +1000,7 @@ string_handle(void) {
                 break;
             }
             if (x_set_color_name(osc_table[j].idx, NULL)) {
-                error("erresc: %s color not found\n",
-                        osc_table[j].string);
+                error("erresc: %s color not found\n", osc_table[j].string);
             } else {
                 term_full_dirt();
             }
@@ -1082,11 +1079,20 @@ string_handle(void) {
                                     break;
                                 }
                             }
+                            // TODO: Memory Error / Use-After-Free / Corrupted Linked List.
+                            // `delete_image(im_ptr)` frees the image, but
+                            // `im_ptr` is never unlinked from the `term.images`
+                            // list. The preceding node's `next` pointer will
+                            // still point to this freed memory, leading to a
+                            // Use-After-Free crash on the next traversal.
                             if (i_idx == j) {
                                 delete_image(im_ptr);
                                 continue;
                             }
                         }
+                        // TODO: Memory Error / Use-After-Free / Corrupted Linked List.
+                        // Similar to above, `im_ptr` is freed but not unlinked
+                        // from the linked list.
                         if (im_ptr->x >= x1_im && im_ptr->x + im_ptr->cols <= x2_im
                             && !transparent_rows[im_ptr->y - y1_im]) {
                             delete_image(im_ptr);
@@ -1325,6 +1331,11 @@ dcshandle(void) {
             }
         }
         bgcolor = (a << 24) | (r << 16) | (g << 8) | b;
+        // TODO: Integration Bug / Invalid State.
+        // If `sixel_parser_init` fails (returns non-zero), it logs an error but
+        // execution continues and `TERM_MODE_SIXEL` is still set. Subsequent
+        // parsing will use an uninitialized or broken `sixel_st` state, likely
+        // crashing.
         if (sixel_parser_init(&sixel_st, transparent, (255u << 24), bgcolor, 1,
                               term_window.cw, term_window.ch) != 0) {
             perror("sixel_parser_init() failed");
@@ -1557,6 +1568,10 @@ term_putc(uint32 u) {
             goto check_control_code;
         }
 
+        // TODO: Memory Error / DoS (Unbounded Allocation).
+        // str_escape_seq.siz is doubled without any upper limit. An attacker
+        // can send an unterminated STR/OSC sequence, causing the terminal to
+        // allocate memory until it crashes from OOM. Add a maximum size limit.
         if (str_escape_seq.len + len >= str_escape_seq.siz) {
             str_escape_seq.siz *= 2;
             str_escape_seq.buffer = xrealloc(str_escape_seq.buffer,
@@ -1575,6 +1590,12 @@ term_putc(uint32 u) {
                     break;
                 }
             }
+            // TODO: Integration Bug / State Inconsistency.
+            // This inline detection sets `term.esc |= ESC_SIXEL`, but the main
+            // read loop in `term_write` checks
+            // `term_mode_is_set(TERM_MODE_SIXEL)`. The payload will not be
+            // routed to `sixel_parser_parse` and will incorrectly buffer in
+            // `str_escape_seq` until OOM.
             if (is_sixel) {
                 term.esc |= ESC_SIXEL;
                 sixel_parser_init(&sixel_st, 1, 0, 0, 1, term_window.cw,
@@ -1708,6 +1729,11 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
     for (n = 0; n < buflen; n += charsize) {
         uint32 u;
         if (term_mode_is_set(TERM_MODE_SIXEL) && sixel_st.state != PARSE_STATE_ESC) {
+            // TODO: Unhandled Edge Case / Infinite Loop.
+            // If `sixel_parser_parse` returns 0 (e.g., waiting for more data or
+            // on error), `charsize` becomes 0. The loop counter `n` will not
+            // increment (`n += charsize`), causing an infinite loop that
+            // freezes the terminal.
             charsize = sixel_parser_parse(
                 &sixel_st, (unsigned char *)buffer + n, buflen - n);
             continue;
