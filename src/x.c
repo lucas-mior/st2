@@ -252,7 +252,7 @@ x_geom_mask_to_gravity(int32 mask) {
 }
 
 static int32
-x_load_font(StFont *f, FcPattern *pattern) {
+x_load_font(StFont *st_font, FcPattern *pattern) {
     FcPattern *configured;
     FcPattern *match;
     FcResult fc_result;
@@ -274,7 +274,7 @@ x_load_font(StFont *f, FcPattern *pattern) {
         return 1;
     }
 
-    if (!(f->match = XftFontOpenPattern(x_window.display, match))) {
+    if (!(st_font->match = XftFontOpenPattern(x_window.display, match))) {
         FcPatternDestroy(configured);
         FcPatternDestroy(match);
         return 1;
@@ -282,38 +282,38 @@ x_load_font(StFont *f, FcPattern *pattern) {
 
     if ((XftPatternGetInteger(pattern, "slant", 0, &want_attr)
          == XftResultMatch)) {
-        if ((XftPatternGetInteger(f->match->pattern, "slant", 0, &have_attr)
+        if ((XftPatternGetInteger(st_font->match->pattern, "slant", 0, &have_attr)
              != XftResultMatch)
             || have_attr < want_attr) {
-            f->badslant = 1;
+            st_font->badslant = 1;
             fputs("font slant does not match\n", stderr);
         }
     }
 
     if ((XftPatternGetInteger(pattern, "weight", 0, &want_attr)
          == XftResultMatch)) {
-        if ((XftPatternGetInteger(f->match->pattern, "weight", 0, &have_attr)
+        if ((XftPatternGetInteger(st_font->match->pattern, "weight", 0, &have_attr)
              != XftResultMatch)
             || have_attr != want_attr) {
-            f->badweight = 1;
+            st_font->badweight = 1;
             fputs("font weight does not match\n", stderr);
         }
     }
 
-    XftTextExtentsUtf8(x_window.display, f->match,
+    XftTextExtentsUtf8(x_window.display, st_font->match,
                        (FcChar8 *)CONF_ASCII_PRINTABLE,
                        strlen32(CONF_ASCII_PRINTABLE), &extents);
 
-    f->set = NULL;
-    f->pattern = configured;
+    st_font->set = NULL;
+    st_font->pattern = configured;
 
-    f->ascent = f->match->ascent;
-    f->descent = f->match->descent;
-    f->lbearing = 0;
-    f->rbearing = (int16)f->match->max_advance_width;
+    st_font->ascent = st_font->match->ascent;
+    st_font->descent = st_font->match->descent;
+    st_font->lbearing = 0;
+    st_font->rbearing = (int16)st_font->match->max_advance_width;
 
-    f->height = f->ascent + f->descent;
-    f->width
+    st_font->height = st_font->ascent + st_font->descent;
+    st_font->width
         = DIVCEIL(extents.xOff, strlen32(CONF_ASCII_PRINTABLE));
 
     return 0;
