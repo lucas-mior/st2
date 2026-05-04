@@ -51,9 +51,9 @@ static void
 check_consistent_state(void) {
     ASSERT_MORE(term.nrows, 0);
     ASSERT_MORE(term.ncols, 0);
-    ASSERT(term.lines != NULL);
-    ASSERT(term.tabs != NULL);
-    ASSERT(term.dirty != NULL);
+    ASSERT(term.lines);
+    ASSERT(term.tabs);
+    ASSERT(term.dirty);
 
     for (int32 i = 0; i < term.nrows; i += 1) {
         ASSERT(term.lines[i]);
