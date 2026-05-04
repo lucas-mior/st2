@@ -6,10 +6,9 @@ static void
 verify_viewport_line(int32 screen_y, char *expected_text) {
     StGlyph *line = term_line(screen_y);
     int32 len = term_line_len(line);
-    char *ptr = NULL;
     char buffer[1024];
+    char *ptr = buffer;
 
-    ptr = buffer;
     if (len > 0) {
         ptr = term_get_glyphs(buffer, &line[0], &line[len - 1]);
     }
