@@ -1053,9 +1053,9 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     int32 numspecs;
     StGlyph base = {0};
     StGlyph new = {0};
-    XftGlyphFontSpec *specs = x_window.font_spec_buf;
+    XftGlyphFontSpec *font_specs = x_window.font_spec_buf;
 
-    numspecs = x_make_glyph_font_specs(specs, &line[x1], x2 - x1, x1, y1);
+    numspecs = x_make_glyph_font_specs(font_specs, &line[x1], x2 - x1, x1, y1);
     i = 0;
     ox = 0;
     for (int32 x = x1; x < x2 && i < numspecs; x += 1) {
@@ -1067,8 +1067,8 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
             new.mode |= ATTR_SELECTED;
         }
         if (i > 0 && ATTRCMP(base, new)) {
-            x_draw_glyph_font_specs(specs, base, i, ox, y1);
-            specs += i;
+            x_draw_glyph_font_specs(font_specs, base, i, ox, y1);
+            font_specs += i;
             numspecs -= i;
             i = 0;
         }
@@ -1079,7 +1079,7 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
         i += 1;
     }
     if (i > 0) {
-        x_draw_glyph_font_specs(specs, base, i, ox, y1);
+        x_draw_glyph_font_specs(font_specs, base, i, ox, y1);
     }
     return;
 }
