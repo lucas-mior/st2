@@ -410,8 +410,7 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 MODBIT(term.mode, set, TERM_MODE_SIXEL_CUR_RT);
                 break;
             default:
-                error("erresc: unknown private set/reset mode %d\n",
-                        *args);
+                error("erresc: unknown private set/reset mode %d\n", *args);
                 break;
             }
         } else {
