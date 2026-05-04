@@ -51,6 +51,8 @@ static void
 check_consistent_state(void) {
     ASSERT_MORE(term.nrows, 0);
     ASSERT_MORE(term.ncols, 0);
+    ASSERT_LESS(term.nrows, MAX_NROWS);
+    ASSERT_LESS(term.ncols, MAX_NCOLS);
     ASSERT(term.lines);
     ASSERT(term.tabs);
     ASSERT(term.dirts);

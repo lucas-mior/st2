@@ -31,6 +31,8 @@
 #define STR_ARG_SIZ ESC_ARG_SIZ
 #define HISTORY_SIZE 2000
 #define RESIZE_BUFFER 1000
+#define MAX_NROWS 5000
+#define MAX_NCOLS 5000
 
 // TODO: Macro Side-Effects Bugs.
 // Consider rewriting this as an inline function or using GCC statement
