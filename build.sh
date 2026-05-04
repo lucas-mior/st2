@@ -363,7 +363,10 @@ case "$target" in
     ;;
 "check")
     # CC=gcc CFLAGS="-fanalyzer" ./build.sh
-    setsid -f scan-build --view -analyze-headers --status-bugs ./build.sh > /dev/null
+    setsid -f \
+        scan-build --view -analyze-headers --status-bugs ./build.sh 2>&1 \
+        | sed -E 's/\[[0-9;]*m//g' \
+          > "scan-build-$(date +%s).txt" &
     exit
     ;;
 "perf")
