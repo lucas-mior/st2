@@ -334,12 +334,13 @@ dump_terminal_to_fd(int32 fd) {
         }
 
         end = &line[last_pos + 1];
-        for (; line < end; line += 1) {
+        while (line < end) {
             if (!(line->mode & ATTR_WDUMMY)) {
                 if (xwrite(fd, buffer, utf8_encode(line->rune, buffer)) < 0) {
                     goto cleanup;
                 }
             }
+            line += 1;
         }
 
         if (term_line_hist(n)[last_pos].mode & ATTR_WRAP) {
@@ -537,8 +538,8 @@ main(void) {
         
         default_font_size = 12.0;
         used_font_size = 12.0;
-        usedfont = "monospace";
-        x_load_fonts(usedfont, 0);
+        used_font = "monospace";
+        x_load_fonts(used_font, 0);
     }
 
     /* 2. Logic & State Tests */
