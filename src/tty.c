@@ -291,14 +291,14 @@ static void
 mock_term_init(void) {
     term.nrows = 24;
     term.ncols = 80;
-    term.dirts = xmalloc((int64)term.nrows * SIZEOF(*term.dirts));
+    term.dirts = xmalloc(term.nrows*SIZEOF(*term.dirts));
     for (int32 i = 0; i < term.nrows; i += 1) {
         term.dirts[i] = false;
     }
 
-    term.lines = xmalloc((int64)term.nrows * SIZEOF(*term.lines));
+    term.lines = xmalloc(term.nrows*SIZEOF(*term.lines));
     for (int32 i = 0; i < term.nrows; i += 1) {
-        term.lines[i] = xmalloc((int64)term.ncols * SIZEOF(StGlyph));
+        term.lines[i] = xmalloc(term.ncols*SIZEOF(StGlyph));
     }
 
     term.scrolled_up = 0;
