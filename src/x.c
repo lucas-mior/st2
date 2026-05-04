@@ -424,7 +424,7 @@ xloadsparefont(FcPattern *pattern, int32 flags) {
 
 static void
 x_load_spare_fonts(void) {
-    if (frc_len != 0) {
+    if (frc_len > 0) {
         error("can't embed spare fonts. cache isn't empty");
         exit(EXIT_FAILURE);
     }
