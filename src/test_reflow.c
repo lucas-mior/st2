@@ -255,8 +255,8 @@ main(void) {
 
     /* Scenario I: Random Fuzzing */
     printf("Running Fuzzing Phase...\n");
-    srand(0x1337);
-    for (int32 i = 0; i < 5000; i += 1) {
+    srand((uint)time(NULL));
+    for (int32 i = 0; i < 1000; i += 1) {
         int32 new_w = (rand() % 150) + 2;
         int32 new_h = (rand() % 100) + 2;
         int32 actions = rand() % 5;

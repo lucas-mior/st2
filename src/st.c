@@ -1001,17 +1001,21 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     #define OFFSET_OLD 1000000
     #define OFFSET_REF 2000000
 
-    for (ImageList *im = term.images; im; im = im->next) {
-        im->y += OFFSET_OLD;
+    {
+        ImageList *im = term.images;
+        for (; im; im = im->next) {
+            im->y += OFFSET_OLD;
+        }
     }
 
     old_cursor_end_line = term.cursor.y;
     while (old_cursor_end_line < (old_nrows - 1)) {
         int32 wrap_len = term_line_len(term.lines[old_cursor_end_line]);
-        if (wrap_len > 0 && (term.lines[old_cursor_end_line][wrap_len - 1].mode & ATTR_WRAP))
+        if (wrap_len > 0 && (term.lines[old_cursor_end_line][wrap_len - 1].mode & ATTR_WRAP)) {
             old_cursor_end_line += 1;
-        else
+        } else {
             break;
+        }
     }
 
     nlines = term.n_hist + old_cursor_end_line + 1;
@@ -1033,22 +1037,32 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         if (!new_x_offset) {
             new_y_index += 1;
             reflow_lines[new_y_index] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
-            for (int32 j = 0; j < new_ncols; j += 1) term_clear_glyph(&reflow_lines[new_y_index][j], false);
+            for (int32 j = 0; j < new_ncols; j += 1) {
+                term_clear_glyph(&reflow_lines[new_y_index][j], false);
+            }
         }
 
         if (!old_x_offset) {
             line = term_line_abs(old_y_index);
             len = term_line_len(line);
-            for (ImageList *im = term.images; im; im = im->next) {
-                if (im->y == old_y_index + OFFSET_OLD) im->y = new_y_index + OFFSET_REF;
+            {
+                ImageList *im = term.images;
+                for (; im; im = im->next) {
+                    if (im->y == old_y_index + OFFSET_OLD) {
+                        im->y = new_y_index + OFFSET_REF;
+                    }
+                }
             }
         }
 
-        if (old_y_index == -term.lines_scrolled_up && new_viewport_top_y_proxy < 0)
+        if (old_y_index == -term.lines_scrolled_up && new_viewport_top_y_proxy < 0) {
             new_viewport_top_y_proxy = new_y_index;
+        }
 
         if (old_y_index == term.cursor.y) {
-            if (!old_x_offset) len = (int32)MAX(len, term.cursor.x + 1);
+            if (!old_x_offset) {
+                len = (int32)MAX(len, term.cursor.x + 1);
+            }
             if (new_cursor_y_proxy < 0 && (term.cursor.x - old_x_offset < new_ncols - new_x_offset)) {
                 term.cursor.x = new_x_offset + term.cursor.x - old_x_offset;
                 new_cursor_y_proxy = new_y_index;
@@ -1056,30 +1070,37 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             }
         }
 
-        int32 space_left = new_ncols - new_x_offset;
-        int32 chars_left = len - old_x_offset;
-        if (space_left > chars_left) {
-            memcpy64(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset], chars_left * SIZEOF(StGlyph));
-            new_x_offset += chars_left;
-            if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) new_x_offset = 0;
-            else if (new_x_offset > 0) reflow_lines[new_y_index][new_x_offset - 1].mode &= ~ATTR_WRAP;
-            old_x_offset = 0;
-            old_y_index += 1;
-        } else {
-            memcpy64(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset], space_left * SIZEOF(StGlyph));
-            if (space_left == chars_left) {
+        {
+            int32 space_left = new_ncols - new_x_offset;
+            int32 chars_left = len - old_x_offset;
+            if (space_left > chars_left) {
+                memcpy64(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset], chars_left * SIZEOF(StGlyph));
+                new_x_offset += chars_left;
+                if (len == 0 || !(line[len - 1].mode & ATTR_WRAP)) {
+                    new_x_offset = 0;
+                } else if (new_x_offset > 0) {
+                    reflow_lines[new_y_index][new_x_offset - 1].mode &= ~ATTR_WRAP;
+                }
                 old_x_offset = 0;
                 old_y_index += 1;
             } else {
-                old_x_offset += space_left;
-                reflow_lines[new_y_index][new_ncols - 1].mode |= ATTR_WRAP;
+                memcpy64(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset], space_left * SIZEOF(StGlyph));
+                if (space_left == chars_left) {
+                    old_x_offset = 0;
+                    old_y_index += 1;
+                } else {
+                    old_x_offset += space_left;
+                    reflow_lines[new_y_index][new_ncols - 1].mode |= ATTR_WRAP;
+                }
+                new_x_offset = 0;
             }
-            new_x_offset = 0;
         }
     } while (old_y_index <= old_cursor_end_line);
 
     /* Distribution Phase */
-    for (i = new_nrows; i < old_nrows; i += 1) free(term.lines[i]);
+    for (i = new_nrows; i < old_nrows; i += 1) {
+        free(term.lines[i]);
+    }
     term.lines = xrealloc(term.lines, (int64)new_nrows * SIZEOF(*(term.lines)));
 
     bottom_visible_line = (int32)MIN(new_y_index, new_nrows - 1);
@@ -1101,56 +1122,98 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     active_screen_top_proxy = new_y_index - new_cursor_end_line;
 
     for (i = new_nrows - 1; i > new_cursor_end_line; i -= 1) {
-        if (i < old_nrows) free(term.lines[i]);
+        if (i < old_nrows) {
+            free(term.lines[i]);
+        }
         term.lines[i] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
-        for (int32 j = 0; j < new_ncols; j += 1) term_clear_glyph(&term.lines[i][j], false);
+        for (int32 j = 0; j < new_ncols; j += 1) {
+            term_clear_glyph(&term.lines[i][j], false);
+        }
     }
     for (; i >= 0; i -= 1) {
         if (new_y_index >= 0) {
-            if (i < old_nrows) free(term.lines[i]);
+            if (i < old_nrows) {
+                free(term.lines[i]);
+            }
             term.lines[i] = reflow_lines[new_y_index];
-            for (ImageList *im = term.images; im; im = im->next)
-                if (im->y == new_y_index + OFFSET_REF) im->y = i;
+            {
+                ImageList *im = term.images;
+                for (; im; im = im->next) {
+                    if (im->y == new_y_index + OFFSET_REF) {
+                        im->y = i;
+                    }
+                }
+            }
             new_y_index -= 1;
         } else {
-            if (i < old_nrows) free(term.lines[i]);
+            if (i < old_nrows) {
+                free(term.lines[i]);
+            }
             term.lines[i] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
-            for (int32 j = 0; j < new_ncols; j += 1) term_clear_glyph(&term.lines[i][j], false);
+            for (int32 j = 0; j < new_ncols; j += 1) {
+                term_clear_glyph(&term.lines[i][j], false);
+            }
         }
     }
 
-    int32 k_idx = -1;
-    while (new_y_index >= 0 && k_idx >= -HISTORY_SIZE) {
-        int32 j_hist = (term.i_hist + k_idx + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-        free(term.hist[j_hist]);
-        term.hist[j_hist] = reflow_lines[new_y_index];
-        for (ImageList *im = term.images; im; im = im->next)
-            if (im->y == new_y_index + OFFSET_REF) im->y = k_idx;
-        k_idx -= 1;
-        new_y_index -= 1;
+    {
+        int32 k_idx = -1;
+        while (new_y_index >= 0 && k_idx >= -HISTORY_SIZE) {
+            int32 j_hist = (term.i_hist + k_idx + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+            free(term.hist[j_hist]);
+            term.hist[j_hist] = reflow_lines[new_y_index];
+            {
+                ImageList *im = term.images;
+                for (; im; im = im->next) {
+                    if (im->y == new_y_index + OFFSET_REF) {
+                        im->y = k_idx;
+                    }
+                }
+            }
+            k_idx -= 1;
+            new_y_index -= 1;
+        }
+        term.n_hist = -k_idx - 1;
     }
-    term.n_hist = -k_idx - 1;
 
-    for (ImageList *im = term.images; im; im = im->next) {
-        if (im->y >= OFFSET_REF) im->y -= OFFSET_REF;
-        else if (im->y >= OFFSET_OLD) im->y -= OFFSET_OLD;
+    {
+        ImageList *im = term.images;
+        for (; im; im = im->next) {
+            if (im->y >= OFFSET_REF) {
+                im->y -= OFFSET_REF;
+            } else if (im->y >= OFFSET_OLD) {
+                im->y -= OFFSET_OLD;
+            }
+        }
     }
 
     /* Final Wipe: Re-allocate and clear ALL remaining stale history pointers */
-    for (int32 k_rem = -term.n_hist - 1; k_rem >= -HISTORY_SIZE; k_rem -= 1) {
-        int32 j_rem = (term.i_hist + k_rem + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-        free(term.hist[j_rem]);
-        term.hist[j_rem] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
-        for (int32 c_col = 0; c_col < new_ncols; c_col += 1) term_clear_glyph(&term.hist[j_rem][c_col], false);
+    {
+        for (int32 k_rem = -term.n_hist - 1; k_rem >= -HISTORY_SIZE; k_rem -= 1) {
+            int32 j_rem = (term.i_hist + k_rem + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+            free(term.hist[j_rem]);
+            term.hist[j_rem] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
+            for (int32 c_col = 0; c_col < new_ncols; c_col += 1) {
+                term_clear_glyph(&term.hist[j_rem][c_col], false);
+            }
+        }
     }
 
     if (new_viewport_top_y_proxy >= 0) {
         int32 new_lines_scrolled_up = active_screen_top_proxy - new_viewport_top_y_proxy;
-        term.lines_scrolled_up = (new_lines_scrolled_up < 0) ? 0 : (int32)MIN(new_lines_scrolled_up, term.n_hist);
-    } else term.lines_scrolled_up = 0;
+        if (new_lines_scrolled_up < 0) {
+            term.lines_scrolled_up = 0;
+        } else {
+            term.lines_scrolled_up = (int32)MIN(new_lines_scrolled_up, term.n_hist);
+        }
+    } else {
+        term.lines_scrolled_up = 0;
+    }
 
     term.nrows = new_nrows;
     term.ncols = new_ncols;
+
+    return;
 }
 
 static void
