@@ -551,17 +551,21 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
             ImageList *image = *pim;
             int32 height_in_rows = (image->height + image->ch - 1) / image->ch;
 
-            /* FIX: Allow images in history (y < 0) to keep moving if we are saving history */
             if (image->y <= bot && (image->y >= top || (savehist && image->y < 0))) {
                 image->y -= n;
             }
 
-            /* FIX: Only delete if the BOTTOM of the image is past the history limit */
             if (image->y + height_in_rows < -term.n_hist) {
-                delete_image(image);
-                continue;
+                /* Explicitly unlink before freeing to satisfy the analyzer */
+                *pim = image->next;
+                if (image->next) {
+                    image->next->prev = image->prev;
+                }
+                image_free(image);
+                /* Do not advance pim; it now points to the new head of the remaining list */
+            } else {
+                pim = &image->next;
             }
-            pim = &(*pim)->next;
         }
     }
     return;

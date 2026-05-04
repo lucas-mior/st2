@@ -74,6 +74,19 @@ scroll_images(int32 n) {
 }
 
 static void
+image_free(ImageList *image) {
+    if (image->pixmap) {
+        XFreePixmap(x_window.display, (Drawable)image->pixmap);
+    }
+    if (image->clipmask) {
+        XFreePixmap(x_window.display, (Drawable)image->clipmask);
+    }
+    free(image->pixels);
+    free(image);
+    return;
+}
+
+static void
 delete_image(ImageList *image) {
     if (image->prev) {
         image->prev->next = image->next;
@@ -83,14 +96,7 @@ delete_image(ImageList *image) {
     if (image->next) {
         image->next->prev = image->prev;
     }
-    if (image->pixmap) {
-        XFreePixmap(x_window.display, (Drawable)image->pixmap);
-    }
-    if (image->clipmask) {
-        XFreePixmap(x_window.display, (Drawable)image->clipmask);
-    }
-    free(image->pixels);
-    free(image);
+    image_free(image);
     return;
 }
 
