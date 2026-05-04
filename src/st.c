@@ -878,33 +878,33 @@ reflow_scroll_down(int32 n) {
 }
 
 static void
-term_resize(int32 col, int32 row) {
+term_resize(int32 new_ncols, int32 new_nrows) {
     bool *bp;
 
     /* Ensure we never allocate a 0-width or 0-height screen */
-    col = (int32)MAX(1, col);
-    row = (int32)MAX(1, row);
+    new_ncols = (int32)MAX(1, new_ncols);
+    new_nrows = (int32)MAX(1, new_nrows);
 
-    term.dirts = xrealloc(term.dirts, row*SIZEOF(*(term.dirts)));
-    term.tabs = xrealloc(term.tabs, col*SIZEOF(*(term.tabs)));
+    term.dirts = xrealloc(term.dirts, new_nrows*SIZEOF(*(term.dirts)));
+    term.tabs = xrealloc(term.tabs, new_ncols*SIZEOF(*(term.tabs)));
     
-    if (col > term.ncols) {
+    if (new_ncols > term.ncols) {
         bp = term.tabs + term.ncols;
-        memset64(bp, 0, SIZEOF(*term.tabs)*(col - term.ncols));
+        memset64(bp, 0, SIZEOF(*term.tabs)*(new_ncols - term.ncols));
         bp -= 1;
         while (bp > term.tabs && !*bp) {
             bp -= 1;
         }
-        for (bp += CONF_TAB_NSPACES; bp < term.tabs + col;
+        for (bp += CONF_TAB_NSPACES; bp < term.tabs + new_ncols;
              bp += CONF_TAB_NSPACES) {
             *bp = true;
         }
     }
 
     if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
-        term_resize_alt(col, row);
+        term_resize_alt(new_ncols, new_nrows);
     } else {
-        term_resize_def(col, row);
+        term_resize_def(new_ncols, new_nrows);
     }
     return;
 }
