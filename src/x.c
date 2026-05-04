@@ -155,8 +155,8 @@ x_set_color_name(int32 x, char *name) {
         return 1;
     }
 
-    XftColorFree(x_window.display, x_window.visual, x_window.color_map,
-                 &draw_context.colors[x]);
+    XftColorFree(x_window.display,
+                 x_window.visual, x_window.color_map, &draw_context.colors[x]);
     draw_context.colors[x] = color;
 
     if (x == CONF_COLOR_BG) {
