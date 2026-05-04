@@ -1335,10 +1335,10 @@ main(void) {
     }
 
     {
-        FcPattern *pattern = FcNameParse((FcChar8 *)"monospace");
+        FcPattern *fc_pattern = FcNameParse((FcChar8 *)"monospace");
 
-        x_load_spare_font(pattern, 0);
-        FcPatternDestroy(pattern);
+        x_load_spare_font(fc_pattern, 0);
+        FcPatternDestroy(fc_pattern);
     }
 
     {
