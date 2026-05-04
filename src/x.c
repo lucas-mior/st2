@@ -213,6 +213,7 @@ x_hints(void) {
     size_hints->base_width = 2*CONF_BORDER_PIXELS;
     size_hints->min_height = term_window.ch + 2*CONF_BORDER_PIXELS;
     size_hints->min_width = term_window.cw + 2*CONF_BORDER_PIXELS;
+
     if (x_window.is_fixed) {
         size_hints->flags |= PMaxSize;
         size_hints->min_width = term_window.w;
