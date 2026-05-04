@@ -1192,7 +1192,8 @@ main(void) {
             exit(EXIT_FAILURE);
         }
 
-        x_window.color_map = XCreateColormap(x_window.display, parent, x_window.visual, None);
+        x_window.color_map = XCreateColormap(x_window.display,
+                                             parent, x_window.visual, None);
 
         term_window.w = 800;
         term_window.h = 600;
