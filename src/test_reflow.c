@@ -436,8 +436,8 @@ main(void) {
          * lines_scrolled_up must be 0.
          */
         if (term.lines_scrolled_up != 0) {
-            fprintf(stderr, "Test O failed! Terminal is scrolled up after resize.\n");
-            fprintf(stderr, "  lines_scrolled_up: %d (expected 0 to keep cursor visible)\n", 
+            error("Test O failed! Terminal is scrolled up after resize.\n");
+            error("  lines_scrolled_up: %d (expected 0 to keep cursor visible)\n", 
                     term.lines_scrolled_up);
             assert(false);
         }
@@ -451,9 +451,9 @@ main(void) {
         term_get_glyphs(c_buf, &c_line[0], &c_line[term.ncols - 1]);
 
         if (strstr(c_buf, "OT_HERE") == NULL) {
-            fprintf(stderr, "Test O failed! Cursor line does not contain expected text.\n");
-            fprintf(stderr, "  Found: '%s' at screen Y=%d\n", c_buf, target_y);
-            fprintf(stderr, "  (Viewport is likely anchored to the top of the terminal)\n");
+            error("Test O failed! Cursor line does not contain expected text.\n");
+            error("  Found: '%s' at screen Y=%d\n", c_buf, target_y);
+            error("  (Viewport is likely anchored to the top of the terminal)\n");
             assert(false);
         }
     }
