@@ -1,18 +1,18 @@
 targets='
-# fast_feedback
-# test
-# build
-# release
-# debug
-# run
-# # install
-# # uninstall
-# profile
-# callgrind
-# # perf
-# # valgrind
-# # test_all
-# # check
+fast_feedback
+test
+build
+release
+debug
+run
+# install
+# uninstall
+profile
+callgrind
+# perf
+# valgrind
+# test_all
+# check
 cross x86-windows-gnu
 cross x86_64-windows-gnu
 cross aarch64-windows-gnu
