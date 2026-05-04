@@ -451,7 +451,7 @@ x_load_spare_fonts(void) {
 
     if (frc_cap < 4*nspare_fonts) {
         frc_cap += 4*nspare_fonts - frc_cap;
-        frc = xrealloc(frc, (int64)frc_cap*SIZEOF(FontCache));
+        frc = xrealloc(frc, frc_cap*SIZEOF(FontCache));
     }
 
     for (int32 i = 0; i < nspare_fonts; i += 1) {
@@ -713,7 +713,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
             if (frc_len >= frc_cap) {
                 frc_cap += 16;
-                frc = xrealloc(frc, (int64)frc_cap*SIZEOF(FontCache));
+                frc = xrealloc(frc, frc_cap*SIZEOF(FontCache));
             }
 
             frc[frc_len].font = XftFontOpenPattern(x_window.display, fontpattern);
