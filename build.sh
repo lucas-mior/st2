@@ -219,8 +219,6 @@ case "$target" in
 "fast_feedback")
     trace_on
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS && "$exe"
-    $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
-        src/test_reflow.c -o bin/test_reflow $LDFLAGS
     trace_off
     ;;
 "build"|"debug"|"run"|"release"|"valgrind"|"callgrind"|"perf"|"profile"|"cross")
