@@ -1,4 +1,5 @@
 bin
 gen
 gdb_output*
+gcc-analyzer*
 test_reflow

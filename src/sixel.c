@@ -407,13 +407,28 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                          || sixel_image->height < (sixel_state->pos_y + 6))
                         && sixel_image->width < DECSIXEL_WIDTH_MAX
                         && sixel_image->height < DECSIXEL_HEIGHT_MAX) {
-                        sx = sixel_image->width*2;
-                        sy = sixel_image->height*2;
-                        while (sx < (sixel_state->pos_x
-                                     + sixel_state->repeat_count)
-                               || sy < (sixel_state->pos_y + 6)) {
-                            sx *= 2;
-                            sy *= 2;
+                        sx = sixel_image->width * 2;
+                        sy = sixel_image->height * 2;
+                        
+                        /* Fix infinite loop risk from integer overflow */
+                        while ((sx < (sixel_state->pos_x + sixel_state->repeat_count) && sx < DECSIXEL_WIDTH_MAX)
+                               || (sy < (sixel_state->pos_y + 6) && sy < DECSIXEL_HEIGHT_MAX)) {
+                            if (sx < (sixel_state->pos_x + sixel_state->repeat_count) && sx < DECSIXEL_WIDTH_MAX) {
+                                int64 next_sx = (int64)sx * 2;
+                                if (next_sx > DECSIXEL_WIDTH_MAX) {
+                                    sx = DECSIXEL_WIDTH_MAX;
+                                } else {
+                                    sx = (int32)next_sx;
+                                }
+                            }
+                            if (sy < (sixel_state->pos_y + 6) && sy < DECSIXEL_HEIGHT_MAX) {
+                                int64 next_sy = (int64)sy * 2;
+                                if (next_sy > DECSIXEL_HEIGHT_MAX) {
+                                    sy = DECSIXEL_HEIGHT_MAX;
+                                } else {
+                                    sy = (int32)next_sy;
+                                }
+                            }
                         }
 
                         sx = (int32)MIN(sx, DECSIXEL_WIDTH_MAX);
@@ -518,37 +533,24 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
 
         case PARSE_STATE_DECGRA:
             /* DECGRA Set Raster Attributes " Pan; Pad; Ph; Pv */
-            switch (*p) {
-            case '\x1b':
-                sixel_state->state = PARSE_STATE_ESC;
-                break;
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
+            if (*p >= '0' && *p <= '9') {
                 sixel_state->param = sixel_state->param*10 + *p - '0';
                 sixel_state->param = (uint32)MIN(sixel_state->param,
                                                  DECSIXEL_PARAMVALUE_MAX);
                 p++;
-                break;
-            case ';':
+            } else if (*p == ';') {
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
-                    sixel_state->params[sixel_state->nparams++]
-                        = sixel_state->param;
+                    sixel_state->params[sixel_state->nparams] = sixel_state->param;
+                    sixel_state->nparams += 1;
                 }
                 sixel_state->param = 0;
                 p++;
-                break;
-            default:
+            } else if (*p == '\x1b') {
+                sixel_state->state = PARSE_STATE_ESC;
+            } else {
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
-                    sixel_state->params[sixel_state->nparams++]
-                        = sixel_state->param;
+                    sixel_state->params[sixel_state->nparams] = sixel_state->param;
+                    sixel_state->nparams += 1;
                 }
                 if (sixel_state->nparams > 0) {
                     sixel_state->attributed_pad = sixel_state->params[0];
@@ -597,68 +599,42 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
 
         case PARSE_STATE_DECGRI:
             /* DECGRI Graphics Repeat Introducer ! Pn Ch */
-            switch (*p) {
-            case '\x1b':
-                sixel_state->state = PARSE_STATE_ESC;
-                break;
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
+            if (*p >= '0' && *p <= '9') {
                 sixel_state->param = sixel_state->param*10 + *p - '0';
                 sixel_state->param = (uint32)MIN(sixel_state->param,
                                                  DECSIXEL_PARAMVALUE_MAX);
                 p++;
-                break;
-            default:
+            } else if (*p == '\x1b') {
+                sixel_state->state = PARSE_STATE_ESC;
+            } else {
                 sixel_state->repeat_count = (int32)MAX(sixel_state->param, 1);
                 sixel_state->state = PARSE_STATE_DECSIXEL;
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
-                break;
             }
             break;
 
         case PARSE_STATE_DECGCI:
             /* DECGCI Graphics Color Introducer # Pc; Pu; Px; Py; Pz */
-            switch (*p) {
-            case '\x1b':
-                sixel_state->state = PARSE_STATE_ESC;
-                break;
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
+            if (*p >= '0' && *p <= '9') {
                 sixel_state->param = sixel_state->param*10 + *p - '0';
                 sixel_state->param
                     = (uint32)MIN(sixel_state->param, DECSIXEL_PARAMVALUE_MAX);
                 p++;
-                break;
-            case ';':
+            } else if (*p == ';') {
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
-                    sixel_state->params[sixel_state->nparams++]
-                        = sixel_state->param;
+                    sixel_state->params[sixel_state->nparams] = sixel_state->param;
+                    sixel_state->nparams += 1;
                 }
                 sixel_state->param = 0;
                 p++;
-                break;
-            default:
+            } else if (*p == '\x1b') {
+                sixel_state->state = PARSE_STATE_ESC;
+            } else {
                 sixel_state->state = PARSE_STATE_DECSIXEL;
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
-                    sixel_state->params[sixel_state->nparams++]
-                        = sixel_state->param;
+                    sixel_state->params[sixel_state->nparams] = sixel_state->param;
+                    sixel_state->nparams += 1;
                 }
                 sixel_state->param = 0;
 
@@ -683,7 +659,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             = (uint32)MIN(sixel_state->params[3], 100);
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
-                        sixel_image->palette[sixel_state->color_index]
+                        sixel_state->image.palette[sixel_state->color_index]
                             = hls_to_rgb(sixel_state->params[2],
                                          sixel_state->params[3],
                                          sixel_state->params[4]);
@@ -695,12 +671,11 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             = (uint32)MIN(sixel_state->params[3], 100);
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
-                        sixel_image->palette[sixel_state->color_index] = SIXEL_XRGB(
+                        sixel_state->image.palette[sixel_state->color_index] = SIXEL_XRGB(
                             sixel_state->params[2], sixel_state->params[3],
                             sixel_state->params[4]);
                     }
                 }
-                break;
             }
             break;
 
@@ -711,7 +686,9 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             }
             p++;
             break;
+            
         default:
+            p++;
             break;
         }
     }
