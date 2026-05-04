@@ -121,14 +121,6 @@ union Arg {
     char *s;
 };
 
-typedef struct MouseShortcut {
-    uint32 mod;
-    uint32 button;
-    void (*func)(union Arg *);
-    union Arg arg;
-    uint32 release;
-} MouseShortcut;
-
 typedef struct ImageList {
     struct ImageList *next;
     struct ImageList *prev;
@@ -406,6 +398,14 @@ static void user_copy_output(union Arg *arg);
 static void user_url_select(union Arg *arg);
 
 static int64 xwrite(int32 fd, char *s, int64 len);
+
+typedef struct MouseShortcut {
+    uint32 mod;
+    uint32 button;
+    void (*func)(union Arg *);
+    union Arg arg;
+    uint32 release;
+} MouseShortcut;
 
 typedef struct Shortcut {
     uint32 mod;
