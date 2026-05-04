@@ -997,6 +997,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 nlines;
     static StGlyph **reflow_lines = NULL;
     StGlyph *line = 0;
+    bool was_at_bottom = (term.lines_scrolled_up == 0);
 
     #define OFFSET_OLD 1000000
     #define OFFSET_REF 2000000
@@ -1187,19 +1188,18 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         }
     }
 
-    /* Final Wipe: Re-allocate and clear ALL remaining stale history pointers */
-    {
-        for (int32 k_rem = -term.n_hist - 1; k_rem >= -HISTORY_SIZE; k_rem -= 1) {
-            int32 j_rem = (term.i_hist + k_rem + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-            free(term.hist[j_rem]);
-            term.hist[j_rem] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
-            for (int32 c_col = 0; c_col < new_ncols; c_col += 1) {
-                term_clear_glyph(&term.hist[j_rem][c_col], false);
-            }
+    for (int32 k_rem = -term.n_hist - 1; k_rem >= -HISTORY_SIZE; k_rem -= 1) {
+        int32 j_rem = (term.i_hist + k_rem + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+        free(term.hist[j_rem]);
+        term.hist[j_rem] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
+        for (int32 c_col = 0; c_col < new_ncols; c_col += 1) {
+            term_clear_glyph(&term.hist[j_rem][c_col], false);
         }
     }
 
-    if (new_viewport_top_y_proxy >= 0) {
+    if (was_at_bottom) {
+        term.lines_scrolled_up = 0;
+    } else if (new_viewport_top_y_proxy >= 0) {
         int32 new_lines_scrolled_up = active_screen_top_proxy - new_viewport_top_y_proxy;
         if (new_lines_scrolled_up < 0) {
             term.lines_scrolled_up = 0;
