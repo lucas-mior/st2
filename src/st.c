@@ -1230,7 +1230,11 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         term.scrolled_up = 0;
     } else if (new_viewport_top_y_proxy >= 0) {
         int32 new_scrolled_up = active_screen_top_proxy - new_viewport_top_y_proxy;
-        term.scrolled_up = (new_scrolled_up < 0) ? 0 : (int32)MIN(new_scrolled_up, term.n_hist);
+        if (new_scrolled_up < 0) {
+            term.scrolled_up = 0;
+        } else {
+            term.scrolled_up = (int32)MIN(new_scrolled_up, term.n_hist);
+        }
     } else {
         term.scrolled_up = 0;
     }
