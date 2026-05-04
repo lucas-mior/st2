@@ -105,11 +105,10 @@ x_load_cols(void) {
     static int32 loaded = 0;
 
     if (loaded) {
-        for (XftColor *cp = draw_context.colors;
-             cp < &draw_context.colors[draw_context.colors_len];
-             cp += 1) {
+        for (int32 i = 0; i < draw_context.colors_len; i += 1) {
+            XftColor *xft_color = &draw_context.colors[i];
             XftColorFree(x_window.display,
-                         x_window.visual, x_window.color_map, cp);
+                         x_window.visual, x_window.color_map, xft_color);
         }
     } else {
         draw_context.colors_len = (int32)MAX(LENGTH(CONF_COLORS), 256);

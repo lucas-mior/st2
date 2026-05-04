@@ -474,7 +474,7 @@ main(void) {
         x_window.color_map = DefaultColormap(x_window.display, x_window.screen);
         
         /* Initialize pointers to NULL to prevent xrealloc/XFree crashes */
-        x_window.specbuf = NULL;
+        x_window.font_spec_buf = NULL;
         x_window.drawable = None;
         
         x_window.win = XCreateSimpleWindow(x_window.display, 
