@@ -1,6 +1,8 @@
 #include <stdlib.h>
+
 #include "st.c"
 #include "user.c"
+#include "util.c"
 
 static void
 verify_viewport_line(int32 screen_y, char *expected_text) {
@@ -15,9 +17,9 @@ verify_viewport_line(int32 screen_y, char *expected_text) {
     *ptr = '\0';
 
     if (strcmp(buffer, expected_text) != 0) {
-        fprintf(stderr, "Viewport assertion failed at screen row %d:\n", screen_y);
-        fprintf(stderr, "  Expected: '%s'\n", expected_text);
-        fprintf(stderr, "  Actual:   '%s'\n", buffer);
+        error("Viewport assertion failed at screen row %d:\n", screen_y);
+        error("  Expected: '%s'\n", expected_text);
+        error("  Actual:   '%s'\n", buffer);
         assert(false);
     }
 
@@ -71,7 +73,7 @@ verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wr
     total_lines = active_hist + term.nrows;
 
     if (total_lines != expected_count) {
-        fprintf(stderr, "Total lines mismatch. Expected: %d, Actual: %d (Hist: %d, Rows: %d)\n",
+        error("Total lines mismatch. Expected: %d, Actual: %d (Hist: %d, Rows: %d)\n",
                 expected_count, total_lines, active_hist, term.nrows);
         assert(false);
     }
@@ -79,7 +81,7 @@ verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wr
     /* Assert Cursor Tracking if specified */
     if (expected_cx >= 0 && expected_cy >= 0) {
         if (term.cursor.x != expected_cx || term.cursor.y != expected_cy) {
-            fprintf(stderr, "Cursor mismatch. Expected: (%d, %d), Actual: (%d, %d)\n",
+            error("Cursor mismatch. Expected: (%d, %d), Actual: (%d, %d)\n",
                     expected_cx, expected_cy, term.cursor.x, term.cursor.y);
             assert(false);
         }
@@ -118,15 +120,15 @@ verify_full_state(int32 expected_count, char **expected_texts, bool *expected_wr
             } else {
                 is_hist = "no";
             }
-            fprintf(stderr, "Assertion failed at absolute line %d (Hist: %s):\n", idx, is_hist);
-            fprintf(stderr, "  Expected: '%s'\n", expected_texts[idx]);
-            fprintf(stderr, "  Actual:   '%s'\n", buffer);
+            error("Assertion failed at absolute line %d (Hist: %s):\n", idx, is_hist);
+            error("  Expected: '%s'\n", expected_texts[idx]);
+            error("  Actual:   '%s'\n", buffer);
             assert(false);
         }
 
         if (expected_wraps[idx] != actual_wrap) {
-            fprintf(stderr, "Wrap assertion failed at absolute line %d:\n", idx);
-            fprintf(stderr, "  Expected wrap: %d, Actual wrap: %d\n", expected_wraps[idx], actual_wrap);
+            error("Wrap assertion failed at absolute line %d:\n", idx);
+            error("  Expected wrap: %d, Actual wrap: %d\n", expected_wraps[idx], actual_wrap);
             assert(false);
         }
     }
@@ -214,7 +216,7 @@ main(void) {
 
     term_resize(20, 12);
     if (term.lines_scrolled_up != 1) {
-        fprintf(stderr, "Viewport scroll assertion failed. Expected: 1, Actual: %d\n", term.lines_scrolled_up);
+        error("Viewport scroll assertion failed. Expected: 1, Actual: %d\n", term.lines_scrolled_up);
         assert(false);
     }
 
@@ -246,7 +248,7 @@ main(void) {
         term_resize(20, 12);
 
         if (term.images->y != 7) {
-            fprintf(stderr, "Image translation failed. Expected Y: 7, Actual Y: %d\n", term.images->y);
+            error("Image translation failed. Expected Y: 7, Actual Y: %d\n", term.images->y);
             assert(false);
         }
     }
@@ -335,7 +337,7 @@ main(void) {
         term_get_glyphs(buf, &img_line[0], &img_line[term.ncols - 1]);
 
         if (strstr(buf, "IMAGE_ANCH") == NULL) {
-            fprintf(stderr, "Scenario M failed! Image not at anchor text. Found: %s\n", buf);
+            error("Scenario M failed! Image not at anchor text. Found: %s\n", buf);
             assert(false);
         }
     }
@@ -372,9 +374,9 @@ main(void) {
         n_buf[6] = '\0';
 
         if (strcmp(n_buf, "ANCHOR") != 0) {
-            fprintf(stderr, "Scenario N Sync Error! Image not at anchor text.\n");
-            fprintf(stderr, "  Expected: 'ANCHOR' at Y=-3\n");
-            fprintf(stderr, "  Found:    '%s' at Y=%d\n", n_buf, term.images->y);
+            error("Scenario N Sync Error! Image not at anchor text.\n");
+            error("  Expected: 'ANCHOR' at Y=-3\n");
+            error("  Found:    '%s' at Y=%d\n", n_buf, term.images->y);
             assert(false);
         }
     }
