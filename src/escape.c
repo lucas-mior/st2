@@ -283,9 +283,9 @@ term_set_attr(int32 *attr, int32 l) {
 
 static void
 term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
-    for (int32 *lim = args + narg; args < lim; args += 1) {
+    for (int32 i = 0; i < narg; i += 1) {
         if (priv) {
-            switch (*args) {
+            switch (args[i]) {
             case 1:
                 x_set_mode(set, WIN_MODE_APPCURSOR);
                 break;
@@ -359,12 +359,14 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 if (set) {
                     int32 should_clear;
                     int32 should_save;
-                    if (*args == 1049) {
+
+                    if (args[i] == 1049) {
                         should_clear = 1;
                     } else {
                         should_clear = 0;
                     }
-                    if (*args == 1049) {
+
+                    if (args[i] == 1049) {
                         should_save = 1;
                     } else {
                         should_save = 0;
@@ -373,12 +375,14 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 } else {
                     int32 should_clear_def;
                     int32 should_load_def;
-                    if (*args == 1047) {
+
+                    if (args[i] == 1047) {
                         should_clear_def = 1;
                     } else {
                         should_clear_def = 0;
                     }
-                    if (*args == 1049) {
+
+                    if (args[i] == 1049) {
                         should_load_def = 1;
                     } else {
                         should_load_def = 0;
@@ -410,11 +414,11 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 MODBIT(term.mode, set, TERM_MODE_SIXEL_CUR_RT);
                 break;
             default:
-                error("erresc: unknown private set/reset mode %d\n", *args);
+                error("erresc: unknown private set/reset mode %d\n", args[i]);
                 break;
             }
         } else {
-            switch (*args) {
+            switch (args[i]) {
             case 0:
                 break;
             case 2:
@@ -430,11 +434,12 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 MODBIT(term.mode, set, TERM_MODE_CRLF);
                 break;
             default:
-                error("erresc: unknown set/reset mode %d\n", *args);
+                error("erresc: unknown set/reset mode %d\n", args[i]);
                 break;
             }
         }
     }
+
     return;
 }
 
