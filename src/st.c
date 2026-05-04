@@ -981,7 +981,6 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
 
 static void
 term_reflow(int32 new_ncols, int32 new_nrows) {
-    int32 i;
     int32 old_nrows = term.nrows;
     int32 old_cursor_end_line;
     int32 new_cursor_end_line;
@@ -1102,7 +1101,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     } while (old_y_index <= old_cursor_end_line);
 
     /* Distribution Phase */
-    for (i = new_nrows; i < old_nrows; i += 1) {
+    for (int32 i = new_nrows; i < old_nrows; i += 1) {
         free(term.lines[i]);
     }
     term.lines = xrealloc(term.lines, (int64)new_nrows * SIZEOF(*(term.lines)));
@@ -1125,7 +1124,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     active_screen_top_proxy = new_y_index - new_cursor_end_line;
 
-    for (i = new_nrows - 1; i > new_cursor_end_line; i -= 1) {
+    for (int32 i = new_nrows - 1; i > new_cursor_end_line; i -= 1) {
         if (i < old_nrows) {
             free(term.lines[i]);
         }
@@ -1134,7 +1133,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             term_clear_glyph(&term.lines[i][j], false);
         }
     }
-    for (; i >= 0; i -= 1) {
+    for (int32 i = new_cursor_end_line; i >= 0; i -= 1) {
         if (new_y_index >= 0) {
             if (i < old_nrows) {
                 free(term.lines[i]);
