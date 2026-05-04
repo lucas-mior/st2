@@ -321,7 +321,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
 static void
 x_load_fonts(char *fontstr, double font_size) {
     FcPattern *fc_pattern;
-    double fontval;
+    double font_val;
 
     if (fontstr[0] == '-') {
         fc_pattern = XftXlfdParse(fontstr, False, False);
@@ -340,10 +340,10 @@ x_load_fonts(char *fontstr, double font_size) {
         FcPatternAddDouble(fc_pattern, FC_PIXEL_SIZE, (double)font_size);
         used_font_size = font_size;
     } else {
-        if (FcPatternGetDouble(fc_pattern, FC_PIXEL_SIZE, 0, &fontval)
+        if (FcPatternGetDouble(fc_pattern, FC_PIXEL_SIZE, 0, &font_val)
             == FcResultMatch) {
-            used_font_size = (double)fontval;
-        } else if (FcPatternGetDouble(fc_pattern, FC_SIZE, 0, &fontval)
+            used_font_size = (double)font_val;
+        } else if (FcPatternGetDouble(fc_pattern, FC_SIZE, 0, &font_val)
                    == FcResultMatch) {
             used_font_size = -1;
         } else {
@@ -360,10 +360,10 @@ x_load_fonts(char *fontstr, double font_size) {
 
     if (used_font_size < 0) {
         FcPatternGetDouble(draw_context.font.match->pattern,
-                           FC_PIXEL_SIZE, 0, &fontval);
-        used_font_size = (double)fontval;
+                           FC_PIXEL_SIZE, 0, &font_val);
+        used_font_size = (double)font_val;
         if (fabs(font_size) <= 0) {
-            default_font_size = (double)fontval;
+            default_font_size = (double)font_val;
         }
     }
 
@@ -458,13 +458,13 @@ x_load_spare_fonts(void) {
         if (default_font_size > 0) {
             double sizeshift = (double)(used_font_size - default_font_size);
             if (fabs(sizeshift) >= 0.001) {
-                double fontval;
-                if (FcPatternGetDouble(fc_pattern, FC_PIXEL_SIZE, 0, &fontval)
+                double font_val;
+                if (FcPatternGetDouble(fc_pattern, FC_PIXEL_SIZE, 0, &font_val)
                     == FcResultMatch) {
-                    fontval += sizeshift;
+                    font_val += sizeshift;
                     FcPatternDel(fc_pattern, FC_PIXEL_SIZE);
                     FcPatternDel(fc_pattern, FC_SIZE);
-                    FcPatternAddDouble(fc_pattern, FC_PIXEL_SIZE, fontval);
+                    FcPatternAddDouble(fc_pattern, FC_PIXEL_SIZE, font_val);
                 }
             }
         }
