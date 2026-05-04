@@ -1204,7 +1204,11 @@ main(void) {
         x_window.attrs.background_pixel = 0;
         x_window.attrs.border_pixel = 0;
         x_window.attrs.bit_gravity = NorthWestGravity;
-        x_window.attrs.event_mask = FocusChangeMask | KeyPressMask | ExposureMask | StructureNotifyMask | PointerMotionMask;
+        x_window.attrs.event_mask = FocusChangeMask
+                                    | KeyPressMask
+                                    | ExposureMask
+                                    | StructureNotifyMask
+                                    | PointerMotionMask;
 
         cw_flags = CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap;
         x_window.win = XCreateWindow(x_window.display, parent,
