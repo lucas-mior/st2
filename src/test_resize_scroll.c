@@ -428,6 +428,31 @@ main(void) {
         }
     }
 
+    {
+        current_test_name = "Scenario P: Shrink Width then Expand Height Bug";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(20, 5);
+        term_reset();
+        inject_text("AABBCCDDEEFFGG $");
+        check_consistent_state();
+
+        term_resize(2, 5);
+        check_consistent_state();
+
+        term_resize(2, 10);
+        check_consistent_state();
+
+        {
+            char *state_texts[] = {
+                "AA", "BB", "CC", "DD", "EE", "FF", "GG", " $", "", ""
+            };
+            bool state_wraps[] = {
+                true, true, true, true, true, true, true, false, false, false
+            };
+            verify_full_state(10, state_texts, state_wraps, 1, 7);
+        }
+    }
+
     printf("\nAll tests passed successfully!\n");
     return 0;
 }
