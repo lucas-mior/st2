@@ -121,16 +121,18 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
     case SELECTION_SNAP_LINE:
         *x = (direction < 0) ? 0 : term.ncols - 1;
         if (direction < 0) {
-            for (; *y > rtop; *y -= 1) {
+            while (*y > rtop) {
                 if (!term_is_wrapped(term_line(*y - 1))) {
                     break;
                 }
+                *y -= 1;
             }
         } else if (direction > 0) {
-            for (; *y < rbot; *y += 1) {
+            while (*y < rbot) {
                 if (!term_is_wrapped(term_line(*y))) {
                     break;
                 }
+                *y += 1;
             }
         }
         break;
