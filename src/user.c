@@ -238,25 +238,25 @@ user_vim_select(union Arg *arg) {
 
     for (int32 y = -term.n_hist; y < term.nrows; y += 1) {
         StGlyph *line = term_line_abs(y);
-        int32 lastpos = term.ncols - 1;
+        int32 last_pos = term.ncols - 1;
 
-        while (lastpos >= 0 && !(line[lastpos].mode & (ATTR_SET | ATTR_WRAP))) {
-            lastpos -= 1;
+        while (last_pos >= 0 && !(line[last_pos].mode & (ATTR_SET | ATTR_WRAP))) {
+            last_pos -= 1;
         }
-        lastpos += 1;
+        last_pos += 1;
 
         if (y == term.cursor.y) {
-            lastpos = (int32)MAX(lastpos, term.cursor.x + 1);
+            last_pos = (int32)MAX(last_pos, term.cursor.x + 1);
         }
 
-        for (int32 x = 0; x < lastpos; x += 1) {
+        for (int32 x = 0; x < last_pos; x += 1) {
             if (!(line[x].mode & ATTR_WDUMMY)) {
                 xwrite(fd, buf, utf8_encode(line[x].rune, buf));
             }
         }
         
-        if ((lastpos == 0)
-                || !(line[lastpos - 1].mode & ATTR_WRAP)
+        if ((last_pos == 0)
+                || !(line[last_pos - 1].mode & ATTR_WRAP)
                 || (y == term.nrows - 1)) {
             xwrite(fd, "\n", 1);
         }
@@ -313,27 +313,27 @@ dump_terminal_to_fd(int32 fd) {
         StGlyph *end;
         char buffer[UTF_SIZ];
         int32 i_hist = term.ncols;
-        int32 lastpos;
+        int32 last_pos;
 
         if (term_line_hist(n)[i_hist - 1].mode & ATTR_WRAP) {
-            lastpos = i_hist;
+            last_pos = i_hist;
         } else {
             while (i_hist > 0 && term_line_hist(n)[i_hist - 1].rune == ' ') {
                 i_hist -= 1;
             }
-            lastpos = i_hist;
+            last_pos = i_hist;
         }
 
-        lastpos = (int32)MIN(lastpos + 1, term.ncols) - 1;
+        last_pos = (int32)MIN(last_pos + 1, term.ncols) - 1;
 
-        if (lastpos < 0) {
+        if (last_pos < 0) {
             break;
         }
-        if (lastpos == 0) {
+        if (last_pos == 0) {
             continue;
         }
 
-        end = &line[lastpos + 1];
+        end = &line[last_pos + 1];
         for (; line < end; line += 1) {
             if (!(line->mode & ATTR_WDUMMY)) {
                 if (xwrite(fd, buffer, utf8_encode(line->rune, buffer)) < 0) {
@@ -342,7 +342,7 @@ dump_terminal_to_fd(int32 fd) {
             }
         }
 
-        if (term_line_hist(n)[lastpos].mode & ATTR_WRAP) {
+        if (term_line_hist(n)[last_pos].mode & ATTR_WRAP) {
             newline = 1;
             continue;
         }
