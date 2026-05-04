@@ -1079,7 +1079,7 @@ string_handle(void) {
                                     break;
                                 }
                             }
-                            // TODO: Memory Error / Use-After-Free / Corrupted Linked List.
+                            // TODO: Use-After-Free / Corrupted Linked List.
                             // `delete_image(im_ptr)` frees the image, but
                             // `im_ptr` is never unlinked from the `term.images`
                             // list. The preceding node's `next` pointer will
