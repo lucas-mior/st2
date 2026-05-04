@@ -67,7 +67,6 @@ scroll_images(int32 n) {
         /* check if the current sixel has exceeded the maximum
          * draw distance, and should therefore be deleted */
         if (image->y < top) {
-            // error("image@0x%08x exceeded maximum distance\n");
             delete_image(image);
         }
     }
@@ -97,34 +96,29 @@ delete_image(ImageList *image) {
 
 static int32
 set_default_color(SixelImage *sixel_image) {
-    int32 n;
+    int32 n = 1;
 
     /* palette initialization */
-    for (n = 1; n < 17; n += 1) {
-        sixel_image->palette[n] = sixel_default_color_table[n - 1];
+    for (int32 i = 1; i < 17; i += 1) {
+        sixel_image->palette[i] = sixel_default_color_table[i - 1];
     }
+    n = 17;
 
     /* colors 17-232 are a 6x6x6 color cube */
     for (int32 r = 0; r < 6; r += 1) {
         for (int32 g = 0; g < 6; g += 1) {
             for (int32 b = 0; b < 6; b += 1) {
-                sixel_image->palette[n++] = SIXEL_RGB(r*51, g*51, b*51);
+                sixel_image->palette[n] = SIXEL_RGB(r*51, g*51, b*51);
+                n += 1;
             }
         }
     }
 
-    /* colors 233-256 are a grayscale ramp, intentionally leaving out */
+    /* colors 233-256 are a grayscale ramp */
     for (int32 i = 0; i < 24; i += 1) {
-        sixel_image->palette[n++] = SIXEL_RGB(i*11, i*11, i*11);
+        sixel_image->palette[n] = SIXEL_RGB(i*11, i*11, i*11);
+        n += 1;
     }
-
-    /* sixels rarely use more than 256 colors and if they do, they use a custom
-     * palette, so we don't need to initialize these colors */
-    /*
-    for (; n < DECSIXEL_PALETTE_MAX; n++) {
-            sixel_image->palette[n] = SIXEL_RGB(255, 255, 255);
-    }
-    */
 
     return (0);
 }
@@ -177,7 +171,7 @@ sixel_image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
 
     min_height = height > sixel_image->height ? sixel_image->height : height;
     if (width > sixel_image->width) { /* if width is extended */
-        for (int32 n = 0; n < min_height; ++n) {
+        for (int32 n = 0; n < min_height; n += 1) {
             /* copy from source sixel_image */
             memcpy64(alt_buffer + width*n, sixel_image->data + sixel_image->width*n,
                      sixel_image->width*SIZEOF(uint16));
@@ -186,7 +180,7 @@ sixel_image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
                      (width - sixel_image->width)*SIZEOF(uint16));
         }
     } else {
-        for (int32 n = 0; n < min_height; ++n) {
+        for (int32 n = 0; n < min_height; n += 1) {
             /* copy from source sixel_image */
             memcpy64(alt_buffer + width*n, sixel_image->data + sixel_image->width*n,
                      width*SIZEOF(uint16));
@@ -264,18 +258,11 @@ static int32
 sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images, int32 cx,
                       int32 cy, int32 cw, int32 ch) {
     SixelImage *sixel_image = &sixel_state->image;
-    int32 x, y;
-    uint16 *src;
-    uint32 *dst;
-    uint32 color;
     int32 w;
     int32 h;
-    int32 i;
-    int32 j;
     int32 cols;
     int32 numimages;
-    char trans;
-    ImageList *image;
+    int32 y = 0;
     ImageList *tail;
 
     if (!sixel_image->data) {
@@ -308,8 +295,8 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images, int32 cx,
 
     *new_images = NULL;
     tail = NULL;
-    for (y = 0, i = 0; i < numimages; i += 1) {
-        image = xmalloc(sizeof(*image));
+    for (int32 i = 0; i < numimages; i += 1) {
+        ImageList *image = xmalloc(sizeof(*image));
         if (!tail) {
             *new_images = tail = image;
             image->prev = image->next = NULL;
@@ -329,14 +316,16 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images, int32 cx,
         image->clipmask = NULL;
         image->cw = cw;
         image->ch = ch;
-        dst = (uint32 *)image->pixels;
-        for (trans = 0, j = 0; j < image->height && y < h; j += 1, y += 1) {
-            src = sixel_state->image.data + sixel_image->width*y;
-            for (x = 0; x < w; x += 1) {
-                color = sixel_state->image.palette[*src++];
+        uint32 *dst = (uint32 *)image->pixels;
+        char trans = 0;
+        for (int32 j = 0; j < image->height && y < h; j += 1) {
+            uint16 *src = sixel_state->image.data + sixel_image->width*y;
+            for (int32 x = 0; x < w; x += 1) {
+                uint32 color = sixel_state->image.palette[*src++];
                 trans |= (color == 0);
                 *dst++ = color;
             }
+            y += 1;
         }
         image->transparent = (sixel_state->transparent && trans);
     }
@@ -349,16 +338,10 @@ static int32
 sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
     SixelImage *sixel_image = &sixel_state->image;
     int32 n = 0;
-    int32 i;
-    int32 x;
-    int32 bits;
     int32 sx;
     int32 sy;
-    int32 width;
     uchar *p0 = p;
     uchar *p2 = p + len;
-    uint16 *data;
-    int32 color_index;
 
     if (!sixel_image->data) {
         sixel_state->state = PARSE_STATE_ERROR;
@@ -446,13 +429,13 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
 
                     if (sixel_state->repeat_count > 0
                         && sixel_state->pos_y + 5 < sixel_image->height) {
-                        bits = *p - '?';
+                        int32 bits = *p - '?';
                         if (bits != 0) {
-                            data = sixel_image->data
+                            uint16 *data = sixel_image->data
                                    + sixel_image->width*sixel_state->pos_y
                                    + sixel_state->pos_x;
-                            width = sixel_image->width;
-                            color_index = sixel_state->color_index;
+                            int32 width = sixel_image->width;
+                            int32 color_index = sixel_state->color_index;
                             if (sixel_state->repeat_count <= 1) {
                                 if (bits & 0x01) {
                                     *data = (uint16)color_index;
@@ -487,15 +470,15 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                 }
                             } else {
                                 /* sixel_state->repeat_count > 1 */
-                                for (i = 0; bits;
-                                     bits >>= 1, i++, data += width) {
+                                for (int32 i = 0; bits;
+                                     bits >>= 1, i += 1, data += width) {
                                     if (bits & 1) {
                                         data[0] = (uint16)color_index;
                                         data[1] = (uint16)color_index;
-                                        for (x = 2;
-                                             x < sixel_state->repeat_count;
-                                             x++) {
-                                            data[x] = (uint16)color_index;
+                                        for (int32 x_pos = 2;
+                                             x_pos < sixel_state->repeat_count;
+                                             x_pos += 1) {
+                                            data[x_pos] = (uint16)color_index;
                                         }
                                         n = i;
                                     }
@@ -737,7 +720,6 @@ sixel_parser_deinit(SixelState *sixel_state) {
 
 static Pixmap
 sixel_create_clipmask(char *pixels, int32 width, int32 height) {
-    char c;
     char *clipdata;
     char *dst;
     int32 msb = (XBitmapBitOrder(x_window.display) == MSBFirst);
@@ -745,18 +727,23 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
 
     clipdata = dst = xmalloc((width + 7) / 8*height);
 
-    for (int32 y = 0; y < height; y++) {
-        int32 b, i, n;
+    for (int32 y = 0; y < height; y += 1) {
+        int32 n;
 
         for (int32 w = width; w > 0; w -= n) {
             n = (int32)MIN(w, 8);
+            char c = 0;
             if (msb) {
-                for (b = 0x80, c = 0, i = 0; i < n; i++, b >>= 1) {
+                int32 b = 0x80;
+                for (int32 i = 0; i < n; i += 1) {
                     c |= (*src++) ? b : 0;
+                    b >>= 1;
                 }
             } else {
-                for (b = 0x01, c = 0, i = 0; i < n; i++, b <<= 1) {
+                int32 b = 0x01;
+                for (int32 i = 0; i < n; i += 1) {
                     c |= (*src++) ? b : 0;
+                    b <<= 1;
                 }
             }
             *dst++ = c;
