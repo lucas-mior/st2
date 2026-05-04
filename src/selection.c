@@ -290,8 +290,7 @@ selection_get(void) {
     // past the bounds of that small buffer, resulting in a severe heap buffer
     // overflow. Cast the multiplicands to int64 _before_ multiplication to
     // guarantee 64-bit math is used.
-    string = xmalloc((int64)((term.ncols + 1)
-                    * (selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
+    string = xmalloc(((term.ncols + 1)*(selection.ne.y - selection.nb.y + 1)*UTF_SIZ));
     ptr = string;
 
     for (int32 y = selection.nb.y; y <= selection.ne.y; y += 1) {
