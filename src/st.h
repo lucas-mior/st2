@@ -441,6 +441,6 @@ static char *opt_line = NULL;
 static char *opt_name = NULL;
 static char *opt_title = NULL;
 
-static char *usedfont = NULL;
+static char *used_font = NULL;
 
 #endif /* ST_H */

@@ -176,11 +176,11 @@ run:
         }
 
         if (opt_font) {
-            usedfont = opt_font;
+            used_font = opt_font;
         } else {
-            usedfont = CONF_FONT;
+            used_font = CONF_FONT;
         }
-        x_load_fonts(usedfont, 0);
+        x_load_fonts(used_font, 0);
 
         x_load_spare_fonts();
 

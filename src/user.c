@@ -82,7 +82,7 @@ zoom_abs(union Arg *arg) {
     int32 i;
     ImageList *im;
     x_unload_fonts();
-    x_load_fonts(usedfont, arg->f);
+    x_load_fonts(used_font, arg->f);
     x_load_spare_fonts();
 
     for (im = term.images, i = 0; i < 2; i += 1, im = term.images_alt) {
