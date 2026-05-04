@@ -106,11 +106,10 @@ enum SelectionType {
 #include "cbase/xenums.c"
 
 typedef struct StGlyph {
-    uint32 rune;           /* character code */
-    enum GlyphAttribute mode;      /* attribute flags */
-    uint16 padding;
-    int32 fg;      /* foreground  */
-    int32 bg;      /* background  */
+    uint32 rune;               /* character code */
+    enum GlyphAttribute mode;  /* attribute flags */
+    int32 fg;                  /* foreground  */
+    int32 bg;                  /* background  */
 } StGlyph;
 
 union Arg {
