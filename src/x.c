@@ -255,7 +255,7 @@ static int32
 x_load_font(StFont *f, FcPattern *pattern) {
     FcPattern *configured;
     FcPattern *match;
-    FcResult result;
+    FcResult fc_result;
     XGlyphInfo extents;
     int32 want_attr;
     int32 have_attr;
@@ -268,7 +268,7 @@ x_load_font(StFont *f, FcPattern *pattern) {
     FcConfigSubstitute(NULL, configured, FcMatchPattern);
     XftDefaultSubstitute(x_window.display, x_window.screen, configured);
 
-    match = FcFontMatch(NULL, configured, &result);
+    match = FcFontMatch(NULL, configured, &fc_result);
     if (!match) {
         FcPatternDestroy(configured);
         return 1;
@@ -404,9 +404,9 @@ x_load_fonts(char *fontstr, double fontsize) {
 static int32
 xloadsparefont(FcPattern *pattern, int32 flags) {
     FcPattern *match;
-    FcResult result;
+    FcResult fc_result;
 
-    match = FcFontMatch(NULL, pattern, &result);
+    match = FcFontMatch(NULL, pattern, &fc_result);
     if (!match) {
         return 1;
     }
