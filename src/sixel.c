@@ -735,8 +735,9 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
         int32 n;
 
         for (int32 w = width; w > 0; w -= n) {
-            n = (int32)MIN(w, 8);
             char c = 0;
+            n = (int32)MIN(w, 8);
+
             if (msb) {
                 int32 b = 0x80;
                 for (int32 i = 0; i < n; i += 1) {
@@ -750,6 +751,7 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
                     b <<= 1;
                 }
             }
+
             *dst++ = c;
         }
     }
