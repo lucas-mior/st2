@@ -1052,7 +1052,7 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     int32 ox;
     int32 numspecs;
     StGlyph base = {0};
-    StGlyph new = {0};
+    StGlyph new;
     XftGlyphFontSpec *font_specs = x_window.font_spec_buf;
 
     numspecs = x_make_glyph_font_specs(font_specs, &line[x1], x2 - x1, x1, y1);
@@ -1066,7 +1066,7 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
         if (selection_is_selected(x, y1)) {
             new.mode |= ATTR_SELECTED;
         }
-        if (i > 0 && ATTRCMP(base, new)) {
+        if ((i > 0) && ATTRCMP(base, new)) {
             x_draw_glyph_font_specs(font_specs, base, i, ox, y1);
             font_specs += i;
             numspecs -= i;
