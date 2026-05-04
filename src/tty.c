@@ -47,15 +47,17 @@ stty(char **args) {
     }
     exec_args[exec_argc] = NULL;
 
-    pid2 = fork();
-    if (pid2 == 0) {
+    switch (pid2 = fork()) {
+    case -1:
+        error("Error forking: %s.\n", strerror(errno));
+        fatal(EXIT_FAILURE);
+    case 0:
         execvp(exec_args[0], exec_args);
         perror("Couldn't call stty");
         exit(EXIT_FAILURE);
-    } else if (pid2 > 0) {
+    default:
         waitpid(pid2, NULL, 0);
-    } else {
-        perror("fork failed");
+        break;
     }
 
     return;
