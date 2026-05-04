@@ -133,7 +133,7 @@ x_load_cols(void) {
     draw_context.colors[CONF_COLOR_BG].pixel
         |= ((uint32)(0xFF*CONF_ALPHA) & 0xFF) << 24;
 
-    for (int32 i = 16; i < 16 + CONF_NTRANSPARENT_COLORS; i += 1) {
+    for (int32 i = 16; i < (16 + CONF_NTRANSPARENT_COLORS); i += 1) {
         draw_context.colors[i].color.alpha = (uint16)(0xffff*CONF_ALPHA);
         draw_context.colors[i].pixel &= 0x00FFFFFF;
         draw_context.colors[i].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff)
