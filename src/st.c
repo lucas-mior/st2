@@ -683,9 +683,8 @@ term_clear_glyph(StGlyph *glyph, bool use_current_attr) {
 static void
 term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, bool use_current_attr) {
     /* selection_is_selected4() takes relative coordinates */
-    if (selection_is_selected4(
-            x1 + term.scrolled_up, y1 + term.scrolled_up,
-            x2 + term.scrolled_up, y2 + term.scrolled_up)) {
+    if (selection_is_selected4(x1 + term.scrolled_up, y1 + term.scrolled_up,
+                               x2 + term.scrolled_up, y2 + term.scrolled_up)) {
         selection_remove();
     }
 
