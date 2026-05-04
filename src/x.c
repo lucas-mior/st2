@@ -428,7 +428,6 @@ x_load_spare_fonts(void) {
     double sizeshift;
     double fontval;
     int32 fc;
-    char **fp;
 
     if (frc_len != 0) {
         error("can't embed spare fonts. cache isn't empty");
@@ -447,7 +446,7 @@ x_load_spare_fonts(void) {
         frc = xrealloc(frc, (int64)frc_cap*SIZEOF(FontCache));
     }
 
-    for (fp = CONF_FONT2; fp - CONF_FONT2 < fc; fp += 1) {
+    for (char **fp = CONF_FONT2; fp - CONF_FONT2 < fc; fp += 1) {
 
         if (**fp == '-') {
             pattern = XftXlfdParse(*fp, False, False);
