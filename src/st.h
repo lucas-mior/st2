@@ -276,7 +276,7 @@ static struct {
     Colormap color_map;
     Window win;
     Drawable drawable;
-    XftGlyphFontSpec *specbuf; /* font spec buffer used for rendering */
+    XftGlyphFontSpec *font_spec_buf; /* font spec buffer used for rendering */
     Atom xembed;
     Atom wm_delete_win;
     Atom net_wm_name;

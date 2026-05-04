@@ -56,7 +56,8 @@ x_resize(int32 col, int32 row) {
     XftDrawChange(x_window.xft_draw, x_window.drawable);
     x_clear(0, 0, term_window.w, term_window.h);
 
-    x_window.specbuf = xrealloc(x_window.specbuf, col*SIZEOF(XftGlyphFontSpec));
+    x_window.font_spec_buf = xrealloc(x_window.font_spec_buf,
+                                      col*SIZEOF(XftGlyphFontSpec));
     return;
 }
 
@@ -1052,7 +1053,7 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     int32 numspecs;
     StGlyph base = {0};
     StGlyph new = {0};
-    XftGlyphFontSpec *specs = x_window.specbuf;
+    XftGlyphFontSpec *specs = x_window.font_spec_buf;
 
     numspecs = x_make_glyph_font_specs(specs, &line[x1], x2 - x1, x1, y1);
     i = 0;
