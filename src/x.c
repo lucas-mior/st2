@@ -80,6 +80,14 @@ x_load_color(int32 i, char *name, XftColor *xft_color) {
 
     if (!name) {
         if (BETWEEN(i, 16 + CONF_NTRANSPARENT_COLORS, 255)) { /* 256 color */
+            // TODO: Palette Shift Integration Bug.
+            // Because CONF_NTRANSPARENT_COLORS (26) offsets the palette start,
+            // the color cube and grayscale boundaries are incorrect. The 256
+            // colors now theoretically extend to index 281. The conditions and
+            // calculations (e.g., subtracting 16 instead of 16 + NTRANSPARENT)
+            // fail to account for the transparent colors. This improperly
+            // shifts standard colors and causes grayscale formulas to evaluate
+            // with incorrect offsets.
             if (i < 6*6 * 6 + 16) { /* same colors as xterm */
                 color.red = sixd_to_16bit(((i - 16) / 36) % 6);
                 color.green = sixd_to_16bit(((i - 16) / 6) % 6);
@@ -245,6 +253,11 @@ x_geom_mask_to_gravity(int32 mask) {
     case YNegative:
         return SouthWestGravity;
     default:
+        // TODO: Logic Error.
+        // The bitwise AND evaluates to (XNegative | YNegative) when both flags
+        // are set.  This corresponds to a valid SouthEastGravity mask
+        // combination but falls to the default case, incorrectly logging an
+        // error.
         error("x_geom_mask_to_gravity: Unhandled switch case.\n");
         break;
     }
@@ -868,6 +881,13 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         } else {
             limit_y = winy + term_window.ch;
         }
+        // TODO: X11 Protocol Error / Integer Underflow.
+        // If 'winx + width' is greater than 'term_window.w', the 'x1' argument
+        // passed to x_clear becomes larger than the 'x2' argument
+        // (term_window.w). This causes an integer underflow inside 'x_clear'
+        // when calculating the rectangle width (x2 - x1), resulting in a
+        // massive draw request that can crash the X client.  It must be safely
+        // clamped to 'term_window.w'.
         x_clear(winx + width, (y == 0) ? 0 : winy, term_window.w, limit_y);
     }
     if (y == 0) {
