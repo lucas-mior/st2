@@ -17,16 +17,16 @@ stty(char **args) {
     char cmd[_POSIX_ARG_MAX];
     char *s;
     int64 n;
+    char *exec_args[256];
+    int32 exec_argc = 0;
+    char *token;
+    pid_t pid2;
 
     if ((n = strlen32(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
         error("incorrect stty parameters\n");
         exit(EXIT_FAILURE);
     }
     memcpy64(cmd, CONF_STTY_ARGS, n + 1);
-
-    char *exec_args[256];
-    int32 exec_argc = 0;
-    char *token;
 
     token = strtok(cmd, " ");
     while (token != NULL) {
@@ -47,15 +47,13 @@ stty(char **args) {
     }
     exec_args[exec_argc] = NULL;
 
-    pid_t pid;
-
-    pid = fork();
-    if (pid == 0) {
+    pid2 = fork();
+    if (pid2 == 0) {
         execvp(exec_args[0], exec_args);
         perror("Couldn't call stty");
         exit(EXIT_FAILURE);
-    } else if (pid > 0) {
-        waitpid(pid, NULL, 0);
+    } else if (pid2 > 0) {
+        waitpid(pid2, NULL, 0);
     } else {
         perror("fork failed");
     }
