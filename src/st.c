@@ -393,6 +393,7 @@ term_swap_screen(void) {
     static StGlyph **altline;
     static int32 altcol;
     static int32 altrow;
+
     StGlyph **tmpline;
     int32 tmpcol;
     int32 tmprow;
