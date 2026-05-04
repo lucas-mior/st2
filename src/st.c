@@ -294,7 +294,7 @@ term_set_dirt(int32 top, int32 bot) {
     LIMIT(bot, 0, term.nrows - 1);
 
     for (int32 i = top; i <= bot; i += 1) {
-        term.dirts[i] = 1;
+        term.dirts[i] = true;
     }
     return;
 }
@@ -304,7 +304,7 @@ term_set_dirt_attr(enum GlyphAttribute attr) {
     for (int32 i = 0; i < term.nrows - 1; i += 1) {
         for (int32 j = 0; j < term.ncols - 1; j += 1) {
             if (term.lines[i][j].mode & attr) {
-                term.dirts[i] = 1;
+                term.dirts[i] = true;
                 break;
             }
         }
@@ -315,7 +315,7 @@ term_set_dirt_attr(enum GlyphAttribute attr) {
 static void
 term_full_dirt(void) {
     for (int32 i = 0; i < term.nrows; i += 1) {
-        term.dirts[i] = 1;
+        term.dirts[i] = true;
     }
     return;
 }
@@ -655,7 +655,7 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
         }
     }
 
-    term.dirts[y] = 1;
+    term.dirts[y] = true;
     term.lines[y][x] = *attr;
     term.lines[y][x].rune = u;
     term.lines[y][x].mode |= ATTR_SET;
@@ -689,7 +689,7 @@ term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, bool use_current_attr)
     }
 
     for (int32 y = y1; y <= y2; y += 1) {
-        term.dirts[y] = 1;
+        term.dirts[y] = true;
         for (int32 x = x1; x <= x2; x += 1) {
             term_clear_glyph(&term.lines[y][x], use_current_attr);
         }
@@ -1245,7 +1245,7 @@ draw(void) {
             continue;
         }
 
-        term.dirts[y] = 0;
+        term.dirts[y] = false;
         x_draw_line(term_line(y), 0, y, term.ncols);
     }
 
@@ -1528,10 +1528,10 @@ main(void) {
     {
         term_full_dirt();
         ASSERT(term.dirts[0]);
-        term.dirts[0] = 0;
+        term.dirts[0] = false;
         term_set_dirt(0, 0);
         ASSERT(term.dirts[0]);
-        term.dirts[0] = 0;
+        term.dirts[0] = false;
         term.lines[0][0].mode |= ATTR_ITALIC;
         term_set_dirt_attr(ATTR_ITALIC);
         ASSERT(term.dirts[0]);
