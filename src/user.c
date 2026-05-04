@@ -240,7 +240,9 @@ user_vim_select(union Arg *arg) {
         StGlyph *line = term_line_abs(y);
         int32 lastpos = term.ncols - 1;
 
-        for (; lastpos >= 0 && !(line[lastpos].mode & (ATTR_SET | ATTR_WRAP)); lastpos -= 1);
+        while (lastpos >= 0 && !(line[lastpos].mode & (ATTR_SET | ATTR_WRAP))) {
+            lastpos -= 1;
+        }
         lastpos += 1;
 
         if (y == term.cursor.y) {
