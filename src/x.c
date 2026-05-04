@@ -678,7 +678,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
         if (f >= frc_len) {
             FcResult fcres;
-            FcPattern *fcpattern;
+            FcPattern *fc_pattern;
             FcPattern *fontpattern;
             FcFontSet *fcsets[] = {NULL};
             FcCharSet *fccharset;
@@ -688,17 +688,17 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             }
             fcsets[0] = font_local->set;
 
-            fcpattern = FcPatternDuplicate(font_local->pattern);
+            fc_pattern = FcPatternDuplicate(font_local->pattern);
             fccharset = FcCharSetCreate();
 
             FcCharSetAddChar(fccharset, rune);
-            FcPatternAddCharSet(fcpattern, FC_CHARSET, fccharset);
-            FcPatternAddBool(fcpattern, FC_SCALABLE, 1);
+            FcPatternAddCharSet(fc_pattern, FC_CHARSET, fccharset);
+            FcPatternAddBool(fc_pattern, FC_SCALABLE, 1);
 
-            FcConfigSubstitute(0, fcpattern, FcMatchPattern);
-            FcDefaultSubstitute(fcpattern);
+            FcConfigSubstitute(0, fc_pattern, FcMatchPattern);
+            FcDefaultSubstitute(fc_pattern);
 
-            fontpattern = FcFontSetMatch(0, fcsets, 1, fcpattern, &fcres);
+            fontpattern = FcFontSetMatch(0, fcsets, 1, fc_pattern, &fcres);
 
             if (frc_len >= frc_cap) {
                 frc_cap += 16;
@@ -719,7 +719,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             f = frc_len;
             frc_len += 1;
 
-            FcPatternDestroy(fcpattern);
+            FcPatternDestroy(fc_pattern);
             FcCharSetDestroy(fccharset);
         }
 
