@@ -80,21 +80,21 @@ user_toggle_numlock(union Arg *arg) {
 static void
 zoom_abs(union Arg *arg) {
     int32 i;
-    ImageList *im;
+    ImageList *image;
     x_unload_fonts();
     x_load_fonts(used_font, arg->f);
     x_load_spare_fonts();
 
-    for (im = term.images, i = 0; i < 2; i += 1, im = term.images_alt) {
-        for (; im; im = im->next) {
-            if (im->pixmap) {
-                XFreePixmap(x_window.display, (Drawable)im->pixmap);
+    for (image = term.images, i = 0; i < 2; i += 1, image = term.images_alt) {
+        for (; image; image = image->next) {
+            if (image->pixmap) {
+                XFreePixmap(x_window.display, (Drawable)image->pixmap);
             }
-            if (im->clipmask) {
-                XFreePixmap(x_window.display, (Drawable)im->clipmask);
+            if (image->clipmask) {
+                XFreePixmap(x_window.display, (Drawable)image->clipmask);
             }
-            im->pixmap = NULL;
-            im->clipmask = NULL;
+            image->pixmap = NULL;
+            image->clipmask = NULL;
         }
     }
 
