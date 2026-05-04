@@ -123,6 +123,14 @@ run:
     for (int32 i = 0; i < 2; i += 1) {
         term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
         for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {
+            // TODO: 'xmalloc' does not zero initialize memory.  While
+            // 'term_reset()' might clear the active screen, the alternate
+            // screen (swapped out during this loop) remains filled with
+            // uninitialized heap garbage.  When the user switches to the alt
+            // screen (e.g., launching 'vim' or 'htop'), reading from it before
+            // it is fully overwritten causes Undefined Behavior.  Fix: Use
+            // 'xcalloc' or explicitly initialize the glyphs here like you did
+            // for 'term.hist'.
             term.lines[j] = xmalloc(CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
         }
         term.ncols = CONF_NUMBER_COLS;
@@ -255,6 +263,12 @@ run:
                        draw_context.graphics,
                        0, 0, (uint32)term_window.w, (uint32)term_window.h);
 
+        // TODO: 'x_window.font_spec_buf' is allocated once using the initial
+        // 'CONF_NUMBER_COLS'.  If the window is later resized to a width
+        // greater than the initial columns, rendering text into this buffer
+        // will cause a Heap Buffer Overflow.  Ensure this buffer is safely
+        // reallocated or resized during your window resize handler
+        // (cresize/xresize).
         x_window.font_spec_buf = xmalloc(CONF_NUMBER_COLS*SIZEOF(XftGlyphFontSpec));
 
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
@@ -298,6 +312,14 @@ run:
 
         x_window.net_wm_pid = XInternAtom(x_window.display, "_NET_WM_PID", False);
 
+        // TODO: Memory Error / Data Corruption.  When format=32,
+        // XChangeProperty STRICTLY requires the data array to be of type 'long'
+        // (or 'unsigned long'), regardless of the actual data type's size on
+        // the C side.  'pid_this' is a 'pid_t' (a 32-bit 'int' on Linux). On
+        // 64-bit platforms, Xlib will read 8 bytes (sizeof(long)) starting from
+        // &pid_this, reading garbage data from the stack.  Fix: Cast or assign
+        // to a long first: `long x11_pid = pid_this;` and pass `(uchar
+        // *)&x11_pid`.
         XChangeProperty(x_window.display, x_window.win, x_window.net_wm_pid,
                         XA_CARDINAL, 32, PropModeReplace,
                         (uchar *)&pid_this, 1);

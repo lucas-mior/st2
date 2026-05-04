@@ -188,15 +188,94 @@ mouse_action(XEvent *xevent, uint32 release) {
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "assert.c"
 #include "st.c"
 #include "user.c"
+#include "tty.c"
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    int32 pipefd[2];
+    char captured_tty_buf[256];
+    int64 bytes_read;
+    int32 flags;
+    XEvent ev;
+
+    /*
+     * We create a pipe and point the global 'command_fd' to the write end.
+     * When mouse_report() calls the real tty_write(), it will write 
+     * directly into our pipe via pselect/write64.
+     */
+    if (pipe(pipefd) == -1) {
+        perror("pipe failed");
+        exit(EXIT_FAILURE);
+    }
+    command_fd = pipefd[1];
+
+    /* Ensure the read end is non-blocking so we don't hang the test suite */
+    flags = fcntl(pipefd[0], F_GETFL, 0);
+    fcntl(pipefd[0], F_SETFL, flags | O_NONBLOCK);
+
+    // Setup initial terminal state
+    term_window.mode = 0; // Standard X10 mouse mode
+    buttons = 0;
+    
+    // Setup terminal geometry so the real xevent_col/row functions work
+    term_window.cw = 10;
+    term_window.ch = 20;
+    term_window.hborderpx = 5;
+    term_window.vborderpx = 5;
+    term_window.tty_width = 800;
+    term_window.tty_height = 480;
+
+    memset64(&ev, 0, SIZEOF(ev));
+    ev.type = ButtonRelease;
+    ev.xbutton.button = Button1;
+    ev.xbutton.state = 0;
+
+    // Test 1: Normal positive coordinates (Click at logical col 0, row 0)
+    ev.xbutton.x = 5 + 0; // hborderpx + col * cw
+    ev.xbutton.y = 5 + 0; // vborderpx + row * ch
+    mouse_report(&ev);
+    
+    memset64(captured_tty_buf, 0, SIZEOF(captured_tty_buf));
+    bytes_read = read(pipefd[0], captured_tty_buf, SIZEOF(captured_tty_buf) - 1);
+    if (bytes_read < 0) {
+        bytes_read = 0;
+    }
+    captured_tty_buf[bytes_read] = '\0';
+
+    // Expected output: "\033[M#!!" 
+    // 32 + code (3 for release) = 35 '#'
+    // 32 + x + 1 = 33 '!'
+    // 32 + y + 1 = 33 '!'
+    ASSERT_EQUAL(captured_tty_buf, "\033[M#!!");
+
+    // Test 2: Border Click Mitigation
+    // A click at absolute 0,0 is inside the 5px border.
+    // xevent->xbutton.x - hborderpx = -5. 
+    // st.c's LIMIT macro clamps this to 0.
+    ev.xbutton.x = 0; 
+    ev.xbutton.y = 0;
+    mouse_report(&ev);
+    
+    memset64(captured_tty_buf, 0, SIZEOF(captured_tty_buf));
+    bytes_read = read(pipefd[0], captured_tty_buf, SIZEOF(captured_tty_buf) - 1);
+    if (bytes_read < 0) {
+        bytes_read = 0;
+    }
+    captured_tty_buf[bytes_read] = '\0';
+    
+    // Output should perfectly match col 0, row 0, proving no underflow injection
+    ASSERT_EQUAL(captured_tty_buf, "\033[M#!!");
+
+    close(pipefd[0]);
+    close(pipefd[1]);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_mouse */
