@@ -1022,7 +1022,7 @@ x_set_icon_title(char *p) {
 
 static void
 x_set_title(char *p) {
-    XTextProperty prop;
+    XTextProperty text_property;
     if (!p) {
         p = opt_title;
     }
@@ -1030,12 +1030,14 @@ x_set_title(char *p) {
         p = opt_title;
     }
 
-    if (Xutf8TextListToTextProperty(x_window.display, &p, 1, XUTF8StringStyle, &prop) != Success) {
+    if (Xutf8TextListToTextProperty(x_window.display,
+                                    &p, 1,
+                                    XUTF8StringStyle, &text_property) != Success) {
         return;
     }
-    XSetWMName(x_window.display, x_window.win, &prop);
-    XSetTextProperty(x_window.display, x_window.win, &prop, x_window.net_wm_name);
-    XFree(prop.value);
+    XSetWMName(x_window.display, x_window.win, &text_property);
+    XSetTextProperty(x_window.display, x_window.win, &text_property, x_window.net_wm_name);
+    XFree(text_property.value);
     return;
 }
 
