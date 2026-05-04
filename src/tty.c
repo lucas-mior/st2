@@ -15,38 +15,51 @@
 static void
 stty(char **args) {
     char cmd[_POSIX_ARG_MAX];
-    char *q;
     char *s;
     int64 n;
-    int64 siz;
 
     if ((n = strlen32(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
         error("incorrect stty parameters\n");
         exit(EXIT_FAILURE);
     }
-    memcpy64(cmd, CONF_STTY_ARGS, n);
-    q = cmd + n;
-    siz = SIZEOF(cmd) - n;
-    for (char **p = args; p && (s = *p); p += 1) {
-        if ((n = strlen32(s)) > siz - 1) {
-            error("stty parameter length too int64\n");
-            exit(EXIT_FAILURE);
+    memcpy64(cmd, CONF_STTY_ARGS, n + 1);
+
+    char *exec_args[256];
+    int32 exec_argc = 0;
+    char *token;
+
+    token = strtok(cmd, " ");
+    while (token != NULL) {
+        if (exec_argc >= 255) {
+            break;
         }
-        *q++ = ' ';
-        memcpy64(q, s, n);
-        q += n;
-        siz -= n + 1;
+        exec_args[exec_argc] = token;
+        exec_argc += 1;
+        token = strtok(NULL, " ");
     }
-    *q = '\0';
-    // TODO: Command Injection Vulnerability.  'args' may contain arbitrary
-    // strings provided directly from the command line (via the -l flag).
-    // Because these are concatenated into 'cmd' and passed directly to
-    // 'system()', an attacker can execute arbitrary shell commands (e.g., st -l
-    // ttyS0 "; rm -rf /"). Use 'exec' functions instead or properly escape
-    // arguments.
-    if (system(cmd) != 0) {
+
+    for (char **p = args; p && (s = *p); p += 1) {
+        if (exec_argc >= 255) {
+            break;
+        }
+        exec_args[exec_argc] = s;
+        exec_argc += 1;
+    }
+    exec_args[exec_argc] = NULL;
+
+    pid_t pid;
+
+    pid = fork();
+    if (pid == 0) {
+        execvp(exec_args[0], exec_args);
         perror("Couldn't call stty");
+        exit(EXIT_FAILURE);
+    } else if (pid > 0) {
+        waitpid(pid, NULL, 0);
+    } else {
+        perror("fork failed");
     }
+
     return;
 }
 
