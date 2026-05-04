@@ -435,7 +435,6 @@ x_load_spare_fonts(void) {
         exit(EXIT_FAILURE);
     }
 
-    /* Allocate memory for cache entries. */
     if (frc_cap < 4*nspare_fonts) {
         frc_cap += 4*nspare_fonts - frc_cap;
         frc = xrealloc(frc, (int64)frc_cap*SIZEOF(FontCache));
