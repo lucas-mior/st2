@@ -123,15 +123,8 @@ run:
     for (int32 i = 0; i < 2; i += 1) {
         term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
         for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {
-            // TODO: 'xmalloc' does not zero initialize memory.  While
-            // 'term_reset()' might clear the active screen, the alternate
-            // screen (swapped out during this loop) remains filled with
-            // uninitialized heap garbage.  When the user switches to the alt
-            // screen (e.g., launching 'vim' or 'htop'), reading from it before
-            // it is fully overwritten causes Undefined Behavior.  Fix: Use
-            // 'xcalloc' or explicitly initialize the glyphs here like you did
-            // for 'term.hist'.
             term.lines[j] = xmalloc(CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
+            memset64(term.lines[j], 0, CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
         }
         term.ncols = CONF_NUMBER_COLS;
         term.nrows = CONF_NUMBER_ROWS;
