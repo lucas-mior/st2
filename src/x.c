@@ -441,8 +441,8 @@ x_load_spare_fonts(void) {
     }
 
     for (int32 i = 0; i < nspare_fonts; i += 1) {
-        FcPattern *fc_pattern;
         char *font_name = CONF_FONT2[i];
+        FcPattern *fc_pattern;
 
         if (font_name[0] == '-') {
             fc_pattern = XftXlfdParse(font_name, False, False);
