@@ -364,7 +364,7 @@ run:
         struct timespec *tv;
         struct timespec now;
         struct timespec lastblink;
-        struct timespec trigger;
+        struct timespec trigger = {0};
         float timeout;
 
         do {
@@ -432,7 +432,7 @@ run:
                     trigger = now;
                     drawing = 1;
                 }
-                timeout = (CONF_LATENCY_MAX - (float)TIMEDIFF(now, trigger))
+                timeout = (CONF_LATENCY_MAX - (float)timediff(now, trigger))
                           / CONF_LATENCY_MAX*CONF_LATENCY_MIN;
                 if (timeout > 0) {
                     continue;
@@ -441,7 +441,7 @@ run:
 
             timeout = -1;
             if (CONF_BLINK_TIMEOUT && term_attr_set(ATTR_BLINK)) {
-                timeout = (float)CONF_BLINK_TIMEOUT - (float)TIMEDIFF(now, lastblink);
+                timeout = (float)CONF_BLINK_TIMEOUT - (float)timediff(now, lastblink);
                 if (timeout <= 0) {
                     if (-timeout > (float)CONF_BLINK_TIMEOUT) {
                         term_window.mode |= WIN_MODE_BLINK;
