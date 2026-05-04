@@ -87,6 +87,13 @@ check_consistent_state(void) {
     return;
 }
 
+static double
+timediff(struct timespec t1, struct timespec t2) {
+    double diff;
+    diff = ((double)(t1.tv_sec - t2.tv_sec)*1000 + (double)(t1.tv_nsec - t2.tv_nsec)/1E6);
+    return diff;
+}
+
 static int32
 term_line_len(StGlyph *line) {
     int32 i = term.ncols - 1;

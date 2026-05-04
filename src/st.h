@@ -404,6 +404,7 @@ static void user_copy_output(union Arg *arg);
 static void user_url_select(union Arg *arg);
 
 static int64 xwrite(int32 fd, char *s, int64 len);
+static double timediff(struct timespec t1, struct timespec t2);
 
 typedef struct MouseShortcut {
     uint32 mod;
