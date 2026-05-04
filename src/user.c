@@ -55,13 +55,6 @@ user_selection_paste(union Arg *arg) {
 
 static void
 user_change_alpha(union Arg *arg) {
-    // TODO: Macro Assignment / Compile Error.
-    // By convention and usage in st forks, CONF_* values are macros.  If
-    // CONF_ALPHA is defined as a macro (e.g., `#define CONF_ALPHA 0.8`),
-    // attempting to assign to it (`CONF_ALPHA += arg->f`) will result in a
-    // compilation error (lvalue required). If it is meant to be a mutable
-    // global, it should be declared as a variable (e.g., `float conf_alpha;`)
-    // instead.
     if ((CONF_ALPHA > 0 && arg->f < 0) || (CONF_ALPHA < 1 && arg->f > 0)) {
         CONF_ALPHA += arg->f;
     }
