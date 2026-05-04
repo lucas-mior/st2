@@ -186,20 +186,20 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
 
 static void
 x_hints(void) {
-    XClassHint class;
+    XClassHint class_hints;
     XWMHints wm = {.flags = InputHint, .input = 1};
     XSizeHints *size_hints;
 
     if (opt_name) {
-        class.res_name = opt_name;
+        class_hints.res_name = opt_name;
     } else {
-        class.res_name = CONF_TERM_NAME;
+        class_hints.res_name = CONF_TERM_NAME;
     }
 
     if (opt_class) {
-        class.res_class = opt_class;
+        class_hints.res_class = opt_class;
     } else {
-        class.res_class = CONF_TERM_NAME;
+        class_hints.res_class = CONF_TERM_NAME;
     }
 
     size_hints = XAllocSizeHints();
@@ -229,7 +229,7 @@ x_hints(void) {
     }
 
     XSetWMProperties(x_window.display, x_window.win,
-                     NULL, NULL, NULL, 0, size_hints, &wm, &class);
+                     NULL, NULL, NULL, 0, size_hints, &wm, &class_hints);
     XFree(size_hints);
     return;
 }
