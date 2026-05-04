@@ -145,19 +145,19 @@ x_load_cols(void) {
 
 static int32
 x_set_color_name(int32 x, char *name) {
-    XftColor color;
+    XftColor xft_color;
 
     if (!BETWEEN(x, 0, draw_context.colors_len - 1)) {
         return 1;
     }
 
-    if (!x_load_color(x, name, &color)) {
+    if (!x_load_color(x, name, &xft_color)) {
         return 1;
     }
 
     XftColorFree(x_window.display,
                  x_window.visual, x_window.color_map, &draw_context.colors[x]);
-    draw_context.colors[x] = color;
+    draw_context.colors[x] = xft_color;
 
     if (x == CONF_COLOR_BG) {
         draw_context.colors[CONF_COLOR_BG].color.alpha
