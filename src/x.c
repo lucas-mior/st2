@@ -188,7 +188,7 @@ static void
 x_hints(void) {
     XClassHint class;
     XWMHints wm = {.flags = InputHint, .input = 1};
-    XSizeHints *sizeh;
+    XSizeHints *size_hints;
 
     if (opt_name) {
         class.res_name = opt_name;
@@ -202,34 +202,34 @@ x_hints(void) {
         class.res_class = CONF_TERM_NAME;
     }
 
-    sizeh = XAllocSizeHints();
+    size_hints = XAllocSizeHints();
 
-    sizeh->flags = PSize | PResizeInc | PBaseSize | PMinSize;
-    sizeh->height = term_window.h;
-    sizeh->width = term_window.w;
-    sizeh->height_inc = 1;
-    sizeh->width_inc = 1;
-    sizeh->base_height = 2*CONF_BORDER_PIXELS;
-    sizeh->base_width = 2*CONF_BORDER_PIXELS;
-    sizeh->min_height = term_window.ch + 2*CONF_BORDER_PIXELS;
-    sizeh->min_width = term_window.cw + 2*CONF_BORDER_PIXELS;
+    size_hints->flags = PSize | PResizeInc | PBaseSize | PMinSize;
+    size_hints->height = term_window.h;
+    size_hints->width = term_window.w;
+    size_hints->height_inc = 1;
+    size_hints->width_inc = 1;
+    size_hints->base_height = 2*CONF_BORDER_PIXELS;
+    size_hints->base_width = 2*CONF_BORDER_PIXELS;
+    size_hints->min_height = term_window.ch + 2*CONF_BORDER_PIXELS;
+    size_hints->min_width = term_window.cw + 2*CONF_BORDER_PIXELS;
     if (x_window.is_fixed) {
-        sizeh->flags |= PMaxSize;
-        sizeh->min_width = term_window.w;
-        sizeh->max_width = term_window.w;
-        sizeh->min_height = term_window.h;
-        sizeh->max_height = term_window.h;
+        size_hints->flags |= PMaxSize;
+        size_hints->min_width = term_window.w;
+        size_hints->max_width = term_window.w;
+        size_hints->min_height = term_window.h;
+        size_hints->max_height = term_window.h;
     }
     if (x_window.geo_mask & (XValue | YValue)) {
-        sizeh->flags |= USPosition | PWinGravity;
-        sizeh->x = x_window.left_offset;
-        sizeh->y = x_window.top_offset;
-        sizeh->win_gravity = x_geom_mask_to_gravity(x_window.geo_mask);
+        size_hints->flags |= USPosition | PWinGravity;
+        size_hints->x = x_window.left_offset;
+        size_hints->y = x_window.top_offset;
+        size_hints->win_gravity = x_geom_mask_to_gravity(x_window.geo_mask);
     }
 
-    XSetWMProperties(x_window.display, x_window.win, NULL, NULL, NULL, 0, sizeh,
+    XSetWMProperties(x_window.display, x_window.win, NULL, NULL, NULL, 0, size_hints,
                      &wm, &class);
-    XFree(sizeh);
+    XFree(size_hints);
     return;
 }
 
