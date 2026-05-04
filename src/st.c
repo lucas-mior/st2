@@ -814,11 +814,8 @@ term_dump_line(int32 n) {
         ptr += 1;
     }
 
-    // TODO: Memory Leak. 
-    // 'string' is allocated via 'xmalloc' at the start of this function, but it
-    // is never 'free'd after being passed to 'term_printer'. Every dumped line
-    // leaks memory.
     term_printer(string, ptr - buffer);
+    free(string);
     return;
 }
 
