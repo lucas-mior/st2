@@ -872,12 +872,12 @@ term_resize(int32 col, int32 row) {
     col = (int32)MAX(1, col);
     row = (int32)MAX(1, row);
 
-    term.dirts = xrealloc(term.dirts, (int64)row * SIZEOF(*(term.dirts)));
-    term.tabs = xrealloc(term.tabs, (int64)col * SIZEOF(*(term.tabs)));
+    term.dirts = xrealloc(term.dirts, (int64)row*SIZEOF(*(term.dirts)));
+    term.tabs = xrealloc(term.tabs, (int64)col*SIZEOF(*(term.tabs)));
     
     if (col > term.ncols) {
         bp = term.tabs + term.ncols;
-        memset64(bp, 0, SIZEOF(*term.tabs) * (col - term.ncols));
+        memset64(bp, 0, SIZEOF(*term.tabs)*(col - term.ncols));
         bp -= 1;
         while (bp > term.tabs && !*bp) {
             bp -= 1;
@@ -959,7 +959,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     if (shift > 0) {
         /* Move the remaining pointers that fit in the new height */
         int32 to_move = (int32)MIN(new_nrows, term.nrows - shift);
-        memmove64(term.lines, term.lines + shift, (int64)to_move * SIZEOF(*(term.lines)));
+        memmove64(term.lines, term.lines + shift, (int64)to_move*SIZEOF(*(term.lines)));
         term.cursor.y = new_nrows - 1;
     }
 
@@ -968,11 +968,11 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         free(term.lines[i]);
     }
     
-    term.lines = xrealloc(term.lines, (int64)new_nrows * SIZEOF(*(term.lines)));
+    term.lines = xrealloc(term.lines, (int64)new_nrows*SIZEOF(*(term.lines)));
 
     /* Resize existing rows to the new width */
     for (int32 j = 0; j < (int32)MIN(new_nrows, term.nrows); j += 1) {
-        term.lines[j] = xrealloc(term.lines[j], (int64)new_ncols * SIZEOF(*(term.lines[j])));
+        term.lines[j] = xrealloc(term.lines[j], (int64)new_ncols*SIZEOF(*(term.lines[j])));
         for (int32 k = term.ncols; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], false);
         }
@@ -980,7 +980,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
 
     /* Allocate entirely new rows if the terminal height increased */
     for (int32 j = (int32)MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
-        term.lines[j] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
+        term.lines[j] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
         for (int32 k = 0; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], false);
         }
@@ -1013,7 +1013,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 new_x_offset = 0;
     int32 new_y_index = -1;
     int32 len = 0;
-    int32 new_cursor_y_proxy = -1;
+    int32 new_cursor_y_proxy = 0; /* Changed from -1 to 0 to sanitize math */
     int32 new_viewport_top_y_proxy = -1;
     int32 active_screen_top_proxy = 0;
     int32 nlines;
@@ -1038,9 +1038,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     old_cursor_end_line = term.cursor.y;
     while (old_cursor_end_line < (old_nrows - 1)) {
         int32 wrap_len = term_line_len(term.lines[old_cursor_end_line]);
-        StGlyph aline = term.lines[old_cursor_end_line][wrap_len - 1];
-
-        if (wrap_len > 0 && (aline.mode & ATTR_WRAP)) {
+        if (wrap_len > 0 && (term.lines[old_cursor_end_line][wrap_len - 1].mode & ATTR_WRAP)) {
             old_cursor_end_line += 1;
         } else {
             break;
@@ -1050,7 +1048,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     nlines = term.n_hist + old_cursor_end_line + 1;
     if (new_ncols < term.ncols) {
         int32 lines_per_old_line = (term.ncols + new_ncols - 1) / new_ncols;
-        nlines = lines_per_old_line * nlines;
+        nlines = lines_per_old_line*nlines;
         if (nlines > (HISTORY_SIZE + RESIZE_BUFFER + new_nrows)) {
             nlines = HISTORY_SIZE + RESIZE_BUFFER + new_nrows;
             old_y_index = -(nlines / lines_per_old_line - old_cursor_end_line - 1);
@@ -1058,15 +1056,17 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     if (reflow_lines == NULL) {
-        reflow_lines = xmalloc((int64)2 * HISTORY_SIZE * SIZEOF(*reflow_lines));
+        int64 size = (int64)2*HISTORY_SIZE*SIZEOF(*reflow_lines);
+        reflow_lines = xmalloc(size);
+        /* FIX: Zero-initialize the pointer array so we don't free() garbage */
+        memset64(reflow_lines, 0, size);
     }
 
     /* Reflow Loop */
     do {
         if (!new_x_offset) {
             new_y_index += 1;
-            reflow_lines[new_y_index] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
-            /* Initialize newly allocated line to avoid uninitialized memory bitwise ops */
+            reflow_lines[new_y_index] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
             for (int32 j = 0; j < new_ncols; j += 1) {
                 term_clear_glyph(&reflow_lines[new_y_index][j], false);
             }
@@ -1094,7 +1094,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             if (!old_x_offset) {
                 len = (int32)MAX(len, term.cursor.x + 1);
             }
-            if (new_cursor_y_proxy < 0 && (term.cursor.x - old_x_offset < new_ncols - new_x_offset)) {
+            /* Find where the cursor lands in the new grid */
+            if (term.cursor.x - old_x_offset < new_ncols - new_x_offset) {
                 term.cursor.x = new_x_offset + term.cursor.x - old_x_offset;
                 new_cursor_y_proxy = new_y_index;
                 update_wrap_next(0, new_ncols);
@@ -1107,7 +1108,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
             if (space_left > chars_left) {
                 if (chars_left > 0) {
-                    memcpy64(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset], (int64)chars_left * SIZEOF(StGlyph));
+                    memcpy64(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset], (int64)chars_left*SIZEOF(StGlyph));
                     new_x_offset += chars_left;
                 }
 
@@ -1119,7 +1120,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                 old_x_offset = 0;
                 old_y_index += 1;
             } else {
-                memcpy64(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset], (int64)space_left * SIZEOF(StGlyph));
+                memcpy64(&reflow_lines[new_y_index][new_x_offset], &line[old_x_offset], (int64)space_left*SIZEOF(StGlyph));
                 if (space_left == chars_left) {
                     old_x_offset = 0;
                     old_y_index += 1;
@@ -1136,7 +1137,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     for (int32 i = new_nrows; i < old_nrows; i += 1) {
         free(term.lines[i]);
     }
-    term.lines = xrealloc(term.lines, (int64)new_nrows * SIZEOF(*(term.lines)));
+    term.lines = xrealloc(term.lines, (int64)new_nrows*SIZEOF(*(term.lines)));
 
     bottom_visible_line = (int32)MIN(new_y_index, new_nrows - 1);
     scroll_offset = (int32)MAX(new_nrows - old_nrows, 0);
@@ -1147,8 +1148,11 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         int32 j_prev = new_cursor_end_line;
         new_cursor_end_line = (int32)MIN(new_cursor_end_line - term.cursor.y, bottom_visible_line);
         term.cursor.y += new_cursor_end_line - j_prev;
-        while (term.cursor.y < 0) {
+        
+        /* FIX: Bound the loop so new_y_index doesn't drop below 0 */
+        while (term.cursor.y < 0 && new_y_index >= 0) {
             free(reflow_lines[new_y_index]);
+            reflow_lines[new_y_index] = NULL;
             new_y_index -= 1;
             term.cursor.y += 1;
         }
@@ -1157,10 +1161,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     active_screen_top_proxy = new_y_index - new_cursor_end_line;
 
     for (int32 i = new_nrows - 1; i > new_cursor_end_line; i -= 1) {
-        if (i < old_nrows) {
-            free(term.lines[i]);
-        }
-        term.lines[i] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
+        if (i < old_nrows) free(term.lines[i]);
+        term.lines[i] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
         for (int32 j = 0; j < new_ncols; j += 1) {
             term_clear_glyph(&term.lines[i][j], false);
         }
@@ -1168,25 +1170,19 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     for (int32 i = new_cursor_end_line; i >= 0; i -= 1) {
         if (new_y_index >= 0) {
-            if (i < old_nrows) {
-                free(term.lines[i]);
-            }
+            if (i < old_nrows) free(term.lines[i]);
             term.lines[i] = reflow_lines[new_y_index];
             {
                 ImageList *im = term.images;
                 while (im) {
-                    if (im->y == new_y_index + OFFSET_REF) {
-                        im->y = i;
-                    }
+                    if (im->y == new_y_index + OFFSET_REF) im->y = i;
                     im = im->next;
                 }
             }
             new_y_index -= 1;
         } else {
-            if (i < old_nrows) {
-                free(term.lines[i]);
-            }
-            term.lines[i] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
+            if (i < old_nrows) free(term.lines[i]);
+            term.lines[i] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
             for (int32 j = 0; j < new_ncols; j += 1) {
                 term_clear_glyph(&term.lines[i][j], false);
             }
@@ -1202,9 +1198,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             {
                 ImageList *im = term.images;
                 while (im) {
-                    if (im->y == new_y_index + OFFSET_REF) {
-                        im->y = k_idx;
-                    }
+                    if (im->y == new_y_index + OFFSET_REF) im->y = k_idx;
                     im = im->next;
                 }
             }
@@ -1217,11 +1211,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     {
         ImageList *im = term.images;
         while (im) {
-            if (im->y >= OFFSET_REF) {
-                im->y -= OFFSET_REF;
-            } else if (im->y >= OFFSET_OLD) {
-                im->y -= OFFSET_OLD;
-            }
+            if (im->y >= OFFSET_REF) im->y -= OFFSET_REF;
+            else if (im->y >= OFFSET_OLD) im->y -= OFFSET_OLD;
             im = im->next;
         }
     }
@@ -1229,7 +1220,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     for (int32 k_rem = -term.n_hist - 1; k_rem >= -HISTORY_SIZE; k_rem -= 1) {
         int32 j_rem = (term.i_hist + k_rem + 1 + HISTORY_SIZE) % HISTORY_SIZE;
         free(term.hist[j_rem]);
-        term.hist[j_rem] = xmalloc((int64)new_ncols * SIZEOF(StGlyph));
+        term.hist[j_rem] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
         for (int32 c_col = 0; c_col < new_ncols; c_col += 1) {
             term_clear_glyph(&term.hist[j_rem][c_col], false);
         }
@@ -1239,11 +1230,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         term.scrolled_up = 0;
     } else if (new_viewport_top_y_proxy >= 0) {
         int32 new_scrolled_up = active_screen_top_proxy - new_viewport_top_y_proxy;
-        if (new_scrolled_up < 0) {
-            term.scrolled_up = 0;
-        } else {
-            term.scrolled_up = (int32)MIN(new_scrolled_up, term.n_hist);
-        }
+        term.scrolled_up = (new_scrolled_up < 0) ? 0 : (int32)MIN(new_scrolled_up, term.n_hist);
     } else {
         term.scrolled_up = 0;
     }
