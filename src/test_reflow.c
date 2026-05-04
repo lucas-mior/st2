@@ -381,6 +381,83 @@ main(void) {
         }
     }
 
+    /* Scenario O: Cursor Visibility on Shrink (Anchoring to Cursor vs Top) */
+    printf("Testing Cursor Visibility after width shrinkage...\n");
+    {
+        int32 target_y;
+        StGlyph *c_line;
+        char c_buf[32];
+
+        term_resize(20, 5);
+        term_reset();
+
+        /* 
+         * Inject text to fill the screen.
+         * Row 0: 1_TOP
+         * Row 1: 2_MIDDLE
+         * Row 2: 3_BOTTOM
+         * Rows 3-4: The long line below (35 chars takes 2 rows at width 20)
+         */
+        inject_text("1_TOP\n");
+        inject_text("2_MIDDLE\n");
+        inject_text("3_BOTTOM\n");
+        inject_text("4_THIS_LONG_LINE_WILL_WRAP_A_LOT_HERE");
+        
+        /* 
+         * Initial State (20x5):
+         * 0: 1_TOP
+         * 1: 2_MIDDLE
+         * 2: 3_BOTTOM
+         * 3: 4_THIS_LONG_LINE_WI
+         * 4: LL_WRAP_A_LOT_HERE (Cursor is here at Row 4)
+         */
+        check_consistent_state();
+
+        /* 
+         * Shrink width to 10.
+         * 1_TOP -> 1 row
+         * 2_MIDDLE -> 1 row
+         * 3_BOTTOM -> 1 row
+         * 4_THIS_LONG... (35 chars) -> 4 rows
+         * Total logical lines in the active screen buffer = 7.
+         *
+         * Since the screen height is only 5:
+         * - If anchored to the TOP: The viewport stays at history/top, 
+         *   showing "1_TOP" at the top. The cursor at the bottom of the 
+         *   buffer will be pushed off-screen (scrolled out of view).
+         * - If anchored to the CURSOR (Goal): The terminal should adjust 
+         *   scroll state so the cursor line ("OT_HERE") remains on Row 4.
+         */
+        term_resize(10, 5);
+        check_consistent_state();
+
+        /* 
+         * If the cursor line is visible at the bottom of the viewport, 
+         * lines_scrolled_up must be 0.
+         */
+        if (term.lines_scrolled_up != 0) {
+            fprintf(stderr, "Scenario O failed! Terminal is scrolled up after resize.\n");
+            fprintf(stderr, "  lines_scrolled_up: %d (expected 0 to keep cursor visible)\n", 
+                    term.lines_scrolled_up);
+            assert(false);
+        }
+
+        /* 
+         * Verify that the visible line where the cursor resides contains 
+         * the expected wrapped text.
+         */
+        target_y = term.cursor.y;
+        c_line = term_line(target_y);
+        term_get_glyphs(c_buf, &c_line[0], &c_line[term.ncols - 1]);
+
+        if (strstr(c_buf, "OT_HERE") == NULL) {
+            fprintf(stderr, "Scenario O failed! Cursor line does not contain expected text.\n");
+            fprintf(stderr, "  Found: '%s' at screen Y=%d\n", c_buf, target_y);
+            fprintf(stderr, "  (Viewport is likely anchored to the top of the terminal)\n");
+            assert(false);
+        }
+    }
+
     printf("All resize, reflow, image translation, and viewport tests passed successfully!\n");
 
     return 0;
