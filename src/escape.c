@@ -578,8 +578,8 @@ control_seq_intro_handle(void) {
             if (n >= 0) {
                 term_scroll_up(0, term.nrows - 1, n + 1, SCROLL_SAVEHIST);
             }
-            term_scroll_up(0, term.nrows - 1, term.nrows - n - 1,
-                           SCROLL_NOSAVEHIST);
+            term_scroll_up(0, term.nrows - 1,
+                           term.nrows - n - 1, SCROLL_NOSAVEHIST);
             term_delete_images();
             break;
         case 6:
@@ -635,7 +635,7 @@ control_seq_intro_handle(void) {
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
         term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit,
-                        csi_escape_seq.arg[0], SCROLL_SAVEHIST);
+                       csi_escape_seq.arg[0], SCROLL_SAVEHIST);
         break;
     case 'T':
         DEFAULT(csi_escape_seq.arg[0], 1);
@@ -1462,8 +1462,8 @@ eschandle(uchar ascii) {
         return 0;
     case 'D':
         if (term.cursor.y == term.bot_scroll_limit) {
-            term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit, 1,
-                           SCROLL_SAVEHIST);
+            term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit,
+                           1, SCROLL_SAVEHIST);
         } else {
             term_move_to(term.cursor.x, term.cursor.y + 1);
         }
