@@ -69,8 +69,8 @@ check_consistent_state(void) {
     ASSERT_MORE_EQUAL(term.i_hist, 0);
     ASSERT_LESS(term.i_hist, HISTORY_SIZE);
 
-    ASSERT_MORE_EQUAL(term.lines_scrolled_up, 0);
-    ASSERT_LESS_EQUAL(term.lines_scrolled_up, term.n_hist);
+    ASSERT_MORE_EQUAL(term.scrolled_up, 0);
+    ASSERT_LESS_EQUAL(term.scrolled_up, term.n_hist);
 
     ASSERT_MORE_EQUAL(term.top_scroll_limit, 0);
     ASSERT_LESS_EQUAL(term.top_scroll_limit, term.bot_scroll_limit);
@@ -129,11 +129,11 @@ static StGlyph *
 term_line(int32 y) {
     StGlyph *line_ptr = NULL;
 
-    if (y < term.lines_scrolled_up) {
-        int32 hist_index = (term.i_hist + y - term.lines_scrolled_up + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+    if (y < term.scrolled_up) {
+        int32 hist_index = (term.i_hist + y - term.scrolled_up + 1 + HISTORY_SIZE) % HISTORY_SIZE;
         line_ptr = term.hist[hist_index];
     } else {
-        int32 lines_index = y - term.lines_scrolled_up;
+        int32 lines_index = y - term.scrolled_up;
         line_ptr = term.lines[lines_index];
     }
 
@@ -357,7 +357,7 @@ term_reset(void) {
     }
     term.top_scroll_limit = 0;
     term.n_hist = 0;
-    term.lines_scrolled_up = 0;
+    term.scrolled_up = 0;
     term.bot_scroll_limit = term.nrows - 1;
     term.mode = TERM_MODE_WRAP | TERM_MODE_UTF8;
     memset64(term.translation_table, CS_USA, SIZEOF(term.translation_table));
@@ -444,7 +444,7 @@ term_load_alt_screen(bool clear, bool savecursor) {
         col = term.ncols;
         row = term.nrows;
         term_swap_screen();
-        term.lines_scrolled_up = 0;
+        term.scrolled_up = 0;
         term_resize_alt(col, row);
     }
     if (clear) {
@@ -513,10 +513,10 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
         }
         term.n_hist = (int32)MIN(term.n_hist + n, HISTORY_SIZE);
         s = n;
-        if (term.lines_scrolled_up) {
-            int32 j = term.lines_scrolled_up;
-            term.lines_scrolled_up = (int32)MIN(j + n, HISTORY_SIZE);
-            s = j + n - term.lines_scrolled_up;
+        if (term.scrolled_up) {
+            int32 j = term.scrolled_up;
+            term.scrolled_up = (int32)MIN(j + n, HISTORY_SIZE);
+            s = j + n - term.scrolled_up;
         }
         if (mode != SCROLL_RESIZE) {
             term_full_dirt();
@@ -538,7 +538,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
         } else {
             if (s > 0) {
                 selection_move(-s);
-                if (-term.lines_scrolled_up + selection.nb.y < -term.n_hist) {
+                if (-term.scrolled_up + selection.nb.y < -term.n_hist) {
                     selection_remove();
                 }
             }
@@ -684,8 +684,8 @@ static void
 term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, bool use_current_attr) {
     /* selection_is_selected4() takes relative coordinates */
     if (selection_is_selected4(
-            x1 + term.lines_scrolled_up, y1 + term.lines_scrolled_up,
-            x2 + term.lines_scrolled_up, y2 + term.lines_scrolled_up)) {
+            x1 + term.scrolled_up, y1 + term.scrolled_up,
+            x2 + term.scrolled_up, y2 + term.scrolled_up)) {
         selection_remove();
     }
 
@@ -839,11 +839,11 @@ reflow_scroll_down(int32 n) {
     }
     term.cursor.y += n;
     term.n_hist -= n;
-    j = term.lines_scrolled_up - n;
+    j = term.scrolled_up - n;
     if (j >= 0) {
-        term.lines_scrolled_up = j;
+        term.scrolled_up = j;
     } else {
-        term.lines_scrolled_up = 0;
+        term.scrolled_up = 0;
         if (selection.ob.x != -1 && !selection.alt) {
             selection_move(-j);
         }
@@ -997,7 +997,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 nlines;
     static StGlyph **reflow_lines = NULL;
     StGlyph *line = 0;
-    bool was_at_bottom = (term.lines_scrolled_up == 0);
+    bool was_at_bottom = (term.scrolled_up == 0);
 
     #define OFFSET_OLD 1000000
     #define OFFSET_REF 2000000
@@ -1056,7 +1056,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             }
         }
 
-        if (old_y_index == -term.lines_scrolled_up && new_viewport_top_y_proxy < 0) {
+        if (old_y_index == -term.scrolled_up && new_viewport_top_y_proxy < 0) {
             new_viewport_top_y_proxy = new_y_index;
         }
 
@@ -1198,16 +1198,16 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     if (was_at_bottom) {
-        term.lines_scrolled_up = 0;
+        term.scrolled_up = 0;
     } else if (new_viewport_top_y_proxy >= 0) {
-        int32 new_lines_scrolled_up = active_screen_top_proxy - new_viewport_top_y_proxy;
-        if (new_lines_scrolled_up < 0) {
-            term.lines_scrolled_up = 0;
+        int32 new_scrolled_up = active_screen_top_proxy - new_viewport_top_y_proxy;
+        if (new_scrolled_up < 0) {
+            term.scrolled_up = 0;
         } else {
-            term.lines_scrolled_up = (int32)MIN(new_lines_scrolled_up, term.n_hist);
+            term.scrolled_up = (int32)MIN(new_scrolled_up, term.n_hist);
         }
     } else {
-        term.lines_scrolled_up = 0;
+        term.scrolled_up = 0;
     }
 
     term.nrows = new_nrows;
@@ -1266,7 +1266,7 @@ draw(void) {
         XSetClipMask(x_window.display, draw_context.graphics, None);
 
         for (ImageList *image = term.images; image; image = next) {
-            int32 rel_y = image->y + term.lines_scrolled_up;
+            int32 rel_y = image->y + term.scrolled_up;
             int32 height_in_rows = (image->height + image->ch - 1) / image->ch;
             int32 width = image->width;
             int32 height = image->height;

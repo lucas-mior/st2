@@ -241,11 +241,11 @@ main(void) {
         for (int32 i = 0; i < 5; i += 1) {
             inject_text("HISTORY_LINE\n");
         }
-        term.lines_scrolled_up = 3;
+        term.scrolled_up = 3;
         term_resize(20, 12);
-        if (term.lines_scrolled_up != 1) {
+        if (term.scrolled_up != 1) {
             error("[%s] Viewport scroll mismatch. Expected: 1, Actual: %d\n",
-                  current_test_name, term.lines_scrolled_up);
+                  current_test_name, term.scrolled_up);
             assert(false);
         }
     }
@@ -323,7 +323,7 @@ main(void) {
         inject_text("66666666666666666666\n");
         inject_text("77777777777777777777");
         check_consistent_state();
-        term.lines_scrolled_up = 2;
+        term.scrolled_up = 2;
         verify_viewport_line(0, "11111111111111111111");
         term_resize(10, 5);
         check_consistent_state();
@@ -410,9 +410,9 @@ main(void) {
         check_consistent_state();
         term_resize(10, 5);
         check_consistent_state();
-        if (term.lines_scrolled_up != 0) {
+        if (term.scrolled_up != 0) {
             error("[%s] Viewport scrolled incorrectly. Expected 0, Actual: %d\n",
-                  current_test_name, term.lines_scrolled_up);
+                  current_test_name, term.scrolled_up);
             assert(false);
         }
         {

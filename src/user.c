@@ -137,7 +137,7 @@ static void
 user_scroll_down(union Arg *a) {
     int64 n = a->i;
 
-    if (!term.lines_scrolled_up || term_mode_is_set(TERM_MODE_ALTSCREEN)) {
+    if (!term.scrolled_up || term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         return;
     }
 
@@ -145,14 +145,14 @@ user_scroll_down(union Arg *a) {
         n = MAX(term.nrows / -n, 1);
     }
 
-    if (n <= term.lines_scrolled_up) {
-        term.lines_scrolled_up -= n;
+    if (n <= term.scrolled_up) {
+        term.scrolled_up -= n;
     } else {
-        n = term.lines_scrolled_up;
-        term.lines_scrolled_up = 0;
+        n = term.scrolled_up;
+        term.scrolled_up = 0;
     }
     if (selection.ob.x != -1 && !selection.alt) {
-        selection_move((int32)-n); /* negate change in term.lines_scrolled_up */
+        selection_move((int32)-n); /* negate change in term.scrolled_up */
     }
     term_full_dirt();
     return;
@@ -170,15 +170,15 @@ user_scroll_up(union Arg *a) {
         n = MAX(term.nrows / -n, 1);
     }
 
-    if (term.lines_scrolled_up + n <= term.n_hist) {
-        term.lines_scrolled_up += n;
+    if (term.scrolled_up + n <= term.n_hist) {
+        term.scrolled_up += n;
     } else {
-        n = term.n_hist - term.lines_scrolled_up;
-        term.lines_scrolled_up = term.n_hist;
+        n = term.n_hist - term.scrolled_up;
+        term.scrolled_up = term.n_hist;
     }
 
     if (selection.ob.x != -1 && !selection.alt) {
-        selection_move((int32)n); /* negate change in term.lines_scrolled_up */
+        selection_move((int32)n); /* negate change in term.scrolled_up */
     }
     term_full_dirt();
     return;
@@ -548,12 +548,12 @@ main(void) {
     {
         union Arg a;
         term.n_hist = 10;
-        term.lines_scrolled_up = 0;
+        term.scrolled_up = 0;
         a.i = 5;
         user_scroll_up(&a);
-        ASSERT_EQUAL(term.lines_scrolled_up, 5);
+        ASSERT_EQUAL(term.scrolled_up, 5);
         user_scroll_down(&a);
-        ASSERT_EQUAL(term.lines_scrolled_up, 0);
+        ASSERT_EQUAL(term.scrolled_up, 0);
     }
 
     /* 3. Functional Tests (Parent process) */

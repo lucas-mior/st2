@@ -57,7 +57,7 @@ scroll_images(int32 n) {
     if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         top = 0;
     } else {
-        top = term.lines_scrolled_up - HISTORY_SIZE;
+        top = term.scrolled_up - HISTORY_SIZE;
     }
 
     for (ImageList *image = term.images; image; image = next) {
@@ -947,7 +947,7 @@ main(void) {
 
         term.images = dummy_img;
         term.mode = 0;
-        term.lines_scrolled_up = 0;
+        term.scrolled_up = 0;
 
         scroll_images(-10);
 

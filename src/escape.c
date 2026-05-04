@@ -573,7 +573,7 @@ control_seq_intro_handle(void) {
                 n -= 1;
             }
             for (ImageList *im = term.images; im; im = im->next) {
-                n = (int32)MAX(im->y - term.lines_scrolled_up, n);
+                n = (int32)MAX(im->y - term.scrolled_up, n);
             }
             if (n >= 0) {
                 term_scroll_up(0, term.nrows - 1, n + 1, SCROLL_SAVEHIST);
@@ -864,7 +864,7 @@ string_handle(void) {
     if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         scr_offset = 0;
     } else {
-        scr_offset = term.lines_scrolled_up;
+        scr_offset = term.scrolled_up;
     }
 
     term.esc &= ~(ESC_STR_END | ESC_STR);
@@ -1124,7 +1124,7 @@ string_handle(void) {
                     if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
                         scr_offset = 0;
                     } else {
-                        scr_offset = term.lines_scrolled_up;
+                        scr_offset = term.scrolled_up;
                     }
                     im_cur->y = term.cursor.y + scr_offset;
                     term_set_sixel_attr(term.lines[term.cursor.y], x1_im, x2_im);
@@ -1638,8 +1638,8 @@ check_control_code:
         }
     }
 
-    if (selection_is_selected(term.cursor.x + term.lines_scrolled_up,
-                              term.cursor.y + term.lines_scrolled_up)) {
+    if (selection_is_selected(term.cursor.x + term.scrolled_up,
+                              term.cursor.y + term.scrolled_up)) {
         selection_clear();
     }
 

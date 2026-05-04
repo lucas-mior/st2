@@ -59,8 +59,8 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
     int32 rbot = term.nrows - 1;
 
     if (!term_mode_is_set(TERM_MODE_ALTSCREEN)) {
-        rtop += term.lines_scrolled_up - term.n_hist;
-        rbot += term.lines_scrolled_up;
+        rtop += term.scrolled_up - term.n_hist;
+        rbot += term.scrolled_up;
     }
 
     switch (selection.snap) {
@@ -331,8 +331,8 @@ selection_move(int32 n) {
 
 static void
 selection_scroll(int32 top, int32 bot, int32 n) {
-    top += term.lines_scrolled_up;
-    bot += term.lines_scrolled_up;
+    top += term.scrolled_up;
+    bot += term.scrolled_up;
 
     if (BETWEEN(selection.nb.y, top, bot)
         != BETWEEN(selection.ne.y, top, bot)) {
@@ -505,7 +505,7 @@ main(void) {
         ASSERT_EQUAL(selection.nb.y, 7);
         ASSERT_EQUAL(selection.ne.y, 12);
         
-        term.lines_scrolled_up = 0;
+        term.scrolled_up = 0;
         selection_scroll(0, 20, -1);
         ASSERT_EQUAL(selection.nb.y, 6);
         

@@ -144,7 +144,7 @@ tty_read(void) {
 
 static void
 tty_write(char *s, int64 n, int32 may_echo) {
-    user_scroll_down(&((union Arg){.i = term.lines_scrolled_up}));
+    user_scroll_down(&((union Arg){.i = term.scrolled_up}));
 
     if (may_echo && term_mode_is_set(TERM_MODE_ECHOO)) {
         term_write(s, (int32)n, 1);
@@ -279,7 +279,7 @@ mock_term_init(void) {
         term.lines[i] = xmalloc((int64)term.ncols * SIZEOF(StGlyph));
     }
 
-    term.lines_scrolled_up = 0;
+    term.scrolled_up = 0;
     term.mode = 0;
     selection.ob.x = -1;
     selection.alt = 0;

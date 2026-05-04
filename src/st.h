@@ -206,7 +206,7 @@ static struct {
     StGlyph *hist[HISTORY_SIZE]; /* history buffer */
     int32 i_hist;               /* history index */
     int32 n_hist;               /* nb history available */
-    int32 lines_scrolled_up;   /* scroll back */
+    int32 scrolled_up;   /* scroll back */
     int32 wrap_char_width[2];  /* used in updating WRAPNEXT when resizing */
     bool *dirts;               /* dirtyness of lines */
     bool *tabs;
