@@ -359,8 +359,8 @@ x_load_fonts(char *fontstr, double font_size) {
     }
 
     if (used_font_size < 0) {
-        FcPatternGetDouble(draw_context.font.match->pattern, FC_PIXEL_SIZE, 0,
-                           &fontval);
+        FcPatternGetDouble(draw_context.font.match->pattern,
+                           FC_PIXEL_SIZE, 0, &fontval);
         used_font_size = (double)fontval;
         if (fabs(font_size) <= 0) {
             default_font_size = (double)fontval;
