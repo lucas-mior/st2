@@ -199,7 +199,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-implicit-void-ptr-cast"
     CFLAGS="$CFLAGS -Wno-implicit-int-enum-cast"
     CFLAGS="$CFLAGS -Wno-covered-switch-default"
-    CFLAGS="$CFLAGS -Wno-reserved-identifier"  # because of __GTK_H_INSIDE__
     CFLAGS="$CFLAGS -Wno-documentation"
     CFLAGS="$CFLAGS -Wno-documentation-unknown-command"
     CFLAGS="$CFLAGS -Wno-padded"
