@@ -32,13 +32,9 @@
 #define HISTORY_SIZE 2000
 #define RESIZE_BUFFER 1000
 
-// TODO: Macro Side-Effects Bug.
-// 'LIMIT' evaluates its argument 'x' multiple times. If called with an
-// expression that has side effects (e.g. `LIMIT(i++, 0, 10)` or `LIMIT(*ptr++,
-// min, max)`), it will execute those side effects multiple times, leading to
-// undefined or incorrect behavior.  Consider rewriting this as an inline
-// function or using GCC statement expressions `({ ... })` to evaluate 'x' only
-// once.
+// TODO: Macro Side-Effects Bugs.
+// Consider rewriting this as an inline function or using GCC statement
+// expressions `({ ... })` to evaluate 'x' only once.
 #define LIMIT(x, a, b)        (x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
 #define BETWEEN(x, a, b)    ((a) <= (x) && (x) <= (b))
 #define DIVCEIL(n, d)        (((n) + ((d) - 1)) / (d))
