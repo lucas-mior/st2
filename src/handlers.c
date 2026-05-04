@@ -330,9 +330,9 @@ handler_unmap(XEvent *xevent) {
 
 static void
 handler_focus(XEvent *xevent) {
-    XFocusChangeEvent *e = &xevent->xfocus;
+    XFocusChangeEvent *xevent_focus = &xevent->xfocus;
 
-    if (e->mode == NotifyGrab) {
+    if (xevent_focus->mode == NotifyGrab) {
         return;
     }
 
