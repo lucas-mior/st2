@@ -809,6 +809,10 @@ term_dump_line(int32 n) {
         ptr += 1;
     }
 
+    // TODO: Memory Leak. 
+    // 'string' is allocated via 'xmalloc' at the start of this function, but it
+    // is never 'free'd after being passed to 'term_printer'. Every dumped line
+    // leaks memory.
     term_printer(string, ptr - buffer);
     return;
 }
@@ -1262,9 +1266,18 @@ draw(void) {
 
     LIMIT(term.old_cursor_x, 0, term.ncols - 1);
     LIMIT(term.old_cursor_y, 0, term.nrows - 1);
+    // TODO: Out-of-bounds Array Read.
+    // If the cursor is at column 0 (term.old_cursor_x == 0 or cx == 0) and the
+    // cell inexplicably contains the ATTR_WDUMMY flag, 'term.old_cursor_x' or
+    // 'cx' will underflow to -1. The subsequent 'x_draw_cursor' call will read
+    // from 'term.lines[...][-1]'.  Add a boundary check (e.g., 'if
+    // (term.old_cursor_x > 0 && ...)') to prevent this.
     if (term.lines[term.old_cursor_y][term.old_cursor_x].mode & ATTR_WDUMMY) {
         term.old_cursor_x -= 1;
     }
+    // TODO: Out-of-bounds Array Read.
+    // If cx is 0 and the cell contains ATTR_WDUMMY, 'cx' will underflow to -1.
+    // Add a boundary check (e.g., 'if (cx > 0 && ...)') to prevent this.
     if (term.lines[term.cursor.y][cx].mode & ATTR_WDUMMY) {
         cx -= 1;
     }
