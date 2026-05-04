@@ -140,13 +140,9 @@ tty_read(void) {
     int32 written;
 
     /* append read bytes to unprocessed bytes */
-    // TODO: Denial of Service / Buffer Exhaustion.
-    // If a sequence (e.g., a very long OSC or DCS string) fills the 'buffer'
-    // without being processed, 'copied' will equal 'LENGTH(buffer)'. The next
-    // read64 call will ask for 0 bytes, immediately returning 0. This triggers
-    // 'case 0:', causing the terminal to cleanly but unexpectedly exit(0)
-    // during normal operation.  You should dynamically resize the buffer or
-    // safely discard overlong sequences.
+    if (copied >= LENGTH(buffer)) {
+        copied = 0;
+    }
     ret = read64(command_fd, buffer + copied, LENGTH(buffer) - copied);
 
     switch (ret) {
