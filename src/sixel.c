@@ -136,6 +136,11 @@ sixel_image_init(SixelImage *sixel_image,
                  bool use_private_register) {
     int64 size;
 
+    // TODO: Memory Allocation Mismatch.
+    // 'size' is computed using 'SIZEOF(uint32)', but 'sixel_image->data' is a
+    // pointer to 'ushort' (typically 16-bit) and subsequent buffer resizes
+    // correctly use 'SIZEOF(uint16)'. This allocates twice as much memory as
+    // necessary for the initial buffer.
     size = (width*height)*SIZEOF(uint32);
     sixel_image->width = width;
     sixel_image->height = height;
@@ -402,6 +407,13 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 break;
             default:
                 if (*p >= '?' && *p <= '~') { /* sixel characters */
+                    // TODO: Logical Flaw in Resize Condition.
+                    // By using '&&' for both MAX limits, if
+                    // 'sixel_image->width' happens to reach
+                    // 'DECSIXEL_WIDTH_MAX', this entire if-condition becomes
+                    // false. As a result, the parser completely stops resizing
+                    // the buffer vertically (height) even if it hasn't hit
+                    // 'DECSIXEL_HEIGHT_MAX', improperly truncating the image.
                     if ((sixel_image->width
                                < (sixel_state->pos_x + sixel_state->repeat_count)
                          || sixel_image->height < (sixel_state->pos_y + 6))
@@ -773,6 +785,12 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
     if ((c2 = ((2.0*lv) - 1.0)) < 0.0) {
         c2 = -c2;
     }
+    // TODO: Unsigned Integer Underflow.
+    // 'hs' is declared as 'uint32'. The expression '(hue % 120) - 60' can be
+    // negative.  Assigning a negative result to a 'uint32' causes underflow to
+    // a huge positive number.  The subsequent check 'hs < 0' will always be
+    // false, breaking the HLS to RGB conversion.  'hs' must be declared as a
+    // signed integer (e.g., 'int32').
     if ((hs = (hue % 120) - 60) < 0) {
         hs = -hs;
     }
@@ -819,6 +837,13 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
     g = (uint32)((g1 + m)*255.0 + 0.5);
     b = (uint32)((b1 + m)*255.0 + 0.5);
 
+    // TODO: Unsigned Bounds Check Failure.
+    // 'r', 'g', and 'b' are declared as 'uint32'. If the floating-point
+    // calculation results in a negative number, casting it to 'uint32' produces
+    // a huge positive value.  The 'r < 0', 'g < 0', and 'b < 0' checks are
+    // always false. The subsequent '> 255' checks will catch the huge positive
+    // values and improperly clamp negative colors to fully saturated 255.
+    // Declare 'r', 'g', and 'b' as 'int32'.
     if (r < 0) {
         r = 0;
     } else if (r > 255) {
