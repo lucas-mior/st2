@@ -143,7 +143,6 @@ run:
 
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
         term.hist[i] = xmalloc(CONF_NUMBER_COLS*SIZEOF(StGlyph));
-        /* Secondary Fix: Initialize history glyphs to prevent reflow of dirty memory */
         for (int32 j = 0; j < CONF_NUMBER_COLS; j += 1) {
             term_clear_glyph(&term.hist[i][j], false);
         }
