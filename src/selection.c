@@ -374,6 +374,7 @@ selection_set(char *string, Time t) {
 
 #include "assert.c"
 #include "st.c"
+#include "user.c"
 
 int32
 main(void) {

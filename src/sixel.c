@@ -868,6 +868,7 @@ hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
 
 #include "assert.c"
 #include "st.c"
+#include "user.c"
 
 int
 main(void) {

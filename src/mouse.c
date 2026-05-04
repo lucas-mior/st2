@@ -190,6 +190,8 @@ mouse_action(XEvent *xevent, uint32 release) {
 #include <stdlib.h>
 
 #include "assert.c"
+#include "st.c"
+#include "user.c"
 
 int
 main(void) {
