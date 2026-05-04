@@ -250,7 +250,7 @@ case "$target" in
     else
         $measure $CC          $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
         $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
-            src/test_reflow.c -o bin/test_reflow $LDFLAGS
+            src/test_resize_scroll.c -o bin/test_resize_scroll $LDFLAGS
     fi
 
     if [ $target = "debug" ]; then
