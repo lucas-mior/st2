@@ -173,7 +173,7 @@ main(void) {
         term_new_line(true);
     }
 
-    /* Scenario A: Width Shrinkage (Forcing Wraps & Cursor X adjustment) */
+    /* Test A: Width Shrinkage (Forcing Wraps & Cursor X adjustment) */
     inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     check_consistent_state();
     {
@@ -182,7 +182,7 @@ main(void) {
         verify_full_state(11, state_texts, state_wraps, 6, 9);
     }
 
-    /* Scenario B: Width Expansion (Unwrapping & Cursor X mapping) */
+    /* Test B: Width Expansion (Unwrapping & Cursor X mapping) */
     term_resize(30, 10);
     check_consistent_state();
     {
@@ -191,7 +191,7 @@ main(void) {
         verify_full_state(10, state_texts, state_wraps, 26, 9);
     }
 
-    /* Scenario C: Shrink width to force wrap again */
+    /* Test C: Shrink width to force wrap again */
     term_resize(15, 10);
     check_consistent_state();
     {
@@ -200,7 +200,7 @@ main(void) {
         verify_full_state(11, state_texts, state_wraps, 11, 9);
     }
 
-    /* Scenario J: Viewport Scroll State Anchor Integrity */
+    /* Test J: Viewport Scroll State Anchor Integrity */
     printf("Testing Viewport Scroll Anchoring...\n");
     term_resize(init_cols, init_rows);
     term_reset();
@@ -220,7 +220,7 @@ main(void) {
         assert(false);
     }
 
-    /* Scenario K: Inline Image (Sixel) translation during history pull */
+    /* Test K: Inline Image (Sixel) translation during history pull */
     printf("Testing Inline Image Translation...\n");
     term_resize(init_cols, init_rows);
     term_reset();
@@ -253,7 +253,7 @@ main(void) {
         }
     }
 
-    /* Scenario I: Random Fuzzing */
+    /* Test I: Random Fuzzing */
     printf("Running Fuzzing Phase...\n");
     srand((uint)time(NULL));
     for (int32 i = 0; i < 1000; i += 1) {
@@ -283,7 +283,7 @@ main(void) {
         check_consistent_state();
     }
 
-    /* Scenario L: The Viewport Desync Bug */
+    /* Test L: The Viewport Desync Bug */
     printf("Testing Viewport Desync on Width Resize...\n");
     term_resize(20, 5);
     term_reset();
@@ -305,7 +305,7 @@ main(void) {
     check_consistent_state();
     verify_viewport_line(0, "1111111111");
 
-    /* Scenario M: Image displacement when lines below wrap (The Bug) */
+    /* Test M: Image displacement when lines below wrap (The Bug) */
     printf("Testing Image position when lines below wrap...\n");
     term_resize(20, 10);
     term_reset();
@@ -337,12 +337,12 @@ main(void) {
         term_get_glyphs(buf, &img_line[0], &img_line[term.ncols - 1]);
 
         if (strstr(buf, "IMAGE_ANCH") == NULL) {
-            error("Scenario M failed! Image not at anchor text. Found: %s\n", buf);
+            error("Test M failed! Image not at anchor text. Found: %s\n", buf);
             assert(false);
         }
     }
 
-    /* Scenario N: The "Push-Down" Bug */
+    /* Test N: The "Push-Down" Bug */
     printf("Testing Image Displacement when text BELOW wraps...\n");
     term_resize(20, 5);
     term_reset();
@@ -374,14 +374,14 @@ main(void) {
         n_buf[6] = '\0';
 
         if (strcmp(n_buf, "ANCHOR") != 0) {
-            error("Scenario N Sync Error! Image not at anchor text.\n");
+            error("Test N Sync Error! Image not at anchor text.\n");
             error("  Expected: 'ANCHOR' at Y=-3\n");
             error("  Found:    '%s' at Y=%d\n", n_buf, term.images->y);
             assert(false);
         }
     }
 
-    /* Scenario O: Cursor Visibility on Shrink (Anchoring to Cursor vs Top) */
+    /* Test O: Cursor Visibility on Shrink (Anchoring to Cursor vs Top) */
     printf("Testing Cursor Visibility after width shrinkage...\n");
     {
         int32 target_y;
@@ -436,7 +436,7 @@ main(void) {
          * lines_scrolled_up must be 0.
          */
         if (term.lines_scrolled_up != 0) {
-            fprintf(stderr, "Scenario O failed! Terminal is scrolled up after resize.\n");
+            fprintf(stderr, "Test O failed! Terminal is scrolled up after resize.\n");
             fprintf(stderr, "  lines_scrolled_up: %d (expected 0 to keep cursor visible)\n", 
                     term.lines_scrolled_up);
             assert(false);
@@ -451,7 +451,7 @@ main(void) {
         term_get_glyphs(c_buf, &c_line[0], &c_line[term.ncols - 1]);
 
         if (strstr(c_buf, "OT_HERE") == NULL) {
-            fprintf(stderr, "Scenario O failed! Cursor line does not contain expected text.\n");
+            fprintf(stderr, "Test O failed! Cursor line does not contain expected text.\n");
             fprintf(stderr, "  Found: '%s' at screen Y=%d\n", c_buf, target_y);
             fprintf(stderr, "  (Viewport is likely anchored to the top of the terminal)\n");
             assert(false);
