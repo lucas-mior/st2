@@ -681,7 +681,8 @@ term_clear_glyph(StGlyph *glyph, bool use_current_attr) {
 }
 
 static void
-term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, bool use_current_attr) {
+term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2,
+                  bool use_current_attr) {
     /* selection_is_selected4() takes relative coordinates */
     if (selection_is_selected4(x1 + term.scrolled_up, y1 + term.scrolled_up,
                                x2 + term.scrolled_up, y2 + term.scrolled_up)) {
@@ -719,7 +720,8 @@ term_delete_char(int32 n) {
         line = term.lines[term.cursor.y];
         memmove64(&line[dst], &line[src], size*SIZEOF(StGlyph));
     }
-    term_clear_region(dst + size, term.cursor.y, term.ncols - 1, term.cursor.y, true);
+    term_clear_region(dst + size, term.cursor.y,
+                      term.ncols - 1, term.cursor.y, true);
     return;
 }
 
@@ -906,7 +908,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
             free(term.lines[i]);
         }
 
-        term.lines = xrealloc(term.lines, (int64)new_nrows*SIZEOF(*(term.lines)));
+        term.lines = xrealloc(term.lines, new_nrows*SIZEOF(*(term.lines)));
 
         for (int32 i = term.nrows; i < new_nrows; i += 1) {
             term.lines[i] = xmalloc((int64)new_ncols*SIZEOF(StGlyph));
@@ -1011,7 +1013,9 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     old_cursor_end_line = term.cursor.y;
     while (old_cursor_end_line < (old_nrows - 1)) {
         int32 wrap_len = term_line_len(term.lines[old_cursor_end_line]);
-        if (wrap_len > 0 && (term.lines[old_cursor_end_line][wrap_len - 1].mode & ATTR_WRAP)) {
+        StGlyph aline = term.lines[old_cursor_end_line][wrap_len - 1];
+
+        if ((wrap_len > 0) && (aline.mode & ATTR_WRAP)) {
             old_cursor_end_line += 1;
         } else {
             break;
