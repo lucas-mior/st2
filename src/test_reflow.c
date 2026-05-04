@@ -82,14 +82,14 @@ verify_full_state(int32 expected_count,
 
     if (total_lines != expected_count) {
         error("[%s] Total lines mismatch. Expected: %d, Actual: %d (Hist: %d, Rows: %d)\n",
-                current_test_name, expected_count, total_lines, active_hist, term.nrows);
+              current_test_name, expected_count, total_lines, active_hist, term.nrows);
         assert(false);
     }
 
     if (expected_cx >= 0 && expected_cy >= 0) {
         if (term.cursor.x != expected_cx || term.cursor.y != expected_cy) {
             error("[%s] Cursor mismatch. Expected: (%d, %d), Actual: (%d, %d)\n",
-                    current_test_name, expected_cx, expected_cy, term.cursor.x, term.cursor.y);
+                  current_test_name, expected_cx, expected_cy, term.cursor.x, term.cursor.y);
             assert(false);
         }
     }
