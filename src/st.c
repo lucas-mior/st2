@@ -928,7 +928,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
 
 static void
 term_resize_alt(int32 new_ncols, int32 new_nrows) {
-    int32 i;
+    int32 shift = 0;
 
     if (term.ncols == new_ncols && term.nrows == new_nrows) {
         term_full_dirt();
@@ -937,17 +937,17 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     if (selection.alt) {
         selection_remove();
     }
-    i = 0;
-    while (i <= term.cursor.y - new_nrows) {
-        free(term.lines[i]);
-        i += 1;
+
+    while (shift <= term.cursor.y - new_nrows) {
+        free(term.lines[shift]);
+        shift += 1;
     }
-    if (i > 0) {
-        memmove64(term.lines, term.lines + i,
+    if (shift > 0) {
+        memmove64(term.lines, term.lines + shift,
                   new_nrows*SIZEOF(*(term.lines)));
         term.cursor.y = new_nrows - 1;
     }
-    for (i += new_nrows; i < term.nrows; i += 1) {
+    for (int32 i = shift + new_nrows; i < term.nrows; i += 1) {
         free(term.lines[i]);
     }
     term.lines = xrealloc(term.lines, (int64)new_nrows*SIZEOF(*(term.lines)));
