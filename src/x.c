@@ -916,10 +916,10 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
 static void
 x_draw_glyph(StGlyph g, int32 x, int32 y) {
     int32 numspecs;
-    XftGlyphFontSpec spec;
+    XftGlyphFontSpec xft_glyph_font_spec;
 
-    numspecs = x_make_glyph_font_specs(&spec, &g, 1, x, y);
-    x_draw_glyph_font_specs(&spec, g, numspecs, x, y);
+    numspecs = x_make_glyph_font_specs(&xft_glyph_font_spec, &g, 1, x, y);
+    x_draw_glyph_font_specs(&xft_glyph_font_spec, g, numspecs, x, y);
     return;
 }
 
