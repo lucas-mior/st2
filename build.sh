@@ -383,10 +383,10 @@ case "$target" in
     CC=gcc CFLAGS="-fanalyzer" ./build.sh 2>&1 \
         | sed -E 's/\[[0-9;]*[mK]//g' \
           | tee "gcc-analyzer-$(date +%s).txt"
-    # setsid -f \
-    #     scan-build --view -analyze-headers --status-bugs ./build.sh 2>&1 \
-    #     | sed -E 's/\[[0-9;]*[mK]//g' \
-    #       > "scan-build-$(date +%s).txt" &
+    setsid -f \
+        scan-build --view -analyze-headers --status-bugs ./build.sh 2>&1 \
+        | sed -E 's/\[[0-9;]*[mK]//g' \
+          > "scan-build-$(date +%s).txt" &
     exit
     ;;
 "perf")
