@@ -394,15 +394,10 @@ term_swap_screen(void) {
     static int32 altcol;
     static int32 altrow;
 
-    StGlyph **tmpline;
-    int32 tmpcol;
-    int32 tmprow;
-    ImageList *tmpimages;
-
-    tmpline = term.lines;
-    tmpcol = term.ncols;
-    tmprow = term.nrows;
-    tmpimages = term.images;
+    StGlyph **tmpline = term.lines;
+    int32 tmpcol = term.ncols;
+    int32 tmprow = term.nrows;
+    ImageList *tmpimages = term.images;
 
     term.lines = altline;
     term.ncols = altcol;
