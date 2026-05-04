@@ -78,25 +78,28 @@ user_toggle_numlock(union Arg *arg) {
 }
 
 static void
+clear_image_pixmaps(ImageList *list) {
+    for (ImageList *image = list; image; image = image->next) {
+        if (image->pixmap) {
+            XFreePixmap(x_window.display, (Drawable)image->pixmap);
+        }
+        if (image->clipmask) {
+            XFreePixmap(x_window.display, (Drawable)image->clipmask);
+        }
+        image->pixmap = NULL;
+        image->clipmask = NULL;
+    }
+    return;
+}
+
+static void
 zoom_abs(union Arg *arg) {
-    int32 i;
-    ImageList *image;
     x_unload_fonts();
     x_load_fonts(used_font, arg->f);
     x_load_spare_fonts();
 
-    for (image = term.images, i = 0; i < 2; i += 1, image = term.images_alt) {
-        for (; image; image = image->next) {
-            if (image->pixmap) {
-                XFreePixmap(x_window.display, (Drawable)image->pixmap);
-            }
-            if (image->clipmask) {
-                XFreePixmap(x_window.display, (Drawable)image->clipmask);
-            }
-            image->pixmap = NULL;
-            image->clipmask = NULL;
-        }
-    }
+    clear_image_pixmaps(term.images);
+    clear_image_pixmaps(term.images_alt);
 
     cresize(0, 0);
     redraw();
