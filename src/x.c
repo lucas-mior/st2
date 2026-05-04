@@ -402,16 +402,16 @@ x_load_fonts(char *fontstr, double font_size) {
 
 static int32
 x_load_spare_font(FcPattern *pattern, int32 flags) {
-    FcPattern *match;
+    FcPattern *fc_pattern;
     FcResult fc_result;
 
-    match = FcFontMatch(NULL, pattern, &fc_result);
-    if (!match) {
+    fc_pattern = FcFontMatch(NULL, pattern, &fc_result);
+    if (!fc_pattern) {
         return 1;
     }
 
-    if (!(frc[frc_len].font = XftFontOpenPattern(x_window.display, match))) {
-        FcPatternDestroy(match);
+    if (!(frc[frc_len].font = XftFontOpenPattern(x_window.display, fc_pattern))) {
+        FcPatternDestroy(fc_pattern);
         return 1;
     }
 
