@@ -253,16 +253,8 @@ x_geom_mask_to_gravity(int32 mask) {
     case YNegative:
         return SouthWestGravity;
     default:
-        // TODO: Logic Error.
-        // The bitwise AND evaluates to (XNegative | YNegative) when both flags
-        // are set.  This corresponds to a valid SouthEastGravity mask
-        // combination but falls to the default case, incorrectly logging an
-        // error.
-        error("x_geom_mask_to_gravity: Unhandled switch case.\n");
-        break;
+        return SouthEastGravity;
     }
-
-    return SouthEastGravity;
 }
 
 static int32
