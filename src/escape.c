@@ -520,7 +520,7 @@ control_seq_intro_handle(void) {
     case 'g':
         switch (csi_escape_seq.arg[0]) {
         case 0:
-            term.tabs[term.cursor.x] = 0;
+            term.tabs[term.cursor.x] = false;
             break;
         case 3:
             memset64(term.tabs, 0, term.ncols*SIZEOF(*term.tabs));
@@ -1389,7 +1389,7 @@ term_control_code(uchar ascii) {
     case 0x87:
         break;
     case 0x88:
-        term.tabs[term.cursor.x] = 1;
+        term.tabs[term.cursor.x] = true;
         break;
     case 0x89:
     case 0x8a:
@@ -1472,7 +1472,7 @@ eschandle(uchar ascii) {
         term_new_line(1);
         break;
     case 'H':
-        term.tabs[term.cursor.x] = 1;
+        term.tabs[term.cursor.x] = true;
         break;
     case 'M':
         if (term.cursor.y == term.top_scroll_limit) {

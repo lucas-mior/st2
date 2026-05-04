@@ -353,7 +353,7 @@ term_reset(void) {
 
     memset64(term.tabs, 0, term.ncols*SIZEOF(*term.tabs));
     for (int32 i = CONF_TAB_NSPACES; i < term.ncols; i += CONF_TAB_NSPACES) {
-        term.tabs[i] = 1;
+        term.tabs[i] = true;
     }
     term.top_scroll_limit = 0;
     term.n_hist = 0;
@@ -861,7 +861,7 @@ reflow_scroll_down(int32 n) {
 
 static void
 term_resize(int32 col, int32 row) {
-    int32 *bp;
+    bool *bp;
 
     term.dirts = xrealloc(term.dirts, (int64)row*SIZEOF(*(term.dirts)));
     term.tabs = xrealloc(term.tabs, (int64)col*SIZEOF(*(term.tabs)));
@@ -874,7 +874,7 @@ term_resize(int32 col, int32 row) {
         }
         for (bp += CONF_TAB_NSPACES; bp < term.tabs + col;
              bp += CONF_TAB_NSPACES) {
-            *bp = 1;
+            *bp = true;
         }
     }
 

@@ -209,6 +209,7 @@ static struct {
     int32 lines_scrolled_up;   /* scroll back */
     int32 wrap_char_width[2];  /* used in updating WRAPNEXT when resizing */
     bool *dirts;               /* dirtyness of lines */
+    bool *tabs;
     TCursor cursor;            /* cursor */
     int32 old_cursor_x;        /* old cursor col */
     int32 old_cursor_y;        /* old cursor row */
@@ -219,7 +220,6 @@ static struct {
     char translation_table[4]; /* charset table translation */
     int32 charset;             /* current charset */
     int32 icharset;            /* selection_is_selected charset for sequence */
-    int32 *tabs;
     uint32 last_char; /* last printed char outside of sequence, 0 if control */
     ImageList *images;
     ImageList *images_alt;
