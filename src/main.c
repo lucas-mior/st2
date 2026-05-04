@@ -432,7 +432,7 @@ run:
                     trigger = now;
                     drawing = 1;
                 }
-                timeout = (CONF_LATENCY_MAX - (float)timediff(now, trigger))
+                timeout = (CONF_LATENCY_MAX - timediff(now, trigger))
                           / CONF_LATENCY_MAX*CONF_LATENCY_MIN;
                 if (timeout > 0) {
                     continue;
@@ -441,7 +441,7 @@ run:
 
             timeout = -1;
             if (CONF_BLINK_TIMEOUT && term_attr_set(ATTR_BLINK)) {
-                timeout = (float)CONF_BLINK_TIMEOUT - (float)timediff(now, lastblink);
+                timeout = CONF_BLINK_TIMEOUT - timediff(now, lastblink);
                 if (timeout <= 0) {
                     if (-timeout > (float)CONF_BLINK_TIMEOUT) {
                         term_window.mode |= WIN_MODE_BLINK;
@@ -449,7 +449,7 @@ run:
                     term_window.mode ^= WIN_MODE_BLINK;
                     term_set_dirt_attr(ATTR_BLINK);
                     lastblink = now;
-                    timeout = (float)CONF_BLINK_TIMEOUT;
+                    timeout = CONF_BLINK_TIMEOUT;
                 }
             }
 
