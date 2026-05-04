@@ -1004,8 +1004,9 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     {
         ImageList *im = term.images;
-        for (; im; im = im->next) {
+        while (im) {
             im->y += OFFSET_OLD;
+            im = im->next;
         }
     }
 
@@ -1050,10 +1051,11 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             len = term_line_len(line);
             {
                 ImageList *im = term.images;
-                for (; im; im = im->next) {
+                while (im) {
                     if (im->y == old_y_index + OFFSET_OLD) {
                         im->y = new_y_index + OFFSET_REF;
                     }
+                    im = im->next;
                 }
             }
         }
@@ -1141,10 +1143,11 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             term.lines[i] = reflow_lines[new_y_index];
             {
                 ImageList *im = term.images;
-                for (; im; im = im->next) {
+                while (im) {
                     if (im->y == new_y_index + OFFSET_REF) {
                         im->y = i;
                     }
+                    im = im->next;
                 }
             }
             new_y_index -= 1;
@@ -1167,10 +1170,11 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             term.hist[j_hist] = reflow_lines[new_y_index];
             {
                 ImageList *im = term.images;
-                for (; im; im = im->next) {
+                while (im) {
                     if (im->y == new_y_index + OFFSET_REF) {
                         im->y = k_idx;
                     }
+                    im = im->next;
                 }
             }
             k_idx -= 1;
@@ -1181,12 +1185,13 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     {
         ImageList *im = term.images;
-        for (; im; im = im->next) {
+        while (im) {
             if (im->y >= OFFSET_REF) {
                 im->y -= OFFSET_REF;
             } else if (im->y >= OFFSET_OLD) {
                 im->y -= OFFSET_OLD;
             }
+            im = im->next;
         }
     }
 
