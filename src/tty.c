@@ -269,9 +269,9 @@ static void
 mock_term_init(void) {
     term.nrows = 24;
     term.ncols = 80;
-    term.dirty = xmalloc((int64)term.nrows * SIZEOF(*term.dirty));
+    term.dirts = xmalloc((int64)term.nrows * SIZEOF(*term.dirts));
     for (int32 i = 0; i < term.nrows; i += 1) {
-        term.dirty[i] = 0;
+        term.dirts[i] = 0;
     }
 
     term.lines = xmalloc((int64)term.nrows * SIZEOF(*term.lines));

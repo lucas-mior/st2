@@ -53,7 +53,7 @@ check_consistent_state(void) {
     ASSERT_MORE(term.ncols, 0);
     ASSERT(term.lines);
     ASSERT(term.tabs);
-    ASSERT(term.dirty);
+    ASSERT(term.dirts);
 
     for (int32 i = 0; i < term.nrows; i += 1) {
         ASSERT(term.lines[i]);
@@ -294,7 +294,7 @@ term_set_dirt(int32 top, int32 bot) {
     LIMIT(bot, 0, term.nrows - 1);
 
     for (int32 i = top; i <= bot; i += 1) {
-        term.dirty[i] = 1;
+        term.dirts[i] = 1;
     }
     return;
 }
@@ -304,7 +304,7 @@ term_set_dirt_attr(enum GlyphAttribute attr) {
     for (int32 i = 0; i < term.nrows - 1; i += 1) {
         for (int32 j = 0; j < term.ncols - 1; j += 1) {
             if (term.lines[i][j].mode & attr) {
-                term.dirty[i] = 1;
+                term.dirts[i] = 1;
                 break;
             }
         }
@@ -315,7 +315,7 @@ term_set_dirt_attr(enum GlyphAttribute attr) {
 static void
 term_full_dirt(void) {
     for (int32 i = 0; i < term.nrows; i += 1) {
-        term.dirty[i] = 1;
+        term.dirts[i] = 1;
     }
     return;
 }
@@ -655,7 +655,7 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
         }
     }
 
-    term.dirty[y] = 1;
+    term.dirts[y] = 1;
     term.lines[y][x] = *attr;
     term.lines[y][x].rune = u;
     term.lines[y][x].mode |= ATTR_SET;
@@ -690,7 +690,7 @@ term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, bool use_current_attr)
     }
 
     for (int32 y = y1; y <= y2; y += 1) {
-        term.dirty[y] = 1;
+        term.dirts[y] = 1;
         for (int32 x = x1; x <= x2; x += 1) {
             term_clear_glyph(&term.lines[y][x], use_current_attr);
         }
@@ -863,7 +863,7 @@ static void
 term_resize(int32 col, int32 row) {
     int32 *bp;
 
-    term.dirty = xrealloc(term.dirty, (int64)row*SIZEOF(*(term.dirty)));
+    term.dirts = xrealloc(term.dirts, (int64)row*SIZEOF(*(term.dirts)));
     term.tabs = xrealloc(term.tabs, (int64)col*SIZEOF(*(term.tabs)));
     if (col > term.ncols) {
         bp = term.tabs + term.ncols;
@@ -1242,11 +1242,11 @@ draw(void) {
     }
 
     for (int32 y = 0; y < term.nrows; y += 1) {
-        if (!term.dirty[y]) {
+        if (!term.dirts[y]) {
             continue;
         }
 
-        term.dirty[y] = 0;
+        term.dirts[y] = 0;
         x_draw_line(term_line(y), 0, y, term.ncols);
     }
 
@@ -1456,7 +1456,7 @@ main(void) {
     CONF_NUMBER_ROWS = 5;
     term.ncols = CONF_NUMBER_COLS;
     term.nrows = CONF_NUMBER_ROWS;
-    term.dirty = xmalloc(term.nrows * SIZEOF(*term.dirty));
+    term.dirts = xmalloc(term.nrows * SIZEOF(*term.dirts));
     term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
     for (int32 i = 0; i < 2; i += 1) {
         term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
@@ -1528,14 +1528,14 @@ main(void) {
 
     {
         term_full_dirt();
-        ASSERT(term.dirty[0]);
-        term.dirty[0] = 0;
+        ASSERT(term.dirts[0]);
+        term.dirts[0] = 0;
         term_set_dirt(0, 0);
-        ASSERT(term.dirty[0]);
-        term.dirty[0] = 0;
+        ASSERT(term.dirts[0]);
+        term.dirts[0] = 0;
         term.lines[0][0].mode |= ATTR_ITALIC;
         term_set_dirt_attr(ATTR_ITALIC);
-        ASSERT(term.dirty[0]);
+        ASSERT(term.dirts[0]);
     }
 
     {

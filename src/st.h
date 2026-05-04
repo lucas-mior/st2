@@ -208,7 +208,7 @@ static struct {
     int32 n_hist;               /* nb history available */
     int32 lines_scrolled_up;   /* scroll back */
     int32 wrap_char_width[2];  /* used in updating WRAPNEXT when resizing */
-    bool *dirty;               /* dirtyness of lines */
+    bool *dirts;               /* dirtyness of lines */
     TCursor cursor;            /* cursor */
     int32 old_cursor_x;        /* old cursor col */
     int32 old_cursor_y;        /* old cursor row */

@@ -1237,7 +1237,7 @@ main(void) {
 
         CONF_NUMBER_COLS = 80;
         CONF_NUMBER_ROWS = 24;
-        term.dirty = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.dirty)));
+        term.dirts = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.dirts)));
         for (int32 i = 0; i < 2; i += 1) {
             term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
             for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {

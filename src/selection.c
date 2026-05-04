@@ -388,7 +388,7 @@ main(void) {
         term.ncols = CONF_NUMBER_COLS;
         term.nrows = CONF_NUMBER_ROWS;
 
-        term.dirty = xmalloc(term.nrows * SIZEOF(*term.dirty));
+        term.dirts = xmalloc(term.nrows * SIZEOF(*term.dirts));
         term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
 
         term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));

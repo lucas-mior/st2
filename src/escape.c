@@ -1070,7 +1070,7 @@ string_handle(void) {
                     next_im = im_ptr->next;
                     if (im_ptr->y >= y1_im && im_ptr->y < y2_im) {
                         y_line = im_ptr->y - scr_offset;
-                        if (y_line >= 0 && y_line < term.nrows && term.dirty[y_line]) {
+                        if (y_line >= 0 && y_line < term.nrows && term.dirts[y_line]) {
                             StGlyph *line_ptr = term.lines[y_line];
                             j = (int32)MIN(im_ptr->x + im_ptr->cols, term.ncols);
                             for (i_idx = im_ptr->x; i_idx < j; i_idx += 1) {
@@ -1114,7 +1114,7 @@ string_handle(void) {
                     }
                     im_sdm->y = i_sdm + scr_offset;
                     term_set_sixel_attr(term.lines[i_sdm], x1_im, x2_im);
-                    term.dirty[MIN(im_sdm->y, term.nrows - 1)] = 1;
+                    term.dirts[MIN(im_sdm->y, term.nrows - 1)] = 1;
                 }
             } else {
                 ImageList *im_cur;
@@ -1128,7 +1128,7 @@ string_handle(void) {
                     }
                     im_cur->y = term.cursor.y + scr_offset;
                     term_set_sixel_attr(term.lines[term.cursor.y], x1_im, x2_im);
-                    term.dirty[MIN(im_cur->y, term.nrows - 1)] = 1;
+                    term.dirts[MIN(im_cur->y, term.nrows - 1)] = 1;
 
                     if (i_cur < numimages - 1) {
                         im_cur->next = NULL;
@@ -1770,7 +1770,7 @@ main(void) {
         term.nrows = CONF_NUMBER_ROWS;
 
         /* Clean allocation of screen buffers */
-        term.dirty = xmalloc(term.nrows * SIZEOF(*term.dirty));
+        term.dirts = xmalloc(term.nrows * SIZEOF(*term.dirts));
         term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
         term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
         for (int32 j = 0; j < term.nrows; j += 1) {

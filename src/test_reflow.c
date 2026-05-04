@@ -153,7 +153,7 @@ main(void) {
 
     term.ncols = init_cols;
     term.nrows = init_rows;
-    term.dirty = xmalloc((int64)init_rows * SIZEOF(*(term.dirty)));
+    term.dirts = xmalloc((int64)init_rows * SIZEOF(*(term.dirts)));
     term.tabs = xmalloc((int64)init_cols * SIZEOF(*(term.tabs)));
     memset64(term.tabs, 0, init_cols * SIZEOF(*(term.tabs)));
 

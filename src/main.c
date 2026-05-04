@@ -130,7 +130,7 @@ run:
         term.nrows = CONF_NUMBER_ROWS;
         term_swap_screen();
     }
-    term.dirty = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*term.dirty));
+    term.dirts = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*term.dirts));
     term.tabs = xmalloc(CONF_NUMBER_COLS*SIZEOF(*term.tabs));
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
         term.hist[i] = xmalloc(CONF_NUMBER_COLS*SIZEOF(StGlyph));
