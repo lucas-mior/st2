@@ -927,17 +927,17 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
 }
 
 static void
-x_draw_glyph(StGlyph g, int32 x, int32 y) {
+x_draw_glyph(StGlyph glyph, int32 x, int32 y) {
     int32 nfont_specs;
     XftGlyphFontSpec xft_glyph_font_spec;
 
-    nfont_specs = x_make_glyph_font_specs(&xft_glyph_font_spec, &g, 1, x, y);
-    x_draw_glyph_font_specs(&xft_glyph_font_spec, g, nfont_specs, x, y);
+    nfont_specs = x_make_glyph_font_specs(&xft_glyph_font_spec, &glyph, 1, x, y);
+    x_draw_glyph_font_specs(&xft_glyph_font_spec, glyph, nfont_specs, x, y);
     return;
 }
 
 static void
-x_draw_cursor(int32 cx, int32 cy, StGlyph g, int32 ox, int32 oy, StGlyph og) {
+x_draw_cursor(int32 cx, int32 cy, StGlyph glyph, int32 ox, int32 oy, StGlyph og) {
     XftColor drawcol;
 
     if (selection_is_selected(ox, oy)) {
@@ -949,29 +949,29 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph g, int32 ox, int32 oy, StGlyph og) {
         return;
     }
 
-    g.mode &= ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK | ATTR_WIDE
+    glyph.mode &= ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK | ATTR_WIDE
               | ATTR_BOXDRAW;
 
     if (term_window_is_set(WIN_MODE_REVERSE)) {
-        g.mode |= ATTR_REVERSE;
-        g.fg = CONF_COLOR_INDEX_CURSOR;
-        g.bg = CONF_COLOR_INDEX_FONT;
+        glyph.mode |= ATTR_REVERSE;
+        glyph.fg = CONF_COLOR_INDEX_CURSOR;
+        glyph.bg = CONF_COLOR_INDEX_FONT;
         drawcol = draw_context.colors[CONF_COLOR_INDEX_REVCURSOR];
     } else {
-        g.fg = CONF_COLOR_BG;
-        g.bg = CONF_COLOR_INDEX_CURSOR;
+        glyph.fg = CONF_COLOR_BG;
+        glyph.bg = CONF_COLOR_INDEX_CURSOR;
         drawcol = draw_context.colors[CONF_COLOR_INDEX_CURSOR];
     }
 
     if (term_window_is_set(WIN_MODE_FOCUSED)) {
         switch (term_window.cursor) {
         case 7:
-            g.rune = 0x2603;
+            glyph.rune = 0x2603;
             _X_FALLTHROUGH;
         case 0:
         case 1:
         case 2:
-            x_draw_glyph(g, cx, cy);
+            x_draw_glyph(glyph, cx, cy);
             break;
         case 3:
         case 4:
