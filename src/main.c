@@ -237,12 +237,6 @@ run:
                        draw_context.graphics,
                        0, 0, (uint32)term_window.w, (uint32)term_window.h);
 
-        // TODO: 'x_window.font_spec_buf' is allocated once using the initial
-        // 'CONF_NCOLS'.  If the window is later resized to a width
-        // greater than the initial columns, rendering text into this buffer
-        // will cause a Heap Buffer Overflow.  Ensure this buffer is safely
-        // reallocated or resized during your window resize handler
-        // (x_configure_resize/xresize).
         x_window.font_spec_buf = xmalloc(CONF_NCOLS*SIZEOF(XftGlyphFontSpec));
 
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
