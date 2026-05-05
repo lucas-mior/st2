@@ -104,7 +104,7 @@ handler_selection_notify(XEvent *xevent) {
     uchar *last;
     uchar *repl;
     Atom actual_type_return;
-    Atom incratom = XInternAtom(x_window.display, "INCR", 0);
+    Atom INCR = XInternAtom(x_window.display, "INCR", 0);
     Atom property = None;
 
     offset = 0;
@@ -134,7 +134,7 @@ handler_selection_notify(XEvent *xevent) {
                                     &x_window.attrs);
         }
 
-        if (actual_type_return == incratom) {
+        if (actual_type_return == INCR) {
             MODBIT(x_window.attrs.event_mask, 1, PropertyChangeMask);
             XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
                                     &x_window.attrs);
