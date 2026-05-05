@@ -220,24 +220,15 @@ user_print_sel(union Arg *arg) {
 static void
 user_vim_select(union Arg *arg) {
     char buf[UTF_SIZ];
-    char tmp_file[64];
+    char tmp_file[] = "/tmp/st_vimselect_XXXXXX";
     int32 fd;
     int32 target_row;
     int32 target_col;
 
     (void)arg;
 
-    // TODO: Insecure Temporary File Creation (Symlink Attack).
-    // Using a predictable filename in `/tmp` without `O_EXCL` allows an
-    // attacker to create a symlink with this name pointing to a critical file
-    // (like ~/.bashrc).  When this process opens it with `O_TRUNC | O_WRONLY`,
-    // it will overwrite the target file.  Use `mkstemp()` instead of `SNPRINTF`
-    // + `open` to safely create temporary files.
-    SNPRINTF(tmp_file, "/tmp/st_vimselect_%d", getpid());
-
-    if ((fd = open(tmp_file,
-                   O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) < 0) {
-        error("Error opening %s: %s\n", tmp_file, strerror(errno));
+    if ((fd = mkstemp(tmp_file)) < 0) {
+        error("Error creating temporary file: %s\n", strerror(errno));
         return;
     }
 
