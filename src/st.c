@@ -50,6 +50,7 @@
 
 static void
 check_consistent_state(void) {
+    /* 1. Basic Geometry and Core Buffers */
     ASSERT_MORE(term.nrows, 0);
     ASSERT_MORE(term.ncols, 0);
     ASSERT_LESS(term.nrows, MAX_NROWS);
@@ -62,8 +63,13 @@ check_consistent_state(void) {
         ASSERT(term.lines[i]);
     }
 
+    /* 2. History Integrity and Row Uniqueness */
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
         ASSERT(term.hist[i]);
+        /* Ensure history rows aren't cross-linked with active screen rows */
+        for (int32 j = 0; j < term.nrows; j += 1) {
+            ASSERT(term.hist[i] != term.lines[j]);
+        }
     }
 
     ASSERT_MORE_EQUAL(term.n_hist, 0);
@@ -72,6 +78,7 @@ check_consistent_state(void) {
     ASSERT_MORE_EQUAL(term.i_hist, 0);
     ASSERT_LESS(term.i_hist, HISTORY_SIZE);
 
+    /* 3. Scrolling and Viewport Logic */
     ASSERT_MORE_EQUAL(term.scrolled_up, 0);
     ASSERT_LESS_EQUAL(term.scrolled_up, term.n_hist);
 
@@ -81,11 +88,50 @@ check_consistent_state(void) {
     ASSERT_MORE_EQUAL(term.bot_scroll_limit, 0);
     ASSERT_LESS(term.bot_scroll_limit, term.nrows);
 
+    /* 4. Cursor and Ghost Cursor Sanity */
     ASSERT_MORE_EQUAL(term.cursor.x, 0);
     ASSERT_LESS(term.cursor.x, term.ncols);
-
     ASSERT_MORE_EQUAL(term.cursor.y, 0);
     ASSERT_LESS(term.cursor.y, term.nrows);
+
+    ASSERT_MORE_EQUAL(term.old_cursor_x, 0);
+    ASSERT_LESS(term.old_cursor_x, term.ncols);
+    ASSERT_MORE_EQUAL(term.old_cursor_y, 0);
+    ASSERT_LESS(term.old_cursor_y, term.nrows);
+
+    /* 5. Selection Invariants */
+    if (selection.ob.x != -1) {
+        /* Check normalized bounds (nb/ne) */
+        ASSERT_MORE_EQUAL(selection.nb.x, 0);
+        ASSERT_LESS(selection.nb.x, term.ncols);
+        ASSERT_MORE_EQUAL(selection.ne.x, 0);
+        ASSERT_LESS(selection.ne.x, term.ncols);
+
+        /* Y can be negative if the selection is in history */
+        ASSERT_MORE_EQUAL(selection.nb.y, -term.n_hist);
+        ASSERT_LESS(selection.nb.y, term.nrows);
+        ASSERT_MORE_EQUAL(selection.ne.y, -term.n_hist);
+        ASSERT_LESS(selection.ne.y, term.nrows);
+    }
+
+    /* 6. Charset and Metadata */
+    ASSERT_MORE_EQUAL(term.charset, 0);
+    ASSERT_LESS(term.charset, 4); /* CS_USA to CS_GRAPHIC1 */
+
+    /* 7. Image List Consistency (Doubly Linked) */
+    {
+        ImageList *im = term.images;
+        int32 safety_limit = 0;
+        while (im) {
+            /* Detect infinite loops/cycles */
+            ASSERT_LESS(safety_limit, 10000); 
+            if (im->next) {
+                ASSERT(im->next->prev == im);
+            }
+            im = im->next;
+            safety_limit += 1;
+        }
+    }
 
     return;
 }
