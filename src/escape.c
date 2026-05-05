@@ -1728,6 +1728,7 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
 
     for (n = 0; n < buflen; n += charsize) {
         uint32 u;
+
         if (term_mode_is_set(TERM_MODE_SIXEL) && sixel_st.state != PARSE_STATE_ESC) {
             // TODO: Unhandled Edge Case / Infinite Loop.
             // If `sixel_parser_parse` returns 0 (e.g., waiting for more data or
@@ -1748,6 +1749,7 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
                 charsize = 1;
             }
         }
+
         if (show_ctrl && IS_CONTROl(u)) {
             if (u & 0x80) {
                 u &= 0x7f;
@@ -1761,6 +1763,7 @@ term_write(char *buffer, int32 buflen, int32 show_ctrl) {
                 }
             }
         }
+
         term_putc(u);
     }
     return n;
