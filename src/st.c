@@ -907,14 +907,12 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         term.cursor.y = new_nrows - 1;
     }
 
-    /* Free pointers that are now out of bounds */
     for (int32 i = (int32)MAX(new_nrows, shift + new_nrows); i < term.nrows; i += 1) {
         free(term.lines[i]);
     }
     
     term.lines = xrealloc(term.lines, new_nrows*SIZEOF(*(term.lines)));
 
-    /* Resize existing rows to the new width */
     for (int32 j = 0; j < (int32)MIN(new_nrows, term.nrows); j += 1) {
         term.lines[j] = xrealloc(term.lines[j], new_ncols*SIZEOF(*(term.lines[j])));
         for (int32 k = term.ncols; k < new_ncols; k += 1) {
@@ -922,7 +920,6 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         }
     }
 
-    /* Allocate entirely new rows if the terminal height increased */
     for (int32 j = (int32)MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
         term.lines[j] = xmalloc(new_ncols*SIZEOF(StGlyph));
         for (int32 k = 0; k < new_ncols; k += 1) {
