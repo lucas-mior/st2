@@ -26,18 +26,19 @@ handler_sigchld(int32 unused) {
     }
 
     if (pid != p) {
-        // TODO: UI Freeze / Blocking Wait.
-        // `waitpid` with `WNOHANG` returns 0 if the target process (the primary
-        // shell) has not yet changed state. If a SIGCHLD was triggered by
-        // another child (like a background fork from `user_external_pipe`), or
-        // by the primary shell stopping (SIGSTOP), `p` will be 0.  Calling the
-        // blocking `wait(&stat)` here will cause the main terminal thread to
-        // completely freeze until *some* child exits. Use a non-blocking loop
-        // with `waitpid(-1, &stat, WNOHANG)` to reap orphaned/background
-        // processes without blocking.
-        if (p == 0 && wait(&stat) < 0) {
-            error("wait: %s\n", strerror(errno));
-            exit(EXIT_FAILURE);
+        pid_t ret = 0;
+        
+        while ((ret = waitpid(-1, &stat, WNOHANG)) > 0) {
+            if (ret == pid) {
+                if (WIFEXITED(stat) && WEXITSTATUS(stat)) {
+                    error("child exited with status %d\n", WEXITSTATUS(stat));
+                    exit(EXIT_FAILURE);
+                } else if (WIFSIGNALED(stat)) {
+                    error("child terminated due to signal %d\n", WTERMSIG(stat));
+                    exit(EXIT_FAILURE);
+                }
+                _exit(0);
+            }
         }
 
         /* reinstall handler_sigchld handler */
