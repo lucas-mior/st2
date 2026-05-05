@@ -747,8 +747,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     int32 width;
     XftColor *fg;
     XftColor *bg;
-    XftColor truefg;
-    XftColor truebg;
+    XftColor true_fg;
+    XftColor true_bg;
     XRenderColor colfg;
     XRenderColor colbg;
 
@@ -779,8 +779,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         colfg.green = TRUE_GREEN(base.fg);
         colfg.blue = TRUE_BLUE(base.fg);
         XftColorAllocValue(x_window.display, x_window.visual,
-                           x_window.color_map, &colfg, &truefg);
-        fg = &truefg;
+                           x_window.color_map, &colfg, &true_fg);
+        fg = &true_fg;
     } else {
         fg = &draw_context.colors[base.fg];
     }
@@ -791,8 +791,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         colbg.green = TRUE_GREEN(base.bg);
         colbg.blue = TRUE_BLUE(base.bg);
         XftColorAllocValue(x_window.display, x_window.visual,
-                           x_window.color_map, &colbg, &truebg);
-        bg = &truebg;
+                           x_window.color_map, &colbg, &true_bg);
+        bg = &true_bg;
     } else {
         bg = &draw_context.colors[base.bg];
     }
