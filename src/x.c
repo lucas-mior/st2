@@ -938,7 +938,7 @@ x_draw_glyph(StGlyph glyph, int32 x, int32 y) {
 
 static void
 x_draw_cursor(int32 cx, int32 cy, StGlyph glyph, int32 ox, int32 oy, StGlyph og) {
-    XftColor drawcol;
+    XftColor draw_color;
 
     if (selection_is_selected(ox, oy)) {
         og.mode |= ATTR_SELECTED;
@@ -956,11 +956,11 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph glyph, int32 ox, int32 oy, StGlyph og)
         glyph.mode |= ATTR_REVERSE;
         glyph.fg = CONF_COLOR_INDEX_CURSOR;
         glyph.bg = CONF_COLOR_INDEX_FONT;
-        drawcol = draw_context.colors[CONF_COLOR_INDEX_REVCURSOR];
+        draw_color = draw_context.colors[CONF_COLOR_INDEX_REVCURSOR];
     } else {
         glyph.fg = CONF_COLOR_BG;
         glyph.bg = CONF_COLOR_INDEX_CURSOR;
-        drawcol = draw_context.colors[CONF_COLOR_INDEX_CURSOR];
+        draw_color = draw_context.colors[CONF_COLOR_INDEX_CURSOR];
     }
 
     if (term_window_is_set(WIN_MODE_FOCUSED)) {
@@ -975,14 +975,14 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph glyph, int32 ox, int32 oy, StGlyph og)
             break;
         case 3:
         case 4:
-            XftDrawRect(x_window.xft_draw, &drawcol,
+            XftDrawRect(x_window.xft_draw, &draw_color,
                         term_window.hborderpx + cx*term_window.cw,
                         term_window.vborderpx + (cy + 1)*term_window.ch - (int32)CONF_CURSOR_THICKNESS,
                         (uint32)term_window.cw, (uint32)CONF_CURSOR_THICKNESS);
             break;
         case 5:
         case 6:
-            XftDrawRect(x_window.xft_draw, &drawcol,
+            XftDrawRect(x_window.xft_draw, &draw_color,
                         term_window.hborderpx + cx*term_window.cw,
                         term_window.vborderpx + cy*term_window.ch,
                         CONF_CURSOR_THICKNESS, (uint32)term_window.ch);
@@ -992,19 +992,19 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph glyph, int32 ox, int32 oy, StGlyph og)
             break;
         }
     } else {
-        XftDrawRect(x_window.xft_draw, &drawcol,
+        XftDrawRect(x_window.xft_draw, &draw_color,
                     term_window.hborderpx + cx*term_window.cw,
                     term_window.vborderpx + cy*term_window.ch,
                     (uint32)(term_window.cw - 1), 1);
-        XftDrawRect(x_window.xft_draw, &drawcol,
+        XftDrawRect(x_window.xft_draw, &draw_color,
                     term_window.hborderpx + cx*term_window.cw,
                     term_window.vborderpx + cy*term_window.ch, 1,
                     (uint32)(term_window.ch - 1));
-        XftDrawRect(x_window.xft_draw, &drawcol,
+        XftDrawRect(x_window.xft_draw, &draw_color,
                     term_window.hborderpx + (cx + 1)*term_window.cw - 1,
                     term_window.vborderpx + cy*term_window.ch, 1,
                     (uint32)(term_window.ch - 1));
-        XftDrawRect(x_window.xft_draw, &drawcol,
+        XftDrawRect(x_window.xft_draw, &draw_color,
                     term_window.hborderpx + cx*term_window.cw,
                     term_window.vborderpx + (cy + 1)*term_window.ch - 1,
                     (uint32)term_window.cw, 1);
