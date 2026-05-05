@@ -44,9 +44,9 @@ sixd_to_16bit(int32 x) {
 }
 
 static void
-x_resize(int32 col, int32 row) {
-    term_window.tty_width = col*term_window.cw;
-    term_window.tty_height = row*term_window.ch;
+x_resize(int32 new_ncols, int32 new_nrows) {
+    term_window.tty_width = new_ncols*term_window.cw;
+    term_window.tty_height = new_nrows*term_window.ch;
 
     XFreePixmap(x_window.display, x_window.drawable);
     x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
@@ -57,7 +57,7 @@ x_resize(int32 col, int32 row) {
     x_clear(0, 0, term_window.w, term_window.h);
 
     x_window.font_spec_buf = xrealloc(x_window.font_spec_buf,
-                                      col*SIZEOF(XftGlyphFontSpec));
+                                      new_ncols*SIZEOF(XftGlyphFontSpec));
     return;
 }
 
