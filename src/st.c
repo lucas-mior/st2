@@ -753,8 +753,8 @@ term_insert_blank_line(int32 n) {
 static void
 term_delete_line(int32 n) {
     if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot_scroll_limit)) {
-        term_scroll_up(term.cursor.y, term.bot_scroll_limit, n,
-                       SCROLL_NOSAVEHIST);
+        term_scroll_up(term.cursor.y, term.bot_scroll_limit,
+                       n, SCROLL_NOSAVEHIST);
     }
     return;
 }
