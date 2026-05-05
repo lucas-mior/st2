@@ -262,8 +262,8 @@ sixel_parser_set_default_color(SixelState *sixel_state) {
 }
 
 static int32
-sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images, int32 cx,
-                      int32 cy, int32 cw, int32 ch) {
+sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
+                      int32 cx, int32 cy, int32 cw, int32 ch) {
     SixelImage *sixel_image = &sixel_state->image;
     int32 w;
     int32 h;
