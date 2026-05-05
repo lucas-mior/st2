@@ -729,27 +729,22 @@ hls2rgb(uint32 hue, uint32 lum, uint32 sat) {
     double r1;
     double g1;
     double b1;
-    uint32 r;
-    uint32 g;
-    uint32 b;
-    uint32 hs;
+    int32 r;
+    int32 g;
+    int32 b;
+    int32 hs;
 
     hue = (hue + 240) % 360;
     if (sat == 0) {
-        r = g = b = lum*255 / 100;
-        return SIXEL_RGB(r, g, b);
+        r = (int32)(lum*255 / 100);
+        return SIXEL_RGB(r, r, r);
     }
 
     if ((c2 = ((2.0*lv) - 1.0)) < 0.0) {
         c2 = -c2;
     }
-    // TODO: Unsigned Integer Underflow.
-    // 'hs' is declared as 'uint32'. The expression '(hue % 120) - 60' can be
-    // negative.  Assigning a negative result to a 'uint32' causes underflow to
-    // a huge positive number.  The subsequent check 'hs < 0' will always be
-    // false, breaking the HLS to RGB conversion.  'hs' must be declared as a
-    // signed integer (e.g., 'int32').
-    if ((hs = (hue % 120) - 60) < 0) {
+    
+    if ((hs = (int32)(hue % 120) - 60) < 0) {
         hs = -hs;
     }
     c = (1.0 - c2)*sv;
@@ -791,17 +786,10 @@ hls2rgb(uint32 hue, uint32 lum, uint32 sat) {
         return SIXEL_RGB(255, 255, 255);
     }
 
-    r = (uint32)((r1 + m)*255.0 + 0.5);
-    g = (uint32)((g1 + m)*255.0 + 0.5);
-    b = (uint32)((b1 + m)*255.0 + 0.5);
+    r = (int32)((r1 + m)*255.0 + 0.5);
+    g = (int32)((g1 + m)*255.0 + 0.5);
+    b = (int32)((b1 + m)*255.0 + 0.5);
 
-    // TODO: Unsigned Bounds Check Failure.
-    // 'r', 'g', and 'b' are declared as 'uint32'. If the floating-point
-    // calculation results in a negative number, casting it to 'uint32' produces
-    // a huge positive value.  The 'r < 0', 'g < 0', and 'b < 0' checks are
-    // always false. The subsequent '> 255' checks will catch the huge positive
-    // values and improperly clamp negative colors to fully saturated 255.
-    // Declare 'r', 'g', and 'b' as 'int32'.
     if (r < 0) {
         r = 0;
     } else if (r > 255) {
