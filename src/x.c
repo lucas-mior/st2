@@ -1067,14 +1067,13 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     int32 ox;
     int32 nfont_specs;
     StGlyph base = {0};
-    StGlyph new;
     XftGlyphFontSpec *font_specs = x_window.font_spec_buf;
 
     nfont_specs = x_make_glyph_font_specs(font_specs, &line[x1], x2 - x1, x1, y1);
     i = 0;
     ox = 0;
     for (int32 x = x1; x < x2 && i < nfont_specs; x += 1) {
-        new = line[x];
+        StGlyph new = line[x];
         if (new.mode == ATTR_WDUMMY) {
             continue;
         }
