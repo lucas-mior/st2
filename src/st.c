@@ -1384,8 +1384,8 @@ redraw(void) {
 
 static void
 x_configure_resize(int32 width, int32 height) {
-    int32 col;
-    int32 row;
+    int32 new_ncols;
+    int32 new_nrows;
 
     if (width != 0) {
         term_window.w = width;
@@ -1394,16 +1394,16 @@ x_configure_resize(int32 width, int32 height) {
         term_window.h = height;
     }
 
-    col = (term_window.w - 2*CONF_BORDER_PIXELS) / term_window.cw;
-    row = (term_window.h - 2*CONF_BORDER_PIXELS) / term_window.ch;
-    col = (int32)MAX(1, col);
-    row = (int32)MAX(1, row);
+    new_ncols = (term_window.w - 2*CONF_BORDER_PIXELS) / term_window.cw;
+    new_nrows = (term_window.h - 2*CONF_BORDER_PIXELS) / term_window.ch;
+    new_ncols = (int32)MAX(1, new_ncols);
+    new_nrows = (int32)MAX(1, new_nrows);
 
-    term_window.hborderpx = (term_window.w - col*term_window.cw) / 2;
-    term_window.vborderpx = (term_window.h - row*term_window.ch) / 2;
+    term_window.hborderpx = (term_window.w - new_ncols*term_window.cw) / 2;
+    term_window.vborderpx = (term_window.h - new_nrows*term_window.ch) / 2;
 
-    term_resize(col, row);
-    x_resize(col, row);
+    term_resize(new_ncols, new_nrows);
+    x_resize(new_ncols, new_nrows);
     tty_resize(term_window.tty_width, term_window.tty_height);
     return;
 }
