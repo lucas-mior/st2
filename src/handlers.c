@@ -128,7 +128,9 @@ handler_selection_notify(XEvent *xevent) {
             return;
         }
 
-        if (xevent->type == PropertyNotify && nitems_return == 0 && bytes_after_return == 0) {
+        if ((xevent->type == PropertyNotify)
+                && (nitems_return == 0)
+                && (bytes_after_return == 0)) {
             MODBIT(x_window.attrs.event_mask, 0, PropertyChangeMask);
             XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
                                     &x_window.attrs);
