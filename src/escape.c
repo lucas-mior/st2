@@ -1021,7 +1021,7 @@ string_handle(void) {
             int32 x2_im;
             int32 y2_im;
             int32 y_line;
-            int32 numimages;
+            int32 nimages;
             int32 cx_pos;
             int32 cy_pos;
 
@@ -1040,11 +1040,11 @@ string_handle(void) {
             } else {
                 cy_pos = term.cursor.y;
             }
-            numimages = sixel_parser_finalize(&sixel_st, &newimages,
+            nimages = sixel_parser_finalize(&sixel_st, &newimages,
                                               cx_pos, cy_pos + scr_offset,
                                               term_window.cw, term_window.ch);
 
-            if (numimages <= 0 || newimages == NULL || newimages->cols <= 0) {
+            if (nimages <= 0 || newimages == NULL || newimages->cols <= 0) {
                 if (newimages) {
                     delete_image(newimages);
                 }
@@ -1056,10 +1056,10 @@ string_handle(void) {
             x1_im = newimages->x;
             y1_im = newimages->y;
             x2_im = x1_im + newimages->cols;
-            y2_im = y1_im + numimages;
+            y2_im = y1_im + nimages;
 
             if (term.images) {
-                char *transparent_rows = xmalloc(numimages);
+                char *transparent_rows = xmalloc(nimages);
                 int32 i_idx = 0;
                 for (ImageList *im_ptr = newimages; im_ptr; im_ptr = im_ptr->next) {
                     transparent_rows[i_idx] = (char)im_ptr->transparent;
@@ -1138,7 +1138,7 @@ string_handle(void) {
                     term_set_sixel_attr(term.lines[term.cursor.y], x1_im, x2_im);
                     term.dirts[MIN(im_cur->y, term.nrows - 1)] = 1;
 
-                    if (i_cur < numimages - 1) {
+                    if (i_cur < nimages - 1) {
                         im_cur->next = NULL;
                         term_new_line(0);
                         im_cur->next = next_im;
