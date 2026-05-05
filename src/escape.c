@@ -1594,8 +1594,10 @@ term_putc(uint32 u) {
             // `str_escape_seq` until OOM.
             if (is_sixel) {
                 term.esc |= ESC_SIXEL;
-                sixel_parser_init(&sixel_st, 1, 0, 0, 1, term_window.cw,
-                                  term_window.ch);
+                sixel_parser_init(&sixel_st, true,
+                                  0, 0,
+                                  true,
+                                  term_window.cw, term_window.ch);
                 str_escape_seq.len = 0;
             }
         }
