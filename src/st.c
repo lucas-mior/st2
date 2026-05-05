@@ -1383,15 +1383,15 @@ redraw(void) {
 }
 
 static void
-x_configure_resize(int32 width, int32 height) {
+x_configure_resize(int32 new_width, int32 new_height) {
     int32 new_ncols;
     int32 new_nrows;
 
-    if (width != 0) {
-        term_window.w = width;
+    if (new_width != 0) {
+        term_window.w = new_width;
     }
-    if (height != 0) {
-        term_window.h = height;
+    if (new_height != 0) {
+        term_window.h = new_height;
     }
 
     new_ncols = (term_window.w - 2*CONF_BORDER_PIXELS) / term_window.cw;
