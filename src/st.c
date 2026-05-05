@@ -485,7 +485,6 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
     int32 s = 0;
     uint32 alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
     bool savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
-    StGlyph *temp;
 
     if (n <= 0) {
         return;
@@ -519,7 +518,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
     }
 
     for (int32 i = top; i <= bot - n; i += 1) {
-        temp = term.lines[i];
+        StGlyph *temp = term.lines[i];
         term.lines[i] = term.lines[i + n];
         term.lines[i + n] = temp;
     }
