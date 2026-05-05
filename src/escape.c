@@ -22,7 +22,7 @@ typedef struct CSIEscape {
     int64 len;                /* raw string length */
     char priv;
     int32 arg[ESC_ARG_SIZ];
-    int32 narg; /* nb of args */
+    int32 narg;
     char mode[2];
 } CSIEscape;
 
