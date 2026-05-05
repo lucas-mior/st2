@@ -771,7 +771,7 @@ reflow_scroll_down(int32 n) {
     } else {
         term.scrolled_up = 0;
         if (selection.ob.x != -1 && !selection.alt) {
-            selection_move(-j);
+            selection_move_y(-j);
         }
     }
 

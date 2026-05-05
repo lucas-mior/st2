@@ -1,6 +1,15 @@
+#if !defined(ST_UTIL_C)
+#define ST_UTIL_C
+
 #include "util.c"
 #include "st.h"
 #include "arg.h"
+
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_st_util 1
+#elif !defined(TESTING_st_util)
+#define TESTING_st_util 0
+#endif
 
 static int64
 xwrite(int32 fd, char *s, int64 len) {
@@ -39,3 +48,20 @@ usage(void) {
           argv0, argv0);
     exit(EXIT_FAILURE);
 }
+
+#if TESTING_st_util
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "assert.c"
+
+int
+main(void) {
+	ASSERT(true);
+	exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_st_util */
+
+#endif /* ST_UTIL_C */
