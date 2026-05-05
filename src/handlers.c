@@ -398,35 +398,35 @@ handler_key_press(XEvent *xevent) {
             }
         }
 
-        for (Key *kp = CONF_KEYS; kp < CONF_KEYS + LENGTH(CONF_KEYS); kp += 1) {
-            if (kp->k != key_sym) {
+        for (Key *key = CONF_KEYS; key < CONF_KEYS + LENGTH(CONF_KEYS); key += 1) {
+            if (key->k != key_sym) {
                 continue;
             }
-            if (!match_mask_state(kp->mask, key_event->state)) {
+            if (!match_mask_state(key->mask, key_event->state)) {
                 continue;
             }
             if (term_window_is_set(WIN_MODE_APPKEYPAD)) {
-                if (kp->appkey < 0) {
+                if (key->appkey < 0) {
                     continue;
                 }
             } else {
-                if (kp->appkey > 0) {
+                if (key->appkey > 0) {
                     continue;
                 }
             }
-            if (term_window_is_set(WIN_MODE_NUMLOCK) && kp->appkey == 2) {
+            if (term_window_is_set(WIN_MODE_NUMLOCK) && key->appkey == 2) {
                 continue;
             }
             if (term_window_is_set(WIN_MODE_APPCURSOR)) {
-                if (kp->appcursor < 0) {
+                if (key->appcursor < 0) {
                     continue;
                 }
             } else {
-                if (kp->appcursor > 0) {
+                if (key->appcursor > 0) {
                     continue;
                 }
             }
-            custom_key = kp->s;
+            custom_key = key->s;
             goto tried_custom_keys;
         }
         custom_key = NULL;
