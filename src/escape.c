@@ -1328,14 +1328,11 @@ dcshandle(void) {
             }
         }
         bgcolor = (a << 24) | (r << 16) | (g << 8) | b;
-        // TODO: Integration Bug / Invalid State.
-        // If `sixel_parser_init` fails (returns non-zero), it logs an error but
-        // execution continues and `TERM_MODE_SIXEL` is still set. Subsequent
-        // parsing will use an uninitialized or broken `sixel_st` state, likely
-        // crashing.
-        if (sixel_parser_init(&sixel_st, transparent, (255u << 24), bgcolor, 1,
-                              term_window.cw, term_window.ch) != 0) {
-            perror("sixel_parser_init() failed");
+        if (sixel_parser_init(&sixel_st, transparent,
+                              (255u << 24), bgcolor, 1,
+                              term_window.cw, term_window.ch)) {
+            error("Error in sixel_parser_init.\n");
+            fatal(EXIT_FAILURE);
         }
         term.mode |= TERM_MODE_SIXEL;
         break;
