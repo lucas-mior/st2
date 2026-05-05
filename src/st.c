@@ -1117,7 +1117,9 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             }
             new_y_index -= 1;
         } else {
-            if (i < old_nrows) free(term.lines[i]);
+            if (i < old_nrows) {
+                free(term.lines[i]);
+            }
             term.lines[i] = xmalloc(new_ncols*SIZEOF(StGlyph));
             for (int32 j = 0; j < new_ncols; j += 1) {
                 term_clear_glyph(&term.lines[i][j], false);
