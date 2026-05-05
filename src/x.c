@@ -111,8 +111,11 @@ x_load_colors(void) {
                          x_window.visual, x_window.color_map, xft_color);
         }
     } else {
+        int64 size;
+
         draw_context.colors_len = (int32)MAX(LENGTH(CONF_COLORS), 256);
-        draw_context.colors = xmalloc(draw_context.colors_len*SIZEOF(XftColor));
+        size = draw_context.colors_len*SIZEOF(*draw_context.colors);
+        draw_context.colors = xmalloc(size);
     }
 
     for (int32 i = 0; i < draw_context.colors_len; i += 1) {
