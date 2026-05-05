@@ -704,8 +704,7 @@ static void
 term_dump_sel(void) {
     char *ptr;
 
-    ptr = selection_get();
-    if (ptr) {
+    if ((ptr = selection_get())) {
         term_printer(ptr, strlen32(ptr));
         free(ptr);
     }
