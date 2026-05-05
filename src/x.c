@@ -1050,7 +1050,8 @@ x_set_title(char *p) {
         return;
     }
     XSetWMName(x_window.display, x_window.win, &text_property);
-    XSetTextProperty(x_window.display, x_window.win, &text_property, x_window.net_wm_name);
+    XSetTextProperty(x_window.display, x_window.win,
+                     &text_property, x_window.net_wm_name);
     XFree(text_property.value);
     return;
 }
