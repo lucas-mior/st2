@@ -80,14 +80,6 @@ x_load_color(int32 i, char *name, XftColor *xft_color) {
 
     if (!name) {
         if (BETWEEN(i, 16 + CONF_NTRANSPARENT_COLORS, 255)) { /* 256 color */
-            // TODO: Palette Shift Integration Bug.
-            // Because CONF_NTRANSPARENT_COLORS (26) offsets the palette start,
-            // the color cube and grayscale boundaries are incorrect. The 256
-            // colors now theoretically extend to index 281. The conditions and
-            // calculations (e.g., subtracting 16 instead of 16 + NTRANSPARENT)
-            // fail to account for the transparent colors. This improperly
-            // shifts standard colors and causes grayscale formulas to evaluate
-            // with incorrect offsets.
             if (i < 6*6*6 + 16) { /* same colors as xterm */
                 color.red = sixd_to_16bit(((i - 16) / 36) % 6);
                 color.green = sixd_to_16bit(((i - 16) / 6) % 6);
