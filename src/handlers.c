@@ -376,10 +376,10 @@ handler_key_press(XEvent *xevent) {
     }
 
     for (int32 i = 0; i < LENGTH(CONF_KEYBOARD_SHORTCUTS); i += 1) {
-        Shortcut *bp = &CONF_KEYBOARD_SHORTCUTS[i];
-        if (key_sym == bp->keysym) {
-            if (match_mask_state(bp->mod, key_event->state)) {
-                bp->func(&(bp->arg));
+        Shortcut *shortcut = &CONF_KEYBOARD_SHORTCUTS[i];
+        if (key_sym == shortcut->keysym) {
+            if (match_mask_state(shortcut->mod, key_event->state)) {
+                shortcut->func(&(shortcut->arg));
                 return;
             }
         }
