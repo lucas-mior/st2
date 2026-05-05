@@ -607,7 +607,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
     int32 winy = term_window.vborderpx + y*term_window.ch;
     enum GlyphAttribute prevmode = ATTR_LAST;
     StFont *font_local = &draw_context.font;
-    int32 frcflags = FRC_NORMAL;
+    int32 frc_flags = FRC_NORMAL;
     int32 runewidth = term_window.cw;
     int32 nfont_specs = 0;
     int32 xp = winx;
@@ -616,7 +616,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
     for (int32 i = 0; i < len; i += 1) {
         uint32 rune = glyphs[i].rune;
         enum GlyphAttribute mode = glyphs[i].mode;
-        FT_UInt glyphidx;
+        FT_UInt glyph_idx;
         int32 nfonts = 0;
 
         if (mode == ATTR_WDUMMY) {
@@ -626,7 +626,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         if (prevmode != mode) {
             prevmode = mode;
             font_local = &draw_context.font;
-            frcflags = FRC_NORMAL;
+            frc_flags = FRC_NORMAL;
             if (mode & ATTR_WIDE) {
                 runewidth = term_window.cw * 2;
             } else {
@@ -635,27 +635,27 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             if (mode & ATTR_ITALIC) {
                 if (mode & ATTR_BOLD) {
                     font_local = &draw_context.ibfont;
-                    frcflags = FRC_ITALICBOLD;
+                    frc_flags = FRC_ITALICBOLD;
                 } else {
                     font_local = &draw_context.ifont;
-                    frcflags = FRC_ITALIC;
+                    frc_flags = FRC_ITALIC;
                 }
             } else if (mode & ATTR_BOLD) {
                 font_local = &draw_context.bfont;
-                frcflags = FRC_BOLD;
+                frc_flags = FRC_BOLD;
             }
             yp = winy + font_local->ascent;
         }
 
         if (mode & ATTR_BOXDRAW) {
-            glyphidx = boxdrawindex(&glyphs[i]);
+            glyph_idx = boxdrawindex(&glyphs[i]);
         } else {
-            glyphidx = XftCharIndex(x_window.display, font_local->match, rune);
+            glyph_idx = XftCharIndex(x_window.display, font_local->match, rune);
         }
 
-        if (glyphidx) {
+        if (glyph_idx) {
             specs[nfont_specs].font = font_local->match;
-            specs[nfont_specs].glyph = glyphidx;
+            specs[nfont_specs].glyph = glyph_idx;
             specs[nfont_specs].x = (int16)xp;
             specs[nfont_specs].y = (int16)yp;
             xp += runewidth;
@@ -664,14 +664,14 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         }
 
         while (nfonts < frc_len) {
-            glyphidx = XftCharIndex(x_window.display, frc[nfonts].font, rune);
-            if (glyphidx) {
-                if (frc[nfonts].flags == frcflags) {
+            glyph_idx = XftCharIndex(x_window.display, frc[nfonts].font, rune);
+            if (glyph_idx) {
+                if (frc[nfonts].flags == frc_flags) {
                     break;
                 }
             }
-            if (!glyphidx) {
-                if (frc[nfonts].flags == frcflags) {
+            if (!glyph_idx) {
+                if (frc[nfonts].flags == frc_flags) {
                     if (frc[nfonts].unicodep == rune) {
                         break;
                     }
@@ -715,10 +715,10 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                       strerror(errno));
                 exit(EXIT_FAILURE);
             }
-            frc[frc_len].flags = frcflags;
+            frc[frc_len].flags = frc_flags;
             frc[frc_len].unicodep = rune;
 
-            glyphidx = XftCharIndex(x_window.display, frc[frc_len].font, rune);
+            glyph_idx = XftCharIndex(x_window.display, frc[frc_len].font, rune);
 
             nfonts = frc_len;
             frc_len += 1;
@@ -728,7 +728,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         }
 
         specs[nfont_specs].font = frc[nfonts].font;
-        specs[nfont_specs].glyph = glyphidx;
+        specs[nfont_specs].glyph = glyph_idx;
         specs[nfont_specs].x = (int16)xp;
         specs[nfont_specs].y = (int16)yp;
         xp += runewidth;
