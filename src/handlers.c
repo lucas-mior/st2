@@ -375,8 +375,8 @@ handler_key_press(XEvent *xevent) {
         len = XLookupString(key_event, buffer, SIZEOF(buffer), &key_sym, NULL);
     }
 
-    for (Shortcut *bp = CONF_KEYBOARD_SHORTCUTS;
-         bp < CONF_KEYBOARD_SHORTCUTS + LENGTH(CONF_KEYBOARD_SHORTCUTS); bp += 1) {
+    for (int32 i = 0; i < LENGTH(CONF_KEYBOARD_SHORTCUTS); i += 1) {
+        Shortcut *bp = &CONF_KEYBOARD_SHORTCUTS[i];
         if (key_sym == bp->keysym) {
             if (match_mask_state(bp->mod, key_event->state)) {
                 bp->func(&(bp->arg));
