@@ -1563,12 +1563,13 @@ term_putc(uint32 u) {
             goto check_control_code;
         }
 
-        // TODO: Memory Error / DoS (Unbounded Allocation).
-        // str_escape_seq.siz is doubled without any upper limit. An attacker
-        // can send an unterminated STR/OSC sequence, causing the terminal to
-        // allocate memory until it crashes from OOM. Add a maximum size limit.
         if (str_escape_seq.len + len >= str_escape_seq.siz) {
             str_escape_seq.siz *= 2;
+            if (str_escape_seq.siz > SIZEGB(1)) {
+                error("%s: escape sequence is allocating more than 1GB.\n",
+                      __func__);
+                fatal(EXIT_FAILURE);
+            }
             str_escape_seq.buffer = xrealloc(str_escape_seq.buffer,
                                              str_escape_seq.siz);
         }
