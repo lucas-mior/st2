@@ -398,7 +398,9 @@ handler_key_press(XEvent *xevent) {
             }
         }
 
-        for (Key *key = CONF_KEYS; key < CONF_KEYS + LENGTH(CONF_KEYS); key += 1) {
+        for (int32 j = 0; j < LENGTH(CONF_KEYS); j += 1) {
+            Key *key = &CONF_KEYS[j];
+
             if (key->k != key_sym) {
                 continue;
             }
@@ -426,6 +428,7 @@ handler_key_press(XEvent *xevent) {
                     continue;
                 }
             }
+
             custom_key = key->s;
             goto tried_custom_keys;
         }
