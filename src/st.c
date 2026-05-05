@@ -1342,20 +1342,6 @@ redraw(void) {
     return;
 }
 
-static int32
-xevent_col(XEvent *xevent) {
-    int32 x = xevent->xbutton.x - term_window.hborderpx;
-    LIMIT(x, 0, term_window.tty_width - 1);
-    return x / term_window.cw;
-}
-
-static int32
-xevent_row(XEvent *xevent) {
-    int32 y = xevent->xbutton.y - term_window.vborderpx;
-    LIMIT(y, 0, term_window.tty_height - 1);
-    return y / term_window.ch;
-}
-
 static void
 x_configure_resize(int32 width, int32 height) {
     int32 col;

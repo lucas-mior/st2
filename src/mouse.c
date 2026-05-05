@@ -12,6 +12,20 @@
 #endif
 
 static int32
+xevent_col(XEvent *xevent) {
+    int32 x = xevent->xbutton.x - term_window.hborderpx;
+    LIMIT(x, 0, term_window.tty_width - 1);
+    return x / term_window.cw;
+}
+
+static int32
+xevent_row(XEvent *xevent) {
+    int32 y = xevent->xbutton.y - term_window.vborderpx;
+    LIMIT(y, 0, term_window.tty_height - 1);
+    return y / term_window.ch;
+}
+
+static int32
 match_mask_state(uint32 mask, uint32 state) {
     if (mask == XK_ANY_MOD) {
         return 1;
