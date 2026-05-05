@@ -1243,7 +1243,9 @@ draw(void) {
             next = image->next;
 
             /* Check if ANY part of the image is on the visible screen */
-            if (image->x >= term.ncols || rel_y >= term.nrows || rel_y + height_in_rows <= 0) {
+            if ((image->x >= term.ncols)
+                    || (rel_y >= term.nrows)
+                    || (rel_y + height_in_rows <= 0)) {
                 continue;
             }
 
