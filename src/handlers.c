@@ -359,13 +359,13 @@ handler_key_press(XEvent *xevent) {
     char *custom_key = NULL;
     int32 len;
     uint32 c;
-    Status status;
 
     if (term_window_is_set(WIN_MODE_KBDLOCK)) {
         return;
     }
 
     if (x_window.ime.xic) {
+        Status status;
         len = XmbLookupString(x_window.ime.xic, key_event, buffer,
                               SIZEOF(buffer), &key_sym, &status);
         if (status == XBufferOverflow) {
