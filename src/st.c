@@ -90,6 +90,30 @@ check_consistent_state(void) {
     return;
 }
 
+static void
+term_allocate(void) {
+    for (int32 i = 0; i < 2; i += 1) {
+        term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
+        for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {
+            term.lines[j] = xmalloc(CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
+            memset64(term.lines[j], 0, CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
+        }
+        term.ncols = CONF_NUMBER_COLS;
+        term.nrows = CONF_NUMBER_ROWS;
+        term_swap_screen();
+    }
+
+    term.dirts = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*term.dirts));
+    term.tabs = xmalloc(CONF_NUMBER_COLS*SIZEOF(*term.tabs));
+
+    for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
+        term.hist[i] = xmalloc(CONF_NUMBER_COLS*SIZEOF(StGlyph));
+        for (int32 j = 0; j < CONF_NUMBER_COLS; j += 1) {
+            term_clear_glyph(&term.hist[i][j], false);
+        }
+    }
+}
+
 static int32
 term_line_len(StGlyph *line) {
     int32 i = term.ncols - 1;

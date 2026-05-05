@@ -120,26 +120,7 @@ run:
     CONF_NUMBER_COLS = (int32)MAX(CONF_NUMBER_COLS, 1);
     CONF_NUMBER_ROWS = (int32)MAX(CONF_NUMBER_ROWS, 1);
 
-    for (int32 i = 0; i < 2; i += 1) {
-        term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
-        for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {
-            term.lines[j] = xmalloc(CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
-            memset64(term.lines[j], 0, CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
-        }
-        term.ncols = CONF_NUMBER_COLS;
-        term.nrows = CONF_NUMBER_ROWS;
-        term_swap_screen();
-    }
-
-    term.dirts = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*term.dirts));
-    term.tabs = xmalloc(CONF_NUMBER_COLS*SIZEOF(*term.tabs));
-
-    for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        term.hist[i] = xmalloc(CONF_NUMBER_COLS*SIZEOF(StGlyph));
-        for (int32 j = 0; j < CONF_NUMBER_COLS; j += 1) {
-            term_clear_glyph(&term.hist[i][j], false);
-        }
-    }
+    term_allocate();
     term_reset();
 
     {
