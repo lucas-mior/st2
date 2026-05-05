@@ -287,8 +287,8 @@ main(void) {
     // Output should perfectly match col 0, row 0, proving no underflow injection
     ASSERT_EQUAL(captured_tty_buf, "\033[M#!!");
 
-    close(pipefd[0]);
-    close(pipefd[1]);
+    XCLOSE(&pipefd[0]);
+    XCLOSE(&pipefd[1]);
     exit(EXIT_SUCCESS);
 }
 
