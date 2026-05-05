@@ -504,26 +504,10 @@ main(void) {
 
         xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
 
-        /* Initialize Terminal and Window metrics */
+        /* Initialize Terminal via centralized allocation */
         CONF_NUMBER_COLS = 80;
         CONF_NUMBER_ROWS = 24;
-        term.ncols = CONF_NUMBER_COLS;
-        term.nrows = CONF_NUMBER_ROWS;
-        
-        term.dirts = xmalloc(term.nrows * SIZEOF(*term.dirts));
-        term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
-        
-        for (int32 i = 0; i < 2; i += 1) {
-            term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
-            for (int32 j = 0; j < term.nrows; j += 1) {
-                term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
-            }
-            term_swap_screen();
-        }
-        
-        for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-            term.hist[i] = xmalloc(term.ncols * SIZEOF(StGlyph));
-        }
+        term_allocate();
 
         /* Essential for x_configure_resize and x_resize math */
         term_window.cw = 10;
@@ -628,7 +612,9 @@ main(void) {
     if (x_window.drawable) {
         XFreePixmap(x_window.display, x_window.drawable);
     }
-    XCloseDisplay(x_window.display);
+    if (x_window.display) {
+        XCloseDisplay(x_window.display);
+    }
     
     exit(EXIT_SUCCESS);
 }
