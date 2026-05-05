@@ -1061,43 +1061,43 @@ string_handle(void) {
             if (term.images) {
                 char *transparent_rows = xmalloc(nimages);
                 int32 i_idx = 0;
-                for (ImageList *im_ptr = newimages; im_ptr; im_ptr = im_ptr->next) {
-                    transparent_rows[i_idx] = (char)im_ptr->transparent;
+                for (ImageList *image = newimages; image; image = image->next) {
+                    transparent_rows[i_idx] = (char)image->transparent;
                     i_idx += 1;
                 }
-                for (ImageList *im_ptr = term.images; im_ptr; im_ptr = next_im) {
-                    next_im = im_ptr->next;
-                    if (im_ptr->y >= y1_im && im_ptr->y < y2_im) {
-                        y_line = im_ptr->y - scr_offset;
+                for (ImageList *image = term.images; image; image = next_im) {
+                    next_im = image->next;
+                    if (image->y >= y1_im && image->y < y2_im) {
+                        y_line = image->y - scr_offset;
                         if (y_line >= 0 && y_line < term.nrows && term.dirts[y_line]) {
                             StGlyph *line_ptr = term.lines[y_line];
-                            j = (int32)MIN(im_ptr->x + im_ptr->cols, term.ncols);
-                            for (i_idx = im_ptr->x; i_idx < j; i_idx += 1) {
+                            j = (int32)MIN(image->x + image->cols, term.ncols);
+                            for (i_idx = image->x; i_idx < j; i_idx += 1) {
                                 if (line_ptr[i_idx].mode & ATTR_SIXEL) {
                                     break;
                                 }
                             }
                             // TODO: Use-After-Free / Corrupted Linked List.
-                            // `delete_image(im_ptr)` frees the image, but
-                            // `im_ptr` is never unlinked from the `term.images`
+                            // `delete_image(image)` frees the image, but
+                            // `image` is never unlinked from the `term.images`
                             // list. The preceding node's `next` pointer will
                             // still point to this freed memory, leading to a
                             // Use-After-Free crash on the next traversal.
                             if (i_idx == j) {
-                                delete_image(im_ptr);
+                                delete_image(image);
                                 continue;
                             }
                         }
                         // TODO: Use-After-Free / Corrupted Linked List.
-                        // Similar to above, `im_ptr` is freed but not unlinked
+                        // Similar to above, `image` is freed but not unlinked
                         // from the linked list.
-                        if (im_ptr->x >= x1_im && im_ptr->x + im_ptr->cols <= x2_im
-                            && !transparent_rows[im_ptr->y - y1_im]) {
-                            delete_image(im_ptr);
+                        if (image->x >= x1_im && image->x + image->cols <= x2_im
+                            && !transparent_rows[image->y - y1_im]) {
+                            delete_image(image);
                             continue;
                         }
                     }
-                    tail = im_ptr;
+                    tail = image;
                 }
                 free(transparent_rows);
             }
