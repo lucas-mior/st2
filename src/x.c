@@ -871,14 +871,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         } else {
             limit_y = win_y + term_window.ch;
         }
-        // TODO: X11 Protocol Error / Integer Underflow.
-        // If 'win_x + width' is greater than 'term_window.w', the 'x1' argument
-        // passed to x_clear becomes larger than the 'x2' argument
-        // (term_window.w). This causes an integer underflow inside 'x_clear'
-        // when calculating the rectangle width (x2 - x1), resulting in a
-        // massive draw request that can crash the X client.  It must be safely
-        // clamped to 'term_window.w'.
-        x_clear(win_x + width, (y == 0) ? 0 : win_y, term_window.w, limit_y);
+        x_clear((int32)MIN(win_x + width, term_window.w), (y == 0) ? 0 : win_y, term_window.w, limit_y);
     }
     if (y == 0) {
         x_clear(win_x, 0, win_x + width, term_window.vborderpx);
