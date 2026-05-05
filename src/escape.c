@@ -1059,10 +1059,10 @@ string_handle(void) {
             y2_im = y1_im + nimages;
 
             if (term.images) {
-                char *transparent_rows = xmalloc(nimages);
+                bool *transparents = xmalloc(nimages*SIZEOF(*transparents));
                 int32 i_idx = 0;
                 for (ImageList *image = newimages; image; image = image->next) {
-                    transparent_rows[i_idx] = (char)image->transparent;
+                    transparents[i_idx] = image->transparent;
                     i_idx += 1;
                 }
                 for (ImageList *image = term.images; image; image = next_im) {
@@ -1092,14 +1092,14 @@ string_handle(void) {
                         // Similar to above, `image` is freed but not unlinked
                         // from the linked list.
                         if (image->x >= x1_im && image->x + image->cols <= x2_im
-                            && !transparent_rows[image->y - y1_im]) {
+                            && !transparents[image->y - y1_im]) {
                             delete_image(image);
                             continue;
                         }
                     }
                     tail = image;
                 }
-                free(transparent_rows);
+                free(transparents);
             }
 
             if (tail) {

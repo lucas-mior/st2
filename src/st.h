@@ -137,7 +137,7 @@ typedef struct ImageList {
     int32 cols;
     int32 cw;
     int32 ch;
-    int32 transparent;
+    bool transparent;
 } ImageList;
 
 enum ScrollMode {
