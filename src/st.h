@@ -204,13 +204,13 @@ static struct {
     int32 wrap_char_width[2];    // used in updating WRAPNEXT when resizing
     bool *dirts;                 // dirtyness of lines
     bool *tabs;
-    TCursor cursor;              // cursor
-    int32 old_cursor_x;          // old cursor col
-    int32 old_cursor_y;          // old cursor row
-    int32 top_scroll_limit;      // top    scroll limit
-    int32 bot_scroll_limit;      // bottom scroll limit
-    enum TermMode mode;          // terminal mode flags
-    enum EscapeState esc;        // escape state flags
+    TCursor cursor;
+    int32 old_cursor_x;
+    int32 old_cursor_y;
+    int32 top_scroll_limit;
+    int32 bot_scroll_limit;
+    enum TermMode mode;
+    enum EscapeState esc;
     char translation_table[4];   // charset table translation
     int32 charset;               // current charset
     int32 icharset;              // selection_is_selected charset for sequence
