@@ -333,7 +333,7 @@ run:
         int32 xfd = XConnectionNumber(x_window.display);
         int32 tty_fd;
         int32 xev;
-        int32 drawing;
+        bool drawing;
         struct timespec seltv;
         struct timespec *tv;
         struct timespec now;
@@ -356,7 +356,7 @@ run:
         x_configure_resize(w, h);
 
         timeout = -1;
-        drawing = 0;
+        drawing = false;
         lastblink = (struct timespec){0};
 
         while (1) {
@@ -404,7 +404,7 @@ run:
             if (FD_ISSET(tty_fd, &read_fd) || xev) {
                 if (!drawing) {
                     trigger = now;
-                    drawing = 1;
+                    drawing = true;
                 }
                 timeout = (CONF_LATENCY_MAX - timediff(now, trigger))
                           / CONF_LATENCY_MAX*CONF_LATENCY_MIN;
@@ -434,7 +434,7 @@ run:
             }
 
             XFlush(x_window.display);
-            drawing = 0;
+            drawing = false;
         }
     }
 }
