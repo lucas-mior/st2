@@ -1255,18 +1255,11 @@ main(void) {
             xsel.xtarget = XA_STRING;
         }
 
+        /* Use centralized allocation */
         CONF_NUMBER_COLS = 80;
         CONF_NUMBER_ROWS = 24;
-        term.dirts = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.dirts)));
-        for (int32 i = 0; i < 2; i += 1) {
-            term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
-            for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {
-                term.lines[j] = xmalloc(CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
-            }
-            term.ncols = CONF_NUMBER_COLS;
-            term.nrows = CONF_NUMBER_ROWS;
-            term_swap_screen();
-        }
+        term_allocate();
+
         term_window.tty_width = term_window.cw * term.ncols;
         term_window.tty_height = term_window.ch * term.nrows;
     }
@@ -1444,6 +1437,7 @@ main(void) {
         x_unload_fonts();
     }
 
+    XCloseDisplay(x_window.display);
     exit(EXIT_SUCCESS);
 }
 
