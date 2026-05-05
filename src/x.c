@@ -798,8 +798,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     }
 
     if (term_window_is_set(WIN_MODE_REVERSE)) {
-        XftColor revfg;
-        XftColor revbg;
+        XftColor rev_fg;
+        XftColor rev_bg;
         if (fg == &draw_context.colors[CONF_COLOR_INDEX_FONT]) {
             fg = &draw_context.colors[CONF_COLOR_BG];
         } else {
@@ -808,8 +808,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
             colfg.blue = (ushort)~fg->color.blue;
             colfg.alpha = (ushort)fg->color.alpha;
             XftColorAllocValue(x_window.display, x_window.visual,
-                               x_window.color_map, &colfg, &revfg);
-            fg = &revfg;
+                               x_window.color_map, &colfg, &rev_fg);
+            fg = &rev_fg;
         }
 
         if (bg == &draw_context.colors[CONF_COLOR_BG]) {
@@ -820,20 +820,20 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
             colbg.blue = (ushort)~bg->color.blue;
             colbg.alpha = (ushort)bg->color.alpha;
             XftColorAllocValue(x_window.display, x_window.visual,
-                               x_window.color_map, &colbg, &revbg);
-            bg = &revbg;
+                               x_window.color_map, &colbg, &rev_bg);
+            bg = &rev_bg;
         }
     }
 
     if ((base.mode & ATTR_BOLD_FAINT) == ATTR_FAINT) {
-        XftColor revfg;
+        XftColor rev_fg;
         colfg.red = fg->color.red / 2;
         colfg.green = fg->color.green / 2;
         colfg.blue = fg->color.blue / 2;
         colfg.alpha = fg->color.alpha;
         XftColorAllocValue(x_window.display, x_window.visual,
-                           x_window.color_map, &colfg, &revfg);
-        fg = &revfg;
+                           x_window.color_map, &colfg, &rev_fg);
+        fg = &rev_fg;
     }
 
     if (base.mode & ATTR_REVERSE) {
