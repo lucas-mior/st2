@@ -274,24 +274,24 @@ user_vim_select(union Arg *arg) {
         break;
     case 0:
         {
-            char geo[32];
-            char win[32];
-            char cur[64];
+            char geometry[32];
+            char window[32];
+            char cursor[64];
             char delete_command[128];
 
-            SNPRINTF(geo, "%dx%d",
+            SNPRINTF(geometry, "%dx%d",
                           term.ncols, term.nrows);
-            SNPRINTF(win, "%lu",
+            SNPRINTF(window, "%lu",
                           x_window.win);
-            SNPRINTF(cur, "call cursor(%d, %d)",
+            SNPRINTF(cursor, "call cursor(%d, %d)",
                           target_row, target_col);
             SNPRINTF(delete_command, "autocmd VimLeave * call delete('%s')",
                                      tmp_file);
 
-            execlp("st", "st", "-w", win, "-g", geo, "-e",
+            execlp("st", "st", "-w", window, "-g", geometry, "-e",
                    "vim", "-c", "set nonumber norelativenumber wrap",
                    "-c", "set laststatus=0 buftype=nowrite",
-                   "-c", cur, "-c", delete_command, tmp_file, NULL);
+                   "-c", cursor, "-c", delete_command, tmp_file, NULL);
             
             perror("execlp st failed");
             _exit(1);
