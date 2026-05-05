@@ -922,14 +922,11 @@ string_handle(void) {
             return;
         case 52:
             if (narg > 2 && CONF_ALLOW_WINDOW_OPS) {
-                // TODO: Memory Error (Leak).
-                // If `base64_decode` dynamically allocates the returned string
-                // `dec`, it is never freed after being used by `selection_set`,
-                // causing a memory leak.
                 char *dec = base64_decode(str_escape_seq.args[2]);
                 if (dec) {
                     selection_set(dec, CurrentTime);
                     user_clipboard_copy(NULL);
+                    free(dec);
                 } else {
                     error("erresc: invalid base64\n");
                 }
