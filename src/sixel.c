@@ -372,18 +372,10 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 break;
             default:
                 if (*p >= '?' && *p <= '~') { /* sixel characters */
-                    // TODO: Logical Flaw in Resize Condition.
-                    // By using '&&' for both MAX limits, if
-                    // 'sixel_image->width' happens to reach
-                    // 'DECSIXEL_WIDTH_MAX', this entire if-condition becomes
-                    // false. As a result, the parser completely stops resizing
-                    // the buffer vertically (height) even if it hasn't hit
-                    // 'DECSIXEL_HEIGHT_MAX', improperly truncating the image.
-                    if ((sixel_image->width
-                               < (sixel_state->pos_x + sixel_state->repeat_count)
-                         || sixel_image->height < (sixel_state->pos_y + 6))
-                        && sixel_image->width < DECSIXEL_WIDTH_MAX
-                        && sixel_image->height < DECSIXEL_HEIGHT_MAX) {
+                    if ((sixel_image->width < (sixel_state->pos_x + sixel_state->repeat_count)
+                         && sixel_image->width < DECSIXEL_WIDTH_MAX)
+                        || (sixel_image->height < (sixel_state->pos_y + 6)
+                            && sixel_image->height < DECSIXEL_HEIGHT_MAX)) {
                         sx = sixel_image->width * 2;
                         sy = sixel_image->height * 2;
                         
