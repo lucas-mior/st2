@@ -360,7 +360,7 @@ term_reset(void) {
     term.charset = 0;
 
     selection_remove();
-    for (uint32 i = 0; i < 2; i += 1) {
+    for (int32 i = 0; i < 2; i += 1) {
         term_cursor(CURSOR_SAVE); /* reset saved cursor */
         for (int32 y = 0; y < term.nrows; y += 1) {
             for (int32 x = 0; x < term.ncols; x += 1) {
