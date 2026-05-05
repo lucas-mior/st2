@@ -937,7 +937,8 @@ x_draw_glyph(StGlyph glyph, int32 x, int32 y) {
 }
 
 static void
-x_draw_cursor(int32 cx, int32 cy, StGlyph glyph, int32 ox, int32 oy, StGlyph og) {
+x_draw_cursor(int32 cx, int32 cy, StGlyph glyph,
+              int32 ox, int32 oy, StGlyph og) {
     XftColor draw_color;
 
     if (selection_is_selected(ox, oy)) {
