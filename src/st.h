@@ -224,8 +224,8 @@ typedef struct StFont {
     int32 width;
     int32 ascent;
     int32 descent;
-    int32 bad_slant;
-    int32 bad_weight;
+    bool bad_slant;
+    bool bad_weight;
     XftFont *match;
     FcFontSet *set;
     FcPattern *pattern;

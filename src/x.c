@@ -292,7 +292,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
         if ((XftPatternGetInteger(st_font->match->pattern, "slant", 0, &have_attr)
              != XftResultMatch)
             || have_attr < want_attr) {
-            st_font->bad_slant = 1;
+            st_font->bad_slant = true;
             fputs("font slant does not match\n", stderr);
         }
     }
@@ -302,7 +302,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
         if ((XftPatternGetInteger(st_font->match->pattern, "weight", 0, &have_attr)
              != XftResultMatch)
             || have_attr != want_attr) {
-            st_font->bad_weight = 1;
+            st_font->bad_weight = true;
             fputs("font weight does not match\n", stderr);
         }
     }
