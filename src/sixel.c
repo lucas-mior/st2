@@ -421,8 +421,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             = sixel_image->width - sixel_state->pos_x;
                     }
 
-                    if (sixel_state->repeat_count > 0
-                        && sixel_state->pos_y + 5 < sixel_image->height) {
+                    if ((sixel_state->repeat_count > 0)
+                        && (sixel_state->pos_y + 5 < sixel_image->height)) {
                         int32 bits = *p - '?';
                         if (bits != 0) {
                             uint16 *data = sixel_image->data
