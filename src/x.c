@@ -1236,7 +1236,8 @@ main(void) {
 
         memset64(&xgc_values, 0, SIZEOF(xgc_values));
         xgc_values.graphics_exposures = False;
-        draw_context.graphics = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &xgc_values);
+        draw_context.graphics = XCreateGC(x_window.display, x_window.win,
+                                          GCGraphicsExposures, &xgc_values);
 
         x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
                                           (uint32)term_window.w,
