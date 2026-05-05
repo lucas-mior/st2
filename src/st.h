@@ -327,8 +327,6 @@ static void term_delete_images(void);
 static void tty_hangup(void);
 static void tty_write(char *s, int64 len, int32 fd);
 
-static void reset_title(void);
-
 static void tty_write_raw(char *s, int64 len);
 
 static char *term_get_glyphs(char *buffer, StGlyph *glyph, StGlyph *lgp);

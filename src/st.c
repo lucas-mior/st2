@@ -1229,12 +1229,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 }
 
 static void
-reset_title(void) {
-    x_set_title(NULL);
-    return;
-}
-
-static void
 draw(void) {
     int32 cx = term.cursor.x;
     int32 old_cursor_x = term.old_cursor_x;

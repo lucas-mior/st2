@@ -298,7 +298,7 @@ run:
                         (uchar *)&pid_this, 1);
 
         term_window.mode = WIN_MODE_NUMLOCK;
-        reset_title();
+        x_set_title(NULL);
         x_hints();
         XMapWindow(x_window.display, x_window.win);
         XSync(x_window.display, False);

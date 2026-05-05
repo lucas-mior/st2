@@ -1501,7 +1501,7 @@ eschandle(uchar ascii) {
         break;
     case 'c':
         term_reset();
-        reset_title();
+        x_set_title(NULL);
         x_load_cols();
         x_set_mode(0, WIN_MODE_HIDE);
         break;
