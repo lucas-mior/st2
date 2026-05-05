@@ -102,7 +102,7 @@ x_load_color(int32 i, char *name, XftColor *xft_color) {
 
 static void
 x_load_colors(void) {
-    static int32 loaded = 0;
+    static bool loaded = false;
 
     if (loaded) {
         for (int32 i = 0; i < draw_context.colors_len; i += 1) {
@@ -142,7 +142,7 @@ x_load_colors(void) {
         draw_context.colors[i].pixel |= ((uint32)(0xff*CONF_ALPHA) & 0xff)
                                         << 24;
     }
-    loaded = 1;
+    loaded = true;
     return;
 }
 
