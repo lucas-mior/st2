@@ -408,23 +408,23 @@ handler_key_press(XEvent *xevent) {
                 continue;
             }
             if (term_window_is_set(WIN_MODE_APPKEYPAD)) {
-                if (key->appkey < 0) {
+                if (key->app_key < 0) {
                     continue;
                 }
             } else {
-                if (key->appkey > 0) {
+                if (key->app_key > 0) {
                     continue;
                 }
             }
-            if (term_window_is_set(WIN_MODE_NUMLOCK) && key->appkey == 2) {
+            if (term_window_is_set(WIN_MODE_NUMLOCK) && key->app_key == 2) {
                 continue;
             }
             if (term_window_is_set(WIN_MODE_APPCURSOR)) {
-                if (key->appcursor < 0) {
+                if (key->app_cursor < 0) {
                     continue;
                 }
             } else {
-                if (key->appcursor > 0) {
+                if (key->app_cursor > 0) {
                     continue;
                 }
             }

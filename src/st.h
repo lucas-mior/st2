@@ -414,8 +414,8 @@ typedef struct Key {
     uint32 mask;
     char *s;
     /* three-valued logic variables: 0 indifferent, 1 on, -1 off */
-    char appkey;    /* application keypad */
-    char appcursor; /* application cursor */
+    char app_key;    /* application keypad */
+    char app_cursor; /* application cursor */
 } Key;
 
 #include "sixel.h"
