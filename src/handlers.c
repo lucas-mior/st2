@@ -96,20 +96,18 @@ handler_button_press(XEvent *xevent) {
 
 static void
 handler_selection_notify(XEvent *xevent) {
-    uint64 nitems;
-    uint64 ofs;
-    uint64 rem;
-    int32 format;
+    uint64 nitems_return;
+    uint64 offset;
+    uint64 bytes_after_return;
+    int32 actual_format_return;
     uchar *data;
     uchar *last;
     uchar *repl;
-    Atom type;
-    Atom incratom;
+    Atom actual_type_return;
+    Atom incratom = XInternAtom(x_window.display, "INCR", 0);
     Atom property = None;
 
-    incratom = XInternAtom(x_window.display, "INCR", 0);
-
-    ofs = 0;
+    offset = 0;
     if (xevent->type == SelectionNotify) {
         property = xevent->xselection.property;
     } else if (xevent->type == PropertyNotify) {
@@ -121,20 +119,22 @@ handler_selection_notify(XEvent *xevent) {
     }
 
     do {
-        if (XGetWindowProperty(x_window.display, x_window.win, property,
-                               (int64)ofs, BUFSIZ / 4, False, AnyPropertyType,
-                               &type, &format, &nitems, &rem, &data)) {
+        if (XGetWindowProperty(x_window.display, x_window.win,
+                               property, (int64)offset, BUFSIZ / 4,
+                               False, AnyPropertyType,
+                               &actual_type_return, &actual_format_return,
+                               &nitems_return, &bytes_after_return, &data)) {
             error("Clipboard allocation failed\n");
             return;
         }
 
-        if (xevent->type == PropertyNotify && nitems == 0 && rem == 0) {
+        if (xevent->type == PropertyNotify && nitems_return == 0 && bytes_after_return == 0) {
             MODBIT(x_window.attrs.event_mask, 0, PropertyChangeMask);
             XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
                                     &x_window.attrs);
         }
 
-        if (type == incratom) {
+        if (actual_type_return == incratom) {
             MODBIT(x_window.attrs.event_mask, 1, PropertyChangeMask);
             XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
                                     &x_window.attrs);
@@ -144,11 +144,11 @@ handler_selection_notify(XEvent *xevent) {
         }
 
         // TODO: Potential Null Pointer Dereference.
-        // If `nitems == 0`, `XGetWindowProperty` might set `data` to NULL.
+        // If `nitems_return == 0`, `XGetWindowProperty` might set `data` to NULL.
         // Calling `memchr64` passing a NULL pointer leads to Undefined
         // Behavior.  Ensure `data != NULL` before processing the chunk.
         repl = data;
-        last = data + nitems*(uint64)format / 8;
+        last = data + nitems_return*(uint64)actual_format_return / 8;
         while (1) {
             repl = memchr64(repl, '\n', last - repl);
             if (!repl) {
@@ -158,17 +158,17 @@ handler_selection_notify(XEvent *xevent) {
             repl += 1;
         }
 
-        if (term_window_is_set(WIN_MODE_BRCKTPASTE) && ofs == 0) {
+        if (term_window_is_set(WIN_MODE_BRCKTPASTE) && offset == 0) {
             tty_write("\033[200~", 6, 0);
         }
-        tty_write((char *)data, nitems*(uint64)format / 8, 1);
-        if (term_window_is_set(WIN_MODE_BRCKTPASTE) && rem == 0) {
+        tty_write((char *)data, nitems_return*(uint64)actual_format_return / 8, 1);
+        if (term_window_is_set(WIN_MODE_BRCKTPASTE) && bytes_after_return == 0) {
             tty_write("\033[201~", 6, 0);
         }
         XFree(data);
         /* number of 32-bit chunks returned */
-        ofs += nitems*(uint64)format / 32;
-    } while (rem > 0);
+        offset += nitems_return*(uint64)actual_format_return / 32;
+    } while (bytes_after_return > 0);
 
     XDeleteProperty(x_window.display, x_window.win, (ulong)property);
     return;
