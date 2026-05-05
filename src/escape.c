@@ -1041,8 +1041,8 @@ string_handle(void) {
                 cy_pos = term.cursor.y;
             }
             nimages = sixel_parser_finalize(&sixel_st, &newimages,
-                                              cx_pos, cy_pos + scr_offset,
-                                              term_window.cw, term_window.ch);
+                                            cx_pos, cy_pos + scr_offset,
+                                            term_window.cw, term_window.ch);
 
             if (nimages <= 0 || newimages == NULL || newimages->cols <= 0) {
                 if (newimages) {
@@ -1077,20 +1077,11 @@ string_handle(void) {
                                     break;
                                 }
                             }
-                            // TODO: Use-After-Free / Corrupted Linked List.
-                            // `sixel_image_delete(image)` frees the image, but
-                            // `image` is never unlinked from the `term.images`
-                            // list. The preceding node's `next` pointer will
-                            // still point to this freed memory, leading to a
-                            // Use-After-Free crash on the next traversal.
                             if (i_idx == j) {
                                 sixel_image_delete(image);
                                 continue;
                             }
                         }
-                        // TODO: Use-After-Free / Corrupted Linked List.
-                        // Similar to above, `image` is freed but not unlinked
-                        // from the linked list.
                         if (image->x >= x1_im && image->x + image->cols <= x2_im
                             && !transparents[image->y - y1_im]) {
                             sixel_image_delete(image);
