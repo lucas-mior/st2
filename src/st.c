@@ -554,7 +554,8 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
                     image->next->prev = image->prev;
                 }
                 image_free(image);
-                /* Do not advance image_ptr; it now points to the new head of the remaining list */
+                /* Do not advance image_ptr;
+                 * it now points to the new head of the remaining list */
             } else {
                 image_ptr = &image->next;
             }
