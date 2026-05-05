@@ -635,7 +635,7 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
     /*
      * The table is proudly stolen from rxvt.
      */
-    if (term.translation_table[term.charset] == CS_GRAPHIC0
+    if ((term.translation_table[term.charset] == CS_GRAPHIC0)
         && BETWEEN(u, 0x41, 0x7e) && vt100_0[u - 0x41]) {
         utf8_decode(vt100_0[u - 0x41], &u, UTF_SIZ);
     }
