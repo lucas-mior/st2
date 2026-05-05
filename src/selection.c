@@ -324,7 +324,7 @@ selection_get(void) {
 }
 
 static void
-selection_move(int32 n) {
+selection_move_y(int32 n) {
     selection.ob.y += n;
     selection.nb.y += n;
     selection.oe.y += n;
@@ -342,7 +342,7 @@ selection_scroll(int32 top, int32 bot, int32 n) {
         selection_clear();
     } else {
         if (BETWEEN(selection.nb.y, top, bot)) {
-            selection_move(n);
+            selection_move_y(n);
             if (selection.nb.y < top || selection.ne.y > bot) {
                 selection_clear();
             }
@@ -505,7 +505,7 @@ main(void) {
         selection_start(0, 5, SELECTION_SNAP_NONE);
         selection_extend(0, 10, SELECTION_NORMAL, 0);
         
-        selection_move(2);
+        selection_move_y(2);
         ASSERT_EQUAL(selection.nb.y, 7);
         ASSERT_EQUAL(selection.ne.y, 12);
         

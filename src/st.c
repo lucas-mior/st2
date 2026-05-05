@@ -459,7 +459,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
             selection_scroll(top, bot, -n);
         } else {
             if (s > 0) {
-                selection_move(-s);
+                selection_move_y(-s);
                 if (-term.scrolled_up + selection.nb.y < -term.n_hist) {
                     selection_remove();
                 }

@@ -155,7 +155,7 @@ user_scroll_down(union Arg *a) {
         term.scrolled_up = 0;
     }
     if (selection.ob.x != -1 && !selection.alt) {
-        selection_move((int32)-n); /* negate change in term.scrolled_up */
+        selection_move_y((int32)-n); /* negate change in term.scrolled_up */
     }
     term_full_dirt();
     return;
@@ -181,7 +181,7 @@ user_scroll_up(union Arg *a) {
     }
 
     if (selection.ob.x != -1 && !selection.alt) {
-        selection_move((int32)n); /* negate change in term.scrolled_up */
+        selection_move_y((int32)n); /* negate change in term.scrolled_up */
     }
     term_full_dirt();
     return;
