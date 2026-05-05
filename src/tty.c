@@ -158,12 +158,12 @@ tty_new(char *line, char *cmd, char *out, char **args) {
         error("fork failed: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     case 0:
-        close(io_fd);
-        close(amaster);
+        XCLOSE(&io_fd);
+        XCLOSE(&amaster);
         setsid();
-        dup2(aslave, 0);
-        dup2(aslave, 1);
-        dup2(aslave, 2);
+        xdup2(aslave, 0);
+        xdup2(aslave, 1);
+        xdup2(aslave, 2);
         if (ioctl(aslave, TIOCSCTTY, NULL) < 0) {
             error("ioctl TIOCSCTTY failed: %s\n", strerror(errno));
             exit(EXIT_FAILURE);
