@@ -50,30 +50,6 @@ static uint32 sixel_default_color_table[] = {
 };
 
 static void
-sixel_scroll_images(int32 n) {
-    ImageList *next;
-    int32 top;
-
-    if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
-        top = 0;
-    } else {
-        top = term.scrolled_up - HISTORY_SIZE;
-    }
-
-    for (ImageList *image = term.images; image; image = next) {
-        next = image->next;
-        image->y += n;
-
-        /* check if the current sixel has exceeded the maximum
-         * draw distance, and should therefore be deleted */
-        if (image->y < top) {
-            sixel_image_delete(image);
-        }
-    }
-    return;
-}
-
-static void
 sixel_image_free(ImageList *image) {
     if (image->pixmap) {
         XFreePixmap(x_window.display, (Drawable)image->pixmap);
@@ -921,29 +897,6 @@ main(void) {
         }
 
         sixel_parser_deinit(&state);
-    }
-
-    {
-        ImageList *dummy_img;
-
-        dummy_img = xmalloc(sizeof(*dummy_img));
-        dummy_img->next = NULL;
-        dummy_img->prev = NULL;
-        dummy_img->y = 100;
-        dummy_img->pixmap = 0;
-        dummy_img->clipmask = 0;
-        dummy_img->pixels = NULL;
-
-        term.images = dummy_img;
-        term.mode = 0;
-        term.scrolled_up = 0;
-
-        sixel_scroll_images(-10);
-
-        if (term.images != NULL) {
-            ASSERT_EQUAL(term.images->y, 90);
-            sixel_image_delete(term.images);
-        }
     }
 
     exit(EXIT_SUCCESS);
