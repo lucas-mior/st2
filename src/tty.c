@@ -348,27 +348,6 @@ tty_hangup(void) {
 #include "x.c"
 #include "user.c"
 
-static void
-mock_term_init(void) {
-    term.nrows = 24;
-    term.ncols = 80;
-    term.dirts = xmalloc(term.nrows*SIZEOF(*term.dirts));
-    for (int32 i = 0; i < term.nrows; i += 1) {
-        term.dirts[i] = false;
-    }
-
-    term.lines = xmalloc(term.nrows*SIZEOF(*term.lines));
-    for (int32 i = 0; i < term.nrows; i += 1) {
-        term.lines[i] = xmalloc(term.ncols*SIZEOF(StGlyph));
-    }
-
-    term.scrolled_up = 0;
-    term.mode = 0;
-    selection.ob.x = -1;
-    selection.alt = 0;
-    return;
-}
-
 int
 main(void) {
     {
@@ -377,8 +356,7 @@ main(void) {
 
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
             command_fd = master;
-            term.nrows = 24;
-            term.ncols = 80;
+            term_allocate();
             tty_resize(800, 600);
             XCLOSE(&master);
             XCLOSE(&slave);
@@ -413,7 +391,7 @@ main(void) {
         int32 master;
         int32 slave;
 
-        mock_term_init();
+        term_allocate();
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
             command_fd = master;
             write(slave, "test", 4);
@@ -429,7 +407,7 @@ main(void) {
         int32 master;
         int32 slave;
 
-        mock_term_init();
+        term_allocate();
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
             command_fd = master;
             tty_write_raw("hello", 5);
@@ -444,7 +422,7 @@ main(void) {
         int32 master;
         int32 slave;
 
-        mock_term_init();
+        term_allocate();
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
             command_fd = master;
             tty_write("hello\rworld", 11, 0);
