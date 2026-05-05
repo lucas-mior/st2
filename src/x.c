@@ -603,15 +603,15 @@ x_im_open(Display *display) {
 static int32
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                         int32 len, int32 x, int32 y) {
-    int32 winx = term_window.hborderpx + x*term_window.cw;
-    int32 winy = term_window.vborderpx + y*term_window.ch;
+    int32 win_x = term_window.hborderpx + x*term_window.cw;
+    int32 win_y = term_window.vborderpx + y*term_window.ch;
     enum GlyphAttribute prevmode = ATTR_LAST;
     StFont *font_local = &draw_context.font;
     int32 frc_flags = FRC_NORMAL;
     int32 rune_width = term_window.cw;
     int32 nfont_specs = 0;
-    int32 xp = winx;
-    int32 yp = winy + font_local->ascent;
+    int32 xp = win_x;
+    int32 yp = win_y + font_local->ascent;
 
     for (int32 i = 0; i < len; i += 1) {
         uint32 rune = glyphs[i].rune;
@@ -644,7 +644,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                 font_local = &draw_context.bfont;
                 frc_flags = FRC_BOLD;
             }
-            yp = winy + font_local->ascent;
+            yp = win_y + font_local->ascent;
         }
 
         if (mode & ATTR_BOXDRAW) {
@@ -742,8 +742,8 @@ static void
 x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
                         StGlyph base, int32 len, int32 x, int32 y) {
     int32 charlen;
-    int32 winx = term_window.hborderpx + x*term_window.cw;
-    int32 winy = term_window.vborderpx + y*term_window.ch;
+    int32 win_x = term_window.hborderpx + x*term_window.cw;
+    int32 win_y = term_window.vborderpx + y*term_window.ch;
     int32 width;
     XftColor *fg;
     XftColor *bg;
@@ -860,38 +860,38 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     /* Intelligent cleaning up of the borders. */
     if (x == 0) {
         int32 limit_y;
-        if (winy + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
+        if (win_y + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
             limit_y = term_window.h;
         } else {
             limit_y = 0;
         }
-        x_clear(0, (y == 0) ? 0 : winy, term_window.hborderpx, winy + term_window.ch + limit_y);
+        x_clear(0, (y == 0) ? 0 : win_y, term_window.hborderpx, win_y + term_window.ch + limit_y);
     }
-    if (winx + width >= term_window.hborderpx + term_window.tty_width) {
+    if (win_x + width >= term_window.hborderpx + term_window.tty_width) {
         int32 limit_y;
-        if (winy + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
+        if (win_y + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
             limit_y = term_window.h;
         } else {
-            limit_y = winy + term_window.ch;
+            limit_y = win_y + term_window.ch;
         }
         // TODO: X11 Protocol Error / Integer Underflow.
-        // If 'winx + width' is greater than 'term_window.w', the 'x1' argument
+        // If 'win_x + width' is greater than 'term_window.w', the 'x1' argument
         // passed to x_clear becomes larger than the 'x2' argument
         // (term_window.w). This causes an integer underflow inside 'x_clear'
         // when calculating the rectangle width (x2 - x1), resulting in a
         // massive draw request that can crash the X client.  It must be safely
         // clamped to 'term_window.w'.
-        x_clear(winx + width, (y == 0) ? 0 : winy, term_window.w, limit_y);
+        x_clear(win_x + width, (y == 0) ? 0 : win_y, term_window.w, limit_y);
     }
     if (y == 0) {
-        x_clear(winx, 0, winx + width, term_window.vborderpx);
+        x_clear(win_x, 0, win_x + width, term_window.vborderpx);
     }
-    if (winy + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
-        x_clear(winx, winy + term_window.ch, winx + width, term_window.h);
+    if (win_y + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
+        x_clear(win_x, win_y + term_window.ch, win_x + width, term_window.h);
     }
 
     /* Clean up the region we want to draw to. */
-    XftDrawRect(x_window.xft_draw, bg, winx, winy, (uint32)width,
+    XftDrawRect(x_window.xft_draw, bg, win_x, win_y, (uint32)width,
                 (uint32)term_window.ch);
 
     {
@@ -901,24 +901,24 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         rect.y = 0;
         rect.height = (uint16)term_window.ch;
         rect.width = (uint16)width;
-        XftDrawSetClipRectangles(x_window.xft_draw, winx, winy, &rect, 1);
+        XftDrawSetClipRectangles(x_window.xft_draw, win_x, win_y, &rect, 1);
     }
 
     if (base.mode & ATTR_BOXDRAW) {
-        drawboxes(winx, winy, width / len, term_window.ch, fg, bg, specs, len);
+        drawboxes(win_x, win_y, width / len, term_window.ch, fg, bg, specs, len);
     } else {
         XftDrawGlyphFontSpec(x_window.xft_draw, fg, specs, len);
     }
 
     if (base.mode & ATTR_UNDERLINE) {
-        XftDrawRect(x_window.xft_draw, fg, winx,
-                    winy + (int32)((double)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE) + 1,
+        XftDrawRect(x_window.xft_draw, fg, win_x,
+                    win_y + (int32)((double)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE) + 1,
                     (uint32)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
-        XftDrawRect(x_window.xft_draw, fg, winx,
-                    winy + 2 * (int32)((double)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE / 3),
+        XftDrawRect(x_window.xft_draw, fg, win_x,
+                    win_y + 2 * (int32)((double)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE / 3),
                     (uint32)width, 1);
     }
 
