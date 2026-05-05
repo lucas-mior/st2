@@ -741,7 +741,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 static void
 x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
                         StGlyph base, int32 len, int32 x, int32 y) {
-    int32 charlen;
+    int32 char_len;
     int32 win_x = term_window.hborderpx + x*term_window.cw;
     int32 win_y = term_window.vborderpx + y*term_window.ch;
     int32 width;
@@ -753,11 +753,11 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     XRenderColor col_bg;
 
     if (base.mode & ATTR_WIDE) {
-        charlen = len * 2;
+        char_len = len * 2;
     } else {
-        charlen = len;
+        char_len = len;
     }
-    width = charlen*term_window.cw;
+    width = char_len*term_window.cw;
 
     if (base.mode & ATTR_ITALIC) {
         if (base.mode & ATTR_BOLD) {
