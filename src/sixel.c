@@ -101,7 +101,7 @@ sixel_image_delete(ImageList *image) {
 }
 
 static void
-set_default_color(SixelImage *sixel_image) {
+sixel_image_default_pallete(SixelImage *sixel_image) {
     int32 n = 1;
 
     /* palette initialization */
@@ -281,7 +281,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
 
     if (sixel_image->use_private_register && sixel_image->ncolors > 2
         && !sixel_image->palette_modified) {
-        set_default_color(sixel_image);
+        sixel_image_default_pallete(sixel_image);
     }
 
     w = (int32)MIN(sixel_state->max_x, sixel_image->width);
@@ -885,7 +885,7 @@ main(void) {
         ASSERT_EQUAL(img.palette[0], 0);
         ASSERT_EQUAL(img.palette[1], 1);
 
-        set_default_color(&img);
+        sixel_image_default_pallete(&img);
 
         status = sixel_image_buffer_resize(&img, 20, 20);
         ASSERT_EQUAL(status, 0);
@@ -907,7 +907,7 @@ main(void) {
         ASSERT_EQUAL(status, 0);
         ASSERT(state.state == PARSE_STATE_DECSIXEL);
 
-        set_default_color(&state.image);
+        sixel_image_default_pallete(&state.image);
 
         sixel_parser_parse(&state, buf, 1);
         ASSERT(state.state == PARSE_STATE_ESC);
