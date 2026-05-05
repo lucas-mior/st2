@@ -389,26 +389,8 @@ main(void) {
 
         CONF_NUMBER_COLS = 80;
         CONF_NUMBER_ROWS = 24;
-        term.ncols = CONF_NUMBER_COLS;
-        term.nrows = CONF_NUMBER_ROWS;
 
-        term.dirts = xmalloc(term.nrows * SIZEOF(*term.dirts));
-        term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
-
-        term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
-        for (int32 j = 0; j < term.nrows; j += 1) {
-            term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
-        }
-        
-        term_swap_screen(); 
-        term.ncols = CONF_NUMBER_COLS;
-        term.nrows = CONF_NUMBER_ROWS;
-
-        term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
-        for (int32 j = 0; j < term.nrows; j += 1) {
-            term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
-        }
-
+        term_allocate();
         term_reset();
     }
 
@@ -528,7 +510,9 @@ main(void) {
         ASSERT_EQUAL(selection.ob.x, -1);
     }
 
-    XCloseDisplay(x_window.display);
+    if (x_window.display) {
+        XCloseDisplay(x_window.display);
+    }
     exit(EXIT_SUCCESS);
 }
 
