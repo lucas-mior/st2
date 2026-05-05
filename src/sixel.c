@@ -19,7 +19,7 @@
 #define TESTING_sixel 0
 #endif
 
-static uint32 hls_to_rgb(uint32 hue, uint32 lum, uint32 sat);
+static uint32 hls2rgb(uint32 hue, uint32 lum, uint32 sat);
 
 #define SIXEL_RGB(r, g, b) \
     ((255u << 24) + (((uint32)r) << 16) + (((uint32)g) << 8) +  ((uint32)b))
@@ -668,7 +668,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
                         sixel_image->palette[sixel_state->color_index]
-                            = hls_to_rgb(sixel_state->params[2],
+                            = hls2rgb(sixel_state->params[2],
                                          sixel_state->params[3],
                                          sixel_state->params[4]);
                     } else if (sixel_state->params[1] == 2) {
@@ -757,7 +757,7 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
 }
 
 static uint32
-hls_to_rgb(uint32 hue, uint32 lum, uint32 sat) {
+hls2rgb(uint32 hue, uint32 lum, uint32 sat) {
     double lv = lum / 100.0;
     double sv = sat / 100.0;
     double c;
@@ -873,10 +873,10 @@ main(void) {
     {
         uint32 res;
 
-        res = hls_to_rgb(0, 0, 0);
+        res = hls2rgb(0, 0, 0);
         ASSERT_EQUAL(res, SIXEL_RGB(0, 0, 0));
 
-        res = hls_to_rgb(0, 100, 0);
+        res = hls2rgb(0, 100, 0);
         ASSERT_EQUAL(res, SIXEL_RGB(255, 255, 255));
     }
 
