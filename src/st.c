@@ -884,8 +884,7 @@ static void
 term_resize_alt(int32 new_ncols, int32 new_nrows) {
     int32 shift = 0;
 
-    /* Defense in depth: new_ncols and new_nrows are guaranteed >= 1 by term_resize */
-    if (term.ncols == new_ncols && term.nrows == new_nrows) {
+    if ((term.ncols == new_ncols) && (term.nrows == new_nrows)) {
         term_full_dirt();
         return;
     }
