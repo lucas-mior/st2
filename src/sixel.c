@@ -74,7 +74,7 @@ scroll_images(int32 n) {
 }
 
 static void
-image_free(ImageList *image) {
+sixel_image_free(ImageList *image) {
     if (image->pixmap) {
         XFreePixmap(x_window.display, (Drawable)image->pixmap);
     }
@@ -96,7 +96,7 @@ sixel_image_delete(ImageList *image) {
     if (image->next) {
         image->next->prev = image->prev;
     }
-    image_free(image);
+    sixel_image_free(image);
     return;
 }
 

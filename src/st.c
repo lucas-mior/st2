@@ -553,7 +553,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
                 if (image->next) {
                     image->next->prev = image->prev;
                 }
-                image_free(image);
+                sixel_image_free(image);
                 /* Do not advance image_ptr;
                  * it now points to the new head of the remaining list */
             } else {
