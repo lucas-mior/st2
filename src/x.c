@@ -1141,10 +1141,10 @@ x_set_cursor(int32 cursor) {
 
 static void
 x_set_urgency(int32 add) {
-    XWMHints *xwm_hints = XGetWMHints(x_window.display, x_window.win);
-    MODBIT(xwm_hints->flags, add, XUrgencyHint);
-    XSetWMHints(x_window.display, x_window.win, xwm_hints);
-    XFree(xwm_hints);
+    XWMHints *wm_hints = XGetWMHints(x_window.display, x_window.win);
+    MODBIT(wm_hints->flags, add, XUrgencyHint);
+    XSetWMHints(x_window.display, x_window.win, wm_hints);
+    XFree(wm_hints);
     return;
 }
 
