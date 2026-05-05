@@ -101,18 +101,18 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
             }
 
             {
-                StGlyph *gp = &term_line(newy)[newx];
-                int32 delim = IS_DELIM(gp->rune);
+                StGlyph *glyph = &term_line(newy)[newx];
+                int32 delim = IS_DELIM(glyph->rune);
 
-                if (!(gp->mode & ATTR_WDUMMY)
+                if (!(glyph->mode & ATTR_WDUMMY)
                     && (delim != prev_delim
-                        || (delim && !(gp->rune == ' ' && prev_gp->rune == ' ')))) {
+                        || (delim && !(glyph->rune == ' ' && prev_gp->rune == ' ')))) {
                     break;
                 }
 
                 *x = newx;
                 *y = newy;
-                prev_gp = gp;
+                prev_gp = glyph;
                 prev_delim = delim;
             }
         }
@@ -298,19 +298,19 @@ selection_get(void) {
 
         {
             int32 lastx;
-            StGlyph *gp;
+            StGlyph *glyph;
             StGlyph *lgp;
 
             if (selection.type == SELECTION_RECTANGULAR) {
-                gp = &line[selection.nb.x];
+                glyph = &line[selection.nb.x];
                 lastx = selection.ne.x;
             } else {
-                gp = &line[selection.nb.y == y ? selection.nb.x : 0];
+                glyph = &line[selection.nb.y == y ? selection.nb.x : 0];
                 lastx = (selection.ne.y == y) ? selection.ne.x : term.ncols - 1;
             }
             lgp = &line[MIN(lastx, line_len - 1)];
 
-            ptr = term_get_glyphs(ptr, gp, lgp);
+            ptr = term_get_glyphs(ptr, glyph, lgp);
 
             if ((y < selection.ne.y || lastx >= line_len)
                 && (!(lgp->mode & ATTR_WRAP)
