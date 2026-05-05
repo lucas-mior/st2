@@ -1247,11 +1247,16 @@ main(void) {
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
                                           x_window.visual, x_window.color_map);
 
-        x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
-        x_window.wm_delete_win = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
-        x_window.net_wm_name = XInternAtom(x_window.display, "_NET_WM_NAME", False);
-        x_window.net_wm_iconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
-        x_window.net_wm_pid = XInternAtom(x_window.display, "_NET_WM_PID", False);
+        x_window.xembed
+            = XInternAtom(x_window.display, "_XEMBED", False);
+        x_window.wm_delete_win
+            = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
+        x_window.net_wm_name
+            = XInternAtom(x_window.display, "_NET_WM_NAME", False);
+        x_window.net_wm_iconname
+            = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
+        x_window.net_wm_pid
+            = XInternAtom(x_window.display, "_NET_WM_PID", False);
 
         xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
         if (xsel.xtarget == None) {
