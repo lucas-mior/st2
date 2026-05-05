@@ -377,23 +377,23 @@ term_reset(void) {
 /* handle it with care */
 static void
 term_swap_screen(void) {
-    static StGlyph **altline;
-    static int32 altcol;
-    static int32 altrow;
+    static StGlyph **alt_lines;
+    static int32 alt_ncols;
+    static int32 alt_nrows;
 
-    StGlyph **tmpline = term.lines;
-    int32 tmpcol = term.ncols;
-    int32 tmprow = term.nrows;
+    StGlyph **tmp_line = term.lines;
+    int32 tmp_ncols = term.ncols;
+    int32 tmp_nrows = term.nrows;
     ImageList *tmpimages = term.images;
 
-    term.lines = altline;
-    term.ncols = altcol;
-    term.nrows = altrow;
+    term.lines = alt_lines;
+    term.ncols = alt_ncols;
+    term.nrows = alt_nrows;
     term.images = term.images_alt;
 
-    altline = tmpline;
-    altcol = tmpcol;
-    altrow = tmprow;
+    alt_lines = tmp_line;
+    alt_ncols = tmp_ncols;
+    alt_nrows = tmp_nrows;
     term.images_alt = tmpimages;
 
     term.mode ^= TERM_MODE_ALTSCREEN;
