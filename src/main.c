@@ -312,7 +312,8 @@ run:
             xsel.xtarget = XA_STRING;
         }
 
-        boxdraw_xinit(x_window.display, x_window.color_map, x_window.xft_draw, x_window.visual);
+        boxdraw_xinit(x_window.display,
+                      x_window.color_map, x_window.xft_draw, x_window.visual);
     }
 
     {
