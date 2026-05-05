@@ -488,7 +488,7 @@ handler_configure_notify(XEvent *xevent) {
             return;
         }
     }
-    cresize(xevent->xconfigure.width, xevent->xconfigure.height);
+    x_configure_resize(xevent->xconfigure.width, xevent->xconfigure.height);
     return;
 }
 

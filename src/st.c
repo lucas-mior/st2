@@ -1357,7 +1357,7 @@ xevent_row(XEvent *xevent) {
 }
 
 static void
-cresize(int32 width, int32 height) {
+x_configure_resize(int32 width, int32 height) {
     int32 col;
     int32 row;
 

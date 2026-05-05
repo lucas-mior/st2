@@ -260,7 +260,7 @@ run:
         // greater than the initial columns, rendering text into this buffer
         // will cause a Heap Buffer Overflow.  Ensure this buffer is safely
         // reallocated or resized during your window resize handler
-        // (cresize/xresize).
+        // (x_configure_resize/xresize).
         x_window.font_spec_buf = xmalloc(CONF_NUMBER_COLS*SIZEOF(XftGlyphFontSpec));
 
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
@@ -371,7 +371,7 @@ run:
         } while (xevent.type != MapNotify);
 
         tty_fd = tty_new(opt_line, CONF_SHELl, opt_iofile, opt_cmd);
-        cresize(w, h);
+        x_configure_resize(w, h);
 
         timeout = -1;
         drawing = 0;

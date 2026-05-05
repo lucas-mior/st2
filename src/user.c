@@ -101,7 +101,7 @@ zoom_abs(union Arg *arg) {
     clear_image_pixmaps(term.images);
     clear_image_pixmaps(term.images_alt);
 
-    cresize(0, 0);
+    x_configure_resize(0, 0);
     redraw();
     x_hints();
     return;
@@ -525,7 +525,7 @@ main(void) {
             term.hist[i] = xmalloc(term.ncols * SIZEOF(StGlyph));
         }
 
-        /* Essential for cresize and x_resize math */
+        /* Essential for x_configure_resize and x_resize math */
         term_window.cw = 10;
         term_window.ch = 20;
         term_window.w = 800;
@@ -590,7 +590,7 @@ main(void) {
         a.f = 0.1;
         user_change_alpha(&a);
         
-        /* This triggers x_resize via cresize(0, 0) */
+        /* This triggers x_resize via x_configure_resize(0, 0) */
         a.f = 2.0; 
         user_zoom(&a);
         user_zoom_reset(NULL);

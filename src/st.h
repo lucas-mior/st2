@@ -377,7 +377,7 @@ static int32 xevent_row(XEvent *xevent);
 static void x_clear(int32 x1, int32 y1, int32 x2, int32 y2);
 static int32 x_geom_mask_to_gravity(int32 mask);
 static int32 x_im_open(Display *display);
-static void cresize(int32 width, int32 height);
+static void x_configure_resize(int32 width, int32 height);
 
 static void user_clipboard_copy(union Arg *arg);
 static void user_clipboard_paste(union Arg *arg);
