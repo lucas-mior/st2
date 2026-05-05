@@ -170,7 +170,7 @@ run:
         x_load_spare_fonts();
 
         x_window.color_map = XCreateColormap(x_window.display, parent, x_window.visual, None);
-        x_load_cols();
+        x_load_colors();
 
         /* adjust fixed window geometry */
         term_window.w = 2*term_window.hborderpx + 2*CONF_BORDER_PIXELS

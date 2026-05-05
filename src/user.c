@@ -65,7 +65,7 @@ user_change_alpha(union Arg *arg) {
         CONF_ALPHA = 1;
     }
 
-    x_load_cols();
+    x_load_colors();
     redraw();
     return;
 }

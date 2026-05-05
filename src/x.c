@@ -109,7 +109,7 @@ x_load_color(int32 i, char *name, XftColor *xft_color) {
 }
 
 static void
-x_load_cols(void) {
+x_load_colors(void) {
     static int32 loaded = 0;
 
     if (loaded) {
@@ -1300,7 +1300,7 @@ main(void) {
         uint b;
         int32 ret;
 
-        x_load_cols();
+        x_load_colors();
 
         ret = x_get_color(0, &r, &g, &b);
         ASSERT_EQUAL(ret, 0);

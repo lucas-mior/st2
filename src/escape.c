@@ -973,7 +973,7 @@ string_handle(void) {
             } else {
                 if (x_set_color_name(j, p)) {
                     if (par == 104 && narg <= 1) {
-                        x_load_cols();
+                        x_load_colors();
                         return;
                     }
                     if (p) {
@@ -1497,7 +1497,7 @@ eschandle(uchar ascii) {
     case 'c':
         term_reset();
         x_set_title(NULL);
-        x_load_cols();
+        x_load_colors();
         x_set_mode(0, WIN_MODE_HIDE);
         break;
     case '=':
