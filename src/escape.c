@@ -1578,11 +1578,11 @@ term_putc(uint32 u) {
         str_escape_seq.len += (uint64)len;
 
         if (str_escape_seq.type == 'P' && u == 'q') {
-            int32 is_sixel = 1;
+            bool is_sixel = true;
             for (int32 i = 0; i < str_escape_seq.len - 1; i += 1) {
                 if (str_escape_seq.buffer[i] != ';'
                     && !isdigit((uchar)str_escape_seq.buffer[i])) {
-                    is_sixel = 0;
+                    is_sixel = false;
                     break;
                 }
             }
