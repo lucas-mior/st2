@@ -360,7 +360,6 @@ handler_key_press(XEvent *xevent) {
     int32 len;
     uint32 c;
     Status status;
-    Shortcut *bp;
 
     if (term_window_is_set(WIN_MODE_KBDLOCK)) {
         return;
@@ -376,7 +375,7 @@ handler_key_press(XEvent *xevent) {
         len = XLookupString(key_event, buffer, SIZEOF(buffer), &key_sym, NULL);
     }
 
-    for (bp = CONF_KEYBOARD_SHORTCUTS;
+    for (Shortcut *bp = CONF_KEYBOARD_SHORTCUTS;
          bp < CONF_KEYBOARD_SHORTCUTS + LENGTH(CONF_KEYBOARD_SHORTCUTS); bp += 1) {
         if (key_sym == bp->keysym) {
             if (match_mask_state(bp->mod, key_event->state)) {
