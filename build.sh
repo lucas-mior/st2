@@ -89,7 +89,11 @@ LDFLAGS="$LDFLAGS -lm -lrt -lX11 -lutil -lXft -lImlib2"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 
-CC="${CC:-cc}"
+if [ "$target" = "test" ] && [ -z "$CC" ]; then
+    CC=tcc
+else
+    CC="${CC:-cc}"
+fi
 
 option_remove() {
     echo "$1" | sed -E "s| *$2 +| |g"
