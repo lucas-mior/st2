@@ -256,12 +256,6 @@ sixel_parser_init(SixelState *sixel_state, bool transparent,
     return status;
 }
 
-static void
-sixel_parser_set_default_color(SixelState *sixel_state) {
-    set_default_color(&sixel_state->image);
-    return;
-}
-
 static int32
 sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
                       int32 cx, int32 cy, int32 cw, int32 ch) {
@@ -913,7 +907,7 @@ main(void) {
         ASSERT_EQUAL(status, 0);
         ASSERT(state.state == PARSE_STATE_DECSIXEL);
 
-        sixel_parser_set_default_color(&state);
+        set_default_color(&state.image);
 
         sixel_parser_parse(&state, buf, 1);
         ASSERT(state.state == PARSE_STATE_ESC);
