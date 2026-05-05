@@ -1003,7 +1003,8 @@ string_handle(void) {
             }
             return;
         default:
-            error("string_handle: Unhandled switch case.\n");
+            error("string_handle: Unhandled (type=%d, par=%d).\n",
+                  str_escape_seq.type, par);
             break;
         }
         break;
