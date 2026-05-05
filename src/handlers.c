@@ -100,7 +100,7 @@ handler_selection_notify(XEvent *xevent) {
     uint64 offset;
     uint64 bytes_after_return;
     int32 actual_format_return;
-    uchar *data;
+    uchar *prop_return;
     uchar *last;
     uchar *repl;
     Atom actual_type_return;
@@ -123,7 +123,7 @@ handler_selection_notify(XEvent *xevent) {
                                property, (int64)offset, BUFSIZ / 4,
                                False, AnyPropertyType,
                                &actual_type_return, &actual_format_return,
-                               &nitems_return, &bytes_after_return, &data)) {
+                               &nitems_return, &bytes_after_return, &prop_return)) {
             error("Clipboard allocation failed\n");
             return;
         }
@@ -139,7 +139,7 @@ handler_selection_notify(XEvent *xevent) {
             XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
                                     &x_window.attrs);
             XDeleteProperty(x_window.display, x_window.win, (ulong)property);
-            XFree(data);
+            XFree(prop_return);
             continue; 
         }
 
@@ -147,8 +147,8 @@ handler_selection_notify(XEvent *xevent) {
         // If `nitems_return == 0`, `XGetWindowProperty` might set `data` to NULL.
         // Calling `memchr64` passing a NULL pointer leads to Undefined
         // Behavior.  Ensure `data != NULL` before processing the chunk.
-        repl = data;
-        last = data + nitems_return*(uint64)actual_format_return / 8;
+        repl = prop_return;
+        last = prop_return + nitems_return*(uint64)actual_format_return / 8;
         while (1) {
             repl = memchr64(repl, '\n', last - repl);
             if (!repl) {
@@ -161,11 +161,11 @@ handler_selection_notify(XEvent *xevent) {
         if (term_window_is_set(WIN_MODE_BRCKTPASTE) && offset == 0) {
             tty_write("\033[200~", 6, 0);
         }
-        tty_write((char *)data, nitems_return*(uint64)actual_format_return / 8, 1);
+        tty_write((char *)prop_return, nitems_return*(uint64)actual_format_return / 8, 1);
         if (term_window_is_set(WIN_MODE_BRCKTPASTE) && bytes_after_return == 0) {
             tty_write("\033[201~", 6, 0);
         }
-        XFree(data);
+        XFree(prop_return);
         /* number of 32-bit chunks returned */
         offset += nitems_return*(uint64)actual_format_return / 32;
     } while (bytes_after_return > 0);
