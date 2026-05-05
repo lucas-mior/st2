@@ -529,8 +529,10 @@ main(void) {
         term_window.cw = 10;
         term_window.ch = 20;
 
-        x_window.win = XCreateSimpleWindow(x_window.display, parent, 0, 0,
-                                           (uint32)term_window.w, (uint32)term_window.h,
+        x_window.win = XCreateSimpleWindow(x_window.display, parent,
+                                           0, 0,
+                                           (uint32)term_window.w,
+                                           (uint32)term_window.h,
                                            0, 0, 0);
 
         xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
