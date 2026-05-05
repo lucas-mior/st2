@@ -268,7 +268,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
     int32 w;
     int32 h;
     int32 cols;
-    int32 numimages;
+    int32 nimages;
     int32 y = 0;
     ImageList *tail;
 
@@ -294,7 +294,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
     w = (int32)MIN(sixel_state->max_x, sixel_image->width);
     h = (int32)MIN(sixel_state->max_y, sixel_image->height);
 
-    if ((numimages = (h + ch - 1) / ch) <= 0) {
+    if ((nimages = (h + ch - 1) / ch) <= 0) {
         return -1;
     }
 
@@ -302,7 +302,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
 
     *new_images = NULL;
     tail = NULL;
-    for (int32 i = 0; i < numimages; i += 1) {
+    for (int32 i = 0; i < nimages; i += 1) {
         ImageList *image = xmalloc(sizeof(*image));
         char trans = 0;
         uint32 *dst;
@@ -341,7 +341,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
         image->transparent = (sixel_state->transparent && trans);
     }
 
-    return numimages;
+    return nimages;
 }
 
 /* convert sixel data into indexed pixel bytes and palette data */
@@ -909,7 +909,7 @@ main(void) {
         int32 status;
         uchar buf[] = "\x1b";
         ImageList *new_images;
-        int32 numimages;
+        int32 nimages;
 
         status = sixel_parser_init(&state, 0, 1, 0, 1, 10, 20);
         ASSERT_EQUAL(status, 0);
@@ -922,8 +922,8 @@ main(void) {
         ASSERT(state.state == PARSE_STATE_ESC);
 
         new_images = NULL;
-        numimages = sixel_parser_finalize(&state, &new_images, 0, 0, 10, 20);
-        ASSERT_MORE(numimages, -2);
+        nimages = sixel_parser_finalize(&state, &new_images, 0, 0, 10, 20);
+        ASSERT_MORE(nimages, -2);
 
         if (new_images != NULL) {
             delete_image(new_images);
