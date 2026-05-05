@@ -1,5 +1,6 @@
 #include "util.c"
 #include "st.h"
+#include "arg.h"
 
 static int64
 xwrite(int32 fd, char *s, int64 len) {
