@@ -10,7 +10,7 @@
 static char *current_test_name = "None";
 
 static void
-verify_viewport_line(int32 screen_y, char *expected_text) {
+test_verify_viewport_line(int32 screen_y, char *expected_text) {
     StGlyph *line = term_line(screen_y);
     int32 len = term_line_len(line);
     char *ptr = NULL;
@@ -34,7 +34,7 @@ verify_viewport_line(int32 screen_y, char *expected_text) {
 }
 
 static void
-inject_text(char *text) {
+test_inject_text(char *text) {
     StGlyph attr;
 
     attr.mode = ATTR_NONE;
@@ -65,7 +65,7 @@ inject_text(char *text) {
 }
 
 static void
-verify_full_state(int32 expected_count,
+test_verify_full_state(int32 expected_count,
                   char **expected_texts, bool *expected_wraps,
                   int32 expected_cx, int32 expected_cy) {
     bool is_alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
@@ -165,7 +165,7 @@ main(void) {
     {
         current_test_name = "Scenario A: Width Shrinkage";
         printf("Running: %s...\n", current_test_name);
-        inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        test_inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         check_consistent_state();
         {
             char *state_texts[] = { 
@@ -174,7 +174,7 @@ main(void) {
             bool state_wraps[] = { 
                 false, false, false, false, false, false, false, false, false, true, false 
             };
-            verify_full_state(11, state_texts, state_wraps, 6, 9);
+            test_verify_full_state(11, state_texts, state_wraps, 6, 9);
         }
     }
 
@@ -190,7 +190,7 @@ main(void) {
             bool state_wraps[] = { 
                 false, false, false, false, false, false, false, false, false, false 
             };
-            verify_full_state(10, state_texts, state_wraps, 26, 9);
+            test_verify_full_state(10, state_texts, state_wraps, 26, 9);
         }
     }
 
@@ -206,7 +206,7 @@ main(void) {
             bool state_wraps[] = { 
                 false, false, false, false, false, false, false, false, false, true, false 
             };
-            verify_full_state(11, state_texts, state_wraps, 11, 9);
+            test_verify_full_state(11, state_texts, state_wraps, 11, 9);
         }
     }
 
@@ -219,7 +219,7 @@ main(void) {
             term_new_line(true);
         }
         for (int32 i = 0; i < 5; i += 1) {
-            inject_text("HISTORY_LINE\n");
+            test_inject_text("HISTORY_LINE\n");
         }
         term.scrolled_up = 3;
         term_resize(20, 12);
@@ -239,7 +239,7 @@ main(void) {
             term_new_line(true);
         }
         for (int32 i = 0; i < 3; i += 1) {
-            inject_text("PADDING\n");
+            test_inject_text("PADDING\n");
         }
         {
             ImageList *dummy_img = xmalloc(SIZEOF(ImageList));
@@ -282,7 +282,7 @@ main(void) {
                         buf[c] = (char)('A' + (rand() % 26));
                     }
                     buf[slen] = '\0';
-                    inject_text(buf);
+                    test_inject_text(buf);
                 }
             }
             check_consistent_state();
@@ -294,20 +294,20 @@ main(void) {
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
-        inject_text("00000000000000000000\n");
-        inject_text("11111111111111111111\n");
-        inject_text("22222222222222222222\n");
-        inject_text("33333333333333333333\n");
-        inject_text("44444444444444444444\n");
-        inject_text("55555555555555555555\n");
-        inject_text("66666666666666666666\n");
-        inject_text("77777777777777777777");
+        test_inject_text("00000000000000000000\n");
+        test_inject_text("11111111111111111111\n");
+        test_inject_text("22222222222222222222\n");
+        test_inject_text("33333333333333333333\n");
+        test_inject_text("44444444444444444444\n");
+        test_inject_text("55555555555555555555\n");
+        test_inject_text("66666666666666666666\n");
+        test_inject_text("77777777777777777777");
         check_consistent_state();
         term.scrolled_up = 2;
-        verify_viewport_line(0, "11111111111111111111");
+        test_verify_viewport_line(0, "11111111111111111111");
         term_resize(10, 5);
         check_consistent_state();
-        verify_viewport_line(0, "1111111111");
+        test_verify_viewport_line(0, "1111111111");
     }
 
     {
@@ -315,9 +315,9 @@ main(void) {
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 10);
         term_reset();
-        inject_text("TOP_LINE\n");
-        inject_text("IMAGE_ANCHOR_LINE\n");
-        inject_text("THIS_LONG_LINE_WILL_WRAP_INTO_MULTIPLE_ROWS_LATER\n");
+        test_inject_text("TOP_LINE\n");
+        test_inject_text("IMAGE_ANCHOR_LINE\n");
+        test_inject_text("THIS_LONG_LINE_WILL_WRAP_INTO_MULTIPLE_ROWS_LATER\n");
         check_consistent_state();
         {
             ImageList *img = xmalloc(SIZEOF(ImageList));
@@ -349,9 +349,9 @@ main(void) {
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
-        inject_text("TOP\n");
-        inject_text("ANCHOR\n");
-        inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_MANY_ROWS_WHEN_SHRINKING");
+        test_inject_text("TOP\n");
+        test_inject_text("ANCHOR\n");
+        test_inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_MANY_ROWS_WHEN_SHRINKING");
         {
             ImageList *img = xmalloc(SIZEOF(ImageList));
             StGlyph *n_img_line = NULL;
@@ -383,10 +383,10 @@ main(void) {
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
-        inject_text("1_TOP\n");
-        inject_text("2_MIDDLE\n");
-        inject_text("3_BOTTOM\n");
-        inject_text("4_THIS_LONG_LINE_WILL_WRAP_A_LOT_HERE");
+        test_inject_text("1_TOP\n");
+        test_inject_text("2_MIDDLE\n");
+        test_inject_text("3_BOTTOM\n");
+        test_inject_text("4_THIS_LONG_LINE_WILL_WRAP_A_LOT_HERE");
         check_consistent_state();
         term_resize(10, 5);
         check_consistent_state();
@@ -413,7 +413,7 @@ main(void) {
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
-        inject_text("AABBCCDDEEFFGG $");
+        test_inject_text("AABBCCDDEEFFGG $");
         check_consistent_state();
 
         term_resize(2, 5);
@@ -429,7 +429,7 @@ main(void) {
             bool state_wraps[] = {
                 true, true, true, true, true, true, true, false, false, false
             };
-            verify_full_state(10, state_texts, state_wraps, 1, 7);
+            test_verify_full_state(10, state_texts, state_wraps, 1, 7);
         }
     }
 
