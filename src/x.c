@@ -1020,17 +1020,17 @@ x_set_icon_title(char *p) {
 }
 
 static void
-x_set_title(char *p) {
+x_set_title(char *title) {
     XTextProperty text_property;
-    if (!p) {
-        p = opt_title;
+    if (!title) {
+        title = opt_title;
     }
-    if (p[0] == '\0') {
-        p = opt_title;
+    if (title[0] == '\0') {
+        title = opt_title;
     }
 
     if (Xutf8TextListToTextProperty(x_window.display,
-                                    &p, 1,
+                                    &title, 1,
                                     XUTF8StringStyle, &text_property) != Success) {
         return;
     }
