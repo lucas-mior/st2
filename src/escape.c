@@ -19,7 +19,7 @@
 /* ESC '[' [[ [<priv>] <arg> [;]] <mode> [<mode>]] */
 typedef struct CSIEscape {
     char buffer[ESC_BUF_SIZ]; /* raw string */
-    int64 len;                /* raw string length */
+    int32 len;                /* raw string length */
     char priv;
     int32 arg[ESC_ARG_SIZ];
     int32 narg;
