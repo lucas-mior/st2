@@ -518,7 +518,8 @@ main(void) {
         root = XRootWindow(x_window.display, x_window.screen);
         parent = root;
 
-        if (XMatchVisualInfo(x_window.display, x_window.screen, 32, TrueColor, &visual) != 0) {
+        if (XMatchVisualInfo(x_window.display, x_window.screen,
+                             32, TrueColor, &visual) != 0) {
             x_window.visual = visual.visual;
             x_window.depth = visual.depth;
         } else {
