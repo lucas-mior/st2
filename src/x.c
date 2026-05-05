@@ -292,7 +292,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
         if ((XftPatternGetInteger(st_font->match->pattern, "slant", 0, &have_attr)
              != XftResultMatch)
             || have_attr < want_attr) {
-            st_font->badslant = 1;
+            st_font->bad_slant = 1;
             fputs("font slant does not match\n", stderr);
         }
     }
@@ -302,7 +302,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
         if ((XftPatternGetInteger(st_font->match->pattern, "weight", 0, &have_attr)
              != XftResultMatch)
             || have_attr != want_attr) {
-            st_font->badweight = 1;
+            st_font->bad_weight = 1;
             fputs("font weight does not match\n", stderr);
         }
     }
@@ -316,8 +316,8 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
 
     st_font->ascent = st_font->match->ascent;
     st_font->descent = st_font->match->descent;
-    st_font->lbearing = 0;
-    st_font->rbearing = (int16)st_font->match->max_advance_width;
+    st_font->l_bearing = 0;
+    st_font->r_bearing = (int16)st_font->match->max_advance_width;
 
     st_font->height = st_font->ascent + st_font->descent;
     st_font->width = DIVCEIL(extents.xOff, strlen32(CONF_ASCII_PRINTABLE));
@@ -761,14 +761,14 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
 
     if (base.mode & ATTR_ITALIC) {
         if (base.mode & ATTR_BOLD) {
-            if (draw_context.ibfont.badslant || draw_context.ibfont.badweight) {
+            if (draw_context.ibfont.bad_slant || draw_context.ibfont.bad_weight) {
                 base.fg = (int32)CONF_DEFAULT_ATTR;
             }
-        } else if (draw_context.ifont.badslant) {
+        } else if (draw_context.ifont.bad_slant) {
             base.fg = (int32)CONF_DEFAULT_ATTR;
         }
     } else if (base.mode & ATTR_BOLD) {
-        if (draw_context.bfont.badweight) {
+        if (draw_context.bfont.bad_weight) {
             base.fg = (int32)CONF_DEFAULT_ATTR;
         }
     }
