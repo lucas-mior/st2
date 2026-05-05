@@ -1060,12 +1060,12 @@ string_handle(void) {
 
             if (term.images) {
                 char *transparent_rows = xmalloc(numimages);
-                ImageList *im_ptr;
-                int32 i_idx;
-                for (i_idx = 0, im_ptr = newimages; im_ptr; im_ptr = im_ptr->next, i_idx += 1) {
+                int32 i_idx = 0;
+                for (ImageList *im_ptr = newimages; im_ptr; im_ptr = im_ptr->next) {
                     transparent_rows[i_idx] = (char)im_ptr->transparent;
+                    i_idx += 1;
                 }
-                for (im_ptr = term.images; im_ptr; im_ptr = next_im) {
+                for (ImageList *im_ptr = term.images; im_ptr; im_ptr = next_im) {
                     next_im = im_ptr->next;
                     if (im_ptr->y >= y1_im && im_ptr->y < y2_im) {
                         y_line = im_ptr->y - scr_offset;
