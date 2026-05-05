@@ -1256,7 +1256,6 @@ main(void) {
             xsel.xtarget = XA_STRING;
         }
 
-        /* Use centralized allocation */
         CONF_NCOLS = 80;
         CONF_NROWS = 24;
         term_allocate();
