@@ -88,12 +88,12 @@ x_load_color(int32 i, char *name, XftColor *xft_color) {
             // fail to account for the transparent colors. This improperly
             // shifts standard colors and causes grayscale formulas to evaluate
             // with incorrect offsets.
-            if (i < 6*6 * 6 + 16) { /* same colors as xterm */
+            if (i < 6*6*6 + 16) { /* same colors as xterm */
                 color.red = sixd_to_16bit(((i - 16) / 36) % 6);
                 color.green = sixd_to_16bit(((i - 16) / 6) % 6);
                 color.blue = sixd_to_16bit(((i - 16) / 1) % 6);
             } else { /* greyscale */
-                color.red = (uint16) (0x0808 + 0x0a0a*(i - (6*6 * 6 + 16)));
+                color.red = (uint16) (0x0808 + 0x0a0a*(i - (6*6*6 + 16)));
                 color.green = color.red;
                 color.blue = color.red;
             }
@@ -628,7 +628,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             font_local = &draw_context.font;
             frc_flags = FRC_NORMAL;
             if (mode & ATTR_WIDE) {
-                rune_width = term_window.cw * 2;
+                rune_width = term_window.cw*2;
             } else {
                 rune_width = term_window.cw;
             }
@@ -753,7 +753,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     XRenderColor col_bg;
 
     if (base.mode & ATTR_WIDE) {
-        char_len = len * 2;
+        char_len = len*2;
     } else {
         char_len = len;
     }
@@ -912,13 +912,13 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
 
     if (base.mode & ATTR_UNDERLINE) {
         XftDrawRect(x_window.xft_draw, fg, win_x,
-                    win_y + (int32)((double)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE) + 1,
+                    win_y + (int32)((double)draw_context.font.ascent*CONF_CHAR_HEIGHT_SCALE) + 1,
                     (uint32)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
         XftDrawRect(x_window.xft_draw, fg, win_x,
-                    win_y + 2 * (int32)((double)draw_context.font.ascent * CONF_CHAR_HEIGHT_SCALE / 3),
+                    win_y + 2*(int32)((double)draw_context.font.ascent*CONF_CHAR_HEIGHT_SCALE / 3),
                     (uint32)width, 1);
     }
 
@@ -1261,8 +1261,8 @@ main(void) {
         CONF_NROWS = 24;
         term_allocate();
 
-        term_window.tty_width = term_window.cw * term.ncols;
-        term_window.tty_height = term_window.ch * term.nrows;
+        term_window.tty_width = term_window.cw*term.ncols;
+        term_window.tty_height = term_window.ch*term.nrows;
     }
 
     {
