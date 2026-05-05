@@ -146,9 +146,10 @@ handler_selection_notify(XEvent *xevent) {
         }
 
         // TODO: Potential Null Pointer Dereference.
-        // If `nitems_return == 0`, `XGetWindowProperty` might set `data` to NULL.
-        // Calling `memchr64` passing a NULL pointer leads to Undefined
-        // Behavior.  Ensure `data != NULL` before processing the chunk.
+        // If `nitems_return == 0`,
+        // `XGetWindowProperty` might set `prop_return` to NULL.
+        // Calling `memchr64` passing a NULL pointer is Undefined Behavior.
+        // Ensure `data != NULL` before processing the chunk.
         repl = prop_return;
         last = prop_return + nitems_return*(uint64)actual_format_return / 8;
         while (1) {
