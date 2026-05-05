@@ -1577,14 +1577,8 @@ term_putc(uint32 u) {
                     break;
                 }
             }
-            // TODO: Integration Bug / State Inconsistency.
-            // This inline detection sets `term.esc |= ESC_SIXEL`, but the main
-            // read loop in `term_write` checks
-            // `term_mode_is_set(TERM_MODE_SIXEL)`. The payload will not be
-            // routed to `sixel_parser_parse` and will incorrectly buffer in
-            // `str_escape_seq` until OOM.
             if (is_sixel) {
-                term.esc |= ESC_SIXEL;
+                term.mode |= TERM_MODE_SIXEL;
                 sixel_parser_init(&sixel_st, true,
                                   0, 0,
                                   true,
@@ -1720,11 +1714,6 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
 
         if (term_mode_is_set(TERM_MODE_SIXEL)
                 && (sixel_st.state != PARSE_STATE_ESC)) {
-            // TODO: Unhandled Edge Case / Infinite Loop.
-            // If `sixel_parser_parse` returns 0 (e.g., waiting for more data or
-            // on error), `char_size` becomes 0. The loop counter `n` will not
-            // increment (`n += char_size`), causing an infinite loop that
-            // freezes the terminal.
             char_size = sixel_parser_parse(&sixel_st,
                                           (uchar *)buffer + n, buflen - n);
             continue;
@@ -1756,6 +1745,7 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
     }
     return n;
 }
+
 
 #if TESTING_escape
 
