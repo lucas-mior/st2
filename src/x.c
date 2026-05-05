@@ -181,6 +181,7 @@ x_set_color_name(int32 x, char *name) {
 static void
 x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
     int32 color_index;
+
     if (term_window_is_set(WIN_MODE_REVERSE)) {
         color_index = CONF_COLOR_INDEX_FONT;
     } else {
@@ -524,7 +525,6 @@ x_unload_font(StFont *f) {
 
 static void
 x_unload_fonts(void) {
-    /* Free the loaded fonts in the font cache.  */
     while (frc_len > 0) {
         frc_len -= 1;
         XftFontClose(x_window.display, frc[frc_len].font);
@@ -617,7 +617,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         uint32 rune = glyphs[i].rune;
         enum GlyphAttribute mode = glyphs[i].mode;
         FT_UInt glyphidx;
-        int32 f;
+        int32 nfonts = 0;
 
         if (mode == ATTR_WDUMMY) {
             continue;
@@ -663,23 +663,24 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             continue;
         }
 
-        for (f = 0; f < frc_len; f += 1) {
-            glyphidx = XftCharIndex(x_window.display, frc[f].font, rune);
+        while (nfonts < frc_len) {
+            glyphidx = XftCharIndex(x_window.display, frc[nfonts].font, rune);
             if (glyphidx) {
-                if (frc[f].flags == frcflags) {
+                if (frc[nfonts].flags == frcflags) {
                     break;
                 }
             }
             if (!glyphidx) {
-                if (frc[f].flags == frcflags) {
-                    if (frc[f].unicodep == rune) {
+                if (frc[nfonts].flags == frcflags) {
+                    if (frc[nfonts].unicodep == rune) {
                         break;
                     }
                 }
             }
+            nfonts += 1;
         }
 
-        if (f >= frc_len) {
+        if (nfonts >= frc_len) {
             FcResult fc_result;
             FcPattern *fc_pattern;
             FcPattern *fontpattern;
@@ -719,14 +720,14 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
             glyphidx = XftCharIndex(x_window.display, frc[frc_len].font, rune);
 
-            f = frc_len;
+            nfonts = frc_len;
             frc_len += 1;
 
             FcPatternDestroy(fc_pattern);
             FcCharSetDestroy(fccharset);
         }
 
-        specs[nfont_specs].font = frc[f].font;
+        specs[nfont_specs].font = frc[nfonts].font;
         specs[nfont_specs].glyph = glyphidx;
         specs[nfont_specs].x = (int16)xp;
         specs[nfont_specs].y = (int16)yp;
