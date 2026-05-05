@@ -219,7 +219,7 @@ user_print_sel(union Arg *arg) {
 
 static void
 user_vim_select(union Arg *arg) {
-    char buf[UTF_SIZ];
+    char buffer[UTF_SIZ];
     char tmp_file[] = "/tmp/st_vimselect_XXXXXX";
     int32 fd;
     int32 target_row;
@@ -247,7 +247,7 @@ user_vim_select(union Arg *arg) {
 
         for (int32 x = 0; x < last_pos; x += 1) {
             if (!(line[x].mode & ATTR_WDUMMY)) {
-                xwrite(fd, buf, utf8_encode(line[x].rune, buf));
+                xwrite(fd, buffer, utf8_encode(line[x].rune, buffer));
             }
         }
         
