@@ -569,8 +569,8 @@ term_new_line(bool first_col) {
     int32 x_pos;
 
     if (y == term.bot_scroll_limit) {
-        term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit, 1,
-                       SCROLL_SAVEHIST);
+        term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit,
+                       1, SCROLL_SAVEHIST);
     } else {
         y += 1;
     }
