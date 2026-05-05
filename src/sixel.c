@@ -908,7 +908,7 @@ main(void) {
         SixelState state;
         int32 status;
         uchar buf[] = "\x1b";
-        ImageList *newimages;
+        ImageList *new_images;
         int32 numimages;
 
         status = sixel_parser_init(&state, 0, 1, 0, 1, 10, 20);
@@ -921,12 +921,12 @@ main(void) {
         sixel_parser_parse(&state, buf, 1);
         ASSERT(state.state == PARSE_STATE_ESC);
 
-        newimages = NULL;
-        numimages = sixel_parser_finalize(&state, &newimages, 0, 0, 10, 20);
+        new_images = NULL;
+        numimages = sixel_parser_finalize(&state, &new_images, 0, 0, 10, 20);
         ASSERT_MORE(numimages, -2);
 
-        if (newimages != NULL) {
-            delete_image(newimages);
+        if (new_images != NULL) {
+            delete_image(new_images);
         }
 
         sixel_parser_deinit(&state);
