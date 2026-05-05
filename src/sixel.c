@@ -648,9 +648,10 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             = (uint32)MIN(sixel_state->params[3], 100);
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
-                        sixel_image->palette[sixel_state->color_index] = SIXEL_XRGB(
-                            sixel_state->params[2], sixel_state->params[3],
-                            sixel_state->params[4]);
+                        sixel_image->palette[sixel_state->color_index]
+                            = SIXEL_XRGB(sixel_state->params[2],
+                                         sixel_state->params[3],
+                                         sixel_state->params[4]);
                     }
                 }
             }
