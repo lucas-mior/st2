@@ -695,7 +695,6 @@ term_printer(char *s, int64 len) {
         if (xwrite(io_fd, s, len) < 0) {
             perror("Error writing to output file");
             XCLOSE(&io_fd);
-            io_fd = -1;
         }
     }
     return;
