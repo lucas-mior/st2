@@ -89,6 +89,23 @@ check_consistent_state(void) {
     return;
 }
 
+static int64
+xwrite(int32 fd, char *s, int64 len) {
+    int64 r;
+    int64 left = len;
+
+    while (left > 0) {
+        r = write64(fd, s, len);
+        if (r < 0) {
+            return r;
+        }
+        left -= r;
+        s += r;
+    }
+
+    return len;
+}
+
 static double
 timediff(struct timespec t1, struct timespec t2) {
     double diff;
@@ -105,23 +122,6 @@ term_line_len(StGlyph *line) {
     }
 
     return i + 1;
-}
-
-static int64
-xwrite(int32 fd, char *s, int64 len) {
-    int64 r;
-    int64 left = len;
-
-    while (left > 0) {
-        r = write64(fd, s, len);
-        if (r < 0) {
-            return r;
-        }
-        left -= r;
-        s += r;
-    }
-
-    return len;
 }
 
 static bool
