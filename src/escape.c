@@ -1297,7 +1297,7 @@ term_str_sequence(uchar c) {
 }
 
 static void
-dcshandle(void) {
+dcs_handle(void) {
     uint bgcolor;
     int32 transparent;
     uint r = 0xCD;
@@ -1630,7 +1630,7 @@ check_control_code:
                         if (BETWEEN(u, 0x40, 0x7E)
                             || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
                             control_seq_intro_parse();
-                            dcshandle();
+                            dcs_handle();
                         }
                     }
                     return;
