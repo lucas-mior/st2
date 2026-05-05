@@ -50,7 +50,7 @@ static uint32 sixel_default_color_table[] = {
 };
 
 static void
-scroll_images(int32 n) {
+sixel_scroll_images(int32 n) {
     ImageList *next;
     int32 top;
 
@@ -938,7 +938,7 @@ main(void) {
         term.mode = 0;
         term.scrolled_up = 0;
 
-        scroll_images(-10);
+        sixel_scroll_images(-10);
 
         if (term.images != NULL) {
             ASSERT_EQUAL(term.images->y, 90);
