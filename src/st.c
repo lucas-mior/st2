@@ -1345,20 +1345,6 @@ x_configure_resize(int32 width, int32 height) {
     return;
 }
 
-static void __attribute((noreturn)) 
-usage(void) {
-    error("usage: %s [-aiv] [-c class] [-f font] [-g geometry]"
-          " [-n name] [-o file]\n"
-          "          [-T title] [-t title] [-w windowid]"
-          " [[-e] command [args ...]]\n"
-          "       %s [-aiv] [-c class] [-f font] [-g geometry]"
-          " [-n name] [-o file]\n"
-          "          [-T title] [-t title] [-w windowid] -l line"
-          " [CONF_STTY_ARGS ...]\n",
-          argv0, argv0);
-    exit(EXIT_FAILURE);
-}
-
 #if TESTING_st
 
 #include <stdbool.h>
