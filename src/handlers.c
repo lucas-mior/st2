@@ -168,7 +168,6 @@ handler_selection_notify(XEvent *xevent) {
             tty_write("\033[201~", 6, 0);
         }
         XFree(prop_return);
-        /* number of 32-bit chunks returned */
         offset += nitems_return*(uint64)actual_format_return / 32;
     } while (bytes_after_return > 0);
 
