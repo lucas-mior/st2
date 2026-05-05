@@ -76,7 +76,7 @@ main(int32 argc, char *argv[]) {
     case 'g':
         x_window.geo_mask = XParseGeometry(
             EARGF(usage()), &x_window.left_offset, &x_window.top_offset,
-            (uint32 *)&CONF_NUMBER_COLS, (uint32 *)&CONF_NUMBER_ROWS);
+            (uint32 *)&CONF_NCOLS, (uint32 *)&CONF_NROWS);
         break;
     case 'i':
         x_window.is_fixed = 1;
@@ -117,8 +117,8 @@ run:
 
     setlocale(LC_CTYPE, "");
     XSetLocaleModifiers("");
-    CONF_NUMBER_COLS = (int32)MAX(CONF_NUMBER_COLS, 1);
-    CONF_NUMBER_ROWS = (int32)MAX(CONF_NUMBER_ROWS, 1);
+    CONF_NCOLS = (int32)MAX(CONF_NCOLS, 1);
+    CONF_NROWS = (int32)MAX(CONF_NROWS, 1);
 
     term_allocate();
     term_reset();
@@ -174,9 +174,9 @@ run:
 
         /* adjust fixed window geometry */
         term_window.w = 2*term_window.hborderpx + 2*CONF_BORDER_PIXELS
-                        + CONF_NUMBER_COLS*term_window.cw;
+                        + CONF_NCOLS*term_window.cw;
         term_window.h = 2*term_window.vborderpx + 2*CONF_BORDER_PIXELS
-                        + CONF_NUMBER_ROWS*term_window.ch;
+                        + CONF_NROWS*term_window.ch;
         if (x_window.geo_mask & XNegative) {
             x_window.left_offset += DisplayWidth(x_window.display, x_window.screen)
                                     - term_window.w - 2;
@@ -237,12 +237,12 @@ run:
                        0, 0, (uint32)term_window.w, (uint32)term_window.h);
 
         // TODO: 'x_window.font_spec_buf' is allocated once using the initial
-        // 'CONF_NUMBER_COLS'.  If the window is later resized to a width
+        // 'CONF_NCOLS'.  If the window is later resized to a width
         // greater than the initial columns, rendering text into this buffer
         // will cause a Heap Buffer Overflow.  Ensure this buffer is safely
         // reallocated or resized during your window resize handler
         // (x_configure_resize/xresize).
-        x_window.font_spec_buf = xmalloc(CONF_NUMBER_COLS*SIZEOF(XftGlyphFontSpec));
+        x_window.font_spec_buf = xmalloc(CONF_NCOLS*SIZEOF(XftGlyphFontSpec));
 
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
                                           x_window.visual, x_window.color_map);

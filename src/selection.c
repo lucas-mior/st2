@@ -387,8 +387,8 @@ main(void) {
         x_window.screen = XDefaultScreen(x_window.display);
         x_window.win = XCreateSimpleWindow(x_window.display, RootWindow(x_window.display, x_window.screen), 0, 0, 10, 10, 0, 0, 0);
 
-        CONF_NUMBER_COLS = 80;
-        CONF_NUMBER_ROWS = 24;
+        CONF_NCOLS = 80;
+        CONF_NROWS = 24;
 
         term_allocate();
         term_reset();

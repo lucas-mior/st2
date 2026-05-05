@@ -209,11 +209,11 @@ static int32 CONF_COLOR_IGNORE_SELECTION_FONT_COLOR = 1;
 static uint32 CONF_CURSOR_SHAPE = 2;
 
 /*
- * Default columns and CONF_NUMBER_ROWS numbers
+ * Default columns and CONF_NROWS numbers
  */
 
-static int32 CONF_NUMBER_COLS = 80;
-static int32 CONF_NUMBER_ROWS = 24;
+static int32 CONF_NCOLS = 80;
+static int32 CONF_NROWS = 24;
 
 /*
  * Default colour and shape of the mouse cursor

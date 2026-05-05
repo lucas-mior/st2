@@ -152,8 +152,8 @@ main(void) {
     int32 init_rows = 10;
 
     /* Use standardized allocation helper */
-    CONF_NUMBER_COLS = init_cols;
-    CONF_NUMBER_ROWS = init_rows;
+    CONF_NCOLS = init_cols;
+    CONF_NROWS = init_rows;
     term_allocate();
     term_reset();
 

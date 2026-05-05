@@ -139,22 +139,22 @@ check_consistent_state(void) {
 static void
 term_allocate(void) {
     for (int32 i = 0; i < 2; i += 1) {
-        term.lines = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*(term.lines)));
-        for (int32 j = 0; j < CONF_NUMBER_ROWS; j += 1) {
-            term.lines[j] = xmalloc(CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
-            memset64(term.lines[j], 0, CONF_NUMBER_COLS*SIZEOF(*(term.lines[j])));
+        term.lines = xmalloc(CONF_NROWS*SIZEOF(*(term.lines)));
+        for (int32 j = 0; j < CONF_NROWS; j += 1) {
+            term.lines[j] = xmalloc(CONF_NCOLS*SIZEOF(*(term.lines[j])));
+            memset64(term.lines[j], 0, CONF_NCOLS*SIZEOF(*(term.lines[j])));
         }
-        term.ncols = CONF_NUMBER_COLS;
-        term.nrows = CONF_NUMBER_ROWS;
+        term.ncols = CONF_NCOLS;
+        term.nrows = CONF_NROWS;
         term_swap_screen();
     }
 
-    term.dirts = xmalloc(CONF_NUMBER_ROWS*SIZEOF(*term.dirts));
-    term.tabs = xmalloc(CONF_NUMBER_COLS*SIZEOF(*term.tabs));
+    term.dirts = xmalloc(CONF_NROWS*SIZEOF(*term.dirts));
+    term.tabs = xmalloc(CONF_NCOLS*SIZEOF(*term.tabs));
 
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        term.hist[i] = xmalloc(CONF_NUMBER_COLS*SIZEOF(StGlyph));
-        for (int32 j = 0; j < CONF_NUMBER_COLS; j += 1) {
+        term.hist[i] = xmalloc(CONF_NCOLS*SIZEOF(StGlyph));
+        for (int32 j = 0; j < CONF_NCOLS; j += 1) {
             term_clear_glyph(&term.hist[i][j], false);
         }
     }
@@ -1443,8 +1443,8 @@ main(void) {
     }
 
     /* Standardized allocation for testing */
-    CONF_NUMBER_COLS = 10;
-    CONF_NUMBER_ROWS = 5;
+    CONF_NCOLS = 10;
+    CONF_NROWS = 5;
     term_allocate();
     term_reset();
 

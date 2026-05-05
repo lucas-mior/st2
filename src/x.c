@@ -1257,8 +1257,8 @@ main(void) {
         }
 
         /* Use centralized allocation */
-        CONF_NUMBER_COLS = 80;
-        CONF_NUMBER_ROWS = 24;
+        CONF_NCOLS = 80;
+        CONF_NROWS = 24;
         term_allocate();
 
         term_window.tty_width = term_window.cw * term.ncols;

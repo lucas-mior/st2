@@ -505,8 +505,8 @@ main(void) {
         xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
 
         /* Initialize Terminal via centralized allocation */
-        CONF_NUMBER_COLS = 80;
-        CONF_NUMBER_ROWS = 24;
+        CONF_NCOLS = 80;
+        CONF_NROWS = 24;
         term_allocate();
 
         /* Essential for x_configure_resize and x_resize math */
