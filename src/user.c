@@ -277,30 +277,26 @@ user_vim_select(union Arg *arg) {
             char geo[32];
             char win[32];
             char cur[64];
+            char delete_command[128];
 
-            SNPRINTF(geo, "%dx%d", term.ncols, term.nrows);
-            SNPRINTF(win, "%lu", x_window.win);
-            SNPRINTF(cur, "call cursor(%d, %d)", target_row, target_col);
+            SNPRINTF(geo, "%dx%d",
+                          term.ncols, term.nrows);
+            SNPRINTF(win, "%lu",
+                          x_window.win);
+            SNPRINTF(cur, "call cursor(%d, %d)",
+                          target_row, target_col);
+            SNPRINTF(delete_command, "autocmd VimLeave * call delete('%s')",
+                                     tmp_file);
 
             execlp("st", "st", "-w", win, "-g", geo, "-e",
                    "vim", "-c", "set nonumber norelativenumber wrap",
                    "-c", "set laststatus=0 buftype=nowrite",
-                   "-c", cur, tmp_file, NULL);
+                   "-c", cur, "-c", delete_command, tmp_file, NULL);
             
             perror("execlp st failed");
             _exit(1);
         }
     default:
-        // TODO: Race Condition.
-        // Hardcoding a delay (`usleep(500000)`) before deleting the file
-        // introduces a race condition.  If system load is high and `vim` takes
-        // longer than 0.5s to start and read the file, the parent will `unlink`
-        // it before `vim` reads it, resulting in an empty buffer.  The child
-        // should ideally take ownership of unlinking the file, or the parent
-        // should wait for the child process to finish before cleaning up.
-        // NOTE: using wait() makes tty_write fail and nothing works
-        usleep(500000);
-        unlink(tmp_file);
         break;
     }
 
