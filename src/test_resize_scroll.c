@@ -151,33 +151,13 @@ main(void) {
     int32 init_cols = 20;
     int32 init_rows = 10;
 
-    term.ncols = init_cols;
-    term.nrows = init_rows;
-    term.dirts = xmalloc(init_rows*SIZEOF(*(term.dirts)));
-    term.tabs = xmalloc(init_cols*SIZEOF(*(term.tabs)));
-    memset64(term.tabs, 0, init_cols*SIZEOF(*(term.tabs)));
-
-    for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        term.hist[i] = xmalloc(init_cols*SIZEOF(StGlyph));
-        for (int32 j = 0; j < init_cols; j += 1) {
-            term.hist[i][j].mode = ATTR_NONE;
-            term.hist[i][j].rune = ' ';
-        }
-    }
-
-    for (int32 i = 0; i < 2; i += 1) {
-        term.lines = xmalloc(init_rows*SIZEOF(*(term.lines)));
-        for (int32 j = 0; j < init_rows; j += 1) {
-            term.lines[j] = xmalloc(init_cols*SIZEOF(StGlyph));
-            for (int32 k = 0; k < init_cols; k += 1) {
-                term_clear_glyph(&term.lines[j][k], false);
-            }
-        }
-        term_swap_screen();
-    }
-
+    /* Use standardized allocation helper */
+    CONF_NUMBER_COLS = init_cols;
+    CONF_NUMBER_ROWS = init_rows;
+    term_allocate();
     term_reset();
 
+    /* Move cursor to the bottom row to prepare for tests */
     for (int32 i = 0; i < init_rows - 1; i += 1) {
         term_new_line(true);
     }
