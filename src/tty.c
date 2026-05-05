@@ -161,9 +161,9 @@ tty_new(char *line, char *cmd, char *out, char **args) {
         XCLOSE(&io_fd);
         XCLOSE(&amaster);
         setsid();
-        xdup2(aslave, 0);
-        xdup2(aslave, 1);
-        xdup2(aslave, 2);
+        xdup2(aslave, STDIN_FILENO);
+        xdup2(aslave, STDOUT_FILENO);
+        xdup2(aslave, STDERR_FILENO);
         if (ioctl(aslave, TIOCSCTTY, NULL) < 0) {
             error("ioctl TIOCSCTTY failed: %s\n", strerror(errno));
             exit(EXIT_FAILURE);
