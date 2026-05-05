@@ -380,8 +380,8 @@ main(void) {
             term.nrows = 24;
             term.ncols = 80;
             tty_resize(800, 600);
-            close(master);
-            close(slave);
+            XCLOSE(&master);
+            XCLOSE(&slave);
         }
         ASSERT(true);
     }
@@ -394,8 +394,8 @@ main(void) {
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
             dup2(slave, 0);
             stty(args);
-            close(master);
-            close(slave);
+            XCLOSE(&master);
+            XCLOSE(&slave);
         }
         exit(EXIT_SUCCESS);
     }
@@ -418,8 +418,8 @@ main(void) {
             command_fd = master;
             write(slave, "test", 4);
             tty_read();
-            close(master);
-            close(slave);
+            XCLOSE(&master);
+            XCLOSE(&slave);
         }
         exit(EXIT_SUCCESS);
     }
@@ -433,8 +433,8 @@ main(void) {
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
             command_fd = master;
             tty_write_raw("hello", 5);
-            close(master);
-            close(slave);
+            XCLOSE(&master);
+            XCLOSE(&slave);
         }
         exit(EXIT_SUCCESS);
     }
@@ -448,8 +448,8 @@ main(void) {
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
             command_fd = master;
             tty_write("hello\rworld", 11, 0);
-            close(master);
-            close(slave);
+            XCLOSE(&master);
+            XCLOSE(&slave);
         }
         exit(EXIT_SUCCESS);
     }
