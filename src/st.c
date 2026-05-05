@@ -1395,22 +1395,10 @@ main(void) {
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable, x_window.visual, x_window.color_map);
     }
 
+    /* Standardized allocation for testing */
     CONF_NUMBER_COLS = 10;
     CONF_NUMBER_ROWS = 5;
-    term.ncols = CONF_NUMBER_COLS;
-    term.nrows = CONF_NUMBER_ROWS;
-    term.dirts = xmalloc(term.nrows*SIZEOF(*term.dirts));
-    term.tabs = xmalloc(term.ncols*SIZEOF(*term.tabs));
-    for (int32 i = 0; i < 2; i += 1) {
-        term.lines = xmalloc(term.nrows*SIZEOF(*term.lines));
-        for (int32 j = 0; j < term.nrows; j += 1) {
-            term.lines[j] = xmalloc(term.ncols*SIZEOF(*term.lines[j]));
-        }
-        term_swap_screen();
-    }
-    for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        term.hist[i] = xmalloc(term.ncols*SIZEOF(StGlyph));
-    }
+    term_allocate();
     term_reset();
 
     {
@@ -1568,7 +1556,6 @@ main(void) {
 
         mask = button_mask(Button5);
         ASSERT_EQUAL(mask, Button5Mask);
-
     }
 
     {
