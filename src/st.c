@@ -538,9 +538,9 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
     }
 
     {
-        ImageList **pim = &term.images;
-        while (*pim) {
-            ImageList *image = *pim;
+        ImageList **image_ptr = &term.images;
+        while (*image_ptr) {
+            ImageList *image = *image_ptr;
             int32 height_in_rows = (image->height + image->ch - 1) / image->ch;
 
             if (image->y <= bot && (image->y >= top || (savehist && image->y < 0))) {
@@ -549,14 +549,14 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
 
             if (image->y + height_in_rows < -term.n_hist) {
                 /* Explicitly unlink before freeing to satisfy the analyzer */
-                *pim = image->next;
+                *image_ptr = image->next;
                 if (image->next) {
                     image->next->prev = image->prev;
                 }
                 image_free(image);
-                /* Do not advance pim; it now points to the new head of the remaining list */
+                /* Do not advance image_ptr; it now points to the new head of the remaining list */
             } else {
-                pim = &image->next;
+                image_ptr = &image->next;
             }
         }
     }
