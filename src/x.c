@@ -372,7 +372,6 @@ x_load_fonts(char *font_str, double font_size) {
         }
     }
 
-    /* Setting character width and height. */
     {
         double cw = ceil((double)(draw_context.font.width)*CONF_CHAR_WIDTH_SCALE);
         double ch = ceil((double)(draw_context.font.height)*CONF_CHAR_HEIGHT_SCALE);
