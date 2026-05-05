@@ -65,7 +65,7 @@ test_inject_text(char *text) {
 }
 
 static void
-test_verify_full_state(int32 expected_count,
+test_verify_state(int32 expected_count,
                   char **expected_texts, bool *expected_wraps,
                   int32 expected_cx, int32 expected_cy) {
     bool is_alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
@@ -174,7 +174,7 @@ main(void) {
             bool state_wraps[] = { 
                 false, false, false, false, false, false, false, false, false, true, false 
             };
-            test_verify_full_state(11, state_texts, state_wraps, 6, 9);
+            test_verify_state(11, state_texts, state_wraps, 6, 9);
         }
     }
 
@@ -190,7 +190,7 @@ main(void) {
             bool state_wraps[] = { 
                 false, false, false, false, false, false, false, false, false, false 
             };
-            test_verify_full_state(10, state_texts, state_wraps, 26, 9);
+            test_verify_state(10, state_texts, state_wraps, 26, 9);
         }
     }
 
@@ -206,7 +206,7 @@ main(void) {
             bool state_wraps[] = { 
                 false, false, false, false, false, false, false, false, false, true, false 
             };
-            test_verify_full_state(11, state_texts, state_wraps, 11, 9);
+            test_verify_state(11, state_texts, state_wraps, 11, 9);
         }
     }
 
@@ -429,7 +429,7 @@ main(void) {
             bool state_wraps[] = {
                 true, true, true, true, true, true, true, false, false, false
             };
-            test_verify_full_state(10, state_texts, state_wraps, 1, 7);
+            test_verify_state(10, state_texts, state_wraps, 1, 7);
         }
     }
 
