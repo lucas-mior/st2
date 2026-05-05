@@ -34,9 +34,6 @@
 #define MAX_NROWS 5000
 #define MAX_NCOLS 5000
 
-// TODO: Macro Side-Effects Bugs.
-// Consider rewriting this as an inline function or using GCC statement
-// expressions `({ ... })` to evaluate 'x' only once.
 #define LIMIT(x, a, b)        (x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
 #define BETWEEN(x, a, b)    ((a) <= (x) && (x) <= (b))
 #define DIVCEIL(n, d)        (((n) + ((d) - 1)) / (d))
