@@ -139,10 +139,7 @@ handler_selection_notify(XEvent *xevent) {
             XChangeWindowAttributes(x_window.display, x_window.win, CWEventMask,
                                     &x_window.attrs);
             XDeleteProperty(x_window.display, x_window.win, (ulong)property);
-            // TODO: Memory Leak.
-            // If `type == incratom`, `XGetWindowProperty` allocated memory for
-            // `data`, but the loop `continue`s without calling `XFree(data)`,
-            // leaking memory.
+            XFree(data);
             continue; 
         }
 
