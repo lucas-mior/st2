@@ -1796,16 +1796,8 @@ main(void) {
 
         CONF_NUMBER_COLS = 80;
         CONF_NUMBER_ROWS = 24;
-        term.ncols = CONF_NUMBER_COLS;
-        term.nrows = CONF_NUMBER_ROWS;
 
-        /* Clean allocation of screen buffers */
-        term.dirts = xmalloc(term.nrows * SIZEOF(*term.dirts));
-        term.tabs = xmalloc(term.ncols * SIZEOF(*term.tabs));
-        term.lines = xmalloc(term.nrows * SIZEOF(*term.lines));
-        for (int32 j = 0; j < term.nrows; j += 1) {
-            term.lines[j] = xmalloc(term.ncols * SIZEOF(*term.lines[j]));
-        }
+        term_allocate();
 
         term.charset = 0;
         term.icharset = 0;
