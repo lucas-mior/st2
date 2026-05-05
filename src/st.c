@@ -999,11 +999,9 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     if (reflow_lines == NULL) {
         int64 size = 2*HISTORY_SIZE*SIZEOF(*reflow_lines);
         reflow_lines = xmalloc(size);
-        /* FIX: Zero-initialize the pointer array so we don't free() garbage */
         memset64(reflow_lines, 0, size);
     }
 
-    /* Reflow Loop */
     do {
         if (!new_x_offset) {
             new_y_index += 1;
@@ -1035,7 +1033,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             if (!old_x_offset) {
                 len = (int32)MAX(len, term.cursor.x + 1);
             }
-            /* Find where the cursor lands in the new grid */
             if (term.cursor.x - old_x_offset < new_ncols - new_x_offset) {
                 term.cursor.x = new_x_offset + term.cursor.x - old_x_offset;
                 new_cursor_y_proxy = new_y_index;
@@ -1074,7 +1071,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         }
     } while (old_y_index <= old_cursor_end_line);
 
-    /* Distribution Phase */
     for (int32 i = new_nrows; i < old_nrows; i += 1) {
         free(term.lines[i]);
     }
@@ -1090,8 +1086,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         new_cursor_end_line = (int32)MIN(new_cursor_end_line - term.cursor.y, bottom_visible_line);
         term.cursor.y += new_cursor_end_line - j_prev;
         
-        /* FIX: Bound the loop so new_y_index doesn't drop below 0 */
-        while (term.cursor.y < 0 && new_y_index >= 0) {
+        while ((term.cursor.y < 0) && (new_y_index >= 0)) {
             free(reflow_lines[new_y_index]);
             reflow_lines[new_y_index] = NULL;
             new_y_index -= 1;
