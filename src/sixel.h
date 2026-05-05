@@ -53,7 +53,7 @@ typedef struct SixelState {
 
 struct ImageList;
 static void scroll_images(int32 n);
-static void delete_image(struct ImageList *im);
+static void sixel_image_delete(struct ImageList *im);
 static int32 sixel_parser_init(SixelState *st,
                                bool transparent,
                                uint32 fgcolor, uint32 bgcolor,

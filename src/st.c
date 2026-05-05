@@ -322,7 +322,7 @@ term_delete_images(void) {
 
     for (ImageList *image = term.images; image; image = next) {
         next = image->next;
-        delete_image(image);
+        sixel_image_delete(image);
     }
     
     term.images = NULL;
@@ -335,7 +335,7 @@ term_reset(void) {
     ImageList *image = term.images;
     while (image) {
         ImageList *next = image->next;
-        delete_image(image);
+        sixel_image_delete(image);
         image = next;
     }
     term.images = NULL;

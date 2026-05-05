@@ -1046,7 +1046,7 @@ string_handle(void) {
 
             if (nimages <= 0 || newimages == NULL || newimages->cols <= 0) {
                 if (newimages) {
-                    delete_image(newimages);
+                    sixel_image_delete(newimages);
                 }
                 sixel_parser_deinit(&sixel_st);
                 return;
@@ -1078,13 +1078,13 @@ string_handle(void) {
                                 }
                             }
                             // TODO: Use-After-Free / Corrupted Linked List.
-                            // `delete_image(image)` frees the image, but
+                            // `sixel_image_delete(image)` frees the image, but
                             // `image` is never unlinked from the `term.images`
                             // list. The preceding node's `next` pointer will
                             // still point to this freed memory, leading to a
                             // Use-After-Free crash on the next traversal.
                             if (i_idx == j) {
-                                delete_image(image);
+                                sixel_image_delete(image);
                                 continue;
                             }
                         }
@@ -1093,7 +1093,7 @@ string_handle(void) {
                         // from the linked list.
                         if (image->x >= x1_im && image->x + image->cols <= x2_im
                             && !transparents[image->y - y1_im]) {
-                            delete_image(image);
+                            sixel_image_delete(image);
                             continue;
                         }
                     }
@@ -1117,7 +1117,7 @@ string_handle(void) {
                 for (i_sdm = 0, im_sdm = newimages; im_sdm; im_sdm = next_im, i_sdm += 1) {
                     next_im = im_sdm->next;
                     if (i_sdm >= term.nrows) {
-                        delete_image(im_sdm);
+                        sixel_image_delete(im_sdm);
                         continue;
                     }
                     im_sdm->y = i_sdm + scr_offset;

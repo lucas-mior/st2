@@ -67,7 +67,7 @@ scroll_images(int32 n) {
         /* check if the current sixel has exceeded the maximum
          * draw distance, and should therefore be deleted */
         if (image->y < top) {
-            delete_image(image);
+            sixel_image_delete(image);
         }
     }
     return;
@@ -87,7 +87,7 @@ image_free(ImageList *image) {
 }
 
 static void
-delete_image(ImageList *image) {
+sixel_image_delete(ImageList *image) {
     if (image->prev) {
         image->prev->next = image->next;
     } else {
@@ -926,7 +926,7 @@ main(void) {
         ASSERT_MORE(nimages, -2);
 
         if (new_images != NULL) {
-            delete_image(new_images);
+            sixel_image_delete(new_images);
         }
 
         sixel_parser_deinit(&state);
@@ -951,7 +951,7 @@ main(void) {
 
         if (term.images != NULL) {
             ASSERT_EQUAL(term.images->y, 90);
-            delete_image(term.images);
+            sixel_image_delete(term.images);
         }
     }
 
