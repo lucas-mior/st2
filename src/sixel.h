@@ -60,7 +60,7 @@ static int32 sixel_parser_init(SixelState *st,
                                bool use_private_register,
                                int32 cell_width, int32 cell_height);
 static int32 sixel_parser_parse(SixelState *st, uchar *p, int32 len);
-static int32 sixel_parser_set_default_color(SixelState *st);
+static void sixel_parser_set_default_color(SixelState *st);
 static int32 sixel_parser_finalize(SixelState *st, struct ImageList **newimages,
                                    int32 cx, int32 cy, int32 cw, int32 ch);
 static void sixel_parser_deinit(SixelState *st);
