@@ -1723,30 +1723,30 @@ check_control_code:
 
 static int32
 term_write(char *buffer, int32 buflen, int32 show_ctrl) {
-    int32 charsize;
+    int32 char_size;
     int32 n;
 
-    for (n = 0; n < buflen; n += charsize) {
+    for (n = 0; n < buflen; n += char_size) {
         uint32 u;
 
         if (term_mode_is_set(TERM_MODE_SIXEL)
                 && (sixel_st.state != PARSE_STATE_ESC)) {
             // TODO: Unhandled Edge Case / Infinite Loop.
             // If `sixel_parser_parse` returns 0 (e.g., waiting for more data or
-            // on error), `charsize` becomes 0. The loop counter `n` will not
-            // increment (`n += charsize`), causing an infinite loop that
+            // on error), `char_size` becomes 0. The loop counter `n` will not
+            // increment (`n += char_size`), causing an infinite loop that
             // freezes the terminal.
-            charsize = sixel_parser_parse(
-                &sixel_st, (unsigned char *)buffer + n, buflen - n);
+            char_size = sixel_parser_parse(&sixel_st,
+                                          (uchar *)buffer + n, buflen - n);
             continue;
         } else if (term_mode_is_set(TERM_MODE_UTF8)) {
-            charsize = (int32)utf8_decode(buffer + n, &u, (int64)(buflen - n));
-            if (charsize == 0) {
+            char_size = (int32)utf8_decode(buffer + n, &u, (int64)(buflen - n));
+            if (char_size == 0) {
                 break;
             }
         } else {
             u = buffer[n] & 0xFF;
-            charsize = 1;
+            char_size = 1;
         }
 
         if (show_ctrl && IS_CONTROl(u)) {
