@@ -814,9 +814,8 @@ static void
 term_resize(int32 new_ncols, int32 new_nrows) {
     bool *bp;
 
-    /* Ensure we never allocate a 0-width or 0-height screen */
-    new_ncols = (int32)MAX(1, new_ncols);
-    new_nrows = (int32)MAX(1, new_nrows);
+    ASSERT_MORE(new_ncols, 0);
+    ASSERT_MORE(new_nrows, 0);
 
     term.dirts = xrealloc(term.dirts, new_nrows*SIZEOF(*(term.dirts)));
     term.tabs = xrealloc(term.tabs, new_ncols*SIZEOF(*(term.tabs)));
