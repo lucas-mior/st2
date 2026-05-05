@@ -494,6 +494,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
 
     if (savehist) {
         for (int32 i = 0; i < n; i += 1) {
+            StGlyph *temp;
             term.i_hist = (term.i_hist + 1) % HISTORY_SIZE;
             temp = term.hist[term.i_hist];
             for (int32 j = 0; j < term.ncols; j += 1) {
