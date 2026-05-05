@@ -169,7 +169,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
             exit(EXIT_FAILURE);
         }
         if (aslave > 2) {
-            close(aslave);
+            XCLOSE(&aslave);
         }
 #ifdef __OpenBSD__
         if (pledge("stdio getpw proc exec", NULL) == -1) {
@@ -185,7 +185,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
             exit(EXIT_FAILURE);
         }
 #endif
-        close(aslave);
+        XCLOSE(&aslave);
         command_fd = amaster;
         signal(SIGCHLD, handler_sigchld);
         break;
