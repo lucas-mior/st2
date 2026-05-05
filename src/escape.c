@@ -1722,7 +1722,7 @@ check_control_code:
 }
 
 static int32
-term_write(char *buffer, int32 buflen, int32 show_ctrl) {
+term_write(char *buffer, int32 buflen, bool show_ctrl) {
     int32 char_size;
     int32 n;
 

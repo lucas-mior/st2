@@ -333,7 +333,7 @@ static char *term_get_glyphs(char *buffer, StGlyph *glyph, StGlyph *lgp);
 static inline void term_set_sixel_attr(StGlyph *line, int32 x1, int32 x2);
 static bool term_is_wrapped(StGlyph *line);
 static int32 term_line_len(StGlyph *line);
-static int32 term_write(char *buf, int32 len, int32 show_ctrl);
+static int32 term_write(char *buf, int32 len, bool show_ctrl);
 static void term_clear_glyph(StGlyph *glyph, bool use_current_attr);
 static void term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, bool use_current_attr);
 static void term_delete_char(int32 n);
