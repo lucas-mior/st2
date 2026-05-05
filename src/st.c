@@ -448,7 +448,6 @@ term_load_alt_screen(bool clear, bool savecursor) {
 static void
 term_scroll_down(int32 top, int32 n) {
     int32 bot = term.bot_scroll_limit;
-    StGlyph *temp;
 
     if (n <= 0) {
         return;
@@ -459,7 +458,7 @@ term_scroll_down(int32 top, int32 n) {
     term_clear_region(0, bot - n + 1, term.ncols - 1, bot, true);
 
     for (int32 i = bot; i >= top + n; i -= 1) {
-        temp = term.lines[i];
+        StGlyph *temp = term.lines[i];
         term.lines[i] = term.lines[i - n];
         term.lines[i - n] = temp;
     }
