@@ -337,7 +337,7 @@ run:
         struct timespec seltv;
         struct timespec *tv;
         struct timespec now;
-        struct timespec lastblink;
+        struct timespec last_blink;
         struct timespec trigger = {0};
         double timeout;
 
@@ -357,7 +357,7 @@ run:
 
         timeout = -1;
         drawing = false;
-        lastblink = (struct timespec){0};
+        last_blink = (struct timespec){0};
 
         while (1) {
             FD_ZERO(&read_fd);
@@ -415,14 +415,14 @@ run:
 
             timeout = -1;
             if (CONF_BLINK_TIMEOUT && term_attr_set(ATTR_BLINK)) {
-                timeout = CONF_BLINK_TIMEOUT - timediff(now, lastblink);
+                timeout = CONF_BLINK_TIMEOUT - timediff(now, last_blink);
                 if (timeout <= 0) {
                     if (-timeout > CONF_BLINK_TIMEOUT) {
                         term_window.mode |= WIN_MODE_BLINK;
                     }
                     term_window.mode ^= WIN_MODE_BLINK;
                     term_set_dirt_attr(ATTR_BLINK);
-                    lastblink = now;
+                    last_blink = now;
                     timeout = CONF_BLINK_TIMEOUT;
                 }
             }
