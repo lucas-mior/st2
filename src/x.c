@@ -741,8 +741,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     XftColor *bg;
     XftColor true_fg;
     XftColor true_bg;
-    XRenderColor col_fg;
-    XRenderColor col_bg;
+    XRenderColor color_fg;
+    XRenderColor color_bg;
 
     if (base.mode & ATTR_WIDE) {
         char_len = len*2;
@@ -766,24 +766,24 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     }
 
     if (IS_TRUECOL(base.fg)) {
-        col_fg.alpha = 0xffff;
-        col_fg.red = TRUE_RED(base.fg);
-        col_fg.green = TRUE_GREEN(base.fg);
-        col_fg.blue = TRUE_BLUE(base.fg);
+        color_fg.alpha = 0xffff;
+        color_fg.red = TRUE_RED(base.fg);
+        color_fg.green = TRUE_GREEN(base.fg);
+        color_fg.blue = TRUE_BLUE(base.fg);
         XftColorAllocValue(x_window.display, x_window.visual,
-                           x_window.color_map, &col_fg, &true_fg);
+                           x_window.color_map, &color_fg, &true_fg);
         fg = &true_fg;
     } else {
         fg = &draw_context.colors[base.fg];
     }
 
     if (IS_TRUECOL(base.bg)) {
-        col_bg.alpha = 0xffff;
-        col_bg.red = TRUE_RED(base.bg);
-        col_bg.green = TRUE_GREEN(base.bg);
-        col_bg.blue = TRUE_BLUE(base.bg);
+        color_bg.alpha = 0xffff;
+        color_bg.red = TRUE_RED(base.bg);
+        color_bg.green = TRUE_GREEN(base.bg);
+        color_bg.blue = TRUE_BLUE(base.bg);
         XftColorAllocValue(x_window.display, x_window.visual,
-                           x_window.color_map, &col_bg, &true_bg);
+                           x_window.color_map, &color_bg, &true_bg);
         bg = &true_bg;
     } else {
         bg = &draw_context.colors[base.bg];
@@ -795,36 +795,36 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         if (fg == &draw_context.colors[CONF_COLOR_INDEX_FONT]) {
             fg = &draw_context.colors[CONF_COLOR_BG];
         } else {
-            col_fg.red = (ushort)~fg->color.red;
-            col_fg.green = (ushort)~fg->color.green;
-            col_fg.blue = (ushort)~fg->color.blue;
-            col_fg.alpha = (ushort)fg->color.alpha;
+            color_fg.red = (ushort)~fg->color.red;
+            color_fg.green = (ushort)~fg->color.green;
+            color_fg.blue = (ushort)~fg->color.blue;
+            color_fg.alpha = (ushort)fg->color.alpha;
             XftColorAllocValue(x_window.display, x_window.visual,
-                               x_window.color_map, &col_fg, &rev_fg);
+                               x_window.color_map, &color_fg, &rev_fg);
             fg = &rev_fg;
         }
 
         if (bg == &draw_context.colors[CONF_COLOR_BG]) {
             bg = &draw_context.colors[CONF_COLOR_INDEX_FONT];
         } else {
-            col_bg.red = (ushort)~bg->color.red;
-            col_bg.green = (ushort)~bg->color.green;
-            col_bg.blue = (ushort)~bg->color.blue;
-            col_bg.alpha = (ushort)bg->color.alpha;
+            color_bg.red = (ushort)~bg->color.red;
+            color_bg.green = (ushort)~bg->color.green;
+            color_bg.blue = (ushort)~bg->color.blue;
+            color_bg.alpha = (ushort)bg->color.alpha;
             XftColorAllocValue(x_window.display, x_window.visual,
-                               x_window.color_map, &col_bg, &rev_bg);
+                               x_window.color_map, &color_bg, &rev_bg);
             bg = &rev_bg;
         }
     }
 
     if ((base.mode & ATTR_BOLD_FAINT) == ATTR_FAINT) {
         XftColor rev_fg;
-        col_fg.red = fg->color.red / 2;
-        col_fg.green = fg->color.green / 2;
-        col_fg.blue = fg->color.blue / 2;
-        col_fg.alpha = fg->color.alpha;
+        color_fg.red = fg->color.red / 2;
+        color_fg.green = fg->color.green / 2;
+        color_fg.blue = fg->color.blue / 2;
+        color_fg.alpha = fg->color.alpha;
         XftColorAllocValue(x_window.display, x_window.visual,
-                           x_window.color_map, &col_fg, &rev_fg);
+                           x_window.color_map, &color_fg, &rev_fg);
         fg = &rev_fg;
     }
 
