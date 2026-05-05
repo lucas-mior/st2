@@ -1013,7 +1013,7 @@ string_handle(void) {
         return;
     case 'P':
         if (term_mode_is_set(TERM_MODE_SIXEL)) {
-            ImageList *newimages = NULL;
+            ImageList *new_images = NULL;
             ImageList *next_im;
             ImageList *tail = NULL;
             int32 x1_im;
@@ -1040,28 +1040,28 @@ string_handle(void) {
             } else {
                 cy_pos = term.cursor.y;
             }
-            nimages = sixel_parser_finalize(&sixel_st, &newimages,
+            nimages = sixel_parser_finalize(&sixel_st, &new_images,
                                             cx_pos, cy_pos + scr_offset,
                                             term_window.cw, term_window.ch);
 
-            if (nimages <= 0 || newimages == NULL || newimages->cols <= 0) {
-                if (newimages) {
-                    sixel_image_delete(newimages);
+            if (nimages <= 0 || new_images == NULL || new_images->cols <= 0) {
+                if (new_images) {
+                    sixel_image_delete(new_images);
                 }
                 sixel_parser_deinit(&sixel_st);
                 return;
             }
 
             sixel_parser_deinit(&sixel_st);
-            x1_im = newimages->x;
-            y1_im = newimages->y;
-            x2_im = x1_im + newimages->cols;
+            x1_im = new_images->x;
+            y1_im = new_images->y;
+            x2_im = x1_im + new_images->cols;
             y2_im = y1_im + nimages;
 
             if (term.images) {
                 bool *transparents = xmalloc(nimages*SIZEOF(*transparents));
                 int32 i_idx = 0;
-                for (ImageList *image = newimages; image; image = image->next) {
+                for (ImageList *image = new_images; image; image = image->next) {
                     transparents[i_idx] = image->transparent;
                     i_idx += 1;
                 }
@@ -1094,10 +1094,10 @@ string_handle(void) {
             }
 
             if (tail) {
-                tail->next = newimages;
-                newimages->prev = tail;
+                tail->next = new_images;
+                new_images->prev = tail;
             } else {
-                term.images = newimages;
+                term.images = new_images;
             }
 
             x2_im = (int32)MIN(x2_im, term.ncols) - 1;
@@ -1105,7 +1105,7 @@ string_handle(void) {
             if (term_mode_is_set(TERM_MODE_SIXEL_SDM)) {
                 ImageList *im_sdm;
                 int32 i_sdm;
-                for (i_sdm = 0, im_sdm = newimages; im_sdm; im_sdm = next_im, i_sdm += 1) {
+                for (i_sdm = 0, im_sdm = new_images; im_sdm; im_sdm = next_im, i_sdm += 1) {
                     next_im = im_sdm->next;
                     if (i_sdm >= term.nrows) {
                         sixel_image_delete(im_sdm);
@@ -1118,7 +1118,7 @@ string_handle(void) {
             } else {
                 ImageList *im_cur;
                 int32 i_cur;
-                for (i_cur = 0, im_cur = newimages; im_cur; im_cur = next_im, i_cur += 1) {
+                for (i_cur = 0, im_cur = new_images; im_cur; im_cur = next_im, i_cur += 1) {
                     next_im = im_cur->next;
                     if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
                         scr_offset = 0;
@@ -1137,7 +1137,7 @@ string_handle(void) {
                 }
 
                 if (term_mode_is_set(TERM_MODE_SIXEL_CUR_RT)) {
-                    term.cursor.x = (int32)MIN(term.cursor.x + newimages->cols,
+                    term.cursor.x = (int32)MIN(term.cursor.x + new_images->cols,
                                                term.ncols - 1);
                 } else {
                     /* Reset X to 0 on the current row. Trailing \n in the stream 
