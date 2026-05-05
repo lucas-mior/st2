@@ -440,7 +440,7 @@ tried_custom_keys:
     if (len == 0) {
         return;
     }
-    if (len == 1 && key_event->state & Mod1Mask) {
+    if ((len == 1) && (key_event->state & Mod1Mask)) {
         if (term_window_is_set(WIN_MODE_8BIT)) {
             if (*buffer < 0177) {
                 c = (uint32)(*buffer | 0x80);
