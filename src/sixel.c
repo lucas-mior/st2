@@ -481,8 +481,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                     < (sixel_state->pos_x
                                         + sixel_state->repeat_count - 1)) {
                                     sixel_state->max_x
-                                         = sixel_state->pos_x
-                                           + sixel_state->repeat_count - 1;
+                                          = sixel_state->pos_x
+                                            + sixel_state->repeat_count - 1;
                                 }
                             }
                             if (sixel_state->max_y < (sixel_state->pos_y + n)) {
@@ -833,13 +833,17 @@ hls2rgb(uint32 hue, uint32 lum, uint32 sat) {
 int
 main(void) {
     {
-        uint32 res;
-
-        res = hls2rgb(0, 0, 0);
-        ASSERT_EQUAL(res, SIXEL_RGB(0, 0, 0));
-
-        res = hls2rgb(0, 100, 0);
-        ASSERT_EQUAL(res, SIXEL_RGB(255, 255, 255));
+        ASSERT_EQUAL(hls2rgb(0, 0, 0),      SIXEL_RGB(0, 0, 0));
+        ASSERT_EQUAL(hls2rgb(0, 100, 0),    SIXEL_RGB(255, 255, 255));
+        ASSERT_EQUAL(hls2rgb(120, 50, 100), SIXEL_RGB(255, 0, 0));
+        ASSERT_EQUAL(hls2rgb(240, 50, 100), SIXEL_RGB(0, 255, 0));
+        ASSERT_EQUAL(hls2rgb(0, 50, 100),   SIXEL_RGB(0, 0, 255));
+        ASSERT_EQUAL(hls2rgb(180, 50, 100), SIXEL_RGB(255, 255, 0));
+        ASSERT_EQUAL(hls2rgb(300, 50, 100), SIXEL_RGB(0, 255, 255));
+        ASSERT_EQUAL(hls2rgb(60, 50, 100),  SIXEL_RGB(255, 0, 255));
+        ASSERT_EQUAL(hls2rgb(0, 50, 0),     SIXEL_RGB(127, 127, 127));
+        ASSERT_EQUAL(hls2rgb(0, 0, 100),    SIXEL_RGB(0, 0, 0));
+        ASSERT_EQUAL(hls2rgb(0, 100, 100),  SIXEL_RGB(255, 255, 255));
     }
 
     {
