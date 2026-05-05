@@ -129,6 +129,7 @@ run:
         pid_t pid_this = getpid();
         XWindowAttributes attr;
         XVisualInfo visual;
+        long pid_x11 = pid_this;
 
         if (!(x_window.display = XOpenDisplay(NULL))) {
             error("can't open display\n");
@@ -285,17 +286,9 @@ run:
 
         x_window.net_wm_pid = XInternAtom(x_window.display, "_NET_WM_PID", False);
 
-        // TODO: Memory Error / Data Corruption.  When format=32,
-        // XChangeProperty STRICTLY requires the data array to be of type 'long'
-        // (or 'unsigned long'), regardless of the actual data type's size on
-        // the C side.  'pid_this' is a 'pid_t' (a 32-bit 'int' on Linux). On
-        // 64-bit platforms, Xlib will read 8 bytes (sizeof(long)) starting from
-        // &pid_this, reading garbage data from the stack.  Fix: Cast or assign
-        // to a long first: `long x11_pid = pid_this;` and pass `(uchar
-        // *)&x11_pid`.
         XChangeProperty(x_window.display, x_window.win, x_window.net_wm_pid,
                         XA_CARDINAL, 32, PropModeReplace,
-                        (uchar *)&pid_this, 1);
+                        (uchar *)&pid_x11, 1);
 
         term_window.mode = WIN_MODE_NUMLOCK;
         x_set_title(NULL);
