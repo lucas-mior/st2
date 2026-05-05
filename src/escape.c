@@ -1040,9 +1040,9 @@ string_handle(void) {
             } else {
                 cy_pos = term.cursor.y;
             }
-            numimages
-                = sixel_parser_finalize(&sixel_st, &newimages, cx_pos, cy_pos + scr_offset,
-                                        term_window.cw, term_window.ch);
+            numimages = sixel_parser_finalize(&sixel_st, &newimages,
+                                              cx_pos, cy_pos + scr_offset,
+                                              term_window.cw, term_window.ch);
 
             if (numimages <= 0 || newimages == NULL || newimages->cols <= 0) {
                 if (newimages) {
