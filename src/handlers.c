@@ -174,10 +174,9 @@ handler_selection_notify(XEvent *xevent) {
 
 static void
 handler_prop_notify(XEvent *xevent) {
-    XPropertyEvent *x_property_event;
+    XPropertyEvent *x_property_event = &xevent->xproperty;
     Atom clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
 
-    x_property_event = &xevent->xproperty;
     if (x_property_event->state == PropertyNewValue) {
         if (x_property_event->atom == XA_PRIMARY) {
             handler_selection_notify(xevent);
