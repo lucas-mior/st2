@@ -31,22 +31,22 @@ static uint32 hls2rgb(uint32 hue, uint32 lum, uint32 sat);
               SIXEL_PALVAL(b, 255, 100))
 
 static uint32 sixel_default_color_table[] = {
-    SIXEL_XRGB(0, 0, 0),    /*  0 Black    */
-    SIXEL_XRGB(20, 20, 80), /*  1 Blue     */
-    SIXEL_XRGB(80, 13, 13), /*  2 Red      */
-    SIXEL_XRGB(20, 80, 20), /*  3 Green    */
-    SIXEL_XRGB(80, 20, 80), /*  4 Magenta  */
-    SIXEL_XRGB(20, 80, 80), /*  5 Cyan     */
-    SIXEL_XRGB(80, 80, 20), /*  6 Yellow   */
-    SIXEL_XRGB(53, 53, 53), /*  7 Gray 50% */
-    SIXEL_XRGB(26, 26, 26), /*  8 Gray 25% */
-    SIXEL_XRGB(33, 33, 60), /*  9 Blue*    */
-    SIXEL_XRGB(60, 26, 26), /* 10 Red*     */
-    SIXEL_XRGB(33, 60, 33), /* 11 Green*   */
-    SIXEL_XRGB(60, 33, 60), /* 12 Magenta* */
-    SIXEL_XRGB(33, 60, 60), /* 13 Cyan*    */
-    SIXEL_XRGB(60, 60, 33), /* 14 Yellow*  */
-    SIXEL_XRGB(80, 80, 80), /* 15 Gray 75% */
+    SIXEL_XRGB(0, 0, 0),     //  0 Black
+    SIXEL_XRGB(20, 20, 80),  //  1 Blue
+    SIXEL_XRGB(80, 13, 13),  //  2 Red
+    SIXEL_XRGB(20, 80, 20),  //  3 Green
+    SIXEL_XRGB(80, 20, 80),  //  4 Magenta
+    SIXEL_XRGB(20, 80, 80),  //  5 Cyan
+    SIXEL_XRGB(80, 80, 20),  //  6 Yellow
+    SIXEL_XRGB(53, 53, 53),  //  7 Gray 50%
+    SIXEL_XRGB(26, 26, 26),  //  8 Gray 25%
+    SIXEL_XRGB(33, 33, 60),  //  9 Blue*
+    SIXEL_XRGB(60, 26, 26),  // 10 Red*
+    SIXEL_XRGB(33, 60, 33),  // 11 Green*
+    SIXEL_XRGB(60, 33, 60),  // 12 Magenta*
+    SIXEL_XRGB(33, 60, 60),  // 13 Cyan*
+    SIXEL_XRGB(60, 60, 33),  // 14 Yellow*
+    SIXEL_XRGB(80, 80, 80),  // 15 Gray 75%
 };
 
 static void
