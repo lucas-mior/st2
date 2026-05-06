@@ -79,7 +79,7 @@ main(int32 argc, char *argv[]) {
             (uint32 *)&CONF_NCOLS, (uint32 *)&CONF_NROWS);
         break;
     case 'i':
-        x_window.is_fixed = 1;
+        x_window.is_fixed = true;
         break;
     case 'o':
         opt_iofile = EARGF(usage());

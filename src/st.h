@@ -290,7 +290,7 @@ static struct {
     Visual *visual;
     XSetWindowAttributes attrs;
     int32 screen;
-    int32 is_fixed;
+    bool is_fixed;
     int32 depth;
     int32 left_offset;
     int32 top_offset;
