@@ -922,12 +922,12 @@ string_handle(void) {
             return;
         case 52:
             if (narg > 2 && CONF_ALLOW_WINDOW_OPS) {
-                char *dec = base64_decode(str_escape_seq.args[2]);
+                int32 dec_alloc_len;
+                char *dec = base64_decode(str_escape_seq.args[2], &dec_alloc_len);
                 if (dec) {
-                    int64 dec_len = (int64)strlen32(dec) + 1;
                     selection_set(dec, CurrentTime);
                     user_clipboard_copy(NULL);
-                    free2(dec, dec_len);
+                    free2(dec, (int64)dec_alloc_len);
                 } else {
                     error("erresc: invalid base64\n");
                 }

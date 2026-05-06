@@ -91,7 +91,7 @@ LDFLAGS="$LDFLAGS -lm -lrt -lX11 -lutil -lXft -lImlib2"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 
-if [ "$target" = "test" ] && [ -z "$CC" ] && command tcc; then
+if [ "$target" = "test" ] && [ -z "$CC" ] && command tcc > /dev/null 2>&1; then
     CC=tcc
 else
     CC="${CC:-cc}"
@@ -101,7 +101,7 @@ noop () {
     return
 }
 
-if ! command xsel; then
+if ! command xsel > /dev/null 2>&1; then
     xsel=noop
 else
     xsel=xsel

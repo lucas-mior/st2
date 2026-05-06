@@ -24,8 +24,9 @@ base64_decode_getc(char **src) {
 }
 
 static char *
-base64_decode(char *src) {
+base64_decode(char *src, int32 *allocated_length) {
     int64 in_len = strlen32(src);
+    int64 alloc_size;
     char *result;
     char *dst;
     static char base64_digits[256] = {
@@ -50,7 +51,11 @@ base64_decode(char *src) {
     if (in_len % 4) {
         in_len += 4 - (in_len % 4);
     }
-    result = malloc2(in_len / 4*3 + 1);
+    alloc_size = in_len / 4 * 3 + 1;
+    result = malloc2(alloc_size);
+    if (allocated_length) {
+        *allocated_length = (int32)alloc_size;
+    }
     dst = result;
     while (*src) {
         int32 a = base64_digits[(uchar)base64_decode_getc(&src)];
@@ -107,35 +112,36 @@ main(void) {
 
     {
         char *decoded;
+        int32 len;
 
-        decoded = base64_decode("");
+        decoded = base64_decode("", &len);
         ASSERT_EQUAL(decoded, "");
-        free2(decoded, 1);
+        free2(decoded, len);
 
-        decoded = base64_decode("SGVsbG8=");
+        decoded = base64_decode("SGVsbG8=", &len);
         ASSERT_EQUAL(decoded, "Hello");
-        free2(decoded, 7);
+        free2(decoded, len);
 
-        decoded = base64_decode("YW55IGNhcm5hbCBwbGVhc3VyZS4=");
+        decoded = base64_decode("YW55IGNhcm5hbCBwbGVhc3VyZS4=", &len);
         ASSERT_EQUAL(decoded, "any carnal pleasure.");
-        free2(decoded, 22);
+        free2(decoded, len);
 
-        decoded = base64_decode(" \n\r");
+        decoded = base64_decode(" \n\r", &len);
         ASSERT_EQUAL(decoded, "");
-        free2(decoded, 4);
+        free2(decoded, len);
 
         /* Expose the space bug: space evaluates to 0 ('A') instead of being skipped. 
          * "SGVsb G8=" evaluates improperly instead of skipping the space to decode "Hello". */
-        decoded = base64_decode("SGVsb G8=");
+        decoded = base64_decode("SGVsb G8=", &len);
         ASSERT_EQUAL(decoded, "Hello");
-        free2(decoded, 7);
+        free2(decoded, len);
 
         /* Expose the unmapped character bug: '!' evaluates to 0 ('A') instead of -1. 
          * The presence of an invalid character should abort the decode (returning ""), 
          * but instead it silently corrupts the data. */
-        decoded = base64_decode("S!VsbG8=");
+        decoded = base64_decode("S!VsbG8=", &len);
         ASSERT_EQUAL(decoded, "");
-        free2(decoded, 7);
+        free2(decoded, len);
     }
 
     exit(EXIT_SUCCESS);
