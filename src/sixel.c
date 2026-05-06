@@ -298,7 +298,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
         image->ch = ch;
 
         dst = (uint32 *)image->pixels;
-        for (int32 j = 0; j < image->height && y < h; j += 1) {
+        for (int32 j = 0; j < image->height && (y < h); j += 1) {
             uint16 *src = sixel_state->image.data + sixel_image->width*y;
             for (int32 x = 0; x < w; x += 1) {
                 uint32 color = sixel_state->image.palette[*src++];
