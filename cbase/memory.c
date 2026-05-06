@@ -308,6 +308,9 @@ realloc_debug(char *file, int32 line,
 
 static void
 free_debug(char *file, int32 line, void *pointer, int64 size) {
+    DebugAllocInfo info;
+    uchar *ptr;
+
     if (RUNNING_ON_VALGRIND) {
         free(pointer);
         return;
@@ -320,50 +323,50 @@ free_debug(char *file, int32 line, void *pointer, int64 size) {
         fatal(EXIT_FAILURE);
     }
 
-    if (pointer) {
-        DebugAllocInfo info;
-        uchar *ptr;
-        pthread_mutex_lock(&allocations_mutex);
-
-        if (allocations == NULL) {
-            error_impl(file, line,
-                       "Called free without having called malloc or realloc.\n");
-            fatal(EXIT_FAILURE);
-        }
-        if (hash_lookup_alloc_map(allocations, &pointer, &info)) {
-            if (info.reallocated == -1) {
-                error_impl(file, line, "Error: double free of pointer %p.\n", pointer);
-                fatal(EXIT_FAILURE);
-            }
-            if (info.size != size) {
-                error_impl(file, line, 
-                           "Error: size mismatch freeing %p. Expected %lld, got %lld.\n",
-                           pointer, (llong)info.size, (llong)size);
-                error_impl(info.file, info.line, "Memory was allocated here.\n");
-                fatal(EXIT_FAILURE);
-            }
-            
-            ptr = (uchar *)pointer;
-            if (ptr[size] != 0xDC) {
-                error_impl(info.file, info.line,
-                           "Memory overflow detected during free of %p.\n", pointer);
-                fatal(EXIT_FAILURE);
-            }
-
-            info.file = file;
-            info.line = line;
-            info.reallocated = -1;
-            hash_remove_alloc_map(allocations, &pointer);
-            hash_insert_alloc_map(allocations, &pointer, info);
-            
-            memset64(pointer, 0xCD, size);
-        } else {
-            error_impl(file, line, "Error: freeing untracked pointer %p.\n", pointer);
-            fatal(EXIT_FAILURE);
-        }
-
-        pthread_mutex_unlock(&allocations_mutex);
+    if (pointer == NULL) {
+        return;
     }
+
+    pthread_mutex_lock(&allocations_mutex);
+
+    if (allocations == NULL) {
+        error_impl(file, line,
+                   "Called free without having called malloc or realloc.\n");
+        fatal(EXIT_FAILURE);
+    }
+    if (hash_lookup_alloc_map(allocations, &pointer, &info)) {
+        if (info.reallocated == -1) {
+            error_impl(file, line, "Error: double free of pointer %p.\n", pointer);
+            fatal(EXIT_FAILURE);
+        }
+        if (info.size != size) {
+            error_impl(file, line, 
+                       "Error: size mismatch freeing %p. Expected %lld, got %lld.\n",
+                       pointer, (llong)info.size, (llong)size);
+            error_impl(info.file, info.line, "Memory was allocated here.\n");
+            fatal(EXIT_FAILURE);
+        }
+        
+        ptr = (uchar *)pointer;
+        if (ptr[size] != 0xDC) {
+            error_impl(info.file, info.line,
+                       "Memory overflow detected during free of %p.\n", pointer);
+            fatal(EXIT_FAILURE);
+        }
+
+        info.file = file;
+        info.line = line;
+        info.reallocated = -1;
+        hash_remove_alloc_map(allocations, &pointer);
+        hash_insert_alloc_map(allocations, &pointer, info);
+        
+        memset64(pointer, 0xCD, size);
+    } else {
+        error_impl(file, line, "Error: freeing untracked pointer %p.\n", pointer);
+        fatal(EXIT_FAILURE);
+    }
+
+    pthread_mutex_unlock(&allocations_mutex);
 
     return;
 }
