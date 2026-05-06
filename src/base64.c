@@ -110,32 +110,32 @@ main(void) {
 
         decoded = base64_decode("");
         ASSERT_EQUAL(decoded, "");
-        free(decoded);
+        free2(decoded, 1);
 
         decoded = base64_decode("SGVsbG8=");
         ASSERT_EQUAL(decoded, "Hello");
-        free(decoded);
+        free2(decoded, 7);
 
         decoded = base64_decode("YW55IGNhcm5hbCBwbGVhc3VyZS4=");
         ASSERT_EQUAL(decoded, "any carnal pleasure.");
-        free(decoded);
+        free2(decoded, 22);
 
         decoded = base64_decode(" \n\r");
         ASSERT_EQUAL(decoded, "");
-        free(decoded);
+        free2(decoded, 4);
 
         /* Expose the space bug: space evaluates to 0 ('A') instead of being skipped. 
          * "SGVsb G8=" evaluates improperly instead of skipping the space to decode "Hello". */
         decoded = base64_decode("SGVsb G8=");
         ASSERT_EQUAL(decoded, "Hello");
-        free(decoded);
+        free2(decoded, 7);
 
         /* Expose the unmapped character bug: '!' evaluates to 0 ('A') instead of -1. 
          * The presence of an invalid character should abort the decode (returning ""), 
          * but instead it silently corrupts the data. */
         decoded = base64_decode("S!VsbG8=");
         ASSERT_EQUAL(decoded, "");
-        free(decoded);
+        free2(decoded, 7);
     }
 
     exit(EXIT_SUCCESS);
