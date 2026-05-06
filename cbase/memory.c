@@ -112,7 +112,7 @@ xmalloc(int64 size) {
 }
 
 static void
-memory_check(void) {
+memory_check(bool check_use_after_free) {
     if (RUNNING_ON_VALGRIND) {
         return;
     }
@@ -131,7 +131,7 @@ memory_check(void) {
             p = (uchar *)bucket->key;
             size = bucket->value.size;
 
-            if (bucket->value.reallocated == -1) {
+            if (check_use_after_free && (bucket->value.reallocated == -1)) {
                 for (int64 j = 0; j < size; j += 1) {
                     if (p[j] != 0xCD) {
                         error_impl(bucket->value.file, bucket->value.line,
@@ -562,7 +562,7 @@ int main(void) {
             }
             printf("Memory correctly initialized with debug byte.\n");
         }
-        memory_check();
+        memory_check(true);
         free2(p, size);
         printf("free2(256) successful.\n");
     }
@@ -577,14 +577,14 @@ int main(void) {
             arr[i] = (int64)i;
         }
 
-        memory_check();
+        memory_check(true);
         arr = realloc2(arr, count, grow, SIZEOF(int64));
         for (int32 i = 0; i < count; i += 1) {
             ASSERT(arr[i] == (int64)i);
         }
         printf("realloc2 (grow) preserved data.\n");
 
-        memory_check();
+        memory_check(true);
         arr = realloc2(arr, grow, shrink, SIZEOF(int64));
         for (int32 i = 0; i < shrink; i += 1) {
             ASSERT(arr[i] == (int64)i);
@@ -669,7 +669,7 @@ int main(void) {
         uchar *p = malloc2(size);
         ASSERT_EXPECTED_FATAL({
             p[size] = 0x00; // Corrupt canary
-            memory_check();
+            memory_check(true);
         });
         pthread_mutex_unlock(&allocations_mutex);
         free(p); 
@@ -692,7 +692,7 @@ int main(void) {
         free2(p, size);
         ASSERT_EXPECTED_FATAL({
             p[0] = 0xAA; // Use after free
-            memory_check();
+            memory_check(true);
         });
         pthread_mutex_unlock(&allocations_mutex);
     }
