@@ -42,10 +42,10 @@ typedef struct DebugAllocInfo {
     char *file;
     int32 line;
     int32 reallocated; /* -1 : freed
-                          0  : malloced once
-                          1  : realloced once
-                          2  : realloced twice
-                          and so on */
+                        *  0 : malloced once
+                        *  1 : realloced once
+                        *  2 : realloced twice
+                        * and so on */
 } DebugAllocInfo;
 
 #define HASH_KEY_TYPE void *
