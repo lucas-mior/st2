@@ -264,7 +264,8 @@ user_vim_select(union Arg *arg) {
         StGlyph *line = term_line_abs(y);
         int32 last_pos = term.ncols - 1;
 
-        while (last_pos >= 0 && !(line[last_pos].mode & (ATTR_SET | ATTR_WRAP))) {
+        while ((last_pos >= 0)
+                && !(line[last_pos].mode & (ATTR_SET | ATTR_WRAP))) {
             last_pos -= 1;
         }
         last_pos += 1;
