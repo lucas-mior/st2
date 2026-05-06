@@ -206,14 +206,7 @@ user_smart_scroll_down(union Arg *arg) {
     if (term_mode_is_set(TERM_MODE_ALTSCREEN) || term_window_is_set(WIN_MODE_APPCURSOR)) {
         user_tty_send(&(union Arg){.s = "\005"}); /* Send Ctrl-E */
     } else {
-        /* 
-         * Fallback: If we are already at the bottom of the scrollback (scrolled_up == 0),
-         * scrolling down is a no-op for the terminal. In this case, we send the
-         * escape code anyway to support programs like 'less -X' that run in the main buffer.
-         */
-        if (term.scrolled_up == 0) {
-            user_tty_send(&(union Arg){.s = "\005"});
-        } else {
+        if (term.scrolled_up > 0) {
             user_scroll_down(arg);
         }
     }
