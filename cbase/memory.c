@@ -39,7 +39,11 @@ typedef struct DebugAllocInfo {
     int64 size;
     char *file;
     int32 line;
-    int32 is_freed;
+    int32 reallocated; /* -1 : freed
+                          0  : malloced once
+                          1  : realloced once
+                          2  : realloced twice
+                          and so on */
 } DebugAllocInfo;
 
 #define HASH_KEY_TYPE void *
@@ -122,7 +126,7 @@ check_overflow_memory(void) {
                 uchar *p = (uchar *)bucket->key;
                 int64 size = bucket->value.size;
 
-                if (bucket->value.is_freed) {
+                if (bucket->value.reallocated == -1) {
                     for (int64 j = 0; j < size; j += 1) {
                         if (p[j] != 0xCD) {
                             error_impl(bucket->value.file, bucket->value.line,
@@ -179,7 +183,7 @@ malloc_debug(char *file, int32 line, int64 size) {
         info.size = size;
         info.file = file;
         info.line = line;
-        info.is_freed = 0;
+        info.reallocated = 0;
 
         pthread_mutex_lock(&allocations_mutex);
         if (allocations == NULL) {
@@ -248,7 +252,7 @@ realloc_debug(char *file, int32 line,
         info.size = new_size;
         info.file = file;
         info.line = line;
-        info.is_freed = 0;
+        info.reallocated = 0;
 
         pthread_mutex_lock(&allocations_mutex);
 
@@ -264,7 +268,7 @@ realloc_debug(char *file, int32 line,
                 error_impl(file, line, "Reallocating invalid pointer %p.\n", old);
                 fatal(EXIT_FAILURE);
             }
-            if (old_info.is_freed) {
+            if (old_info.reallocated == -1) {
                 error_impl(file, line, "Reallocating freed pointer %p.\n", old);
                 fatal(EXIT_FAILURE);
             }
@@ -281,6 +285,8 @@ realloc_debug(char *file, int32 line,
                            "Memory overflow detected before realloc in %p.\n", old);
                 fatal(EXIT_FAILURE);
             }
+
+            info.reallocated = old_info.reallocated + 1;
             hash_remove_alloc_map(allocations, &old);
         }
 
@@ -321,7 +327,7 @@ free_debug(char *file, int32 line, void *pointer, int64 size) {
             fatal(EXIT_FAILURE);
         }
         if (hash_lookup_alloc_map(allocations, &pointer, &info)) {
-            if (info.is_freed) {
+            if (info.reallocated == -1) {
                 error_impl(file, line, "Error: double free of pointer %p.\n", pointer);
                 fatal(EXIT_FAILURE);
             }
@@ -340,7 +346,7 @@ free_debug(char *file, int32 line, void *pointer, int64 size) {
                 fatal(EXIT_FAILURE);
             }
 
-            info.is_freed = 1;
+            info.reallocated = -1;
             hash_remove_alloc_map(allocations, &pointer);
             hash_insert_alloc_map(allocations, &pointer, info);
             
