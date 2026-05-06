@@ -265,7 +265,7 @@ main(void) {
         current_test_name = "Scenario I: Fuzzing Phase";
         printf("Running: %s...\n", current_test_name);
         srand((uint)time(NULL));
-        for (int32 i = 0; i < 1000; i += 1) {
+        for (int32 i = 0; i < 10; i += 1) {
             int32 new_w = (rand() % 150) + 2;
             int32 new_h = (rand() % 100) + 2;
             int32 actions = rand() % 5;

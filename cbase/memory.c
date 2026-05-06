@@ -152,7 +152,7 @@ malloc_debug(char *file, int32 line, int64 size) {
     uchar *ptr;
 
     if (RUNNING_ON_VALGRIND) {
-        return malloc(size);
+        return malloc((size_t)size);
     }
 
     if (size <= 0) {
@@ -224,7 +224,7 @@ realloc_debug(char *file, int32 line,
     (void)old_capacity;
 
     if (RUNNING_ON_VALGRIND) {
-        return realloc4(old, old_capacity, new_capacity, obj_size);
+        return realloc(old, (size_t)(new_capacity*obj_size));
     }
 
     if (obj_size <= 0) {
