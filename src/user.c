@@ -193,7 +193,8 @@ user_smart_scroll_up(union Arg *arg) {
      * If Altscreen is on, or if the app has enabled Application Cursor Keys
      * (a very strong signal that a TUI like less or vim is running).
      */
-    if (term_mode_is_set(TERM_MODE_ALTSCREEN) || term_window_is_set(WIN_MODE_APPCURSOR)) {
+    if (term_mode_is_set(TERM_MODE_ALTSCREEN)
+        || term_window_is_set(WIN_MODE_APPCURSOR)) {
         user_tty_send(&(union Arg){.s = "\031"}); /* Send Ctrl-Y */
     } else {
         user_scroll_up(arg);
