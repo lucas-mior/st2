@@ -115,7 +115,7 @@ sixel_image_init(SixelImage *sixel_image,
     size = (width*height)*SIZEOF(*(sixel_image->data));
     sixel_image->width = width;
     sixel_image->height = height;
-    sixel_image->data = xmalloc(size);
+    sixel_image->data = malloc2(size);
     sixel_image->ncolors = 2;
     sixel_image->use_private_register = use_private_register;
 
@@ -143,7 +143,7 @@ sixel_image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
     int32 min_height;
 
     size = (width*height)*SIZEOF(uint16);
-    alt_buffer = (uint16 *)xmalloc(size);
+    alt_buffer = (uint16 *)malloc2(size);
     if (alt_buffer == NULL) {
         free(sixel_image->data);
         sixel_image->data = NULL;
@@ -272,7 +272,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
     *new_images = NULL;
     tail = NULL;
     for (int32 i = 0; i < nimages; i += 1) {
-        ImageList *image = xmalloc(sizeof(*image));
+        ImageList *image = malloc2(sizeof(*image));
         char trans = 0;
         uint32 *dst;
 
@@ -291,7 +291,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
         image->cols = cols;
         image->width = w;
         image->height = (int32)MIN(h - ch*i, ch);
-        image->pixels = xmalloc(image->width*image->height*4);
+        image->pixels = malloc2(image->width*image->height*4);
         image->pixmap = NULL;
         image->clipmask = NULL;
         image->cw = cw;
@@ -682,7 +682,7 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
     int32 msb = (XBitmapBitOrder(x_window.display) == MSBFirst);
     uint32 *src = (uint32 *)pixels;
 
-    clipdata = dst = xmalloc((width + 7) / 8*height);
+    clipdata = dst = malloc2((width + 7) / 8*height);
 
     for (int32 y = 0; y < height; y += 1) {
         int32 n;

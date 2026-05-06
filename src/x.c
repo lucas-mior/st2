@@ -115,7 +115,7 @@ x_load_colors(void) {
 
         draw_context.colors_len = (int32)MAX(LENGTH(CONF_COLORS), 256);
         size = draw_context.colors_len*SIZEOF(*draw_context.colors);
-        draw_context.colors = xmalloc(size);
+        draw_context.colors = malloc2(size);
     }
 
     for (int32 i = 0; i < draw_context.colors_len; i += 1) {

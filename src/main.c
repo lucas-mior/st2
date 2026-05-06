@@ -237,7 +237,7 @@ run:
                        draw_context.graphics,
                        0, 0, (uint32)term_window.w, (uint32)term_window.h);
 
-        x_window.font_spec_buf = xmalloc(CONF_NCOLS*SIZEOF(XftGlyphFontSpec));
+        x_window.font_spec_buf = malloc2(CONF_NCOLS*SIZEOF(XftGlyphFontSpec));
 
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
                                           x_window.visual, x_window.color_map);

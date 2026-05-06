@@ -284,7 +284,7 @@ selection_get(void) {
     }
 
     size = (term.ncols + 1)*(selection.ne.y - selection.nb.y + 1)*UTF_SIZ;
-    string = xmalloc(size);
+    string = malloc2(size);
     ptr = string;
 
     for (int32 y = selection.nb.y; y <= selection.ne.y; y += 1) {

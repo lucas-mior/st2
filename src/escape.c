@@ -1059,7 +1059,7 @@ string_handle(void) {
             y2_im = y1_im + nimages;
 
             if (term.images) {
-                bool *transparents = xmalloc(nimages*SIZEOF(*transparents));
+                bool *transparents = malloc2(nimages*SIZEOF(*transparents));
                 int32 i_idx = 0;
                 for (ImageList *image = new_images; image; image = image->next) {
                     transparents[i_idx] = image->transparent;
@@ -1789,7 +1789,7 @@ main(void) {
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable, x_window.visual, x_window.color_map);
         
         draw_context.colors_len = 256;
-        draw_context.colors = xmalloc(256 * SIZEOF(XftColor));
+        draw_context.colors = malloc2(256 * SIZEOF(XftColor));
 
         term_reset();
     }

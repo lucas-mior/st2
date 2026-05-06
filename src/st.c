@@ -159,9 +159,9 @@ check_consistent_state(void) {
 static void
 term_allocate(void) {
     for (int32 i = 0; i < 2; i += 1) {
-        term.lines = xmalloc(CONF_NROWS*SIZEOF(*(term.lines)));
+        term.lines = malloc2(CONF_NROWS*SIZEOF(*(term.lines)));
         for (int32 j = 0; j < CONF_NROWS; j += 1) {
-            term.lines[j] = xmalloc(CONF_NCOLS*SIZEOF(*(term.lines[j])));
+            term.lines[j] = malloc2(CONF_NCOLS*SIZEOF(*(term.lines[j])));
             memset64(term.lines[j], 0, CONF_NCOLS*SIZEOF(*(term.lines[j])));
         }
         term.ncols = CONF_NCOLS;
@@ -169,11 +169,11 @@ term_allocate(void) {
         term_swap_screen();
     }
 
-    term.dirts = xmalloc(CONF_NROWS*SIZEOF(*term.dirts));
-    term.tabs = xmalloc(CONF_NCOLS*SIZEOF(*term.tabs));
+    term.dirts = malloc2(CONF_NROWS*SIZEOF(*term.dirts));
+    term.tabs = malloc2(CONF_NCOLS*SIZEOF(*term.tabs));
 
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        term.hist[i] = xmalloc(CONF_NCOLS*SIZEOF(StGlyph));
+        term.hist[i] = malloc2(CONF_NCOLS*SIZEOF(StGlyph));
         for (int32 j = 0; j < CONF_NCOLS; j += 1) {
             term_clear_glyph(&term.hist[i][j], false);
         }
@@ -803,7 +803,7 @@ term_dump_sel(void) {
 
 static void
 term_dump_line(int32 n) {
-    char *string = xmalloc((term.ncols + 1)*UTF_SIZ*SIZEOF(*string));
+    char *string = malloc2((term.ncols + 1)*UTF_SIZ*SIZEOF(*string));
     char *buffer = string;
     StGlyph *fgp = &term.lines[n][0];
     StGlyph *lgp = &fgp[term.ncols - 1];
@@ -928,7 +928,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
         term.lines = xrealloc(term.lines, new_nrows*SIZEOF(*(term.lines)));
 
         for (int32 i = term.nrows; i < new_nrows; i += 1) {
-            term.lines[i] = xmalloc(new_ncols*SIZEOF(StGlyph));
+            term.lines[i] = malloc2(new_ncols*SIZEOF(StGlyph));
             for (int32 j = 0; j < new_ncols; j += 1) {
                 term_clear_glyph(&term.lines[i][j], false);
             }
@@ -984,7 +984,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     }
 
     for (int32 j = (int32)MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
-        term.lines[j] = xmalloc(new_ncols*SIZEOF(StGlyph));
+        term.lines[j] = malloc2(new_ncols*SIZEOF(StGlyph));
         for (int32 k = 0; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], false);
         }
@@ -1078,7 +1078,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             }
         }
         capacity += 2;
-        ref_lines = xmalloc(capacity*SIZEOF(StGlyph *));
+        ref_lines = malloc2(capacity*SIZEOF(StGlyph *));
         memset64(ref_lines, 0, capacity*SIZEOF(StGlyph *));
     }
 
@@ -1088,7 +1088,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
         if (new_x_off == 0) {
             new_y_idx += 1;
-            ref_lines[new_y_idx] = xmalloc(new_ncols*SIZEOF(StGlyph));
+            ref_lines[new_y_idx] = malloc2(new_ncols*SIZEOF(StGlyph));
             for (int32 j = 0; j < new_ncols; j += 1) {
                 term_clear_glyph(&ref_lines[new_y_idx][j], false);
             }
@@ -1199,7 +1199,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             term.lines[i] = ref_lines[buffer_idx];
             ref_lines[buffer_idx] = NULL;
         } else {
-            term.lines[i] = xmalloc(new_ncols*SIZEOF(StGlyph));
+            term.lines[i] = malloc2(new_ncols*SIZEOF(StGlyph));
             for (int32 j = 0; j < new_ncols; j += 1) {
                 term_clear_glyph(&term.lines[i][j], false);
             }
@@ -1225,7 +1225,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                 term.hist[i] = ref_lines[history_start_idx + i];
                 ref_lines[history_start_idx + i] = NULL;
             } else {
-                term.hist[i] = xmalloc(new_ncols*SIZEOF(StGlyph));
+                term.hist[i] = malloc2(new_ncols*SIZEOF(StGlyph));
                 for (int32 j = 0; j < new_ncols; j += 1) {
                     term_clear_glyph(&term.hist[i][j], false);
                 }

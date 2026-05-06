@@ -50,7 +50,7 @@ base64_decode(char *src) {
     if (in_len % 4) {
         in_len += 4 - (in_len % 4);
     }
-    result = xmalloc(in_len / 4*3 + 1);
+    result = malloc2(in_len / 4*3 + 1);
     dst = result;
     while (*src) {
         int32 a = base64_digits[(uchar)base64_decode_getc(&src)];

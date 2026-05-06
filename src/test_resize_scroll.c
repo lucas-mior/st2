@@ -242,7 +242,7 @@ main(void) {
             test_inject_text("PADDING\n");
         }
         {
-            ImageList *dummy_img = xmalloc(SIZEOF(ImageList));
+            ImageList *dummy_img = malloc2(SIZEOF(ImageList));
             memset64(dummy_img, 0, SIZEOF(ImageList));
             dummy_img->x = 2;
             dummy_img->y = 5;
@@ -320,7 +320,7 @@ main(void) {
         test_inject_text("THIS_LONG_LINE_WILL_WRAP_INTO_MULTIPLE_ROWS_LATER\n");
         check_consistent_state();
         {
-            ImageList *img = xmalloc(SIZEOF(ImageList));
+            ImageList *img = malloc2(SIZEOF(ImageList));
             StGlyph *img_line = NULL;
             char buf[32];
             memset64(img, 0, SIZEOF(ImageList));
@@ -353,7 +353,7 @@ main(void) {
         test_inject_text("ANCHOR\n");
         test_inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_MANY_ROWS_WHEN_SHRINKING");
         {
-            ImageList *img = xmalloc(SIZEOF(ImageList));
+            ImageList *img = malloc2(SIZEOF(ImageList));
             StGlyph *n_img_line = NULL;
             char n_buf[32];
             memset64(img, 0, SIZEOF(ImageList));
