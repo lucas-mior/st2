@@ -357,7 +357,12 @@ selection_set(char *string, Time t) {
         return;
     }
 
-    free(xsel.primary);
+    if (xsel.primary) {
+        int64 primary_len;
+
+        primary_len = (int64)strlen32(xsel.primary) + 1;
+        free2(xsel.primary, primary_len);
+    }
     xsel.primary = string;
 
     XSetSelectionOwner(x_window.display, XA_PRIMARY, x_window.win, t);
@@ -475,7 +480,13 @@ main(void) {
         ASSERT(result != NULL);
         ASSERT_EQUAL(result[0], 'A');
         ASSERT_EQUAL(result[1], 'B');
-        free(result);
+
+        if (result) {
+            int64 result_len;
+
+            result_len = (int64)strlen32(result) + 1;
+            free2(result, result_len);
+        }
     }
 
     {
