@@ -309,7 +309,6 @@ realloc_debug(char *file, int32 line,
 static void
 free_debug(char *file, int32 line, void *pointer, int64 size) {
     DebugAllocInfo info;
-    uchar *ptr;
 
     if (RUNNING_ON_VALGRIND) {
         free(pointer);
@@ -335,6 +334,8 @@ free_debug(char *file, int32 line, void *pointer, int64 size) {
         fatal(EXIT_FAILURE);
     }
     if (hash_lookup_alloc_map(allocations, &pointer, &info)) {
+        uchar *ptr;
+
         if (info.reallocated == -1) {
             error_impl(file, line, "Error: double free of pointer %p.\n", pointer);
             fatal(EXIT_FAILURE);
