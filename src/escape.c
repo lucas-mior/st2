@@ -924,9 +924,10 @@ string_handle(void) {
             if (narg > 2 && CONF_ALLOW_WINDOW_OPS) {
                 char *dec = base64_decode(str_escape_seq.args[2]);
                 if (dec) {
+                    int64 dec_len = (int64)strlen32(dec) + 1;
                     selection_set(dec, CurrentTime);
                     user_clipboard_copy(NULL);
-                    free(dec);
+                    free2(dec, dec_len);
                 } else {
                     error("erresc: invalid base64\n");
                 }
@@ -1059,7 +1060,8 @@ string_handle(void) {
             y2_im = y1_im + nimages;
 
             if (term.images) {
-                bool *transparents = malloc2(nimages*SIZEOF(*transparents));
+                int64 trans_size = nimages*SIZEOF(bool);
+                bool *transparents = malloc2(trans_size);
                 int32 i_idx = 0;
                 for (ImageList *image = new_images; image; image = image->next) {
                     transparents[i_idx] = image->transparent;
@@ -1090,7 +1092,7 @@ string_handle(void) {
                     }
                     tail = image;
                 }
-                free(transparents);
+                free2(transparents, trans_size);
             }
 
             if (tail) {
@@ -1260,7 +1262,8 @@ term_dec_test(char c) {
 
 static void
 term_str_sequence(uchar c) {
-    str_escape_seq.buffer = xrealloc(str_escape_seq.buffer, STR_BUF_SIZ);
+    str_escape_seq.buffer = realloc2(str_escape_seq.buffer,
+                                     str_escape_seq.siz, 1, STR_BUF_SIZ);
     str_escape_seq.siz = STR_BUF_SIZ;
     str_escape_seq.len = 0;
     str_escape_seq.nargs = 0;
@@ -1555,14 +1558,15 @@ term_putc(uint32 u) {
         }
 
         if (str_escape_seq.len + len >= str_escape_seq.siz) {
-            str_escape_seq.siz *= 2;
-            if (str_escape_seq.siz > SIZEGB(1)) {
+            int64 old_siz = (int64)str_escape_seq.siz;
+            int64 new_siz = old_siz * 2;
+            if (new_siz > SIZEGB(1)) {
                 error("%s: escape sequence is allocating more than 1GB.\n",
                       __func__);
                 fatal(EXIT_FAILURE);
             }
-            str_escape_seq.buffer = xrealloc(str_escape_seq.buffer,
-                                             str_escape_seq.siz);
+            str_escape_seq.buffer = realloc2(str_escape_seq.buffer, old_siz, new_siz, 1);
+            str_escape_seq.siz = (int32)new_siz;
         }
 
         memmove64(&str_escape_seq.buffer[str_escape_seq.len], c, len);
@@ -1789,7 +1793,7 @@ main(void) {
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable, x_window.visual, x_window.color_map);
         
         draw_context.colors_len = 256;
-        draw_context.colors = malloc2(256 * SIZEOF(XftColor));
+        draw_context.colors = malloc2(256*SIZEOF(XftColor));
 
         term_reset();
     }
