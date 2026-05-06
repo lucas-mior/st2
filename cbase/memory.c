@@ -350,6 +350,8 @@ free_debug(char *file, int32 line, void *pointer, int64 size) {
                 fatal(EXIT_FAILURE);
             }
 
+            info.file = file;
+            info.line = line;
             info.reallocated = -1;
             hash_remove_alloc_map(allocations, &pointer);
             hash_insert_alloc_map(allocations, &pointer, info);
