@@ -178,6 +178,8 @@ term_allocate(void) {
             term_clear_glyph(&term.hist[i][j], false);
         }
     }
+
+    return;
 }
 
 static int32
@@ -793,17 +795,20 @@ term_printer(char *s, int64 len) {
 static void
 term_dump_sel(void) {
     char *ptr;
+    int64 len;
 
     if ((ptr = selection_get())) {
-        term_printer(ptr, strlen32(ptr));
-        free(ptr);
+        len = (int64)strlen32(ptr);
+        term_printer(ptr, len);
+        free2(ptr, len + 1);
     }
     return;
 }
 
 static void
 term_dump_line(int32 n) {
-    char *string = malloc2((term.ncols + 1)*UTF_SIZ*SIZEOF(*string));
+    int64 size = (int64)(term.ncols + 1)*UTF_SIZ*SIZEOF(char);
+    char *string = malloc2(size);
     char *buffer = string;
     StGlyph *fgp = &term.lines[n][0];
     StGlyph *lgp = &fgp[term.ncols - 1];
@@ -820,7 +825,7 @@ term_dump_line(int32 n) {
     }
 
     term_printer(string, ptr - buffer);
-    free(string);
+    free2(string, size);
     return;
 }
 
@@ -906,6 +911,8 @@ term_resize(int32 new_ncols, int32 new_nrows) {
 
 static void
 term_resize_def(int32 new_ncols, int32 new_nrows) {
+    int64 line_size = (int64)term.ncols * SIZEOF(StGlyph);
+
     if (term.ncols == new_ncols && term.nrows == new_nrows) {
         term_full_dirt();
         return;
@@ -922,7 +929,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
             term.cursor.y = new_nrows - 1;
         }
         for (int32 i = new_nrows; i < term.nrows; i += 1) {
-            free(term.lines[i]);
+            free2(term.lines[i], line_size);
         }
 
         term.lines = realloc2(term.lines, term.nrows, new_nrows, SIZEOF(*(term.lines)));
@@ -946,6 +953,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
 static void
 term_resize_alt(int32 new_ncols, int32 new_nrows) {
     int32 shift = 0;
+    int64 old_line_size = (int64)term.ncols * SIZEOF(StGlyph);
 
     if ((term.ncols == new_ncols) && (term.nrows == new_nrows)) {
         term_full_dirt();
@@ -958,7 +966,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     /* Only shift if shrinking and the cursor would be pushed off the top */
     if (new_nrows < term.nrows && term.cursor.y >= new_nrows) {
         while (shift <= term.cursor.y - new_nrows) {
-            free(term.lines[shift]);
+            free2(term.lines[shift], old_line_size);
             shift += 1;
         }
     }
@@ -971,7 +979,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     }
 
     for (int32 i = (int32)MAX(new_nrows, shift + new_nrows); i < term.nrows; i += 1) {
-        free(term.lines[i]);
+        free2(term.lines[i], old_line_size);
     }
     
     term.lines = realloc2(term.lines, term.nrows, new_nrows, SIZEOF(*(term.lines)));
@@ -1008,8 +1016,10 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
 static void
 term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 old_nrows = term.nrows;
+    int32 old_ncols = term.ncols;
     int32 old_cursor_y = term.cursor.y;
     int32 last_used_line = term.cursor.y;
+    int32 capacity = 0;
     bool was_at_bottom = false;
     StGlyph **ref_lines = NULL;
 
@@ -1027,6 +1037,9 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 total_reflowed_count;
     int32 screen_top_idx;
     int32 desired_screen_top;
+
+    int64 old_line_size = (int64)old_ncols * SIZEOF(StGlyph);
+    int64 new_line_size = (int64)new_ncols * SIZEOF(StGlyph);
 
     ASSERT_MORE(new_ncols, 0);
     ASSERT_MORE(new_nrows, 0);
@@ -1067,7 +1080,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     {
-        int32 capacity = 0;
         for (int32 i = -term.n_hist; i <= last_used_line; i += 1) {
             StGlyph *line = term_line_abs(i);
             int32 len = term_line_len(line);
@@ -1189,7 +1201,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     term.cursor.y = new_cursor_y_proxy - screen_top_idx;
 
     for (int32 i = 0; i < old_nrows; i += 1) {
-        free(term.lines[i]);
+        free2(term.lines[i], old_line_size);
     }
     term.lines = realloc2(term.lines, old_nrows, new_nrows, SIZEOF(StGlyph *));
 
@@ -1207,7 +1219,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     for (int32 i = 0; i < HISTORY_SIZE; i += 1) {
-        free(term.hist[i]);
+        free2(term.hist[i], old_line_size);
     }
 
     {
@@ -1255,9 +1267,11 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     for (int32 i = 0; i < total_reflowed_count; i += 1) {
-        free(ref_lines[i]);
+        if (ref_lines[i]) {
+            free2(ref_lines[i], new_line_size);
+        }
     }
-    free(ref_lines);
+    free2(ref_lines, (int64)capacity*SIZEOF(StGlyph *));
 
     term.nrows = new_nrows;
     term.ncols = new_ncols;
@@ -1409,6 +1423,7 @@ draw(void) {
         || old_cursor_y != term.old_cursor_y) {
         x_xim_spot(term.old_cursor_x, term.old_cursor_y);
     }
+
     return;
 }
 
