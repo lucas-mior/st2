@@ -880,8 +880,8 @@ term_resize(int32 new_ncols, int32 new_nrows) {
     ASSERT_MORE(new_ncols, 0);
     ASSERT_MORE(new_nrows, 0);
 
-    term.dirts = xrealloc(term.dirts, new_nrows*SIZEOF(*(term.dirts)));
-    term.tabs = xrealloc(term.tabs, new_ncols*SIZEOF(*(term.tabs)));
+    term.dirts = realloc2(term.dirts, term.nrows, new_nrows, SIZEOF(*(term.dirts)));
+    term.tabs = realloc2(term.tabs, term.ncols, new_ncols, SIZEOF(*(term.tabs)));
     
     if (new_ncols > term.ncols) {
         bp = term.tabs + term.ncols;
@@ -925,7 +925,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
             free(term.lines[i]);
         }
 
-        term.lines = xrealloc(term.lines, new_nrows*SIZEOF(*(term.lines)));
+        term.lines = realloc2(term.lines, term.nrows, new_nrows, SIZEOF(*(term.lines)));
 
         for (int32 i = term.nrows; i < new_nrows; i += 1) {
             term.lines[i] = malloc2(new_ncols*SIZEOF(StGlyph));
@@ -974,10 +974,10 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
         free(term.lines[i]);
     }
     
-    term.lines = xrealloc(term.lines, new_nrows*SIZEOF(*(term.lines)));
+    term.lines = realloc2(term.lines, term.nrows, new_nrows, SIZEOF(*(term.lines)));
 
     for (int32 j = 0; j < (int32)MIN(new_nrows, term.nrows); j += 1) {
-        term.lines[j] = xrealloc(term.lines[j], new_ncols*SIZEOF(*(term.lines[j])));
+        term.lines[j] = realloc2(term.lines[j], term.ncols, new_ncols, SIZEOF(*(term.lines[j])));
         for (int32 k = term.ncols; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], false);
         }
@@ -1191,7 +1191,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     for (int32 i = 0; i < old_nrows; i += 1) {
         free(term.lines[i]);
     }
-    term.lines = xrealloc(term.lines, new_nrows*SIZEOF(StGlyph *));
+    term.lines = realloc2(term.lines, old_nrows, new_nrows, SIZEOF(StGlyph *));
 
     for (int32 i = 0; i < new_nrows; i += 1) {
         int32 buffer_idx = screen_top_idx + i;
