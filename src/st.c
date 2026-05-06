@@ -153,7 +153,7 @@ check_consistent_state(void) {
         }
     }
 
-    check_overflow_memory();
+    memory_check();
 
     return;
 }

@@ -112,7 +112,7 @@ xmalloc(int64 size) {
 }
 
 static void
-check_overflow_memory(void) {
+memory_check(void) {
     if (RUNNING_ON_VALGRIND) {
         return;
     }
@@ -562,7 +562,7 @@ int main(void) {
             }
             printf("Memory correctly initialized with debug byte.\n");
         }
-        check_overflow_memory();
+        memory_check();
         free2(p, size);
         printf("free2(256) successful.\n");
     }
@@ -577,14 +577,14 @@ int main(void) {
             arr[i] = (int64)i;
         }
 
-        check_overflow_memory();
+        memory_check();
         arr = realloc2(arr, count, grow, SIZEOF(int64));
         for (int32 i = 0; i < count; i += 1) {
             ASSERT(arr[i] == (int64)i);
         }
         printf("realloc2 (grow) preserved data.\n");
 
-        check_overflow_memory();
+        memory_check();
         arr = realloc2(arr, grow, shrink, SIZEOF(int64));
         for (int32 i = 0; i < shrink; i += 1) {
             ASSERT(arr[i] == (int64)i);
@@ -669,7 +669,7 @@ int main(void) {
         uchar *p = malloc2(size);
         ASSERT_EXPECTED_FATAL({
             p[size] = 0x00; // Corrupt canary
-            check_overflow_memory();
+            memory_check();
         });
         pthread_mutex_unlock(&allocations_mutex);
         free(p); 
@@ -692,7 +692,7 @@ int main(void) {
         free2(p, size);
         ASSERT_EXPECTED_FATAL({
             p[0] = 0xAA; // Use after free
-            check_overflow_memory();
+            memory_check();
         });
         pthread_mutex_unlock(&allocations_mutex);
     }
