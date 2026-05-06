@@ -57,8 +57,11 @@ sixel_image_free(ImageList *image) {
     if (image->clipmask) {
         XFreePixmap(x_window.display, (Drawable)image->clipmask);
     }
-    free(image->pixels);
-    free(image);
+    if (image->pixels) {
+        int64 pixels_size = image->width*image->height*4;
+        free2(image->pixels, pixels_size);
+    }
+    free2(image, SIZEOF(*image));
     return;
 }
 
@@ -112,7 +115,7 @@ sixel_image_init(SixelImage *sixel_image,
                  bool use_private_register) {
     int64 size;
 
-    size = (width*height)*SIZEOF(*(sixel_image->data));
+    size = width*height*SIZEOF(*(sixel_image->data));
     sixel_image->width = width;
     sixel_image->height = height;
     sixel_image->data = malloc2(size);
@@ -141,17 +144,24 @@ sixel_image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
     int64 size;
     uint16 *alt_buffer;
     int32 min_height;
+    int64 old_size;
 
-    size = (width*height)*SIZEOF(uint16);
+    size = width*height*SIZEOF(uint16);
     alt_buffer = (uint16 *)malloc2(size);
     if (alt_buffer == NULL) {
-        free(sixel_image->data);
+        old_size = sixel_image->width*sixel_image->height*SIZEOF(uint16);
+        free2(sixel_image->data, old_size);
         sixel_image->data = NULL;
         status = (-1);
         goto end;
     }
 
-    min_height = height > sixel_image->height ? sixel_image->height : height;
+    if (height > sixel_image->height) {
+        min_height = sixel_image->height;
+    } else {
+        min_height = height;
+    }
+
     if (width > sixel_image->width) { /* if width is extended */
         for (int32 n = 0; n < min_height; n += 1) {
             /* copy from source sixel_image */
@@ -175,7 +185,8 @@ sixel_image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
                  (width*(height - sixel_image->height))*SIZEOF(uint16));
     }
 
-    free(sixel_image->data);
+    old_size = sixel_image->width*sixel_image->height*SIZEOF(uint16);
+    free2(sixel_image->data, old_size);
 
     sixel_image->data = alt_buffer;
     sixel_image->width = width;
@@ -190,7 +201,8 @@ end:
 static void
 sixel_image_deinit(SixelImage *image) {
     if (image->data) {
-        free(image->data);
+        int64 size = image->width*image->height*SIZEOF(*(image->data));
+        free2(image->data, size);
     }
     image->data = NULL;
     return;
@@ -272,7 +284,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
     *new_images = NULL;
     tail = NULL;
     for (int32 i = 0; i < nimages; i += 1) {
-        ImageList *image = malloc2(sizeof(*image));
+        ImageList *image = malloc2(SIZEOF(*image));
         char trans = 0;
         uint32 *dst;
 
@@ -376,14 +388,14 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                          && sixel_image->width < DECSIXEL_WIDTH_MAX)
                         || (sixel_image->height < (sixel_state->pos_y + 6)
                             && sixel_image->height < DECSIXEL_HEIGHT_MAX)) {
-                        sx = sixel_image->width * 2;
-                        sy = sixel_image->height * 2;
+                        sx = sixel_image->width*2;
+                        sy = sixel_image->height*2;
                         
                         /* Fix infinite loop risk from integer overflow */
                         while ((sx < (sixel_state->pos_x + sixel_state->repeat_count) && sx < DECSIXEL_WIDTH_MAX)
                                || (sy < (sixel_state->pos_y + 6) && sy < DECSIXEL_HEIGHT_MAX)) {
                             if (sx < (sixel_state->pos_x + sixel_state->repeat_count) && sx < DECSIXEL_WIDTH_MAX) {
-                                int64 next_sx = (int64)sx * 2;
+                                int64 next_sx = sx*2;
                                 if (next_sx > DECSIXEL_WIDTH_MAX) {
                                     sx = DECSIXEL_WIDTH_MAX;
                                 } else {
@@ -391,7 +403,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                 }
                             }
                             if (sy < (sixel_state->pos_y + 6) && sy < DECSIXEL_HEIGHT_MAX) {
-                                int64 next_sy = (int64)sy * 2;
+                                int64 next_sy = sy*2;
                                 if (next_sy > DECSIXEL_HEIGHT_MAX) {
                                     sy = DECSIXEL_HEIGHT_MAX;
                                 } else {
@@ -713,7 +725,8 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
         Pixmap clipmask = XCreateBitmapFromData(x_window.display, x_window.win,
                                                 clipdata,
                                                 (uint32)width, (uint32)height);
-        free(clipdata);
+        int64 clip_size = (width + 7) / 8*height;
+        free2(clipdata, clip_size);
         return clipmask;
     }
 }
