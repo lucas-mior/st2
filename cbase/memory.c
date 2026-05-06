@@ -25,6 +25,8 @@ static int64 memory_page_size = 0;
 #define DEBUGGING_MEMORY 1
 #endif
 
+#define MEMORY_CHECK_USE_AFTER_FREE 0
+
 #if !defined(DEBUGGING_MEMORY)
 #define DEBUGGING_MEMORY DEBUGGING
 #endif
@@ -112,7 +114,7 @@ xmalloc(int64 size) {
 }
 
 static void
-memory_check(bool check_use_after_free) {
+memory_check(void) {
     if (RUNNING_ON_VALGRIND) {
         return;
     }
@@ -131,7 +133,8 @@ memory_check(bool check_use_after_free) {
             p = (uchar *)bucket->key;
             size = bucket->value.size;
 
-            if (check_use_after_free && (bucket->value.reallocated == -1)) {
+            if (MEMORY_CHECK_USE_AFTER_FREE
+                    && (bucket->value.reallocated == -1)) {
                 for (int64 j = 0; j < size; j += 1) {
                     if (p[j] != 0xCD) {
                         error_impl(bucket->value.file, bucket->value.line,
@@ -361,7 +364,9 @@ free_debug(char *file, int32 line, void *pointer, int64 size) {
         hash_remove_alloc_map(allocations, &pointer);
         hash_insert_alloc_map(allocations, &pointer, info);
         
-        memset64(pointer, 0xCD, size);
+        if (MEMORY_CHECK_USE_AFTER_FREE) {
+            memset64(pointer, 0xCD, size);
+        }
     } else {
         error_impl(file, line, "Error: freeing untracked pointer %p.\n", pointer);
         fatal(EXIT_FAILURE);
@@ -568,7 +573,7 @@ int main(void) {
             }
             printf("Memory correctly initialized with debug byte.\n");
         }
-        memory_check(true);
+        memory_check();
         free2(p, size);
         printf("free2(256) successful.\n");
     }
@@ -583,14 +588,14 @@ int main(void) {
             arr[i] = (int64)i;
         }
 
-        memory_check(true);
+        memory_check();
         arr = realloc2(arr, count, grow, SIZEOF(int64));
         for (int32 i = 0; i < count; i += 1) {
             ASSERT(arr[i] == (int64)i);
         }
         printf("realloc2 (grow) preserved data.\n");
 
-        memory_check(true);
+        memory_check();
         arr = realloc2(arr, grow, shrink, SIZEOF(int64));
         for (int32 i = 0; i < shrink; i += 1) {
             ASSERT(arr[i] == (int64)i);
@@ -675,7 +680,7 @@ int main(void) {
         uchar *p = malloc2(size);
         ASSERT_EXPECTED_FATAL({
             p[size] = 0x00; // Corrupt canary
-            memory_check(true);
+            memory_check();
         });
         pthread_mutex_unlock(&allocations_mutex);
         free(p); 
@@ -698,7 +703,7 @@ int main(void) {
         free2(p, size);
         ASSERT_EXPECTED_FATAL({
             p[0] = 0xAA; // Use after free
-            memory_check(true);
+            memory_check();
         });
         pthread_mutex_unlock(&allocations_mutex);
     }

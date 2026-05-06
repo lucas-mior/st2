@@ -153,7 +153,7 @@ check_consistent_state(void) {
         }
     }
 
-    memory_check(false);
+    memory_check();
 
     return;
 }
