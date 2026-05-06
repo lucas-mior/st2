@@ -152,7 +152,7 @@ malloc_debug(char *file, int32 line, int64 size) {
     uchar *ptr;
 
     if (RUNNING_ON_VALGRIND) {
-        return xmalloc(size);
+        return malloc(size);
     }
 
     if (size <= 0) {
