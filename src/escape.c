@@ -1263,7 +1263,7 @@ term_dec_test(char c) {
 static void
 term_str_sequence(uchar c) {
     str_escape_seq.buffer = realloc2(str_escape_seq.buffer,
-                                     str_escape_seq.siz, 1, STR_BUF_SIZ);
+                                     str_escape_seq.siz, STR_BUF_SIZ, 1);
     str_escape_seq.siz = STR_BUF_SIZ;
     str_escape_seq.len = 0;
     str_escape_seq.nargs = 0;
