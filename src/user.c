@@ -343,6 +343,14 @@ user_vim_select(union Arg *arg) {
             _exit(1);
         }
     default:
+        XSetInputFocus(x_window.display, x_window.win,
+                       RevertToParent, CurrentTime);
+        XRaiseWindow(x_window.display, x_window.win);
+
+        XWarpPointer(x_window.display, None, x_window.win, 0, 0, 0, 0,
+                     term_window.w / 2, term_window.h / 2);
+
+        XFlush(x_window.display);
         break;
     }
 
