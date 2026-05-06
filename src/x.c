@@ -183,8 +183,8 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
         color_index = CONF_COLOR_BG;
     }
 
-    XftDrawRect(x_window.xft_draw, &draw_context.colors[color_index], x1, y1,
-                (uint32)(x2 - x1), (uint32)(y2 - y1));
+    XftDrawRect(x_window.xft_draw, &draw_context.colors[color_index],
+                x1, y1, (uint32)(x2 - x1), (uint32)(y2 - y1));
     return;
 }
 
