@@ -347,7 +347,8 @@ user_vim_select(union Arg *arg) {
                        RevertToParent, CurrentTime);
         XRaiseWindow(x_window.display, x_window.win);
 
-        XWarpPointer(x_window.display, None, x_window.win, 0, 0, 0, 0,
+        XWarpPointer(x_window.display, None, x_window.win,
+                     0, 0, 0, 0,
                      term_window.w / 2, term_window.h / 2);
 
         XFlush(x_window.display);
