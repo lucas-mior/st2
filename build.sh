@@ -283,9 +283,9 @@ install)
         if echo "$src" | grep -q "stc/"; then
             continue
         fi
-        if echo "$src" | grep -q "cbase/"; then
-            continue
-        fi
+        # if echo "$src" | grep -q "cbase/"; then
+        #     continue
+        # fi
         if echo "$src" | grep -q "user.c"; then
             continue
         fi
