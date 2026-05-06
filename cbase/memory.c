@@ -119,12 +119,14 @@ check_overflow_memory(void) {
                 int64 size = bucket->value.size;
 
                 if (bucket->value.is_freed) {
-                    for (int64 j = 0; j < size; j += 1) {
-                        if (p[j] != 0xCD) {
-                            error_impl(bucket->value.file, bucket->value.line,
-                                       "Use after free detected in pointer %p (size %lld).\n",
-                                       (void *)p, (llong)size);
-                            fatal(EXIT_FAILURE);
+                    if (!RUNNING_ON_VALGRIND) {
+                        for (int64 j = 0; j < size; j += 1) {
+                            if (p[j] != 0xCD) {
+                                error_impl(bucket->value.file, bucket->value.line,
+                                           "Use after free detected in pointer %p (size %lld).\n",
+                                           (void *)p, (llong)size);
+                                fatal(EXIT_FAILURE);
+                            }
                         }
                     }
                 } else {
@@ -326,8 +328,12 @@ free_debug(char *file, int32 line, void *pointer, int64 size) {
             }
 
             info.is_freed = 1;
+            hash_remove_alloc_map(allocations, &pointer);
             hash_insert_alloc_map(allocations, &pointer, info);
-            memset64(pointer, 0xCD, size);
+            
+            if (!RUNNING_ON_VALGRIND) {
+                memset64(pointer, 0xCD, size);
+            }
         } else {
             error_impl(file, line, "Error: freeing untracked pointer %p.\n", pointer);
             fatal(EXIT_FAILURE);
