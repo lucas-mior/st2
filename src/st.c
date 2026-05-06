@@ -1440,6 +1440,7 @@ static void
 x_configure_resize(int32 new_width, int32 new_height) {
     int32 new_ncols;
     int32 new_nrows;
+    int32 old_ncols;
 
     if (new_width != 0) {
         term_window.w = new_width;
@@ -1456,8 +1457,9 @@ x_configure_resize(int32 new_width, int32 new_height) {
     term_window.hborderpx = (term_window.w - new_ncols*term_window.cw) / 2;
     term_window.vborderpx = (term_window.h - new_nrows*term_window.ch) / 2;
 
+    old_ncols = term.ncols;
     term_resize(new_ncols, new_nrows);
-    x_resize(new_ncols, new_nrows);
+    x_resize(new_ncols, new_nrows, old_ncols);
     tty_resize(term_window.tty_width, term_window.tty_height);
     return;
 }

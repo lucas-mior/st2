@@ -44,7 +44,7 @@ sixd_to_16bit(int32 x) {
 }
 
 static void
-x_resize(int32 new_ncols, int32 new_nrows) {
+x_resize(int32 new_ncols, int32 new_nrows, int32 old_ncols) {
     term_window.tty_width = new_ncols*term_window.cw;
     term_window.tty_height = new_nrows*term_window.ch;
 
@@ -57,7 +57,7 @@ x_resize(int32 new_ncols, int32 new_nrows) {
     x_clear(0, 0, term_window.w, term_window.h);
 
     x_window.font_spec_buf = realloc2(x_window.font_spec_buf,
-                                      term.ncols,
+                                      old_ncols,
                                       new_ncols, SIZEOF(XftGlyphFontSpec));
     return;
 }
