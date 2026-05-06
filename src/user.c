@@ -218,7 +218,7 @@ user_smart_scroll_down(union Arg *arg) {
 static void
 user_send_break(union Arg *arg) {
     if (tcsendbreak(command_fd, 0)) {
-        perror("Error sending break");
+        error("Error sending break.\n");
     }
     (void)arg;
     return;
