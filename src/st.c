@@ -101,17 +101,37 @@ check_consistent_state(void) {
 
     /* 5. Selection Invariants */
     if (selection.ob.x != -1) {
-        /* Check normalized bounds (nb/ne) */
+        /* 
+         * In this coordinate system:
+         * - The oldest history line is at: term.scrolled_up - term.n_hist
+         * - The bottom visible screen line is at: term.scrolled_up + term.nrows - 1
+         */
+        int32 min_y = term.scrolled_up - term.n_hist;
+        int32 max_y = term.scrolled_up + term.nrows;
+
+        /* If we are in AltScreen, history is logically unreachable. */
+        if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
+            min_y = 0;
+            max_y = term.nrows;
+        }
+
+        /* Check X bounds */
         ASSERT_MORE_EQUAL(selection.nb.x, 0);
         ASSERT_LESS(selection.nb.x, term.ncols);
         ASSERT_MORE_EQUAL(selection.ne.x, 0);
         ASSERT_LESS(selection.ne.x, term.ncols);
 
-        /* Y can be negative if the selection is in history */
-        ASSERT_MORE_EQUAL(selection.nb.y, -term.n_hist);
-        ASSERT_LESS(selection.nb.y, term.nrows);
-        ASSERT_MORE_EQUAL(selection.ne.y, -term.n_hist);
-        ASSERT_LESS(selection.ne.y, term.nrows);
+        /* Check Y bounds against history + screen range */
+        ASSERT_MORE_EQUAL(selection.nb.y, min_y);
+        ASSERT_LESS(selection.nb.y, max_y);
+        ASSERT_MORE_EQUAL(selection.ne.y, min_y);
+        ASSERT_LESS(selection.ne.y, max_y);
+        
+        /* Ensure selection endpoints are correctly ordered */
+        ASSERT_LESS_EQUAL(selection.nb.y, selection.ne.y);
+        if (selection.nb.y == selection.ne.y) {
+            ASSERT_LESS_EQUAL(selection.nb.x, selection.ne.x);
+        }
     }
 
     /* 6. Charset and Metadata */

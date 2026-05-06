@@ -40,6 +40,29 @@ static void
 mouse_select(XEvent *xevent, int32 done) {
     enum SelectionType seltype = SELECTION_NORMAL;
     uint32 state = xevent->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
+    int32 col;
+    int32 row;
+
+    /* 
+     * Feature: Auto-scroll when dragging above or below the window.
+     * We check the pixel coordinates directly against the borders.
+     */
+    if (!done && xevent->type == MotionNotify) {
+        if (xevent->xbutton.y < term_window.vborderpx) {
+            /* Above the window: Scroll up into history */
+            user_scroll_up(&(union Arg){.i = 1});
+        } else if (xevent->xbutton.y > term_window.vborderpx + term_window.tty_height) {
+            /* Below the window: Scroll down toward active screen */
+            user_scroll_down(&(union Arg){.i = 1});
+        }
+    }
+
+    /* 
+     * We calculate col and row AFTER potential scrolling to ensure 
+     * the selection extension happens relative to the updated viewport.
+     */
+    col = xevent_col(xevent);
+    row = xevent_row(xevent);
 
     for (enum SelectionType type = 1; type < LENGTH(CONF_SELECTION_MASKS); type += 1) {
         if (match_mask_state(CONF_SELECTION_MASKS[type], state)) {
@@ -47,7 +70,9 @@ mouse_select(XEvent *xevent, int32 done) {
             break;
         }
     }
-    selection_extend(xevent_col(xevent), xevent_row(xevent), seltype, done);
+
+    selection_extend(col, row, seltype, done);
+
     if (done) {
         selection_set(selection_get(), xevent->xbutton.time);
     }
