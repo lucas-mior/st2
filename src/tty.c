@@ -144,7 +144,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
             error("open line '%s' failed: %s\n", line, strerror(errno));
             exit(EXIT_FAILURE);
         }
-        dup2(command_fd, 0);
+        xdup2(command_fd, 0);
         stty(args);
         return command_fd;
     }
@@ -372,7 +372,7 @@ main(void) {
         char *args[] = {"-a", NULL};
 
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
-            dup2(slave, 0);
+            xdup2(slave, 0);
             stty(args);
             XCLOSE(&master);
             XCLOSE(&slave);
