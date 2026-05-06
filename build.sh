@@ -97,6 +97,14 @@ else
     CC="${CC:-cc}"
 fi
 
+noop () {
+    return
+}
+
+if ! command xsel; then
+    xsel=noop
+fi
+
 option_remove() {
     echo "$1" | sed -E "s| *$2 +| |g"
 }
@@ -313,7 +321,7 @@ install)
                 if ! $test_exe; then
                     gdb --quiet \
                         -ex 'break exit' -ex run -ex backtrace -ex quit \
-                        $test_exe 2>&1 | tee /dev/tty | xsel -b
+                        $test_exe 2>&1 | tee /dev/tty | $xsel -b
                     exit 1
                 fi
             else
