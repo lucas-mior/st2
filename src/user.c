@@ -188,6 +188,39 @@ user_scroll_up(union Arg *a) {
 }
 
 static void
+user_smart_scroll_up(union Arg *arg) {
+    /* 
+     * If Altscreen is on, or if the app has enabled Application Cursor Keys
+     * (a very strong signal that a TUI like less or vim is running).
+     */
+    if (term_mode_is_set(TERM_MODE_ALTSCREEN) || term_window_is_set(WIN_MODE_APPCURSOR)) {
+        user_tty_send(&(union Arg){.s = "\031"}); /* Send Ctrl-Y */
+    } else {
+        user_scroll_up(arg);
+    }
+    return;
+}
+
+static void
+user_smart_scroll_down(union Arg *arg) {
+    if (term_mode_is_set(TERM_MODE_ALTSCREEN) || term_window_is_set(WIN_MODE_APPCURSOR)) {
+        user_tty_send(&(union Arg){.s = "\005"}); /* Send Ctrl-E */
+    } else {
+        /* 
+         * Fallback: If we are already at the bottom of the scrollback (scrolled_up == 0),
+         * scrolling down is a no-op for the terminal. In this case, we send the
+         * escape code anyway to support programs like 'less -X' that run in the main buffer.
+         */
+        if (term.scrolled_up == 0) {
+            user_tty_send(&(union Arg){.s = "\005"});
+        } else {
+            user_scroll_down(arg);
+        }
+    }
+    return;
+}
+
+static void
 user_send_break(union Arg *arg) {
     if (tcsendbreak(command_fd, 0)) {
         perror("Error sending break");
