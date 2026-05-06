@@ -404,7 +404,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sy = (int32)MIN(sy, DECSIXEL_HEIGHT_MAX);
 
                         if (sixel_image_buffer_resize(sixel_image, sx, sy) < 0) {
-                            perror("sixel_parser_parse() failed");
+                            error("Error in sixel_image_buffer_resize.\n");
                             sixel_state->state = PARSE_STATE_ERROR;
                             p++;
                             break;
