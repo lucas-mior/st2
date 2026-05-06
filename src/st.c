@@ -988,6 +988,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
 static void
 term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 old_nrows = term.nrows;
+    int32 old_cursor_y = term.cursor.y;
     int32 last_used_line = term.cursor.y;
     bool was_at_bottom = false;
     StGlyph **ref_lines = NULL;
@@ -1005,6 +1006,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     int32 total_reflowed_count;
     int32 screen_top_idx;
+    int32 desired_screen_top;
 
     ASSERT_MORE(new_ncols, 0);
     ASSERT_MORE(new_nrows, 0);
@@ -1137,17 +1139,39 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     total_reflowed_count = new_y_idx + 1;
+
+    /* Goal: Preserve the cursor's visual Y position */
+    desired_screen_top = new_cursor_y_proxy - old_cursor_y;
+
+    /* Constraint 1: Prevent array underflow */
+    if (desired_screen_top < 0) {
+        desired_screen_top = 0;
+    }
+
+    /* Constraint 2: Prevent empty space at the bottom if history is available */
+    {
+        int32 last_data_y = total_reflowed_count - 1;
+        if (desired_screen_top + new_nrows > last_data_y + 1) {
+            int32 empty_bottom_rows = (desired_screen_top + new_nrows) - (last_data_y + 1);
+            desired_screen_top -= empty_bottom_rows;
+            if (desired_screen_top < 0) {
+                desired_screen_top = 0;
+            }
+        }
+    }
+
+    /* Constraint 3: Prevent the cursor from being pushed off the bottom */
+    if (new_cursor_y_proxy >= desired_screen_top + new_nrows) {
+        desired_screen_top = new_cursor_y_proxy - (new_nrows - 1);
+    }
+
+    screen_top_idx = desired_screen_top;
+    term.cursor.y = new_cursor_y_proxy - screen_top_idx;
+
     for (int32 i = 0; i < old_nrows; i += 1) {
         free(term.lines[i]);
     }
     term.lines = xrealloc(term.lines, new_nrows*SIZEOF(StGlyph *));
-
-    screen_top_idx = new_cursor_y_proxy - (new_nrows - 1);
-    if (screen_top_idx < 0) {
-        screen_top_idx = 0;
-    }
-
-    term.cursor.y = new_cursor_y_proxy - screen_top_idx;
 
     for (int32 i = 0; i < new_nrows; i += 1) {
         int32 buffer_idx = screen_top_idx + i;
