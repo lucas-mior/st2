@@ -201,7 +201,7 @@ sixel_parser_init(SixelState *sixel_state, bool transparent,
                   uint32 fg_color, uint32 bg_color,
                   bool use_private_register,
                   int32 cell_width, int32 cell_height) {
-    int32 status = (-1);
+    int32 status;
 
     sixel_state->state = PARSE_STATE_DECSIXEL;
     sixel_state->pos_x = 0;
