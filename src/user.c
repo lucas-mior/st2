@@ -364,7 +364,7 @@ dump_terminal_to_fd(int32 fd) {
         if (term_line_hist(n)[i_hist - 1].mode & ATTR_WRAP) {
             last_pos = i_hist;
         } else {
-            while (i_hist > 0 && term_line_hist(n)[i_hist - 1].rune == ' ') {
+            while ((i_hist > 0) && term_line_hist(n)[i_hist - 1].rune == ' ') {
                 i_hist -= 1;
             }
             last_pos = i_hist;
