@@ -119,7 +119,12 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
         break;
     }
     case SELECTION_SNAP_LINE:
-        *x = (direction < 0) ? 0 : term.ncols - 1;
+        if (direction < 0) {
+            *x = 0;
+        } else {
+            *x = term.ncols - 1;
+        }
+
         if (direction < 0) {
             while (*y > rtop) {
                 if (!term_is_wrapped(term_line(*y - 1))) {
@@ -127,12 +132,14 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
                 }
                 *y -= 1;
             }
-        } else if (direction > 0) {
-            while (*y < rbot) {
-                if (!term_is_wrapped(term_line(*y))) {
-                    break;
+        } else {
+            if (direction > 0) {
+                while (*y < rbot) {
+                    if (!term_is_wrapped(term_line(*y))) {
+                        break;
+                    }
+                    *y += 1;
                 }
-                *y += 1;
             }
         }
         break;
@@ -147,10 +154,17 @@ static void
 selection_normalize(void) {
     if (selection.type == SELECTION_NORMAL
         && selection.ob.y != selection.oe.y) {
-        selection.nb.x
-            = selection.ob.y < selection.oe.y ? selection.ob.x : selection.oe.x;
-        selection.ne.x
-            = selection.ob.y < selection.oe.y ? selection.oe.x : selection.ob.x;
+        if (selection.ob.y < selection.oe.y) {
+            selection.nb.x = selection.ob.x;
+        } else {
+            selection.nb.x = selection.oe.x;
+        }
+
+        if (selection.ob.y < selection.oe.y) {
+            selection.ne.x = selection.oe.x;
+        } else {
+            selection.ne.x = selection.ob.x;
+        }
     } else {
         selection.nb.x = (int32)MIN(selection.ob.x, selection.oe.x);
         selection.ne.x = (int32)MAX(selection.ob.x, selection.oe.x);
@@ -277,6 +291,7 @@ selection_get(void) {
     char *string;
     char *ptr;
     int64 size;
+    int64 used;
 
     if (selection.ob.x == -1
         || selection.alt != term_mode_is_set(TERM_MODE_ALTSCREEN)) {
@@ -305,8 +320,17 @@ selection_get(void) {
                 glyph = &line[selection.nb.x];
                 lastx = selection.ne.x;
             } else {
-                glyph = &line[selection.nb.y == y ? selection.nb.x : 0];
-                lastx = (selection.ne.y == y) ? selection.ne.x : term.ncols - 1;
+                if (selection.nb.y == y) {
+                    glyph = &line[selection.nb.x];
+                } else {
+                    glyph = &line[0];
+                }
+
+                if (selection.ne.y == y) {
+                    lastx = selection.ne.x;
+                } else {
+                    lastx = term.ncols - 1;
+                }
             }
             lgp = &line[MIN(lastx, line_len - 1)];
 
@@ -320,6 +344,9 @@ selection_get(void) {
         }
     }
     *ptr = '\0';
+
+    used = (ptr - string) + 1;
+    string = realloc2(string, size, used, 1);
     return string;
 }
 
