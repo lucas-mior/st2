@@ -194,7 +194,7 @@ user_smart_scroll_up(union Arg *arg) {
      * (a very strong signal that a TUI like less or vim is running).
      */
     if (term_mode_is_set(TERM_MODE_ALTSCREEN)
-        || term_window_is_set(WIN_MODE_APPCURSOR)) {
+        || win_mode_is_set(WIN_MODE_APPCURSOR)) {
         user_tty_send(&(union Arg){.s = "\031"}); /* Send Ctrl-Y */
     } else {
         user_scroll_up(arg);
@@ -204,7 +204,8 @@ user_smart_scroll_up(union Arg *arg) {
 
 static void
 user_smart_scroll_down(union Arg *arg) {
-    if (term_mode_is_set(TERM_MODE_ALTSCREEN) || term_window_is_set(WIN_MODE_APPCURSOR)) {
+    if (term_mode_is_set(TERM_MODE_ALTSCREEN)
+            || win_mode_is_set(WIN_MODE_APPCURSOR)) {
         user_tty_send(&(union Arg){.s = "\005"}); /* Send Ctrl-E */
     } else {
         if (term.scrolled_up > 0) {

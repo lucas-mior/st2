@@ -358,7 +358,7 @@ static void term_set_dirt(int32 top, int32 bot);
 static void term_swap_screen(void);
 static void check_consistent_state(void);
 static bool term_mode_is_set(enum TermMode flag);
-static bool term_window_is_set(enum WinMode flag);
+static bool win_mode_is_set(enum WinMode flag);
 static StGlyph *term_line(int32 y);
 static StGlyph *term_line_abs(int32 y);
 static StGlyph *term_line_hist(int32 y);

@@ -197,7 +197,7 @@ term_mode_is_set(enum TermMode flag) {
 }
 
 static bool
-term_window_is_set(enum WinMode flag) {
+win_mode_is_set(enum WinMode flag) {
     return !(!(term_window.mode & flag));
 }
 

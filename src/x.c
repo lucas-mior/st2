@@ -177,7 +177,7 @@ static void
 x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
     int32 color_index;
 
-    if (term_window_is_set(WIN_MODE_REVERSE)) {
+    if (win_mode_is_set(WIN_MODE_REVERSE)) {
         color_index = CONF_COLOR_INDEX_FONT;
     } else {
         color_index = CONF_COLOR_BG;
@@ -789,7 +789,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         bg = &draw_context.colors[base.bg];
     }
 
-    if (term_window_is_set(WIN_MODE_REVERSE)) {
+    if (win_mode_is_set(WIN_MODE_REVERSE)) {
         XftColor rev_fg;
         XftColor rev_bg;
         if (fg == &draw_context.colors[CONF_COLOR_INDEX_FONT]) {
@@ -931,14 +931,14 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph glyph,
     }
     x_draw_glyph(og, ox, oy);
 
-    if (term_window_is_set(WIN_MODE_HIDE)) {
+    if (win_mode_is_set(WIN_MODE_HIDE)) {
         return;
     }
 
     glyph.mode &= ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK | ATTR_WIDE
               | ATTR_BOXDRAW;
 
-    if (term_window_is_set(WIN_MODE_REVERSE)) {
+    if (win_mode_is_set(WIN_MODE_REVERSE)) {
         glyph.mode |= ATTR_REVERSE;
         glyph.fg = CONF_COLOR_INDEX_CURSOR;
         glyph.bg = CONF_COLOR_INDEX_FONT;
@@ -949,7 +949,7 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph glyph,
         draw_color = draw_context.colors[CONF_COLOR_INDEX_CURSOR];
     }
 
-    if (term_window_is_set(WIN_MODE_FOCUSED)) {
+    if (win_mode_is_set(WIN_MODE_FOCUSED)) {
         switch (term_window.cursor) {
         case 7:
             glyph.rune = 0x2603;
@@ -1043,7 +1043,7 @@ x_set_title(char *title) {
 
 static int32
 x_start_draw(void) {
-    return term_window_is_set(WIN_MODE_VISIBLE);
+    return win_mode_is_set(WIN_MODE_VISIBLE);
 }
 
 static void
@@ -1135,7 +1135,7 @@ x_set_urgency(int32 add) {
 
 static void
 x_bell(void) {
-    if (!(term_window_is_set(WIN_MODE_FOCUSED))) {
+    if (!(win_mode_is_set(WIN_MODE_FOCUSED))) {
         x_set_urgency(1);
     }
     if (CONF_BELL_VOLUME) {
