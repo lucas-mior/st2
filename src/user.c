@@ -310,14 +310,14 @@ user_vim_select(union Arg *arg) {
             char *argv[64];
             int32 argc = 0;
 
-            SNPRINTF(geometry, "%dx%d",
-                          term.ncols, term.nrows);
-            SNPRINTF(window, "%lu",
-                          x_window.win);
-            SNPRINTF(cursor, "call cursor(%d, %d)",
-                          target_row, target_col);
-            SNPRINTF(delete_command, "autocmd VimLeave * call delete('%s')",
-                                     tmp_file);
+            SNPRINTF(geometry,
+                     "%dx%d", term.ncols, term.nrows);
+            SNPRINTF(window,
+                     "%lu", x_window.win);
+            SNPRINTF(cursor,
+                     "call cursor(%d, %d)", target_row, target_col);
+            SNPRINTF(delete_command,
+                     "autocmd VimLeave * call delete('%s')", tmp_file);
 
             argv[argc++] = "st";
             argv[argc++] = "-w";
