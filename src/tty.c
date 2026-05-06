@@ -24,8 +24,8 @@ stty(char **args) {
     pid_t pid2;
 
     if ((n = strlen32(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
-        error("incorrect stty parameters\n");
-        exit(EXIT_FAILURE);
+        error("CONF_STTY_ARGS is too long.\n");
+        fatal(EXIT_FAILURE);
     }
     memcpy64(cmd, CONF_STTY_ARGS, n + 1);
 
@@ -35,7 +35,6 @@ stty(char **args) {
             break;
         }
         argv[argc++] = token;
-        argc += 1;
         token = strtok(NULL, " ");
     }
 
