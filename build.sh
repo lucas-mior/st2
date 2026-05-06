@@ -103,6 +103,8 @@ noop () {
 
 if ! command xsel; then
     xsel=noop
+else
+    xsel=xsel
 fi
 
 option_remove() {
