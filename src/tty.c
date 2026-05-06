@@ -18,8 +18,8 @@ stty(char **args) {
     char cmd[_POSIX_ARG_MAX];
     char *s;
     int64 n;
-    char *exec_args[256];
-    int32 exec_argc = 0;
+    char *argv[256];
+    int32 argc = 0;
     char *token;
     pid_t pid2;
 
@@ -31,32 +31,32 @@ stty(char **args) {
 
     token = strtok(cmd, " ");
     while (token != NULL) {
-        if (exec_argc >= 255) {
+        if (argc >= 255) {
             break;
         }
-        exec_args[exec_argc] = token;
-        exec_argc += 1;
+        argv[argc] = token;
+        argc += 1;
         token = strtok(NULL, " ");
     }
 
     for (char **p = args; p && (s = *p); p += 1) {
-        if (exec_argc >= 255) {
+        if (argc >= 255) {
             break;
         }
-        exec_args[exec_argc] = s;
-        exec_argc += 1;
+        argv[argc] = s;
+        argc += 1;
     }
-    exec_args[exec_argc] = NULL;
+    argv[argc] = NULL;
 
     switch (pid2 = fork()) {
     case -1:
         error("Error forking: %s.\n", strerror(errno));
         fatal(EXIT_FAILURE);
     case 0:
-        execvp(exec_args[0], exec_args);
+        execvp(argv[0], argv);
         {
             char cmd2[4096];
-            STRING_FROM_ARRAY(cmd2, " ", exec_args, exec_argc);
+            STRING_FROM_ARRAY(cmd2, " ", argv, argc);
             error("Error executing\n\n%s\n\n%s.\n", cmd2, strerror(errno));
             _exit(EXIT_FAILURE);
         }
