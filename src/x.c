@@ -56,8 +56,9 @@ x_resize(int32 new_ncols, int32 new_nrows) {
     XftDrawChange(x_window.xft_draw, x_window.drawable);
     x_clear(0, 0, term_window.w, term_window.h);
 
-    x_window.font_spec_buf = xrealloc(x_window.font_spec_buf,
-                                      new_ncols*SIZEOF(XftGlyphFontSpec));
+    x_window.font_spec_buf = realloc2(x_window.font_spec_buf,
+                                      term.ncols,
+                                      new_ncols, SIZEOF(XftGlyphFontSpec));
     return;
 }
 
@@ -159,7 +160,7 @@ x_set_color_name(int32 x, char *name) {
     }
 
     XftColorFree(x_window.display,
-                 x_window.visual, x_window.color_map, &draw_context.colors[x]);
+                  x_window.visual, x_window.color_map, &draw_context.colors[x]);
     draw_context.colors[x] = xft_color;
 
     if (x == CONF_COLOR_BG) {
@@ -233,8 +234,8 @@ x_hints(void) {
     }
 
     XSetWMProperties(x_window.display, x_window.win,
-                     NULL, NULL, NULL, 0,
-                     size_hints, &wm_hints, &class_hints);
+                      NULL, NULL, NULL, 0,
+                      size_hints, &wm_hints, &class_hints);
     XFree(size_hints);
     return;
 }
@@ -304,7 +305,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
 
     XftTextExtentsUtf8(x_window.display, st_font->match,
                        (FcChar8 *)CONF_ASCII_PRINTABLE,
-                       strlen32(CONF_ASCII_PRINTABLE), &extents);
+                       (int32)strlen32(CONF_ASCII_PRINTABLE), &extents);
 
     st_font->set = NULL;
     st_font->pattern = configured;
@@ -313,7 +314,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
     st_font->descent = st_font->match->descent;
 
     st_font->height = st_font->ascent + st_font->descent;
-    st_font->width = DIVCEIL(extents.xOff, strlen32(CONF_ASCII_PRINTABLE));
+    st_font->width = DIVCEIL(extents.xOff, (int32)strlen32(CONF_ASCII_PRINTABLE));
 
     return 0;
 }
@@ -435,8 +436,9 @@ x_load_spare_fonts(void) {
     }
 
     if (frc_cap < 4*nspare_fonts) {
-        frc_cap += 4*nspare_fonts - frc_cap;
-        frc = xrealloc(frc, frc_cap*SIZEOF(FontCache));
+        int32 old_cap = frc_cap;
+        frc_cap = 4*nspare_fonts;
+        frc = realloc2(frc, old_cap, frc_cap, SIZEOF(FontCache));
     }
 
     for (int32 i = 0; i < nspare_fonts; i += 1) {
@@ -697,8 +699,9 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             fontpattern = FcFontSetMatch(0, fcsets, 1, fc_pattern, &fc_result);
 
             if (frc_len >= frc_cap) {
+                int32 old_cap = frc_cap;
                 frc_cap += 16;
-                frc = xrealloc(frc, frc_cap*SIZEOF(FontCache));
+                frc = realloc2(frc, old_cap, frc_cap, SIZEOF(FontCache));
             }
 
             frc[frc_len].font = XftFontOpenPattern(x_window.display, fontpattern);
