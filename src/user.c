@@ -306,6 +306,9 @@ user_vim_select(union Arg *arg) {
             char window[32];
             char cursor[64];
             char delete_command[128];
+            char cmd[4096];
+            char *argv[64];
+            int32 argc = 0;
 
             SNPRINTF(geometry, "%dx%d",
                           term.ncols, term.nrows);
@@ -316,12 +319,27 @@ user_vim_select(union Arg *arg) {
             SNPRINTF(delete_command, "autocmd VimLeave * call delete('%s')",
                                      tmp_file);
 
-            execlp("st", "st", "-w", window, "-g", geometry, "-e",
-                   "vim", "-c", "set nonumber norelativenumber wrap",
-                   "-c", "set laststatus=0 buftype=nowrite",
-                   "-c", cursor, "-c", delete_command, tmp_file, NULL);
-            
-            perror("execlp st failed");
+            argv[argc++] = "st";
+            argv[argc++] = "-w";
+            argv[argc++] = window;
+            argv[argc++] = "-g";
+            argv[argc++] = geometry;
+            argv[argc++] = "-e";
+            argv[argc++] = "vim";
+            argv[argc++] = "-c" ;
+            argv[argc++] = "set nonumber norelativenumber wrap";
+            argv[argc++] = "-c";
+            argv[argc++] = "set laststatus=0 buftype=nowrite";
+            argv[argc++] = "-c";
+            argv[argc++] = cursor;
+            argv[argc++] = "-c";
+            argv[argc++] = delete_command;
+            argv[argc++] = tmp_file;
+            argv[argc++] = NULL;
+
+            execvp(argv[0], argv);
+            STRING_FROM_ARRAY(cmd, " ", argv, argc);
+            error("Error executing\n%s\n%s", cmd, strerror(errno));
             _exit(1);
         }
     default:
