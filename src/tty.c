@@ -31,20 +31,19 @@ stty(char **args) {
 
     token = strtok(cmd, " ");
     while (token != NULL) {
-        if (argc >= 255) {
+        if (argc >= LENGTH(argv)) {
             break;
         }
-        argv[argc] = token;
+        argv[argc++] = token;
         argc += 1;
         token = strtok(NULL, " ");
     }
 
     for (char **p = args; p && (s = *p); p += 1) {
-        if (argc >= 255) {
+        if (argc >= LENGTH(argv)) {
             break;
         }
-        argv[argc] = s;
-        argc += 1;
+        argv[argc++] = s;
     }
     argv[argc] = NULL;
 
