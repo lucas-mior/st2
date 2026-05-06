@@ -54,8 +54,12 @@ stty(char **args) {
         fatal(EXIT_FAILURE);
     case 0:
         execvp(exec_args[0], exec_args);
-        perror("Couldn't call stty");
-        exit(EXIT_FAILURE);
+        {
+            char cmd2[4096];
+            STRING_FROM_ARRAY(cmd2, " ", exec_args, exec_argc);
+            error("Error executing\n\n%s\n\n%s.\n", cmd2, strerror(errno));
+            _exit(EXIT_FAILURE);
+        }
     default:
         waitpid(pid2, NULL, 0);
         break;
