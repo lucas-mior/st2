@@ -249,10 +249,7 @@ main(void) {
      * When mouse_report() calls the real tty_write(), it will write 
      * directly into our pipe via pselect/write64.
      */
-    if (pipe(pipefd) == -1) {
-        perror("pipe failed");
-        exit(EXIT_FAILURE);
-    }
+    xpipe(pipefd);
     command_fd = pipefd[1];
 
     /* Ensure the read end is non-blocking so we don't hang the test suite */
