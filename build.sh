@@ -286,6 +286,9 @@ install)
         if echo "$src" | grep -q "cbase/"; then
             continue
         fi
+        if echo "$src" | grep -q "user.c"; then
+            continue
+        fi
 
         name=$(echo "$name" | sed 's/\.c//')
         test_exe="/tmp/${name}_test"

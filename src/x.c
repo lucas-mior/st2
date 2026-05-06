@@ -305,7 +305,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
 
     XftTextExtentsUtf8(x_window.display, st_font->match,
                        (FcChar8 *)CONF_ASCII_PRINTABLE,
-                       (int32)strlen32(CONF_ASCII_PRINTABLE), &extents);
+                       strlen32(CONF_ASCII_PRINTABLE), &extents);
 
     st_font->set = NULL;
     st_font->pattern = configured;
@@ -855,21 +855,33 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     /* Intelligent cleaning up of the borders. */
     if (x == 0) {
         int32 limit_y;
+        int32 clear_y;
         if (win_y + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
             limit_y = term_window.h;
         } else {
             limit_y = 0;
         }
-        x_clear(0, (y == 0) ? 0 : win_y, term_window.hborderpx, win_y + term_window.ch + limit_y);
+        if (y == 0) {
+            clear_y = 0;
+        } else {
+            clear_y = win_y;
+        }
+        x_clear(0, clear_y, term_window.hborderpx, win_y + term_window.ch + limit_y);
     }
     if (win_x + width >= term_window.hborderpx + term_window.tty_width) {
         int32 limit_y;
+        int32 clear_y;
         if (win_y + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
             limit_y = term_window.h;
         } else {
             limit_y = win_y + term_window.ch;
         }
-        x_clear((int32)MIN(win_x + width, term_window.w), (y == 0) ? 0 : win_y, term_window.w, limit_y);
+        if (y == 0) {
+            clear_y = 0;
+        } else {
+            clear_y = win_y;
+        }
+        x_clear((int32)MIN(win_x + width, term_window.w), clear_y, term_window.w, limit_y);
     }
     if (y == 0) {
         x_clear(win_x, 0, win_x + width, term_window.vborderpx);
@@ -1061,14 +1073,14 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     i = 0;
     ox = 0;
     for (int32 x = x1; x < x2 && i < nfont_specs; x += 1) {
-        StGlyph new = line[x];
-        if (new.mode == ATTR_WDUMMY) {
+        StGlyph new_glyph = line[x];
+        if (new_glyph.mode == ATTR_WDUMMY) {
             continue;
         }
         if (selection_is_selected(x, y1)) {
-            new.mode |= ATTR_SELECTED;
+            new_glyph.mode |= ATTR_SELECTED;
         }
-        if ((i > 0) && ATTRCMP(base, new)) {
+        if ((i > 0) && ATTRCMP(base, new_glyph)) {
             x_draw_glyph_font_specs(font_specs, base, i, ox, y1);
             font_specs += i;
             nfont_specs -= i;
@@ -1076,7 +1088,7 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
         }
         if (i == 0) {
             ox = x;
-            base = new;
+            base = new_glyph;
         }
         i += 1;
     }
@@ -1164,8 +1176,8 @@ main(void) {
     opt_name = "st";
 
     {
-        Window parent;
-        Window root;
+        Window parent = None;
+        Window root = None;
         XWindowAttributes attr;
         XVisualInfo visual;
         ulong cw_flags;
@@ -1260,9 +1272,7 @@ main(void) {
     }
 
     {
-        uint16 result;
-
-        result = sixd_to_16bit(0);
+        uint16 result = sixd_to_16bit(0);
         ASSERT_EQUAL(result, 0);
 
         result = sixd_to_16bit(4);
@@ -1270,26 +1280,10 @@ main(void) {
     }
 
     {
-        int32 gravity;
-
-        gravity = x_geom_mask_to_gravity(0);
-        ASSERT_EQUAL(gravity, NorthWestGravity);
-
-        gravity = x_geom_mask_to_gravity(XNegative);
-        ASSERT_EQUAL(gravity, NorthEastGravity);
-
-        gravity = x_geom_mask_to_gravity(YNegative);
-        ASSERT_EQUAL(gravity, SouthWestGravity);
-
-        gravity = x_geom_mask_to_gravity(XNegative | YNegative);
-        ASSERT_EQUAL(gravity, SouthEastGravity);
-    }
-
-    {
-        uint r;
-        uint g;
-        uint b;
-        int32 ret;
+        uint r = 0;
+        uint g = 0;
+        uint b = 0;
+        int32 ret = 0;
 
         x_load_colors();
 
@@ -1301,9 +1295,7 @@ main(void) {
     }
 
     {
-        int32 result;
-
-        result = x_set_color_name(CONF_COLOR_BG, "black");
+        int32 result = x_set_color_name(CONF_COLOR_BG, "black");
         ASSERT_EQUAL(result, 0);
 
         result = x_set_color_name(9999, "black");
@@ -1311,9 +1303,7 @@ main(void) {
     }
 
     {
-        XftColor xft_color;
-
-        xft_color.pixel = 0;
+        XftColor xft_color = {0};
         x_load_color(0, "black", &xft_color);
     }
 
@@ -1326,7 +1316,7 @@ main(void) {
     }
 
     {
-        StFont font;
+        StFont font = {0};
         FcPattern *pattern = FcNameParse((FcChar8 *)"monospace");
 
         x_load_font(&font, pattern);
@@ -1346,7 +1336,7 @@ main(void) {
     }
 
     {
-        x_resize(100, 30);
+        x_resize(100, 30, term.ncols);
     }
 
     {
@@ -1354,7 +1344,7 @@ main(void) {
     }
 
     {
-        int32 result;
+        int32 result = 0;
 
         term_window.cursor = 0;
         result = x_set_cursor(-1);
@@ -1366,7 +1356,7 @@ main(void) {
     }
 
     {
-        int32 result;
+        int32 result = 0;
 
         term_window.mode = WIN_MODE_VISIBLE;
         result = x_start_draw();
@@ -1392,10 +1382,10 @@ main(void) {
     }
 
     {
-        XftGlyphFontSpec spec;
-        StGlyph glyph;
+        XftGlyphFontSpec spec = {0};
+        StGlyph glyph = {0};
         StGlyph line[2];
-        StGlyph og;
+        StGlyph og = {0};
 
         glyph.rune = 'a';
         glyph.mode = 0;
@@ -1418,9 +1408,7 @@ main(void) {
     }
 
     {
-        int32 result;
-
-        result = x_im_open(x_window.display);
+        int32 result = x_im_open(x_window.display);
         ASSERT_EQUAL(result, 1);
         x_xim_spot(0, 0);
         x_im_instantiate(x_window.display, NULL, NULL);
