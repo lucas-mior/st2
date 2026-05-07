@@ -34,6 +34,44 @@ test_verify_viewport_line(int32 screen_y, char *expected_text) {
 }
 
 static void
+test_verify_dump(char *expected_text) {
+    FILE *tmp = tmpfile();
+    int32 fd;
+    char buffer[8192];
+    ssize_t read_bytes;
+
+    if (!tmp) {
+        error("[%s] Failed to create temporary file for dump test\n", current_test_name);
+        assert(false);
+    }
+
+    fd = fileno(tmp);
+    dump_terminal_to_fd(fd);
+
+    if (lseek(fd, 0, SEEK_SET) < 0) {
+        error("[%s] Failed to rewind dump fd\n", current_test_name);
+        assert(false);
+    }
+
+    read_bytes = read(fd, buffer, SIZEOF(buffer) - 1);
+    if (read_bytes < 0) {
+        read_bytes = 0;
+    }
+    buffer[read_bytes] = '\0';
+
+    fclose(tmp);
+
+    if (strcmp(buffer, expected_text) != 0) {
+        error("[%s] Dump to FD mismatch:\n", current_test_name);
+        error("  Expected: '%s'\n", expected_text);
+        error("  Actual:   '%s'\n", buffer);
+        assert(false);
+    }
+
+    return;
+}
+
+static void
 test_inject_text(char *text) {
     StGlyph attr;
 
@@ -176,6 +214,7 @@ main(void) {
             };
             test_verify_state(11, state_texts, state_wraps, 6, 9);
         }
+        test_verify_dump("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
     }
 
     {
@@ -192,6 +231,7 @@ main(void) {
             };
             test_verify_state(10, state_texts, state_wraps, 26, 9);
         }
+        test_verify_dump("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
     }
 
     {
@@ -208,6 +248,7 @@ main(void) {
             };
             test_verify_state(11, state_texts, state_wraps, 11, 9);
         }
+        test_verify_dump("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
     }
 
     {
@@ -308,6 +349,14 @@ main(void) {
         term_resize(10, 5);
         check_consistent_state();
         test_verify_viewport_line(0, "1111111111");
+        test_verify_dump("00000000000000000000\n"
+                         "11111111111111111111\n"
+                         "22222222222222222222\n"
+                         "33333333333333333333\n"
+                         "44444444444444444444\n"
+                         "55555555555555555555\n"
+                         "66666666666666666666\n"
+                         "77777777777777777777\n");
     }
 
     {
@@ -431,6 +480,7 @@ main(void) {
             };
             test_verify_state(10, state_texts, state_wraps, 1, 7);
         }
+        test_verify_dump("AABBCCDDEEFFGG $\n");
     }
 
     printf("\nAll tests passed successfully!\n");
