@@ -62,10 +62,57 @@ test_verify_dump(char *expected_text) {
     fclose(tmp);
 
     if (strcmp(buffer, expected_text) != 0) {
-        int64 expected_len = strlen32(expected_text);
         error("[%s] Dump to FD mismatch:\n", current_test_name);
-        error("  Expected: [%lld]'%s'\n", (llong)expected_len, expected_text);
-        error("  Actual:   [%lld]'%s'\n", (llong)read_bytes, buffer);
+        error("  Expected: '%s'\n", expected_text);
+        error("  Actual:   '%s'\n", buffer);
+        assert(false);
+    }
+
+    return;
+}
+
+static void
+test_verify_editor_dump(char *expected_text, int32 expected_row, int32 expected_col) {
+    FILE *tmp = tmpfile();
+    int32 fd;
+    char buffer[8192];
+    ssize_t read_bytes;
+    int32 out_row = 0;
+    int32 out_col = 0;
+    int32 expected_len = strlen32(expected_text);
+
+    if (!tmp) {
+        error("[%s] Failed to create temporary file for editor test\n", current_test_name);
+        assert(false);
+    }
+
+    fd = fileno(tmp);
+    dump_for_editor(fd, &out_row, &out_col);
+
+    if (lseek(fd, 0, SEEK_SET) < 0) {
+        error("[%s] Failed to rewind dump fd\n", current_test_name);
+        assert(false);
+    }
+
+    read_bytes = read(fd, buffer, SIZEOF(buffer) - 1);
+    if (read_bytes < 0) {
+        read_bytes = 0;
+    }
+    buffer[read_bytes] = '\0';
+
+    fclose(tmp);
+
+    if (strcmp(buffer, expected_text) != 0) {
+        error("[%s] Editor Dump mismatch:\n", current_test_name);
+        error("  Expected: [%d]'%s'\n", expected_len, expected_text);
+        error("  Actual:   [%zd]'%s'\n", read_bytes, buffer);
+        assert(false);
+    }
+
+    if (out_row != expected_row || out_col != expected_col) {
+        error("[%s] Editor Cursor mismatch:\n", current_test_name);
+        error("  Expected: (row %d, col %d)\n", expected_row, expected_col);
+        error("  Actual:   (row %d, col %d)\n", out_row, out_col);
         assert(false);
     }
 
@@ -482,6 +529,40 @@ main(void) {
             test_verify_state(10, state_texts, state_wraps, 1, 7);
         }
         test_verify_dump("AABBCCDDEEFFGG $\n");
+    }
+
+    {
+        current_test_name = "Scenario Q: Vim Select Trailing Cursor Padding";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(20, 5);
+        term_reset();
+        
+        test_inject_text("SHORT\n");
+        term.cursor.x = 8;
+        term.cursor.y = 1;
+        
+        test_verify_editor_dump("SHORT\n         \n\n\n\n", 2, 9);
+    }
+
+    {
+        current_test_name = "Scenario R: Vim Select Alternate Screen Target";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(20, 5);
+        term_reset();
+
+        for (int32 i = 0; i < 10; i += 1) {
+            term_new_line(true);
+        }
+        
+        test_inject_text("ALTSCREEN\n");
+        term.cursor.x = 5;
+        term.cursor.y = 1;
+
+        term.mode |= TERM_MODE_ALTSCREEN;
+
+        test_verify_editor_dump("\n\n\n\n\n\n\n\n      \n\nALTSCREEN\n\n", term.n_hist + 1, 1);
+        
+        term.mode &= ~TERM_MODE_ALTSCREEN;
     }
 
     printf("\nAll tests passed successfully!\n");

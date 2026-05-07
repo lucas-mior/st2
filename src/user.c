@@ -259,7 +259,6 @@ dump_for_editor(int32 fd, int32 *out_row, int32 *out_col) {
         }
         last_pos += 1;
 
-        /* Force inclusion of trailing spaces up to the cursor */
         if (y == term.cursor.y) {
             last_pos = (int32)MAX(last_pos, term.cursor.x + 1);
         }
@@ -290,7 +289,6 @@ dump_for_editor(int32 fd, int32 *out_row, int32 *out_col) {
 
 static void
 user_vim_select(union Arg *arg) {
-    char buffer[UTF_SIZ];
     char tmp_file[] = "/tmp/st_vimselect_XXXXXX";
     int32 fd;
     int32 target_row;
@@ -303,33 +301,7 @@ user_vim_select(union Arg *arg) {
         return;
     }
 
-    for (int32 y = -term.n_hist; y < term.nrows; y += 1) {
-        StGlyph *line = term_line_abs(y);
-        int32 last_pos = term.ncols - 1;
-
-        while ((last_pos >= 0)
-                && !(line[last_pos].mode & (ATTR_SET | ATTR_WRAP))) {
-            last_pos -= 1;
-        }
-        last_pos += 1;
-
-        if (y == term.cursor.y) {
-            last_pos = (int32)MAX(last_pos, term.cursor.x + 1);
-        }
-
-        for (int32 x = 0; x < last_pos; x += 1) {
-            if (!(line[x].mode & ATTR_WDUMMY)) {
-                xwrite(fd, buffer, utf8_encode(line[x].rune, buffer));
-            }
-        }
-        
-        if ((last_pos == 0)
-                || !(line[last_pos - 1].mode & ATTR_WRAP)
-                || (y == term.nrows - 1)) {
-            xwrite(fd, "\n", 1);
-        }
-    }
-
+    dump_for_editor(fd, &target_row, &target_col);
     XCLOSE(&fd);
 
     if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
