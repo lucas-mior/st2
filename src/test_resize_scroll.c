@@ -62,9 +62,10 @@ test_verify_dump(char *expected_text) {
     fclose(tmp);
 
     if (strcmp(buffer, expected_text) != 0) {
+        int32 expected_len = strlen32(expected_text);
         error("[%s] Dump to FD mismatch:\n", current_test_name);
-        error("  Expected: '%s'\n", expected_text);
-        error("  Actual:   '%s'\n", buffer);
+        error("  Expected: [%d]'%s'\n", expected_len, expected_text);
+        error("  Actual:   [%d]'%s'\n", read_bytes, buffer);
         assert(false);
     }
 

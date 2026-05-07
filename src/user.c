@@ -372,20 +372,15 @@ dump_terminal_to_fd(int32 fd) {
         int32 last_pos;
 
         if (term_line_hist(n)[i_hist - 1].mode & ATTR_WRAP) {
-            last_pos = i_hist;
+            last_pos = i_hist - 1;
         } else {
             while ((i_hist > 0) && term_line_hist(n)[i_hist - 1].rune == ' ') {
                 i_hist -= 1;
             }
-            last_pos = i_hist;
+            last_pos = i_hist - 1;
         }
-
-        last_pos = (int32)MIN(last_pos + 1, term.ncols) - 1;
 
         if (last_pos < 0) {
-            break;
-        }
-        if (last_pos == 0) {
             continue;
         }
 
