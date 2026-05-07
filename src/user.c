@@ -246,6 +246,49 @@ user_print_sel(union Arg *arg) {
 }
 
 static void
+dump_for_editor(int32 fd, int32 *out_row, int32 *out_col) {
+    char buffer[UTF_SIZ];
+
+    for (int32 y = -term.n_hist; y < term.nrows; y += 1) {
+        StGlyph *line = term_line_abs(y);
+        int32 last_pos = term.ncols - 1;
+
+        while ((last_pos >= 0)
+                && !(line[last_pos].mode & (ATTR_SET | ATTR_WRAP))) {
+            last_pos -= 1;
+        }
+        last_pos += 1;
+
+        /* Force inclusion of trailing spaces up to the cursor */
+        if (y == term.cursor.y) {
+            last_pos = (int32)MAX(last_pos, term.cursor.x + 1);
+        }
+
+        for (int32 x = 0; x < last_pos; x += 1) {
+            if (!(line[x].mode & ATTR_WDUMMY)) {
+                xwrite(fd, buffer, utf8_encode(line[x].rune, buffer));
+            }
+        }
+        
+        if ((last_pos == 0)
+                || !(line[last_pos - 1].mode & ATTR_WRAP)
+                || (y == term.nrows - 1)) {
+            xwrite(fd, "\n", 1);
+        }
+    }
+
+    if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
+        *out_row = term.n_hist + 1;
+        *out_col = 1;
+    } else {
+        *out_row = term.n_hist + term.cursor.y + 1;
+        *out_col = term.cursor.x + 1;
+    }
+    
+    return;
+}
+
+static void
 user_vim_select(union Arg *arg) {
     char buffer[UTF_SIZ];
     char tmp_file[] = "/tmp/st_vimselect_XXXXXX";
