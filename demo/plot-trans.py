@@ -29,7 +29,6 @@ ax_left.legend(loc="lower left", bbox_to_anchor=(0, 1), frameon=False, labelcolo
 
 ax_right.legend(loc="lower right", bbox_to_anchor=(1, 1), frameon=False, labelcolor="white")
 
-# Increased padding for the title to prevent overlap with the legends
 plt.title("Functions", color="white", pad=25)
 
 plt.show()
