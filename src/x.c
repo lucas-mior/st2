@@ -368,6 +368,25 @@ x_load_fonts(char *font_str, double font_size) {
         }
     }
 
+/* 
+     * Update used_font to a clean string representation of the current pattern.
+     * This removes the old pixelsize from the string and reflects the current state.
+     */
+    {
+        FcChar8 *unparsed = FcNameUnparse(fc_pattern);
+        if (unparsed) {
+            if ((used_font != CONF_FONT) && (used_font != opt_font)) {
+                free2(used_font, (used_font_len + 1)*SIZEOF(*used_font));
+            }
+
+            used_font_len = strlen32((char *)unparsed);
+            used_font = malloc2((used_font_len + 1)*SIZEOF(*used_font));
+            memcpy64(used_font, unparsed, used_font_len + 1);
+
+            free(unparsed);
+        }
+    }
+
     {
         double cw = ceil((double)(draw_context.font.width)*CONF_CHAR_WIDTH_SCALE);
         double ch = ceil((double)(draw_context.font.height)*CONF_CHAR_HEIGHT_SCALE);

@@ -334,12 +334,16 @@ user_vim_select(union Arg *arg) {
                      "call cursor(%d, %d)", target_row, target_col);
             SNPRINTF(delete_command,
                      "autocmd VimLeave * call delete('%s')", tmp_file);
+            
+            PRINTLN(used_font);
 
             argv[argc++] = "st";
             argv[argc++] = "-w";
             argv[argc++] = window;
             argv[argc++] = "-g";
             argv[argc++] = geometry;
+            argv[argc++] = "-f";
+            argv[argc++] = used_font;
             argv[argc++] = "-e";
             argv[argc++] = "vim";
             argv[argc++] = "-c" ;
@@ -587,7 +591,7 @@ main(void) {
         
         default_font_size = 12.0;
         used_font_size = 12.0;
-        used_font = "monospace";
+        used_font = CONF_FONT;
         x_load_fonts(used_font, 0);
     }
 
