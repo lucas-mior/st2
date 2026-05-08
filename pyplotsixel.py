@@ -71,7 +71,7 @@ def output_sixel(image, output):
         if palette is None:
             palette = []
         # Pad the palette out to 256 colors
-        palette.extend([0, 0, 0] * (256 - len(palette) // 3))
+        palette.extend([0, 0, 0]*(256 - len(palette) // 3))
         image.putpalette(palette)
     else:
         image = image.quantize(256).convert("P", palette=Image.ADAPTIVE, colors=256)
@@ -101,7 +101,7 @@ def output_sixel(image, output):
             output.write(f"#{n}")
             for six, count in node:
                 if count < 4:
-                    output.write(chr(0x3f + six) * count)
+                    output.write(chr(0x3f + six)*count)
                 else:
                     output.write(f'!{count}{chr(0x3f+six)}')
             output.write("$")
@@ -162,6 +162,6 @@ class _BackendSixelAgg(_Backend):
         cols = term_size.columns
         lines = term_size.lines
 
-        kwargs["figsize"] = ((cols * 10) / dpi, ((lines - 3) * 20) / dpi)
+        kwargs["figsize"] = ((cols*10) / dpi, ((lines - 3)*20) / dpi)
 
         return super().new_figure_manager(num, *args, **kwargs)
