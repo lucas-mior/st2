@@ -270,7 +270,7 @@ install)
 	echo "Please see the README regarding the terminfo entry of st."
 	;;
 "test")
-    find . -iname "*.c" | sort | while read -r src; do
+    for src in $(find . -iname "*.c" | sort); do
         trace_off
         name=$(basename "$src")
 
@@ -297,7 +297,7 @@ install)
 
         flags="$(awk '/\/\/ flags:/ { $1=$2=""; print $0 }' "$src")"
         if [ $src = "src/windows_functions.c" ]; then
-            if ! zig version; then
+            if ! zig version >/dev/null 2>&1; then
                 continue
             fi
             CC="zig cc"
@@ -316,17 +316,17 @@ install)
             cmdline_no_cc=$(option_remove "$cmdline" "$CC")
             trace_on
             if with_other "$CC" "$cmdline_no_cc"; then
-                /tmp/${name}_test
+                /tmp/${name}_test < /dev/null
             else
                 exit 1
             fi
         else
             trace_on
             if $cmdline; then
-                if ! $test_exe; then
+                if ! $test_exe < /dev/null; then
                     gdb --quiet \
                         -ex 'break exit' -ex run -ex backtrace -ex quit \
-                        $test_exe 2>&1 | tee /dev/tty | $xsel -b
+                        $test_exe 2>&1 < /dev/null | tee /dev/tty | $xsel -b
                     exit 1
                 fi
             else
