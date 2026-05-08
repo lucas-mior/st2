@@ -1169,7 +1169,7 @@ x_bell(void) {
 #include "st.c"
 #include "boxdraw.c"
 
-int
+int32
 main(void) {
     opt_title = "st";
     opt_class = "st";
@@ -1269,8 +1269,11 @@ main(void) {
 
         term_window.tty_width = term_window.cw*term.ncols;
         term_window.tty_height = term_window.ch*term.nrows;
+        
+        boxdraw_xinit(x_window.display, x_window.color_map, x_window.xft_draw, x_window.visual);
     }
 
+    /* Test: sixd_to_16bit */
     {
         uint16 result = sixd_to_16bit(0);
         ASSERT_EQUAL(result, 0);
@@ -1279,11 +1282,30 @@ main(void) {
         ASSERT_EQUAL(result, 0x3737 + 0x2828*4);
     }
 
+    /* Test: x_geom_mask_to_gravity */
+    {
+        int32 gravity;
+        
+        gravity = x_geom_mask_to_gravity(0);
+        ASSERT_EQUAL(gravity, NorthWestGravity);
+        
+        gravity = x_geom_mask_to_gravity(XNegative);
+        ASSERT_EQUAL(gravity, NorthEastGravity);
+        
+        gravity = x_geom_mask_to_gravity(YNegative);
+        ASSERT_EQUAL(gravity, SouthWestGravity);
+        
+        gravity = x_geom_mask_to_gravity(XNegative | YNegative);
+        ASSERT_EQUAL(gravity, SouthEastGravity);
+    }
+
+    /* Test: Color functions */
     {
         uint r = 0;
         uint g = 0;
         uint b = 0;
         int32 ret = 0;
+        XftColor xft_color = {0};
 
         x_load_colors();
 
@@ -1292,57 +1314,46 @@ main(void) {
 
         ret = x_get_color(9999, &r, &g, &b);
         ASSERT_EQUAL(ret, 1);
-    }
 
-    {
-        int32 result = x_set_color_name(CONF_COLOR_BG, "black");
-        ASSERT_EQUAL(result, 0);
+        ret = x_set_color_name(CONF_COLOR_BG, "black");
+        ASSERT_EQUAL(ret, 0);
 
-        result = x_set_color_name(9999, "black");
-        ASSERT_EQUAL(result, 1);
-    }
+        ret = x_set_color_name(9999, "black");
+        ASSERT_EQUAL(ret, 1);
 
-    {
-        XftColor xft_color = {0};
         x_load_color(0, "black", &xft_color);
+        x_load_color(30, NULL, &xft_color);  /* 6x6x6 color space */
+        x_load_color(240, NULL, &xft_color); /* greyscale space */
     }
 
-    {
-        x_load_fonts("monospace", 12.0);
-    }
-
-    {
-        x_load_spare_fonts();
-    }
-
+    /* Test: Font loading */
     {
         StFont font = {0};
         FcPattern *pattern = FcNameParse((FcChar8 *)"monospace");
+        FcPattern *fc_pattern = FcNameParse((FcChar8 *)"monospace");
+
+        x_load_fonts("monospace", 12.0);
+        x_load_spare_fonts();
 
         x_load_font(&font, pattern);
         x_unload_font(&font);
         FcPatternDestroy(pattern);
-    }
-
-    {
-        FcPattern *fc_pattern = FcNameParse((FcChar8 *)"monospace");
 
         x_load_spare_font(fc_pattern, 0);
         FcPatternDestroy(fc_pattern);
     }
 
+    /* Test: Window resize and hints */
     {
         x_clear(0, 0, 10, 10);
-    }
-
-    {
         x_resize(100, 30, term.ncols);
-    }
-
-    {
+        
+        x_window.geo_mask = XNegative | YNegative;
         x_hints();
+        x_window.geo_mask = 0;
     }
 
+    /* Test: Mode toggling and status properties */
     {
         int32 result = 0;
 
@@ -1353,10 +1364,6 @@ main(void) {
         result = x_set_cursor(5);
         ASSERT_EQUAL(result, 0);
         ASSERT_EQUAL(term_window.cursor, 5);
-    }
-
-    {
-        int32 result = 0;
 
         term_window.mode = WIN_MODE_VISIBLE;
         result = x_start_draw();
@@ -1365,57 +1372,93 @@ main(void) {
         term_window.mode = 0;
         result = x_start_draw();
         ASSERT_EQUAL(result, 0);
-    }
 
-    {
         term_window.mode = 0;
         x_set_mode(WIN_MODE_REVERSE, WIN_MODE_REVERSE);
         ASSERT(term_window.mode == WIN_MODE_REVERSE);
-    }
+        x_set_mode(WIN_MODE_REVERSE, 0); /* Revert */
 
-    {
         x_set_icon_title(NULL);
+        x_set_icon_title("");
+        x_set_icon_title("test_icon");
+        
         x_set_title(NULL);
+        x_set_title("");
+        x_set_title("test_title");
+        
         x_set_pointer_motion(0);
+        x_set_pointer_motion(1);
+        
+        x_set_urgency(1);
         x_set_urgency(0);
+        
+        term_window.mode &= ~WIN_MODE_FOCUSED;
         x_bell();
     }
 
+    /* Test: Drawing operations (Glyphs, Fonts, Cursor, Boxdraw) */
     {
         XftGlyphFontSpec spec = {0};
         StGlyph glyph = {0};
-        StGlyph line[2];
+        StGlyph line[4];
         StGlyph og = {0};
 
-        glyph.rune = 'a';
-        glyph.mode = 0;
-        glyph.fg = 0;
-        glyph.bg = 0;
+        glyph.rune = 'X';
+        glyph.mode = ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK | ATTR_REVERSE | ATTR_BLINK;
+        glyph.fg = CONF_COLOR_INDEX_FONT;
+        glyph.bg = CONF_COLOR_BG;
 
         x_make_glyph_font_specs(&spec, &glyph, 1, 0, 0);
         x_draw_glyph_font_specs(&spec, glyph, 1, 0, 0);
         x_draw_glyph(glyph, 0, 0);
 
-        og.rune = 'b';
+        /* Test Boxdraw specifically */
+        glyph.rune = 0x2500;
+        glyph.mode = ATTR_BOXDRAW;
+        x_make_glyph_font_specs(&spec, &glyph, 1, 1, 0);
+        x_draw_glyph_font_specs(&spec, glyph, 1, 1, 0);
+
+        /* Test cursors across unfocused, focused, and shape variations */
+        og.rune = 'Y';
         og.mode = 0;
         og.fg = 0;
         og.bg = 0;
+        
+        term_window.mode &= ~WIN_MODE_FOCUSED;
         x_draw_cursor(0, 0, glyph, 0, 0, og);
 
-        line[0] = glyph;
-        line[1] = og;
-        x_draw_line(line, 0, 0, 2);
+        term_window.mode |= WIN_MODE_FOCUSED;
+        for (int32 cursor_shape = 0; cursor_shape <= 7; cursor_shape += 1) {
+            term_window.cursor = cursor_shape;
+            x_draw_cursor(0, 0, glyph, 0, 0, og);
+        }
+
+        /* Test reverse mode cursor */
+        term_window.mode |= WIN_MODE_REVERSE;
+        x_draw_cursor(0, 0, glyph, 0, 0, og);
+        term_window.mode &= ~WIN_MODE_REVERSE;
+
+        /* Test draw line with different attributes and dummies */
+        line[0] = og;
+        line[1].rune = 'Z';
+        line[1].mode = ATTR_WDUMMY;
+        line[2] = og;
+        line[3].rune = 'W';
+        line[3].mode = ATTR_BOLD;
+        x_draw_line(line, 0, 0, 4);
     }
 
+    /* Test: Input Method Editor (IME) */
     {
         int32 result = x_im_open(x_window.display);
         ASSERT_EQUAL(result, 1);
-        x_xim_spot(0, 0);
+        x_xim_spot(5, 5);
         x_im_instantiate(x_window.display, NULL, NULL);
         x_ic_destroy(NULL, NULL, NULL);
         x_im_destroy(NULL, NULL, NULL);
     }
 
+    /* Cleanup */
     {
         x_unload_fonts();
     }
