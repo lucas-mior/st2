@@ -576,6 +576,45 @@ main(void) {
         term.mode &= ~TERM_MODE_ALTSCREEN;
     }
 
+    {
+        current_test_name = "Scenario S: Image Scaling Attributes Preservation";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(20, 10);
+        term_reset();
+
+        term_window.cw = 10;
+        term_window.ch = 20;
+
+        {
+            ImageList *img = malloc2(SIZEOF(ImageList));
+            memset64(img, 0, SIZEOF(ImageList));
+            img->x = 0;
+            img->y = 0;
+            img->cw = term_window.cw;
+            img->ch = term_window.ch;
+            img->width = 100;
+            img->height = 200;
+            img->next = NULL;
+            term.images = img;
+
+            /* Simulate a zoom by changing term_window cw/ch and resizing grid */
+            term_window.cw = 15;
+            term_window.ch = 30;
+            term_resize(15, 8);
+            check_consistent_state();
+
+            if (term.images->cw != 10 || term.images->ch != 20 ||
+                term.images->width != 100 || term.images->height != 200) {
+                error("[%s] Image attributes mutated unexpectedly.\n", current_test_name);
+                error("Expected: cw=10, ch=20, w=100, h=200\n");
+                error("Actual:   cw=%d, ch=%d, w=%d, h=%d\n",
+                      term.images->cw, term.images->ch,
+                      term.images->width, term.images->height);
+                assert(false);
+            }
+        }
+    }
+
     printf("\nAll tests passed successfully!\n");
     return 0;
 }
