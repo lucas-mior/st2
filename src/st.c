@@ -1332,8 +1332,8 @@ draw(void) {
         for (ImageList *image = term.images; image; image = next) {
             int32 rel_y = image->y + term.scrolled_up;
             int32 height_in_rows = (image->height + image->ch - 1) / image->ch;
-            int32 width = image->width;
-            int32 height = image->height;
+            int32 scaled_w;
+            int32 scaled_h;
             next = image->next;
 
             /* Check if ANY part of the image is on the visible screen */
@@ -1343,31 +1343,57 @@ draw(void) {
                 continue;
             }
 
+            /* 
+             * Calculate the new dimensions based on current font cell size 
+             * vs the font cell size when the image was generated.
+             */
+            scaled_w = (image->width * term_window.cw) / image->cw;
+            scaled_h = (image->height * term_window.ch) / image->ch;
+            scaled_w = (int32)MAX(scaled_w, 1);
+            scaled_h = (int32)MAX(scaled_h, 1);
+
             if (image->pixmap == NULL) {
+                uint32 *scaled_pixels;
+                uint32 *src_pixels;
                 XImage ximage;
+
+                scaled_pixels = malloc2(scaled_w * scaled_h * sizeof(uint32));
+                src_pixels = (uint32 *)image->pixels;
+
+                /* Fast Nearest-Neighbor scaling */
+                for (int32 sy = 0; sy < scaled_h; sy += 1) {
+                    int32 orig_y = (sy * image->height) / scaled_h;
+                    for (int32 sx = 0; sx < scaled_w; sx += 1) {
+                        int32 orig_x = (sx * image->width) / scaled_w;
+                        scaled_pixels[sy * scaled_w + sx] = src_pixels[orig_y * image->width + orig_x];
+                    }
+                }
+
                 image->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win,
-                                                   (uint32)width, (uint32)height,
-                                                   (uint32)x_window.depth);
+                                                      (uint32)scaled_w, (uint32)scaled_h,
+                                                      (uint32)x_window.depth);
 
                 if (image->transparent) {
-                    image->clipmask = (void *)sixel_create_clipmask((char *)image->pixels,
-                                                                 width, height);
+                    image->clipmask = (void *)sixel_create_clipmask((char *)scaled_pixels,
+                                                                     scaled_w, scaled_h);
                 }
 
                 ximage.format = ZPixmap;
-                ximage.data = (char *)image->pixels;
-                ximage.width = width;
-                ximage.height = height;
+                ximage.data = (char *)scaled_pixels;
+                ximage.width = scaled_w;
+                ximage.height = scaled_h;
                 ximage.depth = x_window.depth;
                 ximage.bits_per_pixel = 32;
-                ximage.bytes_per_line = width*4;
+                ximage.bytes_per_line = scaled_w * 4;
                 ximage.byte_order = ImageByteOrder(x_window.display);
                 ximage.bitmap_unit = 32;
                 ximage.bitmap_pad = 32;
 
                 XPutImage(x_window.display, (Drawable)image->pixmap,
-                          draw_context.graphics, &ximage, 0, 0, 0, 0, (uint32)width,
-                          (uint32)height);
+                          draw_context.graphics, &ximage, 0, 0, 0, 0, (uint32)scaled_w,
+                          (uint32)scaled_h);
+
+                free(scaled_pixels);
             }
 
             if (gc == NULL) {
@@ -1378,8 +1404,8 @@ draw(void) {
             }
 
             {
-                int32 draw_w = width;
-                int32 draw_h = height;
+                int32 draw_w = scaled_w;
+                int32 draw_h = scaled_h;
                 int32 src_y = 0;
                 int32 dest_y = bh + rel_y*term_window.ch;
 
@@ -1397,7 +1423,7 @@ draw(void) {
 
                 if (draw_h > 0 && draw_w > 0) {
                     if (image->transparent && image->clipmask) {
-                        /* Mask origin must track the logical position (rel_y) */
+                        /* Mask origin must track the logical position */
                         XSetClipOrigin(x_window.display, gc, bw + image->x*term_window.cw, bh + rel_y*term_window.ch);
                         XSetClipMask(x_window.display, gc, (Pixmap)image->clipmask);
                     } else {
