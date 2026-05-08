@@ -50,21 +50,21 @@ def output_sixel(image, output):
     # --- 1-BIT ALPHA COMPOSITING ---
     if image.mode == 'RGBA':
         r, g, b, a = image.split()
-        
+
         # 1. Composite the smooth anti-aliased edges against a solid black background
         bg = Image.new("RGB", image.size, (0, 0, 0))
         bg.paste(image, mask=a)
-        
+
         # 2. Quantize the blended image to 255 colors (reserving 1 for transparency)
         image_p = bg.quantize(255)
-        
+
         # 3. Identify truly transparent pixels and assign them to the reserved index (255)
         alpha_data = np.array(a)
         p_data = np.array(image_p)
-        
+
         transparent_idx = 255
         p_data[alpha_data == 0] = transparent_idx
-        
+
         # 4. Reconstruct the paletted image
         image = Image.fromarray(p_data, mode='P')
         palette = image_p.getpalette()
@@ -86,7 +86,7 @@ def output_sixel(image, output):
     for i in set(image.getdata()):
         if i == transparent_idx:
             continue  # Do not emit a color definition for the transparent background!
-            
+
         p = palette[i]
         output.write(f'#{i};2;{p[0]*100//256};{p[1]*100//256};{p[2]*100//256}')
 
@@ -97,7 +97,7 @@ def output_sixel(image, output):
         for n, node in _convert_line(data[y:y+6]):
             if n == transparent_idx:
                 continue  # Sixel Magic: Simply skip drawing to let the terminal show through
-                
+
             output.write(f"#{n}")
             for six, count in node:
                 if count < 4:
