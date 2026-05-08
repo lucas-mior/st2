@@ -1433,7 +1433,7 @@ term_control_code(uchar ascii) {
 }
 
 static int32
-eschandle(uchar ascii) {
+esc_handle(uchar ascii) {
     switch (ascii) {
     case '[':
         term.esc |= ESC_CSI;
@@ -1637,7 +1637,7 @@ check_control_code:
                             if (term.esc & ESC_TEST) {
                                 term_dec_test((char)u);
                             } else {
-                                if (!eschandle((uchar)u)) {
+                                if (!esc_handle((uchar)u)) {
                                     return;
                                 }
                             }
@@ -1928,7 +1928,7 @@ main(void) {
         int32 esc_ret;
         
         term.esc = 0;
-        esc_ret = eschandle('[');
+        esc_ret = esc_handle('[');
         ASSERT_MORE((int32)(term.esc & ESC_CSI), 0);
         ASSERT_EQUAL(esc_ret, 0);
     }
