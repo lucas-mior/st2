@@ -21,8 +21,7 @@ echo ""
 
 # 1. Sixel Images
 echo "--> 1. Displaying a Sixel Image"
-run_cmd 'curl -sL "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" -o /tmp/demo_img.png;
-chafa --format sixel /tmp/demo_img.png;'
+run_cmd 'chafa --format sixel st.png'
 
 echo "--> 2. Generating and displaying a Matplotlib plot"
 cp pyplotsixel.py /tmp/
@@ -61,8 +60,8 @@ run_cmd "mpc play; ncmpcpp -s visualizer"
 # 5. user_vim_select (Scrollback Buffer in Vim)
 echo "--> 5. Vim Scrollback (user_vim_select)"
 echo "Populating the screen with some text..."
-run_cmd "ls -la | head -n 30"
-echo "${CYAN}Press Alt+Escape to trigger user_vim_select...${NC}"
+ls -la
+echo -e "${CYAN}Press Alt+Escape to trigger user_vim_select...${NC}"
 read -r
 # echo ""
 # echo "A new st window running vim should have popped up containing your terminal buffer!"
