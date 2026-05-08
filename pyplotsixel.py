@@ -1,88 +1,41 @@
 # Copyright (c) 2024 Hajime Nakagami
 # Released under the BSD license.
 # https://github.com/nakagami/pyplotsixel/blob/master/pyplotsixel.py
+# Re-implemented using libsixel-python for high-performance rendering.
 
 import sys
-import io
 import shutil
 import matplotlib
-import numpy as np
-from PIL import Image
 from matplotlib.backend_bases import _Backend, FigureManagerBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
-
-def _convert_line(data):
-    height, width = np.shape(data)
-    colors = list(set(data.flatten()))
-    six_list = dict([(color, []) for color in colors])
-
-    six = dict([(color, 0) for color in colors])
-    for x in range(width):
-        for y in range(height):
-            six[data[y, x]] |= 1 << y
-        for color in colors:
-            six_list[color].append(six[color])
-            six[color] = 0
-
-    buf = []
-    for color in colors:
-        start_and_six = [(0, six_list[color][0])]
-        for i, six in enumerate(six_list[color][1:], start=1):
-            if start_and_six[-1][1] != six:
-                start_and_six.append((i, six))
-
-        node = []
-        for i, (start, six) in enumerate(start_and_six[:-1]):
-            next_start = start_and_six[i + 1][0]
-            node.append((six, next_start - start))
-        start, six = start_and_six[-1]
-        node.append((six, width - start))
-
-        buf.append((color, node))
-
-    return buf
-
-
-def output_sixel(image, output):
-    image = image.quantize(256).convert("P", palette=Image.ADAPTIVE, colors=256)
-    width, height = image.size
-
-    # header
-    output.write(f'\x1bP7;1;75q"1;1;{width};{height}')
-
-    # palette
-    palette = np.array(image.getpalette())
-    palette = np.reshape(palette, (palette.size // 3, 3))
-    for i in set(image.getdata()):
-        p = palette[i]
-        output.write(f'#{i};2;{p[0]*100//256};{p[1]*100//256};{p[2]*100//256}')
-
-    # body
-    data = np.array(image.getdata())
-    data = np.reshape(data, (data.size // width, width))
-    for y in range(0, height, 6):
-        for n, node in _convert_line(data[y:y+6]):
-            output.write(f"#{n}")
-            for six, count in node:
-                if count < 4:
-                    output.write(chr(0x3f + six) * count)
-                else:
-                    output.write(f'!{count}{chr(0x3f+six)}')
-            output.write("$")
-        output.write("-")
-
-    # terminate
-    output.write('\x1b\\\n')
-    output.flush()
+try:
+    import libsixel
+    from libsixel.encoder import Encoder
+except ImportError:
+    sys.stderr.write("Error: 'libsixel-python' is not installed.\n")
+    sys.stderr.write("Please install it using: pip install libsixel-python\n")
+    sys.exit(1)
 
 
 class SixelFigureManager(FigureManagerBase):
     def show(self):
-        buf = io.BytesIO()
-        self.canvas.figure.savefig(buf)
-        with Image.open(buf) as image:
-            output_sixel(image, sys.stdout)
+        # 1. Force a draw so the canvas renders the figure to the buffer
+        self.canvas.draw()
+
+        # 2. Extract raw RGBA pixel data and dimensions directly from Matplotlib
+        width, height = self.canvas.get_width_height()
+        rgba_buffer = self.canvas.buffer_rgba().tobytes()
+
+        # 3. Let libsixel encode the raw pixels to the terminal
+        encoder = Encoder()
+        encoder.encode_bytes(
+            rgba_buffer,
+            width,
+            height,
+            libsixel.SIXEL_PIXELFORMAT_RGBA8888,
+            None
+        )
 
 
 class SixelFigureCanvas(FigureCanvasAgg):
