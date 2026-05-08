@@ -103,8 +103,8 @@ check_consistent_state(void) {
     if (selection.ob.x != -1) {
         /* 
          * In this coordinate system:
-         * - The oldest history line is at: term.scrolled_up - term.n_hist
-         * - The bottom visible screen line is at: term.scrolled_up + term.nrows - 1
+         * - The oldest history line: term.scrolled_up - term.n_hist
+         * - The bottom visible screen line: term.scrolled_up + term.nrows - 1
          */
         int32 min_y = term.scrolled_up - term.n_hist;
         int32 max_y = term.scrolled_up + term.nrows;
@@ -208,13 +208,14 @@ win_mode_is_set(enum WinMode flag) {
 static StGlyph *
 term_line(int32 y) {
     StGlyph *line_ptr = NULL;
+    int32 idx;
 
     if (y < term.scrolled_up) {
-        int32 hist_index = (term.i_hist + y - term.scrolled_up + 1 + HISTORY_SIZE) % HISTORY_SIZE;
-        line_ptr = term.hist[hist_index];
+        idx = (term.i_hist + y - term.scrolled_up + 1 + HISTORY_SIZE) % HISTORY_SIZE;
+        line_ptr = term.hist[idx];
     } else {
-        int32 lines_index = y - term.scrolled_up;
-        line_ptr = term.lines[lines_index];
+        idx = y - term.scrolled_up;
+        line_ptr = term.lines[idx];
     }
 
     return line_ptr;
