@@ -1,61 +1,125 @@
 # Copyright (c) 2024 Hajime Nakagami
 # Released under the BSD license.
 # https://github.com/nakagami/pyplotsixel/blob/master/pyplotsixel.py
-# Re-implemented using libsixel-python with 1-Bit Alpha Compositing
 
 import sys
+import io
 import shutil
 import matplotlib
 import numpy as np
+from PIL import Image
 from matplotlib.backend_bases import _Backend, FigureManagerBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
-try:
-    import libsixel
-    from libsixel.encoder import Encoder
-except ImportError:
-    sys.stderr.write("Error: 'libsixel-python' is not installed.\n")
-    sys.exit(1)
+
+def _convert_line(data):
+    height, width = np.shape(data)
+    colors = list(set(data.flatten()))
+    six_list = dict([(color, []) for color in colors])
+
+    six = dict([(color, 0) for color in colors])
+    for x in range(width):
+        for y in range(height):
+            six[data[y, x]] |= 1 << y
+        for color in colors:
+            six_list[color].append(six[color])
+            six[color] = 0
+
+    buf = []
+    for color in colors:
+        start_and_six = [(0, six_list[color][0])]
+        for i, six in enumerate(six_list[color][1:], start=1):
+            if start_and_six[-1][1] != six:
+                start_and_six.append((i, six))
+
+        node = []
+        for i, (start, six) in enumerate(start_and_six[:-1]):
+            next_start = start_and_six[i + 1][0]
+            node.append((six, next_start - start))
+        start, six = start_and_six[-1]
+        node.append((six, width - start))
+
+        buf.append((color, node))
+
+    return buf
+
+
+def output_sixel(image, output):
+    width, height = image.size
+
+    # --- 1-BIT ALPHA COMPOSITING ---
+    if image.mode == 'RGBA':
+        r, g, b, a = image.split()
+        
+        # 1. Composite the smooth anti-aliased edges against a solid black background
+        bg = Image.new("RGB", image.size, (0, 0, 0))
+        bg.paste(image, mask=a)
+        
+        # 2. Quantize the blended image to 255 colors (reserving 1 for transparency)
+        image_p = bg.quantize(255)
+        
+        # 3. Identify truly transparent pixels and assign them to the reserved index (255)
+        alpha_data = np.array(a)
+        p_data = np.array(image_p)
+        
+        transparent_idx = 255
+        p_data[alpha_data == 0] = transparent_idx
+        
+        # 4. Reconstruct the paletted image
+        image = Image.fromarray(p_data, mode='P')
+        palette = image_p.getpalette()
+        if palette is None:
+            palette = []
+        # Pad the palette out to 256 colors
+        palette.extend([0, 0, 0] * (256 - len(palette) // 3))
+        image.putpalette(palette)
+    else:
+        image = image.quantize(256).convert("P", palette=Image.ADAPTIVE, colors=256)
+        transparent_idx = -1
+
+    # header
+    output.write(f'\x1bP7;1;75q"1;1;{width};{height}')
+
+    # palette
+    palette = np.array(image.getpalette())
+    palette = np.reshape(palette, (palette.size // 3, 3))
+    for i in set(image.getdata()):
+        if i == transparent_idx:
+            continue  # Do not emit a color definition for the transparent background!
+            
+        p = palette[i]
+        output.write(f'#{i};2;{p[0]*100//256};{p[1]*100//256};{p[2]*100//256}')
+
+    # body
+    data = np.array(image.getdata())
+    data = np.reshape(data, (data.size // width, width))
+    for y in range(0, height, 6):
+        for n, node in _convert_line(data[y:y+6]):
+            if n == transparent_idx:
+                continue  # Sixel Magic: Simply skip drawing to let the terminal show through
+                
+            output.write(f"#{n}")
+            for six, count in node:
+                if count < 4:
+                    output.write(chr(0x3f + six) * count)
+                else:
+                    output.write(f'!{count}{chr(0x3f+six)}')
+            output.write("$")
+        output.write("-")
+
+    # terminate
+    output.write('\x1b\\\n')
+    output.flush()
 
 
 class SixelFigureManager(FigureManagerBase):
     def show(self):
-        # 1. Force Matplotlib to render to the buffer
-        self.canvas.draw()
-        width, height = self.canvas.get_width_height()
-        
-        # 2. Extract raw RGBA pixels
-        pixels = np.frombuffer(self.canvas.buffer_rgba(), dtype=np.uint8).reshape((height, width, 4))
-
-        # --- 1-BIT ALPHA COMPOSITING ---
-        # Identify pixels that are 100% transparent (the true background)
-        is_true_background = (pixels[:, :, 3] == 0)
-
-        # Set your terminal background color here for blending the edges (e.g., Black)
-        terminal_bg = np.array([0, 0, 0], dtype=np.float32)
-
-        # Extract RGB and float Alpha
-        rgb = pixels[:, :, :3].astype(np.float32)
-        alpha = (pixels[:, :, 3] / 255.0)[..., np.newaxis]
-        
-        # Blend the semi-transparent edges against the terminal background
-        blended_rgb = (rgb * alpha + terminal_bg * (1 - alpha)).astype(np.uint8)
-
-        # Reconstruct the RGBA array with strictly 1-bit transparency
-        final_rgba = np.empty_like(pixels)
-        final_rgba[:, :, :3] = blended_rgb
-        final_rgba[:, :, 3] = 255             # Make everything 100% opaque...
-        final_rgba[is_true_background, 3] = 0 # ...EXCEPT the true background
-
-        # 3. Encode with libsixel
-        encoder = Encoder()
-        encoder.encode_bytes(
-            final_rgba.tobytes(),
-            width,
-            height,
-            libsixel.SIXEL_PIXELFORMAT_RGBA8888,
-            None
-        )
+        buf = io.BytesIO()
+        # Ensure Matplotlib outputs the alpha channel
+        self.canvas.figure.savefig(buf, format='png', transparent=True)
+        buf.seek(0)
+        with Image.open(buf) as image:
+            output_sixel(image, sys.stdout)
 
 
 class SixelFigureCanvas(FigureCanvasAgg):
