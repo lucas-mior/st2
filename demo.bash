@@ -36,7 +36,7 @@ matplotlib.use("module://pyplotsixel")
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.figure(figsize=(6,4), facecolor="none")
+plt.figure(figsize=(6,4), facecolor="#111111")
 
 ax = plt.axes()
 ax.set_facecolor("none")

@@ -1,34 +1,61 @@
 # Copyright (c) 2024 Hajime Nakagami
 # Released under the BSD license.
 # https://github.com/nakagami/pyplotsixel/blob/master/pyplotsixel.py
-# Re-implemented using Chafa for perfect transparency and anti-aliasing.
+# Re-implemented using libsixel-python with 1-Bit Alpha Compositing
 
 import sys
-import io
 import shutil
-import subprocess
 import matplotlib
+import numpy as np
 from matplotlib.backend_bases import _Backend, FigureManagerBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
+try:
+    import libsixel
+    from libsixel.encoder import Encoder
+except ImportError:
+    sys.stderr.write("Error: 'libsixel-python' is not installed.\n")
+    sys.exit(1)
+
+
 class SixelFigureManager(FigureManagerBase):
     def show(self):
-        # 1. Save the Matplotlib figure to memory as a high-quality PNG
-        # Using transparent=True forces Matplotlib to preserve the alpha channel.
-        buf = io.BytesIO()
-        self.canvas.figure.savefig(buf, format='png', transparent=True)
+        # 1. Force Matplotlib to render to the buffer
+        self.canvas.draw()
+        width, height = self.canvas.get_width_height()
         
-        # 2. Pipe the PNG directly into Chafa
-        try:
-            subprocess.run(
-                ["chafa", "--format=sixel", "-"],
-                input=buf.getvalue(),
-                check=True
-            )
-        except FileNotFoundError:
-            sys.stderr.write("Error: 'chafa' is not installed or not in your PATH.\n")
-        except subprocess.CalledProcessError as e:
-            sys.stderr.write(f"Error: chafa failed to encode the image (Exit code {e.returncode}).\n")
+        # 2. Extract raw RGBA pixels
+        pixels = np.frombuffer(self.canvas.buffer_rgba(), dtype=np.uint8).reshape((height, width, 4))
+
+        # --- 1-BIT ALPHA COMPOSITING ---
+        # Identify pixels that are 100% transparent (the true background)
+        is_true_background = (pixels[:, :, 3] == 0)
+
+        # Set your terminal background color here for blending the edges (e.g., Black)
+        terminal_bg = np.array([0, 0, 0], dtype=np.float32)
+
+        # Extract RGB and float Alpha
+        rgb = pixels[:, :, :3].astype(np.float32)
+        alpha = (pixels[:, :, 3] / 255.0)[..., np.newaxis]
+        
+        # Blend the semi-transparent edges against the terminal background
+        blended_rgb = (rgb * alpha + terminal_bg * (1 - alpha)).astype(np.uint8)
+
+        # Reconstruct the RGBA array with strictly 1-bit transparency
+        final_rgba = np.empty_like(pixels)
+        final_rgba[:, :, :3] = blended_rgb
+        final_rgba[:, :, 3] = 255             # Make everything 100% opaque...
+        final_rgba[is_true_background, 3] = 0 # ...EXCEPT the true background
+
+        # 3. Encode with libsixel
+        encoder = Encoder()
+        encoder.encode_bytes(
+            final_rgba.tobytes(),
+            width,
+            height,
+            libsixel.SIXEL_PIXELFORMAT_RGBA8888,
+            None
+        )
 
 
 class SixelFigureCanvas(FigureCanvasAgg):
