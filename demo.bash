@@ -19,14 +19,14 @@ echo "        st Terminal Feature Demo             "
 echo "============================================="
 echo ""
 
-echo "--> 4. ncmpcpp Visualizer (requires mpd running locally)"
-echo "Note: The terminal's transparent background should seamlessly blend with your wallpaper here."
-echo "Press 'q' inside ncmpcpp to exit."
-run_cmd "mpc play; ncmpcpp -s visualizer"
+# echo "--> 4. ncmpcpp Visualizer (requires mpd running locally)"
+# echo "Note: The terminal's transparent background should seamlessly blend with your wallpaper here."
+# echo "Press 'q' inside ncmpcpp to exit."
+# run_cmd "mpc play; ncmpcpp -s visualizer"
 
-# 1. Sixel Images
-echo "--> 1. Displaying a Sixel Image"
-run_cmd 'chafa --format sixel st.png'
+# # 1. Sixel Images
+# echo "--> 1. Displaying a Sixel Image"
+# run_cmd 'chafa --format sixel st.png'
 
 echo "--> 2. Generating and displaying a Matplotlib plot"
 cp pyplotsixel.py /tmp/
@@ -36,20 +36,20 @@ matplotlib.use("module://pyplotsixel")
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Set background to transparent to showcase terminal alpha
-plt.figure(facecolor="none", edgecolor="none")
+plt.figure(figsize=(6,4))
 ax = plt.axes()
 ax.set_facecolor("none")
 
 x = np.linspace(0, 10, 100)
 y = np.sin(x)
-plt.plot(x, y, color="cyan", linewidth=2)
-plt.title("Sine Wave in Terminal", color="white")
-plt.tick_params(colors="white")
+plt.plot(x, y, linewidth=2)
+plt.title("Sine Wave in Terminal")
 
 plt.show()
 EOF
 python3 /tmp/demo_plot.py'
+
+exit
 
 echo "--> 3. Showing git diff"
 run_cmd 'mkdir -p /tmp/st_demo_repo && cd /tmp/st_demo_repo && git init -q;
