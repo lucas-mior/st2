@@ -29,12 +29,13 @@ echo ""
 # run_cmd 'chafa --format sixel st.png'
 
 echo "--> 2. Generating and displaying Matplotlib plots"
-bat ./plot-white.py
-run_cmd 'python3 ./plot-white.py'
-bat ./plot-trans.py
-run_cmd 'python3 ./plot-trans.py'
-bat ./plot-semi.py
-run_cmd 'python3 ./plot-semi.py'
+python_plot_sixel() {
+    bat "$1"
+    run_cmd "python3 $1"
+}
+python_plot_sixel ./plot-white.py
+python_plot_sixel ./plot-trans.py
+python_plot_sixel ./plot-semi.py
 
 exit
 
