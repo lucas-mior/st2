@@ -21,12 +21,12 @@ typedef struct SixelImage {
 } SixelImage;
 
 enum ParseState {
-    PARSE_STATE_ESC        = 1,  /* ESC */
-    PARSE_STATE_DECSIXEL   = 2,  /* DECSIXEL body part ", $, -, ? ... ~ */
-    PARSE_STATE_DECGRA     = 3,  /* DECGRA Set Raster Attributes " Pan; Pad; Ph; Pv */
-    PARSE_STATE_DECGRI     = 4,  /* DECGRI Graphics Repeat Introducer ! Pn Ch */
-    PARSE_STATE_DECGCI     = 5,  /* DECGCI Graphics Color Introducer # Pc; Pu; Px; Py; Pz */
-    PARSE_STATE_ERROR      = 6,
+    PARSE_STATE_ESC      = 1,  /* ESC */
+    PARSE_STATE_DECSIXEL = 2,  /* DECSIXEL body part ", $, -, ? ... ~ */
+    PARSE_STATE_DECGRA   = 3,  /* DECGRA Set Raster Attributes " Pan; Pad; Ph; Pv */
+    PARSE_STATE_DECGRI   = 4,  /* DECGRI Graphics Repeat Introducer ! Pn Ch */
+    PARSE_STATE_DECGCI   = 5,  /* DECGCI Graphics Color Introducer # Pc; Pu; Px; Py; Pz */
+    PARSE_STATE_ERROR    = 6,
 };
 
 typedef struct SixelState {
