@@ -5,3 +5,4 @@ gcc-analyzer*
 scan-build*
 test_reflow
 .comments
+*.mp4

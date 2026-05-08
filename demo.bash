@@ -7,7 +7,7 @@ NC='\033[0m' # No Color
 # Function to echo and execute commands with a pause
 run_cmd() {
     echo -e "${CYAN}$ $@${NC}"
-    sleep 0.5
+    sleep 0.8
     eval "$@"
     echo ""
     read -p "Press [Enter] to continue to the next feature..."
