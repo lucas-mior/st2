@@ -7,6 +7,7 @@ NC='\033[0m' # No Color
 # Function to echo and execute commands with a pause
 run_cmd() {
     echo -e "${CYAN}$ $@${NC}"
+    sleep 0.5
     eval "$@"
     echo ""
     read -p "Press [Enter] to continue to the next feature..."
@@ -20,32 +21,31 @@ echo ""
 
 # 1. Sixel Images
 echo "--> 1. Displaying a Sixel Image"
-run_cmd "curl -sL 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png' -o /tmp/demo_img.png"
-run_cmd "chafa --format sixel /tmp/demo_img.png"
+run_cmd 'curl -sL "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" -o /tmp/demo_img.png;
+chafa --format sixel /tmp/demo_img.png;'
 
 echo "--> 2. Generating and displaying a Matplotlib plot"
 cp pyplotsixel.py /tmp/
-run_cmd "cat << 'EOF' > /tmp/demo_plot.py
+run_cmd 'cat << EOF > /tmp/demo_plot.py
 import matplotlib
-matplotlib.use('module://pyplotsixel')
+matplotlib.use("module://pyplotsixel")
 import matplotlib.pyplot as plt
 import numpy as np
 
 # Set background to transparent to showcase terminal alpha
-plt.figure(facecolor='none', edgecolor='none')
+plt.figure(facecolor="none", edgecolor="none")
 ax = plt.axes()
-ax.set_facecolor('none')
+ax.set_facecolor("none")
 
 x = np.linspace(0, 10, 100)
 y = np.sin(x)
-plt.plot(x, y, color='cyan', linewidth=2)
-plt.title('Sine Wave in Terminal', color='white')
-plt.tick_params(colors='white')
+plt.plot(x, y, color="cyan", linewidth=2)
+plt.title("Sine Wave in Terminal", color="white")
+plt.tick_params(colors="white")
 
 plt.show()
-EOF"
-
-run_cmd "python3 /tmp/demo_plot.py"
+EOF
+python3 /tmp/demo_plot.py'
 
 echo "--> 3. Showing git diff"
 run_cmd 'mkdir -p /tmp/st_demo_repo && cd /tmp/st_demo_repo && git init -q;
