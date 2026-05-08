@@ -3,8 +3,8 @@ Terminal emulator for X based on simple terminal
 
 ## Changes from original st
 - Complete refactor
+- Comprehensive testing
 - ./build.sh instead of Makefile
-- Testing (WIP)
 - A bunch of patches:
   * scrollback
   * reflow
