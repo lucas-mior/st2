@@ -279,10 +279,12 @@ main(void) {
         check_consistent_state();
         {
             char *state_texts[] = { 
-                "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 
+                "", "", "", "", "", "", "", "", "",
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 
             };
             bool state_wraps[] = { 
-                false, false, false, false, false, false, false, false, false, false 
+                false, false, false, false, false, false, false, false, false,
+                false 
             };
             test_verify_state(10, state_texts, state_wraps, 26, 9);
         }
@@ -296,10 +298,12 @@ main(void) {
         check_consistent_state();
         {
             char *state_texts[] = { 
-                "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" 
+                "", "", "", "", "", "", "", "", "",
+                "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" 
             };
             bool state_wraps[] = { 
-                false, false, false, false, false, false, false, false, false, true, false 
+                false, false, false, false, false, false, false, false, false,
+                true, false 
             };
             test_verify_state(11, state_texts, state_wraps, 11, 9);
         }
@@ -350,8 +354,8 @@ main(void) {
             term.images = dummy_img;
             term_resize(20, 12);
             if (term.images->y != 7) {
-                error("[%s] Image coordinate mismatch. Expected: 7, Actual: %d\n",
-                      current_test_name, term.images->y);
+                error("[%s] Image coordinate mismatch.\n", current_test_name);
+                error("Expected: 7, Actual: %d\n", term.images->y);
                 assert(false);
             }
         }
