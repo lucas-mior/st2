@@ -1,6 +1,7 @@
 # Copyright (c) 2024 Hajime Nakagami
 # Released under the BSD license.
 # https://github.com/nakagami/pyplotsixel/blob/master/pyplotsixel.py
+
 import sys
 import io
 import shutil
