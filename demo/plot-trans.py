@@ -22,14 +22,11 @@ x = np.linspace(0, 10, 100)
 y1 = np.sin(x)
 y2 = np.exp(x)
 
-# Added labels for the legends
 ax_left.plot(x, y1, linewidth=2, color="cyan", label="sin(x)")
 ax_right.plot(x, y2, linewidth=2, color="orange", label="exp(x)")
 
-# Left axis legend: positioned above the plot on the left
 ax_left.legend(loc="lower left", bbox_to_anchor=(0, 1), frameon=False, labelcolor="white")
 
-# Right axis legend: positioned above the plot on the right
 ax_right.legend(loc="lower right", bbox_to_anchor=(1, 1), frameon=False, labelcolor="white")
 
 # Increased padding for the title to prevent overlap with the legends
