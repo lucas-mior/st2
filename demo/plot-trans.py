@@ -25,9 +25,10 @@ y2 = np.exp(x)
 ax_left.plot(x, y1, linewidth=2, color="cyan", label="sin(x)")
 ax_right.plot(x, y2, linewidth=2, color="orange", label="exp(x)")
 
-ax_left.legend(loc="lower left", bbox_to_anchor=(0, 1), frameon=False, labelcolor="white")
-
-ax_right.legend(loc="lower right", bbox_to_anchor=(1, 1), frameon=False, labelcolor="white")
+ax_left.legend(loc="lower left", bbox_to_anchor=(0, 1),
+               frameon=False, labelcolor="white")
+ax_right.legend(loc="lower right", bbox_to_anchor=(1, 1),
+                frameon=False, labelcolor="white")
 
 plt.title("Functions", color="white", pad=25)
 
