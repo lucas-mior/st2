@@ -1779,6 +1779,10 @@ main(void) {
         x_window.color_map = DefaultColormap(x_window.display, x_window.screen);
         x_window.win = XCreateSimpleWindow(x_window.display, RootWindow(x_window.display, x_window.screen), 0, 0, 10, 10, 0, 0, 0);
 
+        /* Initialize necessary X11 atoms to prevent BadAtom during property changes */
+        x_window.net_wm_name = XInternAtom(x_window.display, "_NET_WM_NAME", False);
+        x_window.net_wm_iconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
+
         CONF_NCOLS = 80;
         CONF_NROWS = 24;
 
