@@ -1783,6 +1783,12 @@ main(void) {
         x_window.net_wm_name = XInternAtom(x_window.display, "_NET_WM_NAME", False);
         x_window.net_wm_iconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
 
+        /* Prevent tty_write crashes by routing the command output to /dev/null */
+        command_fd = open("/dev/null", O_WRONLY);
+        if (command_fd < 0) {
+            exit(EXIT_FAILURE);
+        }
+
         CONF_NCOLS = 80;
         CONF_NROWS = 24;
 
@@ -1987,6 +1993,7 @@ main(void) {
 
     XCloseDisplay(x_window.display);
     exit(EXIT_SUCCESS);
+    return 0;
 }
 
 #endif /* TESTING_escape */
