@@ -1993,7 +1993,6 @@ main(void) {
 
     XCloseDisplay(x_window.display);
     exit(EXIT_SUCCESS);
-    return 0;
 }
 
 #endif /* TESTING_escape */
