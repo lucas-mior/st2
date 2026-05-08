@@ -1767,7 +1767,7 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
 
 int32
 main(void) {
-    /* 1. Reset Global State and Context */
+    /* 1. Global Setup */
     {
         x_window.display = XOpenDisplay(NULL);
         if (!x_window.display) {
@@ -1793,12 +1793,12 @@ main(void) {
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable, x_window.visual, x_window.color_map);
         
         draw_context.colors_len = 256;
-        draw_context.colors = malloc2(256*SIZEOF(XftColor));
+        draw_context.colors = malloc2(256 * SIZEOF(XftColor));
 
         term_reset();
     }
 
-    /* 2. Cursor Tests */
+    /* 2. Cursor Movement Tests */
     {
         term.cursor.x = 42;
         term_cursor(CURSOR_SAVE);
@@ -1807,34 +1807,50 @@ main(void) {
         ASSERT_EQUAL(term.cursor.x, 42);
     }
 
-    /* 3. Parser Tests */
+    /* 3. CSI Parse & Reset Tests */
     {
-        char *buf = "?1;23;45m";
+        char *csi_buf = "?1;23;45m";
+        
         control_seq_intro_reset();
-        memcpy64(csi_escape_seq.buffer, buf, 9);
+        memcpy64(csi_escape_seq.buffer, csi_buf, 9);
         csi_escape_seq.len = 9;
         control_seq_intro_parse();
+        
         ASSERT_EQUAL(csi_escape_seq.priv, 1);
         ASSERT_EQUAL(csi_escape_seq.arg[1], 23);
     }
 
-    /* 4. Attribute Tests */
+    /* 4. Attribute and TrueColor Tests */
     {
-        int32 attr[1] = {1}; /* Bold */
-        term_set_attr(attr, 1);
+        int32 attr_single[1];
+        int32 attr_tc[5];
+        int32 npar = 0;
+        int32 parsed_color;
+
+        attr_single[0] = 1;
+        term_set_attr(attr_single, 1);
         ASSERT_MORE((int32)(term.cursor.attr.mode & ATTR_BOLD), 0);
+
+        attr_tc[0] = 38;
+        attr_tc[1] = 2;
+        attr_tc[2] = 100;
+        attr_tc[3] = 150;
+        attr_tc[4] = 200;
+        parsed_color = term_def_color(attr_tc, &npar, 5);
+        ASSERT_EQUAL(parsed_color, TRUECOLOR(100, 150, 200));
     }
 
-    /* 5. Mode Tests */
+    /* 5. Terminal Mode Tests */
     {
-        int32 args[1] = {4}; /* Insert Mode */
-        term_set_mode(0, 1, args, 1);
+        int32 term_args[1];
+        
+        term_args[0] = 4;
+        term_set_mode(0, 1, term_args, 1);
         ASSERT_MORE((int32)(term.mode & TERM_MODE_INSERT), 0);
     }
 
-    /* 6. Tabs and DECALN */
+    /* 6. Tabs and Alignment Display Tests */
     {
-        /* Clear attributes and set charset to identity before filling screen */
         memset64(&term.cursor.attr, 0, SIZEOF(term.cursor.attr));
         term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
         term.cursor.attr.bg = CONF_COLOR_BG;
@@ -1842,27 +1858,127 @@ main(void) {
 
         term_dec_test('8'); 
         ASSERT_EQUAL((int32)term.lines[0][0].rune, (int32)'E');
+        
+        term.cursor.x = 0;
+        term_put_tab(1);
+        ASSERT_EQUAL(term.cursor.x, CONF_TAB_NSPACES);
     }
 
-    /* 7. Strings and Sequences */
+    /* 7. Strings and Sequence Initiation Tests */
     {
-        term_str_sequence(0x9d); /* OSC */
+        term_str_sequence(0x9d);
         ASSERT_MORE((int32)(term.esc & ESC_STR), 0);
         ASSERT_EQUAL(str_escape_seq.type, ']');
     }
 
-    /* 8. Control Codes and I/O */
+    /* 8. CSI Absolute Positioning Handling Tests */
     {
-        /* RESET STATE: Clear any pending escape sequences from previous tests */
+        control_seq_intro_reset();
+        term.cursor.x = 0;
+        term.cursor.y = 0;
+        csi_escape_seq.mode[0] = 'H';
+        csi_escape_seq.arg[0] = 5;
+        csi_escape_seq.arg[1] = 10;
+        csi_escape_seq.narg = 2;
+        control_seq_intro_handle();
+        
+        ASSERT_EQUAL(term.cursor.y, 4);
+        ASSERT_EQUAL(term.cursor.x, 9);
+    }
+
+    /* 9. Charset and UTF-8 Configuration Tests */
+    {
+        term.mode &= ~TERM_MODE_UTF8;
+        term_def_utf8('G');
+        ASSERT_MORE((int32)(term.mode & TERM_MODE_UTF8), 0);
+        
+        term.icharset = 0;
+        term_def_tran('0');
+        ASSERT_EQUAL(term.translation_table[0], CS_GRAPHIC0);
+    }
+
+    /* 10. Control Codes and I/O Write Tests */
+    {
         term.esc = 0; 
         
         term.cursor.x = 10;
         term_control_code('\r');
         ASSERT_EQUAL(term.cursor.x, 0);
 
+        term.cursor.y = 5;
+        term_control_code('\n');
+        ASSERT_EQUAL(term.cursor.y, 6);
+
         term_putc('Z');
+        ASSERT_EQUAL((int32)term.lines[term.cursor.y][term.cursor.x - 1].rune, (int32)'Z');
+    }
+
+    /* 11. Escape Initializer Handle Test */
+    {
+        int32 esc_ret;
         
-        ASSERT_EQUAL((int32)term.lines[term.cursor.y][0].rune, (int32)'Z');
+        term.esc = 0;
+        esc_ret = eschandle('[');
+        ASSERT_MORE((int32)(term.esc & ESC_CSI), 0);
+        ASSERT_EQUAL(esc_ret, 0);
+    }
+
+    /* 12. Buffer Write Test */
+    {
+        char *write_buf = "ABC";
+        int32 write_len;
+        
+        term_reset(); /* Clear state/charsets set by previous tests */
+
+        term.cursor.x = 0;
+        term.cursor.y = 10;
+        write_len = term_write(write_buf, 3, false);
+        
+        ASSERT_EQUAL(write_len, 3);
+        ASSERT_EQUAL((int32)term.lines[10][0].rune, (int32)'A');
+        ASSERT_EQUAL((int32)term.lines[10][1].rune, (int32)'B');
+        ASSERT_EQUAL((int32)term.lines[10][2].rune, (int32)'C');
+    }
+
+    /* 13. String Parsing (OSC Title Allocation) Test */
+    {
+        char *title_val = "0;TestWindow";
+        int32 str_alloc = 20;
+        
+        str_escape_seq.buffer = malloc2((int64)str_alloc);
+        memcpy64(str_escape_seq.buffer, title_val, 12);
+        str_escape_seq.buffer[12] = '\0';
+        str_escape_seq.len = 12;
+        str_escape_seq.type = ']';
+        
+        string_handle();
+        
+        free2(str_escape_seq.buffer, (int64)str_alloc);
+        str_escape_seq.buffer = NULL;
+    }
+
+    /* 14. OSC Color Response Path Test */
+    {
+        osc_color_response(4, 0, 1);
+    }
+
+    /* 15. DCS Handling (Sixel Trigger) Test */
+    {
+        control_seq_intro_reset();
+        csi_escape_seq.mode[0] = 'q';
+        csi_escape_seq.narg = 2;
+        csi_escape_seq.arg[1] = 1; 
+        
+        dcs_handle();
+        ASSERT_MORE((int32)(term.mode & TERM_MODE_SIXEL), 0);
+    }
+
+    /* 16. CSI Dump Path Testing */
+    {
+        control_seq_intro_reset();
+        csi_escape_seq.buffer[0] = 'm';
+        csi_escape_seq.len = 1;
+        control_seq_intro_dump();
     }
 
     XCloseDisplay(x_window.display);
