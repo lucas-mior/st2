@@ -62,9 +62,8 @@ run_cmd "mpc play; ncmpcpp -s visualizer"
 echo "--> 5. Vim Scrollback (user_vim_select)"
 echo "Populating the screen with some text..."
 run_cmd "ls -la /etc/ | head -n 30"
-echo "Simulating Alt+Escape to trigger user_vim_select..."
-echo -e "${CYAN}$ sleep 1 && xdotool key alt+Escape${NC}"
-sleep 1 && xdotool key alt+Escape
+echo "${CYAN}Press Alt+Escape to trigger user_vim_select...${NC}"
+read -r
 # echo ""
 # echo "A new st window running vim should have popped up containing your terminal buffer!"
 # echo "You can close that vim instance (:q) when you are done."
