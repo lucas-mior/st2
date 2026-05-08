@@ -36,10 +36,10 @@ matplotlib.use("module://pyplotsixel")
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.figure(figsize=(6,4), facecolor="#111111")
+plt.figure(figsize=(6,4), facecolor="none")
 
 ax = plt.axes()
-ax.set_facecolor("none")
+ax.set_facecolor("#111111")
 
 ax.tick_params(colors="white")
 for spine in ax.spines.values():
