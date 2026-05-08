@@ -6,6 +6,7 @@
 import sys
 import shutil
 import matplotlib
+import numpy as np
 from matplotlib.backend_bases import _Backend, FigureManagerBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
@@ -20,20 +21,34 @@ except ImportError:
 
 class SixelFigureManager(FigureManagerBase):
     def show(self):
-        # 1. Force a draw so the canvas renders the figure to the buffer
+        # Force a draw so the canvas renders the figure to the buffer
         self.canvas.draw()
-
-        # 2. Extract raw RGBA pixel data and dimensions directly from Matplotlib
         width, height = self.canvas.get_width_height()
-        rgba_buffer = self.canvas.buffer_rgba().tobytes()
+        
+        # Extract raw RGBA pixels into a NumPy array (Height x Width x 4)
+        pixels = np.frombuffer(self.canvas.buffer_rgba(), dtype=np.uint8).reshape((height, width, 4))
 
-        # 3. Let libsixel encode the raw pixels to the terminal
+        # --- ALPHA COMPOSITING ---
+        # Sixel cannot handle the partial transparency (alpha channel) needed 
+        # for smooth anti-aliased edges. If the user sets facecolor="none", 
+        # we must mathematically blend the image over a solid terminal background.
+        
+        # Change this if your terminal is not black (e.g., White = [255, 255, 255])
+        terminal_bg_color = np.array([0, 0, 0], dtype=np.float32)
+
+        rgb = pixels[:, :, :3].astype(np.float32)
+        alpha = (pixels[:, :, 3] / 255.0)[..., np.newaxis]
+        
+        # Blend: Output = Foreground * Alpha + Background * (1 - Alpha)
+        blended = (rgb * alpha + terminal_bg_color * (1 - alpha)).astype(np.uint8)
+
+        # Encode as pure RGB (no alpha) to ensure perfect resolution
         encoder = Encoder()
         encoder.encode_bytes(
-            rgba_buffer,
+            blended.tobytes(),
             width,
             height,
-            libsixel.SIXEL_PIXELFORMAT_RGBA8888,
+            libsixel.SIXEL_PIXELFORMAT_RGB888,
             None
         )
 
