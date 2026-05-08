@@ -46,6 +46,14 @@ test_setup_x11(void) {
                                       (uint32)term_window.w, (uint32)term_window.h,
                                       (uint32)x_window.depth);
 
+    x_window.color_map = XCreateColormap(x_window.display, root, x_window.visual, None);
+    
+    /* We MUST load the colors before creating the XftDraw context or calling x_clear */
+    x_load_colors();
+    
+    x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
+                                      x_window.visual, x_window.color_map);
+
     {
         XGCValues xgc_values;
         memset64(&xgc_values, 0, SIZEOF(xgc_values));
