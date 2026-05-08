@@ -14,7 +14,7 @@ for spine in ax_left.spines.values():
 
 ax_right = ax_left.twinx()
 
-ax_right.tick_params(colors="#111111")
+ax_right.tick_params(colors="white")
 for spine in ax_right.spines.values():
     spine.set_edgecolor("white")
 
