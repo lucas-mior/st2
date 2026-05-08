@@ -41,7 +41,8 @@ test_verify_dump(char *expected_text) {
     ssize_t read_bytes;
 
     if (!tmp) {
-        error("[%s] Failed to create temporary file for dump test\n", current_test_name);
+        error("[%s] Failed to create temporary file for dump test\n",
+              current_test_name);
         assert(false);
     }
 
@@ -72,7 +73,8 @@ test_verify_dump(char *expected_text) {
 }
 
 static void
-test_verify_editor_dump(char *expected_text, int32 expected_row, int32 expected_col) {
+test_verify_editor_dump(char *expected_text,
+                        int32 expected_row, int32 expected_col) {
     FILE *tmp = tmpfile();
     int32 fd;
     char buffer[8192];
@@ -82,7 +84,8 @@ test_verify_editor_dump(char *expected_text, int32 expected_row, int32 expected_
     int32 expected_len = strlen32(expected_text);
 
     if (!tmp) {
-        error("[%s] Failed to create temporary file for editor test\n", current_test_name);
+        error("[%s] Failed to create temporary file for editor test\n",
+              current_test_name);
         assert(false);
     }
 
@@ -167,15 +170,17 @@ test_verify_state(int32 expected_count,
     total_lines = active_hist + term.nrows;
 
     if (total_lines != expected_count) {
-        error("[%s] Total lines mismatch. Expected: %d, Actual: %d (Hist: %d, Rows: %d)\n",
-              current_test_name, expected_count, total_lines, active_hist, term.nrows);
+        error("[%s] Total lines mismatch.\n", current_test_name);
+        error("Expected: %d, Actual: %d (Hist: %d, Rows: %d)\n",
+              expected_count, total_lines, active_hist, term.nrows);
         assert(false);
     }
 
     if (expected_cx >= 0 && expected_cy >= 0) {
         if (term.cursor.x != expected_cx || term.cursor.y != expected_cy) {
-            error("[%s] Cursor mismatch. Expected: (%d, %d), Actual: (%d, %d)\n",
-                  current_test_name, expected_cx, expected_cy, term.cursor.x, term.cursor.y);
+            error("[%s] Cursor mismatch.\n", current_test_name,
+                  "Expected: (%d, %d), Actual: (%d, %d)\n",
+                  expected_cx, expected_cy, term.cursor.x, term.cursor.y);
             assert(false);
         }
     }
@@ -255,10 +260,12 @@ main(void) {
         check_consistent_state();
         {
             char *state_texts[] = { 
-                "", "", "", "", "", "", "", "", "", "ABCDEFGHIJKLMNOPQRST", "UVWXYZ" 
+                "", "", "", "", "", "", "", "", "",
+                "ABCDEFGHIJKLMNOPQRST", "UVWXYZ" 
             };
             bool state_wraps[] = { 
-                false, false, false, false, false, false, false, false, false, true, false 
+                false, false, false, false, false, false, false, false, false,
+                true, false 
             };
             test_verify_state(11, state_texts, state_wraps, 6, 9);
         }
