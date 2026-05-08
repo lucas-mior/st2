@@ -55,10 +55,22 @@ git diff --color=always;'
 
 echo "--> 4. ncmpcpp Visualizer (requires mpd running locally)"
 echo "Note: The terminal's transparent background should seamlessly blend with your wallpaper here."
-echo "Press 'q' inside ncmpcpp to exit and finish the demo."
-mpc play
-run_cmd "ncmpcpp -s visualizer"
+echo "Press 'q' inside ncmpcpp to exit."
+run_cmd "mpc play; ncmpcpp -s visualizer"
 
+# 5. user_vim_select (Scrollback Buffer in Vim)
+echo "--> 5. Vim Scrollback (user_vim_select)"
+echo "Populating the screen with some text..."
+run_cmd "ls -la /etc/ | head -n 30"
+echo "Simulating Alt+Escape to trigger user_vim_select..."
+echo -e "${CYAN}$ sleep 1 && xdotool key alt+Escape${NC}"
+sleep 1 && xdotool key alt+Escape
+# echo ""
+# echo "A new st window running vim should have popped up containing your terminal buffer!"
+# echo "You can close that vim instance (:q) when you are done."
+# echo ""
+
+# Cleanup
 echo "Cleaning up temporary files..."
 rm -rf /tmp/demo_img.png /tmp/demo_plot.py /tmp/demo_plot.png /tmp/st_demo_repo
 
