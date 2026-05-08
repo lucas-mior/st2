@@ -10,6 +10,54 @@
 static char *current_test_name = "None";
 
 static void
+test_setup_x11(void) {
+    Window root;
+
+    if (!(x_window.display = XOpenDisplay(NULL))) {
+        error("Error: Cannot open X display. X11 tests require an active display.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    x_window.screen = XDefaultScreen(x_window.display);
+    root = XRootWindow(x_window.display, x_window.screen);
+    x_window.depth = DefaultDepth(x_window.display, x_window.screen);
+    x_window.visual = DefaultVisual(x_window.display, x_window.screen);
+
+    if (!FcInit()) {
+        error("Error: could not init fontconfig.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    used_font = CONF_FONT;
+    
+    /* Set dummy window dimensions so x_configure_resize doesn't shrink grid to 0 */
+    term_window.w = 800;
+    term_window.h = 600;
+    term_window.hborderpx = 0;
+    term_window.vborderpx = 0;
+
+    x_load_fonts(used_font, 0);
+
+    x_window.win = XCreateSimpleWindow(x_window.display, root, 0, 0,
+                                       (uint32)term_window.w, (uint32)term_window.h,
+                                       0, 0, 0);
+
+    x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
+                                      (uint32)term_window.w, (uint32)term_window.h,
+                                      (uint32)x_window.depth);
+
+    {
+        XGCValues xgc_values;
+        memset64(&xgc_values, 0, SIZEOF(xgc_values));
+        xgc_values.graphics_exposures = False;
+        draw_context.graphics = XCreateGC(x_window.display, x_window.win,
+                                          GCGraphicsExposures, &xgc_values);
+    }
+    
+    return;
+}
+
+static void
 test_verify_viewport_line(int32 screen_y, char *expected_text) {
     StGlyph *line = term_line(screen_y);
     int32 len = term_line_len(line);
@@ -247,6 +295,9 @@ main(void) {
     CONF_NROWS = init_rows;
     term_allocate();
     term_reset();
+    
+    /* Initialize dummy X11 connection for UI-dependent tests (like zoom) */
+    test_setup_x11();
 
     /* Move cursor to the bottom row to prepare for tests */
     for (int32 i = 0; i < init_rows - 1; i += 1) {
@@ -587,6 +638,8 @@ main(void) {
 
         {
             ImageList *img = malloc2(SIZEOF(ImageList));
+            union Arg zoom_arg;
+
             memset64(img, 0, SIZEOF(ImageList));
             img->x = 0;
             img->y = 0;
@@ -597,19 +650,29 @@ main(void) {
             img->next = NULL;
             term.images = img;
 
-            /* Simulate a zoom by changing term_window cw/ch and resizing grid */
-            term_window.cw = 15;
-            term_window.ch = 30;
-            term_resize(15, 8);
+            /* Simulate a user zoom-in event (+4.0 font size) */
+            zoom_arg.f = 4.0f;
+            user_zoom(&zoom_arg);
             check_consistent_state();
 
             if (term.images->cw != 10 || term.images->ch != 20 ||
                 term.images->width != 100 || term.images->height != 200) {
-                error("[%s] Image attributes mutated unexpectedly.\n", current_test_name);
+                error("[%s] Image attributes mutated unexpectedly after zoom in.\n", current_test_name);
                 error("Expected: cw=10, ch=20, w=100, h=200\n");
                 error("Actual:   cw=%d, ch=%d, w=%d, h=%d\n",
                       term.images->cw, term.images->ch,
                       term.images->width, term.images->height);
+                assert(false);
+            }
+
+            /* Simulate a user resetting the zoom */
+            zoom_arg.f = 0.0f;
+            user_zoom_reset(&zoom_arg);
+            check_consistent_state();
+
+            if (term.images->cw != 10 || term.images->ch != 20 ||
+                term.images->width != 100 || term.images->height != 200) {
+                error("[%s] Image attributes mutated unexpectedly after zoom reset.\n", current_test_name);
                 assert(false);
             }
         }
