@@ -178,8 +178,8 @@ test_verify_state(int32 expected_count,
 
     if (expected_cx >= 0 && expected_cy >= 0) {
         if (term.cursor.x != expected_cx || term.cursor.y != expected_cy) {
-            error("[%s] Cursor mismatch.\n", current_test_name,
-                  "Expected: (%d, %d), Actual: (%d, %d)\n",
+            error("[%s] Cursor mismatch.\n", current_test_name);
+            error("Expected: (%d, %d), Actual: (%d, %d)\n",
                   expected_cx, expected_cy, term.cursor.x, term.cursor.y);
             assert(false);
         }
@@ -499,8 +499,8 @@ main(void) {
         term_resize(10, 5);
         check_consistent_state();
         if (term.scrolled_up != 0) {
-            error("[%s] Viewport scrolled incorrectly. Expected 0, Actual: %d\n",
-                  current_test_name, term.scrolled_up);
+            error("[%s] Viewport scrolled incorrectly.\n", current_test_name);
+            error("Expected 0, Actual: %d\n", term.scrolled_up);
             assert(false);
         }
         {
