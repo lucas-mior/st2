@@ -438,5 +438,6 @@ static char *opt_title = NULL;
 
 static char *used_font = NULL;
 static int32 used_font_len;
+static char *program_path;
 
 #endif /* ST_H */

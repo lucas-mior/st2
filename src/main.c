@@ -53,6 +53,13 @@ main(int32 argc, char *argv[]) {
     x_window.is_fixed = False;
     x_set_cursor((int32)CONF_CURSOR_SHAPE);
 
+    program = argv[0];
+    if ((program_path = realpath(program, NULL)) == NULL) {
+        error("Error getting realpath of program %s: %s.\n",
+              program, strerror(errno));
+        program_path = program;
+    }
+
     ARGBEGIN {
     case 'a':
         CONF_ALLOW_ALT_SCREEN = 0;

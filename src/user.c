@@ -335,9 +335,7 @@ user_vim_select(union Arg *arg) {
             SNPRINTF(delete_command,
                      "autocmd VimLeave * call delete('%s')", tmp_file);
             
-            PRINTLN(used_font);
-
-            argv[argc++] = "st";
+            argv[argc++] = program_path;
             argv[argc++] = "-w";
             argv[argc++] = window;
             argv[argc++] = "-g";
