@@ -19,6 +19,11 @@ echo "        st Terminal Feature Demo             "
 echo "============================================="
 echo ""
 
+echo "--> 4. ncmpcpp Visualizer (requires mpd running locally)"
+echo "Note: The terminal's transparent background should seamlessly blend with your wallpaper here."
+echo "Press 'q' inside ncmpcpp to exit."
+run_cmd "mpc play; ncmpcpp -s visualizer"
+
 # 1. Sixel Images
 echo "--> 1. Displaying a Sixel Image"
 run_cmd 'chafa --format sixel st.png'
@@ -51,11 +56,6 @@ run_cmd 'mkdir -p /tmp/st_demo_repo && cd /tmp/st_demo_repo && git init -q;
 echo -e "Line 1\nLine 2\nLine 3" > file.txt && git add file.txt && git commit -q -m Initial;
 echo -e "Line 1 (Modified)\nLine 2\nLine 3 (Modified)" > file.txt;
 git diff --color=always;'
-
-echo "--> 4. ncmpcpp Visualizer (requires mpd running locally)"
-echo "Note: The terminal's transparent background should seamlessly blend with your wallpaper here."
-echo "Press 'q' inside ncmpcpp to exit."
-run_cmd "mpc play; ncmpcpp -s visualizer"
 
 # 5. user_vim_select (Scrollback Buffer in Vim)
 echo "--> 5. Vim Scrollback (user_vim_select)"

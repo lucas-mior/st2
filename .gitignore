@@ -4,3 +4,4 @@ gdb_output*
 gcc-analyzer*
 scan-build*
 test_reflow
+.comments
