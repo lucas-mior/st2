@@ -34,8 +34,8 @@ python_plot_sixel() {
     bat "$1"
     run_cmd "python3 $1"
 }
-python_plot_sixel ./plot-white.py
-python_plot_sixel ./plot-trans.py
+# python_plot_sixel ./plot-white.py
+# python_plot_sixel ./plot-trans.py
 python_plot_sixel ./plot-semi.py
 
 echo "--> 4. Showing git diff"
