@@ -26,7 +26,8 @@ echo "Press 'q' inside ncmpcpp to exit."
 run_cmd "mpc play; ncmpcpp -s visualizer"
 
 echo "--> 2. Displaying a Sixel Image"
-run_cmd 'chafa --format sixel st.png'
+cat image_credits.txt
+run_cmd 'chafa --format sixel image.png'
 
 echo "--> 3. Generating and displaying Matplotlib plots"
 python_plot_sixel() {
