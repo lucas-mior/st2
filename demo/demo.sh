@@ -4,12 +4,12 @@ CYAN='\033[1;36m'
 RESET='\033[0m'
 
 run_cmd() {
-    printf "%b$ %s%b\n" "$CYAN" "$*" "$RESET"
+    printf "%b$ %s%b\n" "$CYAN" "$1" "$RESET"
     sleep 1
-    eval "$@"
+    eval "$1"
     echo ""
     printf "Press [Enter] to continue to the next feature..."
-    read -r dummy
+    read -r _
     echo ""
 }
 
@@ -45,7 +45,7 @@ echo "--> 5. Vim Scrollback (user_vim_select)"
 echo "Populating the screen with some text..."
 ls -la
 printf "%bPress Alt+Escape to trigger user_vim_select...%b\n" "$CYAN" "$RESET"
-read -r dummy
+read -r _
 
 echo "Cleaning up temporary files..."
 rm -rf /tmp/demo_img.png /tmp/demo_plot.py /tmp/demo_plot.png /tmp/st_demo_repo
