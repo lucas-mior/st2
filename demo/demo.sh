@@ -1,19 +1,20 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 CYAN='\033[1;36m'
 RESET='\033[0m'
 
 run_cmd() {
-    echo -e "${CYAN}$ $@${RESET}"
-    sleep 0.8
+    printf "%b$ %s%b\n" "$CYAN" "$*" "$RESET"
+    sleep 1
     eval "$@"
     echo ""
-    read -p "Press [Enter] to continue to the next feature..."
+    printf "Press [Enter] to continue to the next feature..."
+    read -r dummy
     echo ""
 }
 
 echo "============================================="
-echo "        st Terminal Feature Demo             "
+echo "      st Terminal Feature Demo               "
 echo "============================================="
 echo ""
 
@@ -36,15 +37,15 @@ python_plot_sixel ./plot-semi.py
 
 echo "--> 4. Showing git diff"
 run_cmd 'mkdir -p /tmp/st_demo_repo && cd /tmp/st_demo_repo && git init -q;
-echo -e "Line 0 has to be removed.\nLine 1\nLine 2 has a removed word\nLine 3" > file.txt && git add file.txt && git commit -q -m Initial;
-echo -e "Line 1 (Modified)\nLine 2 has a word\nLine 3 (Modified)\nLine 4 (new)" > file.txt;
+printf "Line 0 has to be removed.\nLine 1\nLine 2 has a removed word\nLine 3\n" > file.txt && git add file.txt && git commit -q -m Initial;
+printf "Line 1 (Modified)\nLine 2 has a word\nLine 3 (Modified)\nLine 4 (new)\n" > file.txt;
 git diff --color=always;'
 
 echo "--> 5. Vim Scrollback (user_vim_select)"
 echo "Populating the screen with some text..."
 ls -la
-echo -e "${CYAN}Press Alt+Escape to trigger user_vim_select...${RESET}"
-read -r
+printf "%bPress Alt+Escape to trigger user_vim_select...%b\n" "$CYAN" "$RESET"
+read -r dummy
 
 echo "Cleaning up temporary files..."
 rm -rf /tmp/demo_img.png /tmp/demo_plot.py /tmp/demo_plot.png /tmp/st_demo_repo
