@@ -686,6 +686,56 @@ main(void) {
         }
     }
 
+    {
+        current_test_name = "Scenario T: Cursor Movement Erases Sixel";
+        printf("Running: %s...\n", current_test_name);
+        
+        /* 1. Setup a clean 20x20 terminal */
+        term_resize(20, 20);
+        term_reset();
+
+        /* 2. Create a dummy image object spanning rows 5 through 15 */
+        ImageList *img = malloc2(SIZEOF(ImageList));
+        memset64(img, 0, SIZEOF(ImageList));
+        img->x = 0;
+        img->y = 5;      /* Starts at row 5 */
+        img->cols = 10;
+        img->width = 100;
+        img->height = 160; /* 10 rows high (assuming 16px font) */
+        img->cw = 10;
+        img->ch = 16;
+        img->pixels = malloc2(img->width * img->height * 4);
+        img->next = NULL;
+        term.images = img;
+
+        /* Mark the grid as sixel-occupied (simulating the parser behavior) */
+        for (int32 y = 5; y < 15; y += 1) {
+            for (int32 x = 0; x < 10; x += 1) {
+                term.lines[y][x].mode |= ATTR_SIXEL;
+            }
+        }
+
+        /* 3. Execute 'tput cup 10 0' (Move cursor to row 10, col 0) 
+         * This row is in the middle of our image. */
+        term_move_abs_to(0, 10);
+
+        /* 4. Validation: Most Sixel terminals delete the image object 
+         * if the cursor moves to a position that overlaps its vertical bounds. */
+        if (term.images != NULL) {
+            error("[%s] Bug Reproduced: Image persisted after moving cursor to row 10.\n",
+                  current_test_name);
+            error("Terminal failed to reclaim rows for text output.\n");
+            assert(false);
+        }
+
+        /* Verify that ATTR_SIXEL flags were also cleared at the cursor row */
+        if (term.lines[10][0].mode & ATTR_SIXEL) {
+            error("[%s] Bug Reproduced: ATTR_SIXEL flag still set at (0, 10).\n",
+                  current_test_name);
+            assert(false);
+        }
+    }
+
     printf("\nAll tests passed successfully!\n");
     return 0;
 }
