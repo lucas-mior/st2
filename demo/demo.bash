@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
-# Set up colors for the prompt
 CYAN='\033[1;36m'
-NC='\033[0m' # No Color
+RESET='\033[0m'
 
-# Function to echo and execute commands with a pause
 run_cmd() {
-    echo -e "${CYAN}$ $@${NC}"
+    echo -e "${CYAN}$ $@${RESET}"
     sleep 0.8
     eval "$@"
     echo ""
@@ -45,7 +43,7 @@ git diff --color=always;'
 echo "--> 5. Vim Scrollback (user_vim_select)"
 echo "Populating the screen with some text..."
 ls -la
-echo -e "${CYAN}Press Alt+Escape to trigger user_vim_select...${NC}"
+echo -e "${CYAN}Press Alt+Escape to trigger user_vim_select...${RESET}"
 read -r
 
 echo "Cleaning up temporary files..."
