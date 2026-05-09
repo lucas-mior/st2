@@ -368,7 +368,7 @@ x_load_fonts(char *font_str, double font_size) {
         }
     }
 
-/* 
+    /* 
      * Update used_font to a clean string representation of the current pattern.
      * This removes the old pixelsize from the string and reflects the current state.
      */
