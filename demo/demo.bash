@@ -19,16 +19,15 @@ echo "        st Terminal Feature Demo             "
 echo "============================================="
 echo ""
 
-# echo "--> 4. ncmpcpp Visualizer (requires mpd running locally)"
-# echo "Note: The terminal's transparent background should seamlessly blend with your wallpaper here."
-# echo "Press 'q' inside ncmpcpp to exit."
-# run_cmd "mpc play; ncmpcpp -s visualizer"
+echo "--> 1. ncmpcpp Visualizer (requires mpd running locally)"
+echo "Note: The terminal's transparent background should seamlessly blend with your wallpaper here."
+echo "Press 'q' inside ncmpcpp to exit."
+run_cmd "mpc play; ncmpcpp -s visualizer"
 
-# # 1. Sixel Images
-# echo "--> 1. Displaying a Sixel Image"
-# run_cmd 'chafa --format sixel st.png'
+echo "--> 2. Displaying a Sixel Image"
+run_cmd 'chafa --format sixel st.png'
 
-echo "--> 2. Generating and displaying Matplotlib plots"
+echo "--> 3. Generating and displaying Matplotlib plots"
 python_plot_sixel() {
     bat "$1"
     run_cmd "python3 $1"
@@ -37,26 +36,18 @@ python_plot_sixel ./plot-white.py
 python_plot_sixel ./plot-trans.py
 python_plot_sixel ./plot-semi.py
 
-exit
-
-echo "--> 3. Showing git diff"
+echo "--> 4. Showing git diff"
 run_cmd 'mkdir -p /tmp/st_demo_repo && cd /tmp/st_demo_repo && git init -q;
 echo -e "Line 1\nLine 2\nLine 3" > file.txt && git add file.txt && git commit -q -m Initial;
 echo -e "Line 1 (Modified)\nLine 2\nLine 3 (Modified)" > file.txt;
 git diff --color=always;'
 
-# 5. user_vim_select (Scrollback Buffer in Vim)
 echo "--> 5. Vim Scrollback (user_vim_select)"
 echo "Populating the screen with some text..."
 ls -la
 echo -e "${CYAN}Press Alt+Escape to trigger user_vim_select...${NC}"
 read -r
-# echo ""
-# echo "A new st window running vim should have popped up containing your terminal buffer!"
-# echo "You can close that vim instance (:q) when you are done."
-# echo ""
 
-# Cleanup
 echo "Cleaning up temporary files..."
 rm -rf /tmp/demo_img.png /tmp/demo_plot.py /tmp/demo_plot.png /tmp/st_demo_repo
 
