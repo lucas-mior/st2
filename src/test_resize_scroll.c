@@ -698,7 +698,7 @@ main(void) {
     }
 
     {
-        current_test_name = "Scenario T: Partial Sixel Erasure (Failing Test)";
+        current_test_name = "Scenario T: Partial Sixel Erasure (Corrected)";
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 10);
         term_reset();
@@ -717,19 +717,39 @@ main(void) {
         memset64(img6, 0, SIZEOF(ImageList));
         memset64(img7, 0, SIZEOF(ImageList));
 
+        /* Add minimal dimensions so draw() doesn't skip GC */
+        img5->width = 10;
+        img5->height = 10;
+        img5->cw = 10;
+        img5->ch = 10;
+
+        img6->width = 10;
+        img6->height = 10;
+        img6->cw = 10;
+        img6->ch = 10;
+
+        img7->width = 10;
+        img7->height = 10;
+        img7->cw = 10;
+        img7->ch = 10;
+
+        /* Fix Doubly Linked List */
         img5->x = 0;
         img5->y = 5;
-        img5->cols = 10;
+        img5->cols = 10; 
+        img5->prev = NULL;
         img5->next = img6;
 
         img6->x = 0;
         img6->y = 6;
-        img6->cols = 10;
+        img6->cols = 10; 
+        img6->prev = img5;
         img6->next = img7;
 
         img7->x = 0;
         img7->y = 7;
-        img7->cols = 10;
+        img7->cols = 10; 
+        img7->prev = img6;
         img7->next = NULL;
 
         term.images = img5;
@@ -774,8 +794,6 @@ main(void) {
             assert(false);
         }
         
-        /* This is where the test proves the bug in the current behavior.
-         * The garbage collector ignores partial invalidation, leaving ghost pixel nodes on the grid. */
         if (term.images->next != NULL) {
             error("[%s] BUG DETECTED: Image nodes for rows 6 and 7 were not garbage collected.\n", current_test_name);
             error("This leaves orphaned nodes that draw() will try to render as ghost pixels.\n");
