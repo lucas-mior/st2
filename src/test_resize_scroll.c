@@ -687,44 +687,60 @@ main(void) {
     }
 
     {
-        current_test_name = "Scenario T: Sixel Image Erasure Mechanics (Failing Test)";
+        current_test_name = "Scenario T: Partial Sixel Erasure (Failing Test)";
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 10);
         term_reset();
 
-        /* 1. Simulate an image being drawn at row 5, spanning 3 rows */
-        ImageList *img = malloc2(SIZEOF(ImageList));
-        memset64(img, 0, SIZEOF(ImageList));
-        img->x = 0;
-        img->y = 5;
-        img->ch = 16;
-        img->cw = 8;
-        img->height = 48;
-        img->width = 80;
-        img->next = NULL;
-        term.images = img;
+        /* 1. Simulate an image being drawn spanning rows 5, 6, and 7.
+         * Modeled after flexipatch, images are stored as one ImageList node per row. */
+        ImageList *img5;
+        ImageList *img6;
+        ImageList *img7;
+        
+        img5 = malloc2(SIZEOF(ImageList));
+        img6 = malloc2(SIZEOF(ImageList));
+        img7 = malloc2(SIZEOF(ImageList));
 
-        /* Mark cells with ATTR_SIXEL to link text grid with the image */
+        memset64(img5, 0, SIZEOF(ImageList));
+        memset64(img6, 0, SIZEOF(ImageList));
+        memset64(img7, 0, SIZEOF(ImageList));
+
+        img5->x = 0;
+        img5->y = 5;
+        img5->next = img6;
+
+        img6->x = 0;
+        img6->y = 6;
+        img6->next = img7;
+
+        img7->x = 0;
+        img7->y = 7;
+        img7->next = NULL;
+
+        term.images = img5;
+
+        /* Mark cells with ATTR_SIXEL to link text grid with the image nodes */
         for (int32 r = 5; r <= 7; r += 1) {
             term_set_sixel_attr(term.lines[r], 0, 9);
         }
 
-        /* 2. Simulate shell returning: `tput cup 5 0` */
-        term_move_abs_to(0, 5);
+        /* 2. Simulate shell returning: `tput cup 6 0` (moving cursor over the middle of the image) */
+        term_move_abs_to(0, 6);
 
-        /* 3. Shell prints prompt and clears screen (ED) to ensure no garbage */
+        /* 3. Shell prints prompt and clears screen to bottom (ED) */
         test_inject_text("prompt> ");
-        
-        /* Clear from current cursor to end of the current line */
         term_clear_region(term.cursor.x, term.cursor.y, term.ncols - 1, term.cursor.y, true);
-        /* Clear all rows below the cursor to the bottom of the screen */
         if (term.cursor.y + 1 < term.nrows) {
             term_clear_region(0, term.cursor.y + 1, term.ncols - 1, term.nrows - 1, true);
         }
 
-        /* 4. Verify that ATTR_SIXEL flag was successfully stripped from the grid.
-         * (This part works fine in your implementation because term_clear_region strips attributes). */
-        for (int32 r = 5; r <= 7; r += 1) {
+        /* 4. Verify that ATTR_SIXEL flag was retained on row 5, but correctly stripped from 6 and 7. */
+        if (!(term.lines[5][0].mode & ATTR_SIXEL)) {
+            error("[%s] ATTR_SIXEL was incorrectly stripped from row 5.\n", current_test_name);
+            assert(false);
+        }
+        for (int32 r = 6; r <= 7; r += 1) {
             for (int32 c = 0; c <= 9; c += 1) {
                 if (term.lines[r][c].mode & ATTR_SIXEL) {
                     error("[%s] Cell (%d, %d) still has ATTR_SIXEL. Region clear failed.\n", 
@@ -735,13 +751,18 @@ main(void) {
         }
 
         /* 5. THE FAILING ASSERTION:
-         * Since ALL cells belonging to the image have lost their ATTR_SIXEL flag,
-         * the terminal should garbage collect the image struct so draw() doesn't blit it. 
-         * Currently, this logic is entirely missing in your code, so term.images will NOT be NULL. */
-        if (term.images != NULL) {
-            error("[%s] BUG DETECTED: Image struct was not freed after all its ATTR_SIXEL cells were erased.\n", 
-                  current_test_name);
-            error("The image remains in the linked list and will be unconditionally drawn, causing ghost pixels.\n");
+         * ImageList nodes for rows 6 and 7 should have been garbage collected,
+         * but the node for row 5 MUST remain intact. */
+        if (term.images == NULL) {
+            error("[%s] BUG DETECTED: Entire image was wiped. Top row node should survive.\n", current_test_name);
+            assert(false);
+        }
+        
+        /* This is where the test proves the bug in the current behavior.
+         * The garbage collector ignores partial invalidation, leaving ghost pixel nodes on the grid. */
+        if (term.images->next != NULL) {
+            error("[%s] BUG DETECTED: Image nodes for rows 6 and 7 were not garbage collected.\n", current_test_name);
+            error("This leaves orphaned nodes that draw() will try to render as ghost pixels.\n");
             assert(false);
         }
     }
