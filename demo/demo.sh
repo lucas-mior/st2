@@ -3,6 +3,8 @@
 CYAN='\033[1;36m'
 RESET='\033[0m'
 
+cd "$(dirname "$0")" || exit
+
 run_cmd() {
     printf "%b$ %s%b\n" "$CYAN" "$1" "$RESET"
     sleep 1
