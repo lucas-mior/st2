@@ -38,8 +38,8 @@ python_plot_sixel ./plot-semi.py
 
 echo "--> 4. Showing git diff"
 run_cmd 'mkdir -p /tmp/st_demo_repo && cd /tmp/st_demo_repo && git init -q;
-echo -e "Line 1\nLine 2\nLine 3" > file.txt && git add file.txt && git commit -q -m Initial;
-echo -e "Line 1 (Modified)\nLine 2\nLine 3 (Modified)" > file.txt;
+echo -e "Line 0 has to be removed.\nLine 1\nLine 2 has a removed word\nLine 3" > file.txt && git add file.txt && git commit -q -m Initial;
+echo -e "Line 1 (Modified)\nLine 2 has a word\nLine 3 (Modified)\nLine 4 (new)" > file.txt;
 git diff --color=always;'
 
 echo "--> 5. Vim Scrollback (user_vim_select)"
