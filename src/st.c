@@ -914,7 +914,7 @@ term_resize(int32 new_ncols, int32 new_nrows) {
 
 static void
 term_resize_def(int32 new_ncols, int32 new_nrows) {
-    int64 line_size = (int64)term.ncols * SIZEOF(StGlyph);
+    int64 line_size = (int64)term.ncols*SIZEOF(StGlyph);
 
     if (term.ncols == new_ncols && term.nrows == new_nrows) {
         term_full_dirt();
@@ -956,7 +956,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
 static void
 term_resize_alt(int32 new_ncols, int32 new_nrows) {
     int32 shift = 0;
-    int64 old_line_size = (int64)term.ncols * SIZEOF(StGlyph);
+    int64 old_line_size = (int64)term.ncols*SIZEOF(StGlyph);
 
     if ((term.ncols == new_ncols) && (term.nrows == new_nrows)) {
         term_full_dirt();
@@ -1041,8 +1041,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 screen_top_idx;
     int32 desired_screen_top;
 
-    int64 old_line_size = (int64)old_ncols * SIZEOF(StGlyph);
-    int64 new_line_size = (int64)new_ncols * SIZEOF(StGlyph);
+    int64 old_line_size = (int64)old_ncols*SIZEOF(StGlyph);
+    int64 new_line_size = (int64)new_ncols*SIZEOF(StGlyph);
 
     ASSERT_MORE(new_ncols, 0);
     ASSERT_MORE(new_nrows, 0);
@@ -1347,8 +1347,8 @@ draw(void) {
              * Calculate the new dimensions based on current font cell size 
              * vs the font cell size when the image was generated.
              */
-            scaled_w = (image->width * term_window.cw) / image->cw;
-            scaled_h = (image->height * term_window.ch) / image->ch;
+            scaled_w = (image->width*term_window.cw) / image->cw;
+            scaled_h = (image->height*term_window.ch) / image->ch;
             scaled_w = (int32)MAX(scaled_w, 1);
             scaled_h = (int32)MAX(scaled_h, 1);
 
@@ -1357,15 +1357,15 @@ draw(void) {
                 uint32 *src_pixels;
                 XImage ximage;
 
-                scaled_pixels = malloc2(scaled_w * scaled_h * sizeof(uint32));
+                scaled_pixels = malloc2(scaled_w*scaled_h*sizeof(uint32));
                 src_pixels = (uint32 *)image->pixels;
 
                 /* Fast Nearest-Neighbor scaling */
                 for (int32 sy = 0; sy < scaled_h; sy += 1) {
-                    int32 orig_y = (sy * image->height) / scaled_h;
+                    int32 orig_y = (sy*image->height) / scaled_h;
                     for (int32 sx = 0; sx < scaled_w; sx += 1) {
-                        int32 orig_x = (sx * image->width) / scaled_w;
-                        scaled_pixels[sy * scaled_w + sx] = src_pixels[orig_y * image->width + orig_x];
+                        int32 orig_x = (sx*image->width) / scaled_w;
+                        scaled_pixels[sy*scaled_w + sx] = src_pixels[orig_y*image->width + orig_x];
                     }
                 }
 
@@ -1384,7 +1384,7 @@ draw(void) {
                 ximage.height = scaled_h;
                 ximage.depth = x_window.depth;
                 ximage.bits_per_pixel = 32;
-                ximage.bytes_per_line = scaled_w * 4;
+                ximage.bytes_per_line = scaled_w*4;
                 ximage.byte_order = ImageByteOrder(x_window.display);
                 ximage.bitmap_unit = 32;
                 ximage.bitmap_pad = 32;
