@@ -686,6 +686,46 @@ main(void) {
         }
     }
 
+    {
+        current_test_name = "Scenario T: Sixel Image Erasure Mechanics";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(20, 10);
+        term_reset();
+
+        for (int32 row_index = 2; row_index <= 5; row_index += 1) {
+            term_set_sixel_attr(term.lines[row_index], 0, 10);
+        }
+
+        term_move_abs_to(0, 3);
+
+        if (term.cursor.x != 0 || term.cursor.y != 3) {
+            error("[%s] Cursor did not move to expected position.\n", current_test_name);
+            assert(false);
+        }
+
+        for (int32 row_index = 2; row_index <= 5; row_index += 1) {
+            for (int32 col_index = 0; col_index <= 10; col_index += 1) {
+                if (!(term.lines[row_index][col_index].mode & ATTR_SIXEL)) {
+                    error("[%s] Sixel attribute erroneously erased at (%d, %d) after move.\n",
+                          current_test_name, col_index, row_index);
+                    assert(false);
+                }
+            }
+        }
+
+        test_inject_text("X");
+
+        if (term.lines[3][0].mode & ATTR_SIXEL) {
+            error("[%s] Sixel attribute was not stripped when text was written.\n", current_test_name);
+            assert(false);
+        }
+
+        if (!(term.lines[3][1].mode & ATTR_SIXEL)) {
+            error("[%s] Adjacent Sixel attribute erroneously erased.\n", current_test_name);
+            assert(false);
+        }
+    }
+
     printf("\nAll tests passed successfully!\n");
     return 0;
 }
