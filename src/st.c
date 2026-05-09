@@ -1288,35 +1288,6 @@ draw(void) {
     int32 old_cursor_x = term.old_cursor_x;
     int32 old_cursor_y = term.old_cursor_y;
 
-    /* 
-     * Perform garbage collection of orphaned image slices before rendering.
-     * If an image slice is on the active screen but completely lacks
-     * ATTR_SIXEL in its region, it was overwritten and must be freed.
-     */
-    for (ImageList *image = term.images; image; /* handled inside */) {
-        ImageList *next = image->next;
-        bool has_sixel = false;
-        int32 start_x = image->x;
-        int32 end_x = image->x + image->cols;
-
-        if (image->y >= 0 && image->y < term.nrows) {
-            if (end_x > term.ncols) {
-                end_x = term.ncols;
-            }
-            for (int32 x = start_x; x < end_x; x += 1) {
-                if (term.lines[image->y][x].mode & ATTR_SIXEL) {
-                    has_sixel = true;
-                    break;
-                }
-            }
-            if (has_sixel == false) {
-                sixel_image_delete(image);
-            }
-        }
-        
-        image = next;
-    }
-
     if (!x_start_draw()) {
         return;
     }
@@ -1459,9 +1430,57 @@ draw(void) {
                         XSetClipMask(x_window.display, gc, None);
                     }
 
-                    XCopyArea(x_window.display, (Drawable)image->pixmap, x_window.drawable, gc,
-                              0, src_y, (uint32)draw_w, (uint32)draw_h,
-                              bw + image->x*term_window.cw, dest_y);
+                    int32 is_deleted = 1;
+                    int32 x_limit = image->x + image->cols;
+                    if (term.ncols < x_limit) {
+                        x_limit = term.ncols;
+                    }
+                    
+                    int32 x_start = image->x;
+                    StGlyph *line_ptr = term_line_abs(image->y) + image->x;
+
+                    while (x_start < x_limit) {
+                        int32 mode = line_ptr->mode & ATTR_SIXEL;
+                        int32 x_end = x_start + 1;
+
+                        while (x_end < x_limit) {
+                            line_ptr += 1;
+                            int32 next_mode = line_ptr->mode & ATTR_SIXEL;
+                            if (next_mode != mode) {
+                                break;
+                            }
+                            x_end += 1;
+                        }
+
+                        if (mode != 0) {
+                            int32 src_x = (x_start - image->x) * term_window.cw;
+                            int32 copy_w = (x_end - x_start) * term_window.cw;
+                            int32 remaining_w = scaled_w - src_x;
+
+                            if (remaining_w < copy_w) {
+                                copy_w = remaining_w;
+                            }
+
+                            int32 dest_x = bw + (x_start * term_window.cw);
+
+                            XCopyArea(x_window.display, (Drawable)image->pixmap, x_window.drawable, gc,
+                                      src_x, src_y, (uint32)copy_w, (uint32)draw_h,
+                                      dest_x, dest_y);
+                            is_deleted = 0;
+                        }
+
+                        x_start = x_end;
+                    }
+
+                    if (image->clipmask) {
+                        XSetClipMask(x_window.display, gc, None);
+                    }
+
+                    if (is_deleted != 0) {
+                        if ((image->x + image->cols) <= term.ncols) {
+                            sixel_image_delete(image);
+                        }
+                    }
                 }
             }
         }
