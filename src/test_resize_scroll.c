@@ -687,41 +687,61 @@ main(void) {
     }
 
     {
-        current_test_name = "Scenario T: Sixel Image Erasure Mechanics";
+        current_test_name = "Scenario T: Sixel Image Erasure Mechanics (Failing Test)";
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 10);
         term_reset();
 
-        for (int32 row_index = 2; row_index <= 5; row_index += 1) {
-            term_set_sixel_attr(term.lines[row_index], 0, 10);
+        /* 1. Simulate an image being drawn at row 5, spanning 3 rows */
+        ImageList *img = malloc2(SIZEOF(ImageList));
+        memset64(img, 0, SIZEOF(ImageList));
+        img->x = 0;
+        img->y = 5;
+        img->ch = 16;
+        img->cw = 8;
+        img->height = 48;
+        img->width = 80;
+        img->next = NULL;
+        term.images = img;
+
+        /* Mark cells with ATTR_SIXEL to link text grid with the image */
+        for (int32 r = 5; r <= 7; r += 1) {
+            term_set_sixel_attr(term.lines[r], 0, 9);
         }
 
-        term_move_abs_to(0, 3);
+        /* 2. Simulate shell returning: `tput cup 5 0` */
+        term_move_abs_to(0, 5);
 
-        if (term.cursor.x != 0 || term.cursor.y != 3) {
-            error("[%s] Cursor did not move to expected position.\n", current_test_name);
-            assert(false);
+        /* 3. Shell prints prompt and clears screen (ED) to ensure no garbage */
+        test_inject_text("prompt> ");
+        
+        /* Clear from current cursor to end of the current line */
+        term_clear_region(term.cursor.x, term.cursor.y, term.ncols - 1, term.cursor.y, true);
+        /* Clear all rows below the cursor to the bottom of the screen */
+        if (term.cursor.y + 1 < term.nrows) {
+            term_clear_region(0, term.cursor.y + 1, term.ncols - 1, term.nrows - 1, true);
         }
 
-        for (int32 row_index = 2; row_index <= 5; row_index += 1) {
-            for (int32 col_index = 0; col_index <= 10; col_index += 1) {
-                if (!(term.lines[row_index][col_index].mode & ATTR_SIXEL)) {
-                    error("[%s] Sixel attribute erroneously erased at (%d, %d) after move.\n",
-                          current_test_name, col_index, row_index);
+        /* 4. Verify that ATTR_SIXEL flag was successfully stripped from the grid.
+         * (This part works fine in your implementation because term_clear_region strips attributes). */
+        for (int32 r = 5; r <= 7; r += 1) {
+            for (int32 c = 0; c <= 9; c += 1) {
+                if (term.lines[r][c].mode & ATTR_SIXEL) {
+                    error("[%s] Cell (%d, %d) still has ATTR_SIXEL. Region clear failed.\n", 
+                          current_test_name, c, r);
                     assert(false);
                 }
             }
         }
 
-        test_inject_text("X");
-
-        if (term.lines[3][0].mode & ATTR_SIXEL) {
-            error("[%s] Sixel attribute was not stripped when text was written.\n", current_test_name);
-            assert(false);
-        }
-
-        if (!(term.lines[3][1].mode & ATTR_SIXEL)) {
-            error("[%s] Adjacent Sixel attribute erroneously erased.\n", current_test_name);
+        /* 5. THE FAILING ASSERTION:
+         * Since ALL cells belonging to the image have lost their ATTR_SIXEL flag,
+         * the terminal should garbage collect the image struct so draw() doesn't blit it. 
+         * Currently, this logic is entirely missing in your code, so term.images will NOT be NULL. */
+        if (term.images != NULL) {
+            error("[%s] BUG DETECTED: Image struct was not freed after all its ATTR_SIXEL cells were erased.\n", 
+                  current_test_name);
+            error("The image remains in the linked list and will be unconditionally drawn, causing ghost pixels.\n");
             assert(false);
         }
     }
