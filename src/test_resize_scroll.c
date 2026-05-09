@@ -409,8 +409,11 @@ main(void) {
             dummy_img->cw = 8;
             dummy_img->height = 32;
             dummy_img->width = 32;
+            dummy_img->cols = 4;
             dummy_img->next = term.images;
             term.images = dummy_img;
+            term_set_sixel_attr(term.lines[5], 2, 5);
+
             term_resize(20, 12);
             if (term.images->y != 7) {
                 error("[%s] Image coordinate mismatch.\n", current_test_name);
@@ -497,8 +500,11 @@ main(void) {
             img->cw = 8;
             img->height = 16;
             img->width = 16;
+            img->cols = 2;
             img->next = NULL;
             term.images = img;
+            term_set_sixel_attr(term.lines[1], 0, 1);
+
             term_resize(10, 10);
             check_consistent_state();
             img_line = term_line_abs(term.images->y);
@@ -530,8 +536,11 @@ main(void) {
             img->cw = 8;
             img->height = 16;
             img->width = 16;
+            img->cols = 2;
             img->next = NULL;
             term.images = img;
+            term_set_sixel_attr(term.lines[0], 0, 1);
+
             term_resize(10, 5);
             check_consistent_state();
             n_img_line = term_line_abs(term.images->y);
@@ -655,8 +664,10 @@ main(void) {
             img->ch = term_window.ch;
             img->width = 100;
             img->height = 200;
+            img->cols = 10;
             img->next = NULL;
             term.images = img;
+            term_set_sixel_attr(term.lines[0], 0, 9);
 
             /* Simulate a user zoom-in event (+4.0 font size) */
             zoom_arg.f = 4.0f;
@@ -708,14 +719,17 @@ main(void) {
 
         img5->x = 0;
         img5->y = 5;
+        img5->cols = 10;
         img5->next = img6;
 
         img6->x = 0;
         img6->y = 6;
+        img6->cols = 10;
         img6->next = img7;
 
         img7->x = 0;
         img7->y = 7;
+        img7->cols = 10;
         img7->next = NULL;
 
         term.images = img5;
@@ -749,6 +763,8 @@ main(void) {
                 }
             }
         }
+
+        draw();
 
         /* 5. THE FAILING ASSERTION:
          * ImageList nodes for rows 6 and 7 should have been garbage collected,
