@@ -1288,6 +1288,35 @@ draw(void) {
     int32 old_cursor_x = term.old_cursor_x;
     int32 old_cursor_y = term.old_cursor_y;
 
+    /* 
+     * Perform garbage collection of orphaned image slices before rendering.
+     * If an image slice is on the active screen but completely lacks
+     * ATTR_SIXEL in its region, it was overwritten and must be freed.
+     */
+    for (ImageList *image = term.images; image; /* handled inside */) {
+        ImageList *next = image->next;
+        bool has_sixel = false;
+        int32 start_x = image->x;
+        int32 end_x = image->x + image->cols;
+
+        if (image->y >= 0 && image->y < term.nrows) {
+            if (end_x > term.ncols) {
+                end_x = term.ncols;
+            }
+            for (int32 x = start_x; x < end_x; x += 1) {
+                if (term.lines[image->y][x].mode & ATTR_SIXEL) {
+                    has_sixel = true;
+                    break;
+                }
+            }
+            if (has_sixel == false) {
+                sixel_image_delete(image);
+            }
+        }
+        
+        image = next;
+    }
+
     if (!x_start_draw()) {
         return;
     }
