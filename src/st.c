@@ -1012,6 +1012,42 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     term.nrows = new_nrows;
     term.top_scroll_limit = 0;
     term.bot_scroll_limit = new_nrows - 1;
+
+    ImageList *im_alt = term.images;
+    while (im_alt != NULL) {
+        ImageList *next_im = im_alt->next;
+
+        if (im_alt->x >= term.ncols) {
+            sixel_image_delete(im_alt);
+            im_alt = next_im;
+            continue;
+        }
+
+        if (im_alt->y >= term.nrows) {
+            sixel_image_delete(im_alt);
+            im_alt = next_im;
+            continue;
+        }
+
+        if (im_alt->y < 0) {
+            sixel_image_delete(im_alt);
+            im_alt = next_im;
+            continue;
+        }
+
+        int32 new_cols = im_alt->x + im_alt->cols;
+        if (term.ncols < new_cols) {
+            new_cols = term.ncols;
+        }
+        im_alt->cols = new_cols - im_alt->x;
+
+        if (im_alt->cols <= 0) {
+            sixel_image_delete(im_alt);
+        }
+
+        im_alt = next_im;
+    }
+
     term_full_dirt();
     return;
 }
@@ -1251,12 +1287,41 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     {
         ImageList *im_final = term.images;
         while (im_final != NULL) {
+            ImageList *next_im = im_final->next;
+
             if (im_final->y >= OFFSET_REF) {
                 im_final->y = im_final->y - OFFSET_REF - screen_top_idx;
-            } else if (im_final->y >= OFFSET_OLD) {
-                im_final->y -= OFFSET_OLD;
+            } else {
+                if (im_final->y >= OFFSET_OLD) {
+                    im_final->y -= OFFSET_OLD;
+                }
             }
-            im_final = im_final->next;
+
+            if (im_final->y < -term.n_hist) {
+                sixel_image_delete(im_final);
+                im_final = next_im;
+                continue;
+            }
+
+            if (im_final->y >= new_nrows) {
+                sixel_image_delete(im_final);
+                im_final = next_im;
+                continue;
+            }
+
+            int32 limit_x = im_final->x + im_final->cols;
+            if (limit_x > new_ncols) {
+                limit_x = new_ncols;
+            }
+
+            StGlyph *line = term_line_abs(im_final->y);
+            for (int32 i = im_final->x; i < limit_x; i += 1) {
+                if ((line[i].mode & ATTR_SET) == 0) {
+                    line[i].mode |= ATTR_SIXEL;
+                }
+            }
+
+            im_final = next_im;
         }
     }
 
