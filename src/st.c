@@ -1357,7 +1357,7 @@ draw(void) {
                 uint32 *src_pixels;
                 XImage ximage;
 
-                scaled_pixels = malloc2(scaled_w*scaled_h*sizeof(uint32));
+                scaled_pixels = malloc2(scaled_w*scaled_h*SIZEOF(*scaled_pixels));
                 src_pixels = (uint32 *)image->pixels;
 
                 /* Fast Nearest-Neighbor scaling */
@@ -1393,7 +1393,7 @@ draw(void) {
                           draw_context.graphics, &ximage, 0, 0, 0, 0, (uint32)scaled_w,
                           (uint32)scaled_h);
 
-                free(scaled_pixels);
+                free2(scaled_pixels, scaled_w*scaled_h*SIZEOF(*scaled_pixels));
             }
 
             if (gc == NULL) {
