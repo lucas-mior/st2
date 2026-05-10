@@ -423,8 +423,6 @@ run:
 
             draw();
 
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
-
             if (DEBUGGING) {
                 check_consistent_state();
             }
