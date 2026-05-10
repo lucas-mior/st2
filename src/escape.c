@@ -85,6 +85,7 @@ term_cursor(enum CursorMovement mode) {
             term_move_to(c[alt].x, c[alt].y);
         }
     }
+    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -129,6 +130,7 @@ control_seq_intro_parse(void) {
     } else {
         csi_escape_seq.mode[1] = '\0';
     }
+    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -275,6 +277,8 @@ term_set_attr(int32 *attr, int32 l) {
             break;
         }
     }
+
+    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -437,6 +441,7 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
         }
     }
 
+    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1003,9 +1008,12 @@ string_handle(void) {
                 term_full_dirt();
             }
             return;
+        case 8: /* OSC 8: Hyperlinks? */
+            error("%s: Unhandled 8 (hyperlinks)\n", __func__);
+            break;
         default:
-            error("string_handle: Unhandled (type=%d, par=%d).\n",
-                  str_escape_seq.type, par);
+            error("%s: Unhandled (type=%d, par=%d).\n",
+                  __func__, str_escape_seq.type, par);
             break;
         }
         break;
@@ -1270,16 +1278,20 @@ term_str_sequence(uchar c) {
 
     switch (c) {
     case 0x90:
+    case 'P': /* Add 7-bit DCS */
         c = 'P';
         term.esc |= ESC_DCS;
         break;
     case 0x9f:
+    case '_': /* Add 7-bit APC */
         c = '_';
         break;
     case 0x9e:
+    case '^': /* Add 7-bit PM */
         c = '^';
         break;
     case 0x9d:
+    case ']': /* Add 7-bit OSC */
         c = ']';
         break;
     default:

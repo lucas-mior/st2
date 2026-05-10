@@ -396,6 +396,7 @@ term_reset(void) {
         term_swap_screen();
     }
     term_full_dirt();
+    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
