@@ -16,6 +16,7 @@
 #endif
 
 static void control_seq_intro_dump(void);
+static int32_t term_def_color(int32 *attr, int32 *npar, int32 l);
 
 /* CSI Escape sequence structs */
 /* ESC '[' [[ [<priv>] <arg> [;]] <mode> [<mode>]] */
@@ -84,53 +85,6 @@ control_seq_intro_parse(void) {
         csi_escape_seq.mode[1] = '\0';
     }
     return;
-}
-
-static int32_t
-term_def_color(int32 *attr, int32 *npar, int32 l) {
-    int32_t idx = -1;
-    uint32 r;
-    uint32 g;
-    uint32 b;
-
-    switch (attr[*npar + 1]) {
-    case 2:
-        if (*npar + 4 >= l) {
-            error("erresc(38): Incorrect number of parameters (%d)\n", *npar);
-            break;
-        }
-        r = (uint32)attr[*npar + 2];
-        g = (uint32)attr[*npar + 3];
-        b = (uint32)attr[*npar + 4];
-        *npar += 4;
-        if (!BETWEEN(r, 0, 255) || !BETWEEN(g, 0, 255) || !BETWEEN(b, 0, 255)) {
-            error("erresc: bad rgb color (%u,%u,%u)\n", r, g, b);
-        } else {
-            idx = (int32)TRUECOLOR(r, g, b);
-        }
-        break;
-    case 5:
-        if (*npar + 2 >= l) {
-            error("erresc(38): Incorrect number of parameters (%d)\n", *npar);
-            break;
-        }
-        *npar += 2;
-        if (!BETWEEN(attr[*npar], 0, 255)) {
-            error("erresc: bad fgcolor %d\n", attr[*npar]);
-        } else {
-            idx = attr[*npar];
-        }
-        break;
-    case 0:
-    case 1:
-    case 3:
-    case 4:
-    default:
-        error("erresc(38): gfx attr %d unknown\n", attr[*npar]);
-        break;
-    }
-
-    return idx;
 }
 
 static void
@@ -1740,6 +1694,54 @@ control_seq_intro_dump(void) {
     putc('\n', stderr);
     return;
 }
+
+static int32_t
+term_def_color(int32 *attr, int32 *npar, int32 l) {
+    int32_t idx = -1;
+    uint32 r;
+    uint32 g;
+    uint32 b;
+
+    switch (attr[*npar + 1]) {
+    case 2:
+        if (*npar + 4 >= l) {
+            error("erresc(38): Incorrect number of parameters (%d)\n", *npar);
+            break;
+        }
+        r = (uint32)attr[*npar + 2];
+        g = (uint32)attr[*npar + 3];
+        b = (uint32)attr[*npar + 4];
+        *npar += 4;
+        if (!BETWEEN(r, 0, 255) || !BETWEEN(g, 0, 255) || !BETWEEN(b, 0, 255)) {
+            error("erresc: bad rgb color (%u,%u,%u)\n", r, g, b);
+        } else {
+            idx = (int32)TRUECOLOR(r, g, b);
+        }
+        break;
+    case 5:
+        if (*npar + 2 >= l) {
+            error("erresc(38): Incorrect number of parameters (%d)\n", *npar);
+            break;
+        }
+        *npar += 2;
+        if (!BETWEEN(attr[*npar], 0, 255)) {
+            error("erresc: bad fgcolor %d\n", attr[*npar]);
+        } else {
+            idx = attr[*npar];
+        }
+        break;
+    case 0:
+    case 1:
+    case 3:
+    case 4:
+    default:
+        error("erresc(38): gfx attr %d unknown\n", attr[*npar]);
+        break;
+    }
+
+    return idx;
+}
+
 
 #if TESTING_escape
 
