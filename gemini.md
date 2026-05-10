@@ -1,4 +1,4 @@
-# The problem
+# Remember the problem
 
 consider lf file manager. The previewer executes a program, and the programs
 output must be contained in the preview pane (which have less columns than the
@@ -8,9 +8,21 @@ this works fine on my terminal, until I display an image using
 chafa --format=sixel
 Long lines of the previewer textual output start wrapping, overflowing the
 preview pane. This happens with other sixel tools (like image magick) but not on
-other terminals, so I know it must be a bug within my terminal. It is *not*
-caused by TERM_MODE_WRAP being on, because if sixel is not invoked, lines on
-he preview pane are truncated just fine, even with TERM_MODE_WRAP being on.
+other terminals, so I know it must be a bug within my terminal. 
+
+# About TERM_MODE_WRAP
+The bug is *not* caused by TERM_MODE_WRAP being on, because if sixel is not
+invoked, lines on he preview pane are truncated just fine, even with
+TERM_MODE_WRAP being on.
+
+disabling TERM_MODE_WRAP is only for a very specific type of truncation, in
+which the last column is overwritten by the last char in the long line. LF
+preview pane truncation is completely different: it simply truncates (the last
+column is whatever the last char that there was space to print). For instance,
+consider a pane of width 4 and the long line "AAAAABBBBB"
+
+In lf preview pane, the line would should "AAAA". In the TERM_MODE_WRAP disabled
+mode, the line would should "AAAB".
 
 So, sixel is causing some terminal state to change. In particular,
 some terminal setup made by lf for the preview gets unset by the sixel.
@@ -62,6 +74,10 @@ chafa --polite on --format=sixel --animate=false ~/0image.png \
 
 Now I can give you the exact sixel data that chafa sends to lf/terminal:
 
-P0;1;0q"1;1;11;21#0;2;67;67;67#1;2;93;93;93#0!4N!7?---#0!11?\
+```
+cat -v chafa_output2.bin
+^[P0;1;0q"1;1;11;21#0;2;67;67;67#1;2;93;93;93#0!4N!7?---#0!11?^[\
+```
 
-Do you have an idea of how sixel is messing up my terminal?
+Write me an explanation of what this sequence of bytes does and wait for
+further instructions.
