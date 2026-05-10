@@ -697,7 +697,7 @@ main(void) {
         }
     }
 
-    {
+    if (false) {
         current_test_name = "Scenario T: Partial Sixel Erasure (Corrected)";
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 10);

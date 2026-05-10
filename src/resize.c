@@ -4,6 +4,8 @@
 #include "st.h"
 #include "config.h"
 #include "selection.c"
+#include "x.c"
+#include "tty.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_resize 1
@@ -510,6 +512,8 @@ x_configure_resize(int32 new_width, int32 new_height) {
 #include <stdlib.h>
 
 #include "assert.c"
+#include "user.c"
+#include "st.c"
 
 int
 main(void) {
