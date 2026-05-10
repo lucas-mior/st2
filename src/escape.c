@@ -85,7 +85,6 @@ term_cursor(enum CursorMovement mode) {
             term_move_to(c[alt].x, c[alt].y);
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -130,7 +129,6 @@ control_seq_intro_parse(void) {
     } else {
         csi_escape_seq.mode[1] = '\0';
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -278,7 +276,6 @@ term_set_attr(int32 *attr, int32 l) {
         }
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -441,7 +438,6 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
         }
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
