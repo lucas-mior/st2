@@ -348,38 +348,32 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
         case PARSE_STATE_DECSIXEL:
             switch (*p) {
             case '\x1b':
-                fprintf(stderr, "SIXEL: Found ESC in data stream\n");
                 sixel_state->state = PARSE_STATE_ESC;
                 break;
             case '"':
-                fprintf(stderr, "SIXEL: Entering Raster Attributes mode\n");
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 sixel_state->state = PARSE_STATE_DECGRA;
                 p++;
                 break;
             case '!':
-                fprintf(stderr, "SIXEL: Entering Repeat mode\n");
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 sixel_state->state = PARSE_STATE_DECGRI;
                 p++;
                 break;
             case '#':
-                fprintf(stderr, "SIXEL: Entering Color mode\n");
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 sixel_state->state = PARSE_STATE_DECGCI;
                 p++;
                 break;
             case '$':
-                fprintf(stderr, "SIXEL: Graphics Carriage Return ($)\n");
                 /* DECGCR Graphics Carriage Return */
                 sixel_state->pos_x = 0;
                 p++;
                 break;
             case '-':
-                fprintf(stderr, "SIXEL: Graphics Next Line (-)\n");
                 /* DECGNL Graphics Next Line */
                 sixel_state->pos_x = 0;
                 if (sixel_state->pos_y < DECSIXEL_HEIGHT_MAX - 5 - 6) {
@@ -602,7 +596,6 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 sixel_state->state = PARSE_STATE_ESC;
             } else {
                 sixel_state->repeat_count = (int32)MAX(sixel_state->param, 1);
-                fprintf(stderr, "SIXEL: Finalized Repeat count: %d\n", sixel_state->repeat_count);
                 sixel_state->state = PARSE_STATE_DECSIXEL;
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
@@ -643,8 +636,6 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     }
                     sixel_state->color_index++; /* offset by 1 (background) */
                 }
-
-                fprintf(stderr, "SIXEL: Finalized Color Index: %d\n", sixel_state->color_index);
 
                 if (sixel_state->nparams > 4) {
                     sixel_state->image.palette_modified = true;
