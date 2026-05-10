@@ -1,4 +1,4 @@
-# Remember the problem
+# My problem
 
 consider lf file manager. The previewer executes a program, and the programs
 output must be contained in the preview pane (which have less columns than the
@@ -10,7 +10,7 @@ Long lines of the previewer textual output start wrapping, overflowing the
 preview pane. This happens with other sixel tools (like image magick) but not on
 other terminals, so I know it must be a bug within my terminal. 
 
-# About TERM_MODE_WRAP
+# About TERM_MODE_WRAP / DECAWM
 The bug is *not* caused by TERM_MODE_WRAP being on, because if sixel is not
 invoked, lines on he preview pane are truncated just fine, even with
 TERM_MODE_WRAP being on.
@@ -42,7 +42,8 @@ Note: doing printf "\033[?7l" before the cat command and printf "\033[?7h"
 after the cat command works as imperfect workaround, because after "\033[?7l"
 additional characters overwrite the last column instead of wrapping.  # which is
 not the default preview pane behavior: long lines are simply truncated, the last
-char is not considered special.
+char is not considered special. This is the same as enabling TERM_MODE_WRAP
+(DECAWM) and disabling it later.
 
 # Minimal sixel escape sequence
 In order to make it easier to reproduce the bug,
