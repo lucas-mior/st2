@@ -11,3 +11,10 @@ preview pane. This happens with other sixel tools (like image magick) but not on
 other terminals, so I know it must be a bug within my terminal. It is *not*
 caused by TERM_MODE_WRAP being on, because if sixel is not invoked, lines on
 the preview pane are truncated just fine, even with TERM_MODE_WRAP being on.
+
+SO, sixel is causing some terminal state to change. In particular,
+some terminal setup made by lf for the preview gets unset by the sixel.
+So, what I want you to do is:
+
+develop a shell script that replicates this problem so that it is easier to
+reproduce, instead of having to open lf every time.
