@@ -1151,7 +1151,6 @@ string_handle(void) {
                 } else {
                     term_move_to(0, term.cursor.y);
                 }
-                term.cursor.state &= ~CURSOR_WRAPNEXT;
             }
         }
         return;
