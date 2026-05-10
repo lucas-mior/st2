@@ -376,15 +376,6 @@ handler_key_press(XEvent *xevent) {
         len = XLookupString(key_event, buffer, SIZEOF(buffer), &key_sym, NULL);
     }
 
-    {
-        char *key_name;
-        if ((key_name = XKeysymToString(key_sym))) {
-            fprintf(stderr, "%s: KeySym: %s (0x%lx)\n", __func__, key_name, (unsigned long)key_sym);
-        } else {
-            fprintf(stderr, "%s: KeySym: unknown (0x%lx)\n", __func__, (unsigned long)key_sym);
-        }
-    }
-
     for (int32 i = 0; i < LENGTH(CONF_KEYBOARD_SHORTCUTS); i += 1) {
         Shortcut *shortcut = &CONF_KEYBOARD_SHORTCUTS[i];
         if (key_sym == shortcut->keysym) {
