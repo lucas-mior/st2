@@ -358,6 +358,7 @@ handler_key_press(XEvent *xevent) {
     KeySym key_sym = NoSymbol;
     char buffer[64];
     char *custom_key = NULL;
+    char *key_name = NULL;
     int32 len;
     uint32 c;
 
@@ -374,6 +375,13 @@ handler_key_press(XEvent *xevent) {
         }
     } else {
         len = XLookupString(key_event, buffer, SIZEOF(buffer), &key_sym, NULL);
+    }
+
+    key_name = XKeysymToString(key_sym);
+    if (key_name) {
+        fprintf(stderr, "%s: KeySym: %s (0x%lx)\n", __func__, key_name, (unsigned long)key_sym);
+    } else {
+        fprintf(stderr, "%s: KeySym: unknown (0x%lx)\n", __func__, (unsigned long)key_sym);
     }
 
     for (int32 i = 0; i < LENGTH(CONF_KEYBOARD_SHORTCUTS); i += 1) {
@@ -457,6 +465,7 @@ tried_custom_keys:
         }
     }
     tty_write(buffer, (int64)len, 1);
+
     return;
 }
 
