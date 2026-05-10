@@ -1346,7 +1346,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     return;
 }
 
-
 static void
 draw(void) {
     int32 cx = term.cursor.x;
