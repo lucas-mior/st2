@@ -1,40 +1,42 @@
 #!/bin/sh
 
-# Simulating an lf preview pane (e.g., Column 50 to 80)
-PANE_X=50
-PANE_Y=5
-PANE_WIDTH=30
+# --- CONFIGURATION ---
+COLS=$(tput cols)
+PANE_X=40
+# A string long enough to wrap if the terminal 'forgets' its position
+LONG_STR="ALT_SCREEN_TEST_####################################################################################################"
 
-# A "normal" line that is shorter than the pane width
-# We don't truncate this in the script because we want to see if the
-# terminal incorrectly wraps it.
-TEXT_LINE="AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMM"
+# 1. ENTER ALT SCREEN
+# \033[?1049h is the standard sequence for 'smcup' (enter alt screen)
+printf "\033[?1049h"
 
-# 1. Clear screen
+# 2. CLEAR AND RESET
 printf "\033[H\033[2J"
+printf "\033[?7h" # Ensure Wrap is ON
 
-# 2. Draw a visual boundary for the "Pane"
+# 3. DRAW A BOUNDARY
+# This helps visualize if the text is staying inside the 'pane'
 for i in $(seq 1 20); do
-    printf "\033[%d;${PANE_X}H|" 
-    printf "\033[%d;$((PANE_X + PANE_WIDTH))H|"
+    printf "\033[%d;${PANE_X}H|"
 done
 
-# 3. Simulate lf's Sixel Output
-# We position the cursor inside the pane, then fire chafa.
-# The key here is the width: we tell chafa to fill the pane.
-printf "\033[${PANE_Y};${PANE_X}H"
-chafa --polite on --format=sixel --animate=false --size="${PANE_WIDTH}x10" "$1"
+# 4. OUTPUT SIXEL
+# We place the image so its right edge touches or exceeds the terminal width
+printf "\033[5;${PANE_X}H"
+chafa --polite on --format=sixel --animate=false --size="$((COLS - PANE_X))x10" "$1"
 
-# 4. Simulate tcell's drawing behavior
-# tcell uses absolute positioning (CUP) to draw lines.
-# We move the cursor to the line immediately after the image.
-# If your terminal bug exists, the cursor will 'remember' the wrap state 
-# from the Sixel image and force the next line to the next row or indent it.
-printf "\033[$((PANE_Y + 11));${PANE_X}H"
-printf "Line 1: %s" "$TEXT_LINE"
+# 5. THE LF-STYLE MOVE
+# Move to the line after the image at the same X-offset.
+printf "\033[16;${PANE_X}H"
 
-printf "\033[$((PANE_Y + 12));${PANE_X}H"
-printf "Line 2: %s" "$TEXT_LINE"
+# 6. THE TEST
+# If the bug exists, this text will start on line 17 or be indented,
+# causing it to overflow the right side of the terminal.
+printf "AFTER_SIXEL: %s" "$LONG_STR"
 
-# Reset cursor to bottom
-printf "\033[25;1H"
+# 7. WAIT FOR USER
+printf "\033[22;1H\033[7m TEST COMPLETE: Press any key to exit Alt Screen \033[0m"
+read -r dummy
+
+# 8. EXIT ALT SCREEN
+printf "\033[?1049l"
