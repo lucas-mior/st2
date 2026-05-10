@@ -52,3 +52,7 @@ chafa --polite on --format=sixel --animate=false ~/0image.png \
 Now I can give you the exact sixel data that chafa sends to lf/terminal:
 
 P0;1;0q"1;1;11;21#0;2;67;67;67#1;2;93;93;93#0!4N!7?---#0!11?\
+
+Do you have a better idea of how sixel is messing up my terminal now?
+I can send you escape.c, st.c or sixel.c if you need to remember how my terminal
+parses sixel!
