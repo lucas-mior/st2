@@ -7,6 +7,7 @@
 #define SIXEL_C
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "st.h"
 #include "sixel.h"
@@ -347,32 +348,38 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
         case PARSE_STATE_DECSIXEL:
             switch (*p) {
             case '\x1b':
+                fprintf(stderr, "SIXEL: Found ESC in data stream\n");
                 sixel_state->state = PARSE_STATE_ESC;
                 break;
             case '"':
+                fprintf(stderr, "SIXEL: Entering Raster Attributes mode\n");
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 sixel_state->state = PARSE_STATE_DECGRA;
                 p++;
                 break;
             case '!':
+                fprintf(stderr, "SIXEL: Entering Repeat mode\n");
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 sixel_state->state = PARSE_STATE_DECGRI;
                 p++;
                 break;
             case '#':
+                fprintf(stderr, "SIXEL: Entering Color mode\n");
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 sixel_state->state = PARSE_STATE_DECGCI;
                 p++;
                 break;
             case '$':
+                fprintf(stderr, "SIXEL: Graphics Carriage Return ($)\n");
                 /* DECGCR Graphics Carriage Return */
                 sixel_state->pos_x = 0;
                 p++;
                 break;
             case '-':
+                fprintf(stderr, "SIXEL: Graphics Next Line (-)\n");
                 /* DECGNL Graphics Next Line */
                 sixel_state->pos_x = 0;
                 if (sixel_state->pos_y < DECSIXEL_HEIGHT_MAX - 5 - 6) {
@@ -546,6 +553,10 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     sixel_state->attributed_pv = (int32)sixel_state->params[3];
                 }
 
+                fprintf(stderr, "SIXEL: Finalized Raster Attrs: Pad=%d, Pan=%d, Ph=%d, Pv=%d\n",
+                        sixel_state->attributed_pad, sixel_state->attributed_pan,
+                        sixel_state->attributed_ph, sixel_state->attributed_pv);
+
                 if (sixel_state->attributed_pan <= 0) {
                     sixel_state->attributed_pan = 1;
                 }
@@ -589,6 +600,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 sixel_state->state = PARSE_STATE_ESC;
             } else {
                 sixel_state->repeat_count = (int32)MAX(sixel_state->param, 1);
+                fprintf(stderr, "SIXEL: Finalized Repeat count: %d\n", sixel_state->repeat_count);
                 sixel_state->state = PARSE_STATE_DECSIXEL;
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
@@ -630,6 +642,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     sixel_state->color_index++; /* offset by 1 (background) */
                 }
 
+                fprintf(stderr, "SIXEL: Finalized Color Index: %d\n", sixel_state->color_index);
+
                 if (sixel_state->nparams > 4) {
                     sixel_state->image.palette_modified = true;
                     if (sixel_state->params[1] == 1) {
@@ -640,6 +654,11 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             = (uint32)MIN(sixel_state->params[3], 100);
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
+                        
+                        fprintf(stderr, "SIXEL: Defined Index %d as HLS(%d,%d,%d)\n",
+                                sixel_state->color_index, sixel_state->params[2],
+                                sixel_state->params[3], sixel_state->params[4]);
+
                         sixel_image->palette[sixel_state->color_index]
                             = hls2rgb(sixel_state->params[2],
                                       sixel_state->params[3],
@@ -652,6 +671,11 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             = (uint32)MIN(sixel_state->params[3], 100);
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
+                        
+                        fprintf(stderr, "SIXEL: Defined Index %d as RGB(%d,%d,%d)\n",
+                                sixel_state->color_index, sixel_state->params[2],
+                                sixel_state->params[3], sixel_state->params[4]);
+
                         sixel_image->palette[sixel_state->color_index]
                             = SIXEL_XRGB(sixel_state->params[2],
                                          sixel_state->params[3],
