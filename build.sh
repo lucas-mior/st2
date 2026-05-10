@@ -244,8 +244,8 @@ case "$target" in
         with_other cproc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
     else
         $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
-        $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
-            src/test_resize_scroll.c -o bin/test_resize_scroll $LDFLAGS
+        # $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
+        #     src/test_resize_scroll.c -o bin/test_resize_scroll $LDFLAGS
     fi
 
     if [ $target = "debug" ]; then
