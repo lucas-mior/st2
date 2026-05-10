@@ -79,6 +79,3 @@ Now I can give you the exact sixel data that chafa sends to lf/terminal:
 cat -v chafa_output2.bin
 ^[P0;1;0q"1;1;11;21#0;2;67;67;67#1;2;93;93;93#0!4N!7?---#0!11?^[\
 ```
-
-Write me an explanation of what this sequence of bytes does and wait for
-further instructions.

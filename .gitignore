@@ -6,3 +6,4 @@ scan-build*
 test_reflow
 .comments
 *.mp4
+lflog*
