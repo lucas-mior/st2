@@ -1,4 +1,4 @@
-remember: the problem is the following:
+the problem is the following:
 
 consider lf file manager. The previewer executes a program, and the programs
 output must be contained in the preview pane (which have less columns than the
@@ -10,7 +10,7 @@ Long lines of the previewer textual output start wrapping, overflowing the
 preview pane. This happens with other sixel tools (like image magick) but not on
 other terminals, so I know it must be a bug within my terminal. It is *not*
 caused by TERM_MODE_WRAP being on, because if sixel is not invoked, lines on
-the preview pane are truncated just fine, even with TERM_MODE_WRAP being on.
+he preview pane are truncated just fine, even with TERM_MODE_WRAP being on.
 
 SO, sixel is causing some terminal state to change. In particular,
 some terminal setup made by lf for the preview gets unset by the sixel.
@@ -23,6 +23,12 @@ chafa --polite on --format=sixel --animate=false ~/0image.png
 # or magick ~/image.jpg sixel:-
 
 cat ~/0text.txt
+
+Note: doing printf "\033[?7l" before the cat command and printf "\033[?7h"
+after the cat command works as imperfect workaround, because after "\033[?7l"
+additional characters overwrite the last column instead of wrapping.  # which is
+not the default preview pane behavior: long lines are simply truncated, the last
+char is not considered special.
 
 In order to make it easier to reproduce the bug,
 I have created an minimal 4x4 uncompressed png of only gray pixels with the
@@ -53,6 +59,4 @@ Now I can give you the exact sixel data that chafa sends to lf/terminal:
 
 P0;1;0q"1;1;11;21#0;2;67;67;67#1;2;93;93;93#0!4N!7?---#0!11?\
 
-Do you have a better idea of how sixel is messing up my terminal now?
-I can send you escape.c, st.c or sixel.c if you need to remember how my terminal
-parses sixel!
+Do you have an  idea of how sixel is messing up my terminal?
