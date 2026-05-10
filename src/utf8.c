@@ -71,14 +71,6 @@ utf8_decode(char *c, uint32 *u, int64 clen) {
     *u = rune_decoded;
     utf8_validate(u, len);
 
-    if (*u <= 127) {
-        if (*u == '\n') {
-            fprintf(stderr, "ascii_decode: \\n\n");
-        } else if ((*u >= 'A') && *u <= 'Z') {
-            fprintf(stderr, "ascii_decode: %c\n", (char)*u);
-        }
-    }
-
     return len;
 }
 
