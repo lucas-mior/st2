@@ -355,7 +355,7 @@ control_seq_intro_handle(void) {
     int32 n;
     int32 x;
 
-    fprintf(stderr, "CSI sequence: ");
+    fprintf(stderr, "%s: ", __func__);
     control_seq_intro_dump();
 
     switch (csi_escape_seq.mode[0]) {
@@ -1257,7 +1257,7 @@ dcs_handle(void) {
 
 static void
 term_control_code(uchar ascii) {
-    fprintf(stderr, "Control Code: 0x%02x", ascii);
+    fprintf(stderr, "%s: 0x%02x", __func__, ascii);
     if (isalnum(ascii)) {
         fprintf(stderr, "== %c\n", ascii);
     } else {
@@ -1360,8 +1360,8 @@ term_control_code(uchar ascii) {
 
 static int32
 esc_handle(uchar ascii) {
-    fprintf(stderr, "ESC sequence char: '%c' (0x%02x)\n", 
-            isprint(ascii) ? ascii : '.', ascii);
+    fprintf(stderr, "%s: '%c' (0x%02x)\n",
+                    __func__, isprint(ascii) ? ascii : '.', ascii);
     switch (ascii) {
     case '[':
         term.esc |= ESC_CSI;

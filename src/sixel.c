@@ -553,7 +553,9 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     sixel_state->attributed_pv = (int32)sixel_state->params[3];
                 }
 
-                fprintf(stderr, "SIXEL: Finalized Raster Attrs: Pad=%d, Pan=%d, Ph=%d, Pv=%d\n",
+                fprintf(stderr,
+                        "SIXEL: Finalized Raster Attrs:"
+                        " Pad=%u, Pan=%u, Ph=%d, Pv=%d\n",
                         sixel_state->attributed_pad, sixel_state->attributed_pan,
                         sixel_state->attributed_ph, sixel_state->attributed_pv);
 
@@ -655,9 +657,12 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
                         
-                        fprintf(stderr, "SIXEL: Defined Index %d as HLS(%d,%d,%d)\n",
-                                sixel_state->color_index, sixel_state->params[2],
-                                sixel_state->params[3], sixel_state->params[4]);
+                        fprintf(stderr,
+                                "SIXEL: Defined Index %d as HLS(%u,%u,%u)\n",
+                                sixel_state->color_index,
+                                sixel_state->params[2],
+                                sixel_state->params[3],
+                                sixel_state->params[4]);
 
                         sixel_image->palette[sixel_state->color_index]
                             = hls2rgb(sixel_state->params[2],
@@ -672,9 +677,12 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
                         
-                        fprintf(stderr, "SIXEL: Defined Index %d as RGB(%d,%d,%d)\n",
-                                sixel_state->color_index, sixel_state->params[2],
-                                sixel_state->params[3], sixel_state->params[4]);
+                        fprintf(stderr,
+                                "SIXEL: Defined Index %d as RGB(%u,%u,%u)\n",
+                                sixel_state->color_index,
+                                sixel_state->params[2],
+                                sixel_state->params[3],
+                                sixel_state->params[4]);
 
                         sixel_image->palette[sixel_state->color_index]
                             = SIXEL_XRGB(sixel_state->params[2],
