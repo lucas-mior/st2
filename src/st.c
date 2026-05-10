@@ -1605,6 +1605,22 @@ x_configure_resize(int32 new_width, int32 new_height) {
     return;
 }
 
+static void
+term_cursor(enum CursorMovement mode) {
+    static TCursor c[2];
+    int32 alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
+
+    if (mode == CURSOR_SAVE) {
+        c[alt] = term.cursor;
+    } else {
+        if (mode == CURSOR_LOAD) {
+            term.cursor = c[alt];
+            term_move_to(c[alt].x, c[alt].y);
+        }
+    }
+    return;
+}
+
 #if TESTING_st
 
 #include <stdbool.h>

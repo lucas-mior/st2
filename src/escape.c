@@ -43,22 +43,6 @@ static CSIEscape csi_escape_seq;
 static STREscape str_escape_seq;
 
 static void
-term_cursor(enum CursorMovement mode) {
-    static TCursor c[2];
-    int32 alt = term_mode_is_set(TERM_MODE_ALTSCREEN);
-
-    if (mode == CURSOR_SAVE) {
-        c[alt] = term.cursor;
-    } else {
-        if (mode == CURSOR_LOAD) {
-            term.cursor = c[alt];
-            term_move_to(c[alt].x, c[alt].y);
-        }
-    }
-    return;
-}
-
-static void
 control_seq_intro_parse(void) {
     char *p = csi_escape_seq.buffer;
     int32 sep = ';';

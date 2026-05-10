@@ -363,6 +363,7 @@ static StGlyph *term_line(int32 y);
 static StGlyph *term_line_abs(int32 y);
 static StGlyph *term_line_hist(int32 y);
 static void update_wrap_next(int32 alt, int32 col);
+static void term_cursor(enum CursorMovement mode);
 
 static void x_clear(int32 x1, int32 y1, int32 x2, int32 y2);
 static int32 x_geom_mask_to_gravity(int32 mask);
