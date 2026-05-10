@@ -7,3 +7,4 @@ test_reflow
 .comments
 *.mp4
 lflog*
+log-*.txt
