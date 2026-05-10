@@ -400,7 +400,6 @@ term_reset(void) {
     return;
 }
 
-/* handle it with care */
 static void
 term_swap_screen(void) {
     static StGlyph **alt_lines;
