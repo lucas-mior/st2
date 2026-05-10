@@ -1050,8 +1050,10 @@ string_handle(void) {
                 }
 
                 if (term_mode_is_set(TERM_MODE_SIXEL_CUR_RT)) {
+                    error("TERM_MODE_SIXEL_CUR_RT\n");
                     term_move_to(term.cursor.x + new_images->cols, term.cursor.y);
                 } else {
+                    error("not CUR_RT\n");
                     term_move_to(0, term.cursor.y);
                 }
             }
