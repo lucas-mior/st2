@@ -608,8 +608,7 @@ control_seq_intro_handle(void) {
         if (csi_escape_seq.mode[1] == 'p' && csi_escape_seq.priv) {
             switch (csi_escape_seq.arg[0]) {
             case 5:
-                tty_write("\033[?5;2$y", 8,
-                          0);
+                tty_write("\033[?5;2$y", 8, 0);
                 break;
             case 80:
                 if (term_mode_is_set(TERM_MODE_SIXEL_SDM)) {
