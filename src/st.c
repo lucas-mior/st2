@@ -640,6 +640,7 @@ term_move_to(int32 x, int32 y) {
     term.cursor.state &= ~CURSOR_WRAPNEXT;
     term.cursor.x = LIMIT(x, 0, term.ncols - 1);
     term.cursor.y = LIMIT(y, miny, maxy);
+    term.cursor.state &= ~CURSOR_WRAPNEXT;
     return;
 }
 

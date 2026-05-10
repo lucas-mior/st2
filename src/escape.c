@@ -1685,10 +1685,14 @@ check_control_code:
     if (term.cursor.x + width > term.ncols) {
         if (term_mode_is_set(TERM_MODE_WRAP)) {
             term_new_line(1);
+            /* After wrapping, we must update the glyph pointer 
+             * to the new line's start */
+            glyph = &term.lines[term.cursor.y][term.cursor.x];
         } else {
+            /* If Wrap is OFF (Truncate mode), we clamp to the last column */
             term_move_to(term.ncols - width, term.cursor.y);
+            glyph = &term.lines[term.cursor.y][term.cursor.x];
         }
-        glyph = &term.lines[term.cursor.y][term.cursor.x];
     }
 
     term_set_char(u, &term.cursor.attr, term.cursor.x, term.cursor.y);
