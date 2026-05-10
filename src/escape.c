@@ -1261,7 +1261,7 @@ term_control_code(uchar ascii) {
     if (isalnum(ascii)) {
         fprintf(stderr, "== %c\n", ascii);
     } else {
-        fprintf(stderr, "\n", ascii);
+        fprintf(stderr, "\n");
     }
     switch (ascii) {
     case '\t':
