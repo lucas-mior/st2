@@ -355,6 +355,9 @@ control_seq_intro_handle(void) {
     int32 n;
     int32 x;
 
+    fprintf(stderr, "Handling CSI sequence: ");
+    control_seq_intro_dump();
+
     switch (csi_escape_seq.mode[0]) {
     default:
     unknown:
@@ -809,6 +812,9 @@ string_handle(void) {
         par = 0;
     }
 
+    fprintf(stderr, "Handling STR sequence: type=%c, len=%d\n", 
+            str_escape_seq.type, str_escape_seq.len);
+
     switch (str_escape_seq.type) {
     case ']':
         switch (par) {
@@ -1251,6 +1257,7 @@ dcs_handle(void) {
 
 static void
 term_control_code(uchar ascii) {
+    fprintf(stderr, "Control Code: 0x%02x\n", ascii);
     switch (ascii) {
     case '\t':
         term_put_tab(1);
@@ -1348,6 +1355,8 @@ term_control_code(uchar ascii) {
 
 static int32
 esc_handle(uchar ascii) {
+    fprintf(stderr, "ESC sequence char: '%c' (0x%02x)\n", 
+            isprint(ascii) ? ascii : '.', ascii);
     switch (ascii) {
     case '[':
         term.esc |= ESC_CSI;
@@ -1742,7 +1751,6 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
 
     return idx;
 }
-
 
 #if TESTING_escape
 
