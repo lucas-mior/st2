@@ -1147,12 +1147,9 @@ string_handle(void) {
                 }
 
                 if (term_mode_is_set(TERM_MODE_SIXEL_CUR_RT)) {
-                    term.cursor.x = (int32)MIN(term.cursor.x + new_images->cols,
-                                               term.ncols - 1);
+                    term_move_to(term.cursor.x + new_images->cols, term.cursor.y);
                 } else {
-                    /* Reset X to 0 on the current row. Trailing \n in the stream 
-                       will move to the next physical row without a gap. */
-                    term.cursor.x = 0;
+                    term_move_to(0, term.cursor.y);
                 }
             }
         }
