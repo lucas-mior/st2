@@ -42,7 +42,7 @@ static STREscape str_escape_seq;
 
 static void
 control_seq_intro_dump(void) {
-    error("ESC[");
+    fprintf(stderr, "ESC[");
 
     for (int64 i = 0; i < csi_escape_seq.len; i += 1) {
         uint32 c = csi_escape_seq.buffer[i] & 0xff;
@@ -54,16 +54,16 @@ control_seq_intro_dump(void) {
 
         switch (c) {
         case '\n':
-            error("(\\n)");
+            fprintf(stderr, "(\\n)");
             break;
         case '\r':
-            error("(\\r)");
+            fprintf(stderr, "(\\r)");
             break;
         case 0x1b:
-            error("(\\e)");
+            fprintf(stderr, "(\\e)");
             break;
         default:
-            error("(%02x)", c);
+            fprintf(stderr, "(%02x)", c);
             break;
         }
     }
@@ -1159,7 +1159,7 @@ string_handle(void) {
 
     error("erresc: unknown string ");
     {
-        error("ESC%c", str_escape_seq.type);
+        fprintf(stderr, "ESC%c", str_escape_seq.type);
         for (int32 i = 0; i < str_escape_seq.len; i += 1) {
             uint32 c_code = str_escape_seq.buffer[i] & 0xff;
 
@@ -1175,20 +1175,20 @@ string_handle(void) {
 
             switch (c_code) {
             case '\n':
-                error("(\\n)");
+                fprintf(stderr, "(\\n)");
                 break;
             case '\r':
-                error("(\\r)");
+                fprintf(stderr, "(\\r)");
                 break;
             case 0x1b:
-                error("(\\e)");
+                fprintf(stderr, "(\\e)");
                 break;
             default:
-                error("(%02x)", c_code);
+                fprintf(stderr, "(%02x)", c_code);
                 break;
             }
         }
-        error("ESC\\\n");
+        fprintf(stderr, "ESC\\\n");
     }
 
     return;
@@ -1283,7 +1283,7 @@ term_str_sequence(uchar c) {
         c = ']';
         break;
     default:
-        error("term_str_sequence: unhandled switch case.\n");
+        error("%s: unhandled %x.\n", __func__, c);
         break;
     }
     str_escape_seq.type = (char)c;
