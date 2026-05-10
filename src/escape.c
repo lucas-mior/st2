@@ -69,7 +69,6 @@ control_seq_intro_dump(void) {
     }
 
     putc('\n', stderr);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -86,7 +85,6 @@ term_cursor(enum CursorMovement mode) {
             term_move_to(c[alt].x, c[alt].y);
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -131,7 +129,6 @@ control_seq_intro_parse(void) {
     } else {
         csi_escape_seq.mode[1] = '\0';
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -179,7 +176,6 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
         break;
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return idx;
 }
 
@@ -280,7 +276,6 @@ term_set_attr(int32 *attr, int32 l) {
         }
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -443,7 +438,6 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
         }
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -663,7 +657,6 @@ control_seq_intro_handle(void) {
         break;
     case 'X':
         if (csi_escape_seq.arg[0] < 0) {
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
@@ -800,14 +793,12 @@ control_seq_intro_handle(void) {
         }
         break;
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
 static void
 control_seq_intro_reset(void) {
     memset64(&csi_escape_seq, 0, SIZEOF(csi_escape_seq));
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -852,7 +843,6 @@ osc_color_response(int32 num, int32 index, int32 is_osc4) {
                  "\033]%s%d;rgb:%02x%02x/%02x%02x/%02x%02x\007",
                  prefix, num, r, r, g, g, b, b);
     tty_write(buffer, (int64)n, 1);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -920,19 +910,16 @@ string_handle(void) {
                 x_set_title(str_escape_seq.args[1]);
                 x_set_icon_title(str_escape_seq.args[1]);
             }
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         case 1:
             if (narg > 1) {
                 x_set_icon_title(str_escape_seq.args[1]);
             }
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         case 2:
             if (narg > 1) {
                 x_set_title(str_escape_seq.args[1]);
             }
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         case 52:
             if (narg > 2 && CONF_ALLOW_WINDOW_OPS) {
@@ -946,7 +933,6 @@ string_handle(void) {
                     error("erresc: invalid base64\n");
                 }
             }
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         case 10:
         case 11:
@@ -970,7 +956,6 @@ string_handle(void) {
                     term_full_dirt();
                 }
             }
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         case 4:
             if (narg < 3) {
@@ -991,7 +976,6 @@ string_handle(void) {
                 if (x_set_color_name(j, p)) {
                     if (par == 104 && narg <= 1) {
                         x_load_colors();
-                        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
                         return;
                     }
                     if (p) {
@@ -1003,7 +987,6 @@ string_handle(void) {
                     term_full_dirt();
                 }
             }
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         case 110:
         case 111:
@@ -1020,7 +1003,6 @@ string_handle(void) {
             } else {
                 term_full_dirt();
             }
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         case 8: /* OSC 8: Hyperlinks? */
             error("%s: Unhandled 8 (hyperlinks)\n", __func__);
@@ -1033,7 +1015,6 @@ string_handle(void) {
         break;
     case 'k':
         x_set_title(str_escape_seq.args[0]);
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     case 'P':
         if (term_mode_is_set(TERM_MODE_SIXEL)) {
@@ -1052,7 +1033,6 @@ string_handle(void) {
             term.mode &= ~TERM_MODE_SIXEL;
             if (sixel_st.image.data == NULL) {
                 sixel_parser_deinit(&sixel_st);
-                error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
                 return;
             }
             if (term_mode_is_set(TERM_MODE_SIXEL_SDM)) {
@@ -1074,7 +1054,6 @@ string_handle(void) {
                     sixel_image_delete(new_images);
                 }
                 sixel_parser_deinit(&sixel_st);
-                error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
                 return;
             }
 
@@ -1170,11 +1149,9 @@ string_handle(void) {
                 }
             }
         }
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     case '_':
     case '^':
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     default:
         error("string_handle: Unhandled switch case.\n");
@@ -1189,7 +1166,6 @@ string_handle(void) {
 
             if (c_code == '\0') {
                 putc('\n', stderr);
-                error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
                 return;
             }
 
@@ -1216,7 +1192,6 @@ string_handle(void) {
         fprintf(stderr, "ESC\\\n");
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1244,7 +1219,6 @@ term_put_tab(int32 n) {
         }
     }
     term.cursor.x = LIMIT(x, 0, term.ncols - 1);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1257,7 +1231,6 @@ term_def_utf8(char ascii) {
             term.mode &= ~TERM_MODE_UTF8;
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1273,7 +1246,6 @@ term_def_tran(char ascii) {
     } else {
         term.translation_table[term.icharset] = (char)vcs[p - cs];
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1286,7 +1258,6 @@ term_dec_test(char c) {
             }
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1322,7 +1293,6 @@ term_str_sequence(uchar c) {
     }
     str_escape_seq.type = (char)c;
     term.esc |= ESC_STR;
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1367,7 +1337,6 @@ dcs_handle(void) {
         term.mode |= TERM_MODE_SIXEL;
         break;
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1376,20 +1345,16 @@ term_control_code(uchar ascii) {
     switch (ascii) {
     case '\t':
         term_put_tab(1);
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     case '\b':
         term_move_to(term.cursor.x - 1, term.cursor.y);
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     case '\r':
         term_move_to(0, term.cursor.y);
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     case '\f':
     case '\v':
     case '\n':
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         term_new_line(term_mode_is_set(TERM_MODE_CRLF));
         return;
     case '\a':
@@ -1403,12 +1368,10 @@ term_control_code(uchar ascii) {
         control_seq_intro_reset();
         term.esc &= ~(ESC_CSI | ESC_ALTCHARSET | ESC_TEST);
         term.esc |= ESC_START;
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     case '\016':
     case '\017':
         term.charset = 1 - (ascii - '\016');
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     case '\032':
         term_set_char('?', &term.cursor.attr, term.cursor.x, term.cursor.y);
@@ -1421,7 +1384,6 @@ term_control_code(uchar ascii) {
     case '\021':
     case '\023':
     case 0177:
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     case 0x80:
     case 0x81:
@@ -1466,14 +1428,12 @@ term_control_code(uchar ascii) {
     case 0x9e:
     case 0x9f:
         term_str_sequence(ascii);
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     default:
         error("term_control_code: unhandled switch case.\n");
         break;
     }
     term.esc &= ~(ESC_STR_END | ESC_STR);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1482,15 +1442,12 @@ esc_handle(uchar ascii) {
     switch (ascii) {
     case '[':
         term.esc |= ESC_CSI;
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return 0;
     case '#':
         term.esc |= ESC_TEST;
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return 0;
     case '%':
         term.esc |= ESC_UTF8;
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return 0;
     case 'P':
         term.esc |= ESC_DCS;
@@ -1500,7 +1457,6 @@ esc_handle(uchar ascii) {
     case ']':
     case 'k':
         term_str_sequence(ascii);
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return 0;
     case 'n':
     case 'o':
@@ -1513,7 +1469,6 @@ esc_handle(uchar ascii) {
         term.icharset = ascii - '(';
         term.esc |= ESC_ALTCHARSET;
         return 0;
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     case 'D':
         if (term.cursor.y == term.bot_scroll_limit) {
             term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit,
@@ -1566,7 +1521,6 @@ esc_handle(uchar ascii) {
               (uchar)ascii, isprint(ascii) ? ascii : '.');
         break;
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return 1;
 }
 
@@ -1641,21 +1595,18 @@ term_putc(uint32 u) {
                 str_escape_seq.len = 0;
             }
         }
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     }
 
 check_control_code:
     if (control) {
         if (term_mode_is_set(TERM_MODE_UTF8) && IS_CONTROL_C1(u)) {
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         }
         term_control_code((uchar)u);
         if (!term.esc) {
             term.last_char = 0;
         }
-        error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     } else {
         if (term.esc & ESC_START) {
@@ -1668,7 +1619,6 @@ check_control_code:
                     control_seq_intro_parse();
                     control_seq_intro_handle();
                 }
-                error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
                 return;
             } else {
                 if (term.esc & ESC_DCS) {
@@ -1681,7 +1631,6 @@ check_control_code:
                             dcs_handle();
                         }
                     }
-                    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
                     return;
                 } else {
                     if (term.esc & ESC_UTF8) {
@@ -1694,7 +1643,6 @@ check_control_code:
                                 term_dec_test((char)u);
                             } else {
                                 if (!esc_handle((uchar)u)) {
-                                    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
                                     return;
                                 }
                             }
@@ -1703,7 +1651,6 @@ check_control_code:
                 }
             }
             term.esc = 0;
-            error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
             return;
         }
     }
@@ -1763,7 +1710,6 @@ check_control_code:
         }
         term.cursor.state |= CURSOR_WRAPNEXT;
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1806,7 +1752,6 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
 
         term_putc(u);
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return n;
 }
 

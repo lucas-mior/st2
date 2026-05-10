@@ -155,7 +155,6 @@ check_consistent_state(void) {
 
     memory_check();
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -182,7 +181,6 @@ term_allocate(void) {
         }
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -194,19 +192,16 @@ term_line_len(StGlyph *line) {
         i -= 1;
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return i + 1;
 }
 
 static bool
 term_mode_is_set(enum TermMode flag) {
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return !(!(term.mode & flag));
 }
 
 static bool
 win_mode_is_set(enum WinMode flag) {
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return !(!(term_window.mode & flag));
 }
 
@@ -223,7 +218,6 @@ term_line(int32 y) {
         line_ptr = term.lines[idx];
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return line_ptr;
 }
 
@@ -238,7 +232,6 @@ term_line_abs(int32 y) {
         line_ptr = term.lines[y];
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return line_ptr;
 }
 
@@ -253,7 +246,6 @@ term_line_hist(int32 y) {
         line_ptr = term.lines[lines_index];
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return line_ptr;
 }
 
@@ -265,7 +257,6 @@ update_wrap_next(int32 alt, int32 col) {
         term.cursor.state &= ~CURSOR_WRAPNEXT;
     }
     
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -280,7 +271,6 @@ term_is_wrapped(StGlyph *line) {
         }
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return wrapped;
 }
 
@@ -294,7 +284,6 @@ term_get_glyphs(char *buffer, StGlyph *glyph, StGlyph *lgp) {
             glyph += 1;
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return buffer;
 }
 
@@ -304,7 +293,6 @@ term_set_sixel_attr(StGlyph *line, int x1, int x2) {
         line[x1].mode |= ATTR_SIXEL;
         x1 += 1;
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -313,13 +301,11 @@ term_attr_set(enum GlyphAttribute attr) {
     for (int32 i = 0; i < term.nrows - 1; i += 1) {
         for (int32 j = 0; j < term.ncols - 1; j += 1) {
             if (term.lines[i][j].mode & attr) {
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
                 return true;
             }
         }
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return false;
 }
 
@@ -331,7 +317,6 @@ term_set_dirt(int32 top, int32 bot) {
     for (int32 i = top; i <= bot; i += 1) {
         term.dirts[i] = true;
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -345,7 +330,6 @@ term_set_dirt_attr(enum GlyphAttribute attr) {
             }
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -354,7 +338,6 @@ term_full_dirt(void) {
     for (int32 i = 0; i < term.nrows; i += 1) {
         term.dirts[i] = true;
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -369,7 +352,6 @@ term_delete_images(void) {
     
     term.images = NULL;
     
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -415,7 +397,6 @@ term_reset(void) {
     }
     term_full_dirt();
     error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -442,7 +423,6 @@ term_swap_screen(void) {
     term.images_alt = tmpimages;
 
     term.mode ^= TERM_MODE_ALTSCREEN;
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -466,7 +446,6 @@ term_load_def_screen(bool clear, bool loadcursor) {
     if (alt) {
         term_resize_def(col, row);
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -489,7 +468,6 @@ term_load_alt_screen(bool clear, bool savecursor) {
     if (clear) {
         term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, true);
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -498,7 +476,6 @@ term_scroll_down(int32 top, int32 n) {
     int32 bot = term.bot_scroll_limit;
 
     if (n <= 0) {
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     }
     n = (int32)MIN(n, bot - top + 1);
@@ -526,7 +503,6 @@ term_scroll_down(int32 top, int32 n) {
             image = image->next;
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -537,7 +513,6 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
     bool savehist = !alt && top == 0 && mode != SCROLL_NOSAVEHIST;
 
     if (n <= 0) {
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     }
     n = (int32)MIN(n, bot - top + 1);
@@ -611,7 +586,6 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
             }
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -634,7 +608,6 @@ term_new_line(bool first_col) {
     }
     
     term_move_to(x_pos, y);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -649,7 +622,6 @@ term_move_abs_to(int32 x, int32 y) {
     }
 
     term_move_to(x, y + y_offset);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -668,7 +640,6 @@ term_move_to(int32 x, int32 y) {
     term.cursor.state &= ~CURSOR_WRAPNEXT;
     term.cursor.x = LIMIT(x, 0, term.ncols - 1);
     term.cursor.y = LIMIT(y, miny, maxy);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -714,7 +685,6 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
     if (isboxdraw(u)) {
         term.lines[y][x].mode |= ATTR_BOXDRAW;
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -729,7 +699,6 @@ term_clear_glyph(StGlyph *glyph, bool use_current_attr) {
     }
     glyph->mode = ATTR_NONE;
     glyph->rune = ' ';
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -748,7 +717,6 @@ term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2,
             term_clear_glyph(&term.lines[y][x], use_current_attr);
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -760,7 +728,6 @@ term_delete_char(int32 n) {
     StGlyph *line;
 
     if (n <= 0) {
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     }
 
@@ -777,7 +744,6 @@ term_delete_char(int32 n) {
     }
     term_clear_region(dst + size, term.cursor.y,
                       term.ncols - 1, term.cursor.y, true);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -789,7 +755,6 @@ term_insert_blank(int32 n) {
     StGlyph *line;
 
     if (n <= 0) {
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     }
     dst = (int32)MIN(term.cursor.x + n, term.ncols);
@@ -800,7 +765,6 @@ term_insert_blank(int32 n) {
         memmove64(&line[dst], &line[src], size*SIZEOF(StGlyph));
     }
     term_clear_region(src, term.cursor.y, dst - 1, term.cursor.y, true);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -809,7 +773,6 @@ term_insert_blank_line(int32 n) {
     if (BETWEEN(term.cursor.y, term.top_scroll_limit, term.bot_scroll_limit)) {
         term_scroll_down(term.cursor.y, n);
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -819,7 +782,6 @@ term_delete_line(int32 n) {
         term_scroll_up(term.cursor.y, term.bot_scroll_limit,
                        n, SCROLL_NOSAVEHIST);
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -831,7 +793,6 @@ term_printer(char *s, int64 len) {
             XCLOSE(&io_fd);
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -845,7 +806,6 @@ term_dump_sel(void) {
         term_printer(ptr, len);
         free2(ptr, len + 1);
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -870,7 +830,6 @@ term_dump_line(int32 n) {
 
     term_printer(string, ptr - buffer);
     free2(string, size);
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -879,7 +838,6 @@ term_dump(void) {
     for (int32 i = 0; i < term.nrows; i += 1) {
         term_dump_line(i);
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -888,7 +846,6 @@ reflow_scroll_down(int32 n) {
     int32 actual_n = (int32)MIN(n, term.n_hist);
 
     if (actual_n <= 0) {
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     }
 
@@ -922,7 +879,6 @@ reflow_scroll_down(int32 n) {
             im = im->next;
         }
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -954,7 +910,6 @@ term_resize(int32 new_ncols, int32 new_nrows) {
     } else {
         term_resize_def(new_ncols, new_nrows);
     }
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -964,7 +919,6 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
 
     if (term.ncols == new_ncols && term.nrows == new_nrows) {
         term_full_dirt();
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     }
     if (new_ncols != term.ncols) {
@@ -997,7 +951,6 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
     term.top_scroll_limit = 0;
     term.bot_scroll_limit = new_nrows - 1;
     term_full_dirt();
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1008,7 +961,6 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
 
     if ((term.ncols == new_ncols) && (term.nrows == new_nrows)) {
         term_full_dirt();
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
         return;
     }
     if (selection.alt) {
@@ -1098,7 +1050,6 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     }
 
     term_full_dirt();
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1393,7 +1344,6 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     term.nrows = new_nrows;
     term.ncols = new_ncols;
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1617,7 +1567,6 @@ draw(void) {
         x_xim_spot(term.old_cursor_x, term.old_cursor_y);
     }
 
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
@@ -1625,7 +1574,6 @@ static void
 redraw(void) {
     term_full_dirt();
     draw();
-    error("%s: term.mode = %s.\n", __func__, TERM_MODE_str(term.mode));
     return;
 }
 
