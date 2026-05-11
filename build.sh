@@ -87,7 +87,7 @@ CFLAGS="$CFLAGS -Wno-bad-function-cast"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
 
-LDFLAGS="$LDFLAGS -lm -lrt -lX11 -lXft"
+LDFLAGS="$LDFLAGS -lm -lX11 -lXft"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 
