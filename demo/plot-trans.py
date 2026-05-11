@@ -22,9 +22,6 @@ x = np.linspace(0, 10, 100)
 y1 = np.sin(x)
 y2 = np.exp(x)
 
-ax_left.grid(color="#222222")
-ax_right.grid(color="#222222")
-
 ax_left.plot(x, y1, label="sin(x)",
              color="tab:blue", linewidth=2, linestyle="dashed")
 ax_right.plot(x, y2, label="exp(x)",
