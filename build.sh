@@ -230,7 +230,7 @@ case "$target" in
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS && "$exe"
     trace_off
     ;;
-"build"|"debug"|"run"|"release"|"valgrind"|"callgrind"|"perf"|"profile"|"cross")
+build|debug|run|release|valgrind|callgrind|perf|profile|cross)
     trace_on
 
     ctags --kinds-C=+l+d cbase/*.c src/*.h src/*.c  2> /dev/null || true
