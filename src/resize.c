@@ -188,7 +188,6 @@ static void
 term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 old_nrows = term.nrows;
     int32 old_ncols = term.ncols;
-    int32 old_cursor_y = term.cursor.y;
     int32 last_used_line = term.cursor.y;
     int32 capacity = 0;
     bool was_at_bottom = false;
@@ -200,6 +199,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 new_x_off = 0;
     int32 new_cursor_y_proxy = -1;
     int32 new_view_proxy = -1;
+    int32 new_active_proxy = -1;
 
     int32 space_in_new;
     int32 chars_in_old;
@@ -290,6 +290,11 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                     new_view_proxy = new_y_idx;
                 }
             }
+            if (old_y_idx == 0) {
+                if (new_active_proxy < 0) {
+                    new_active_proxy = new_y_idx;
+                }
+            }
         }
 
         space_in_new = new_ncols - new_x_off;
@@ -343,8 +348,12 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
     total_reflowed_count = new_y_idx + 1;
 
-    /* Goal: Preserve the cursor's visual Y position */
-    desired_screen_top = new_cursor_y_proxy - old_cursor_y;
+    /* Goal: Preserve the top of the active buffer */
+    if (new_active_proxy >= 0) {
+        desired_screen_top = new_active_proxy;
+    } else {
+        desired_screen_top = 0;
+    }
 
     /* Constraint 1: Prevent array underflow */
     if (desired_screen_top < 0) {
@@ -354,11 +363,15 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     /* Constraint 2: Prevent empty space at the bottom if history is available */
     {
         int32 last_data_y = total_reflowed_count - 1;
+        int32 old_empty = (old_nrows - 1) - last_used_line;
+        if (old_empty < 0) {
+            old_empty = 0;
+        }
+
         if (desired_screen_top + new_nrows > last_data_y + 1) {
-            int32 empty_bottom_rows = (desired_screen_top + new_nrows) - (last_data_y + 1);
-            int32 old_empty_bottom_rows = (old_nrows - 1) - last_used_line;
-            if (empty_bottom_rows > old_empty_bottom_rows) {
-                desired_screen_top -= (empty_bottom_rows - old_empty_bottom_rows);
+            int32 new_empty = (desired_screen_top + new_nrows) - (last_data_y + 1);
+            if (new_empty > old_empty) {
+                desired_screen_top -= (new_empty - old_empty);
                 if (desired_screen_top < 0) {
                     desired_screen_top = 0;
                 }
