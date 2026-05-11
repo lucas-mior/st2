@@ -200,7 +200,7 @@ if __name__ == '__main__':
     ax_left.plot(x, y1, label="sin(x)",
                  color="tab:blue", linewidth=2, linestyle="dashed")
     ax_right.plot(x, y2, label="exp(x)",
-                  color="tab:orange", linewidth=2)
+                  color="tab:orange", linewidth=2, alpha=0.8)
 
     ax_left.grid(axis="x", color="#222222")
 
