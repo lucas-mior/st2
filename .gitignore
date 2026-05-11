@@ -3,6 +3,7 @@ gen
 gdb_output*
 gcc-analyzer*
 scan-build*
+callgrind*
 test_reflow
 .comments
 *.mp4
