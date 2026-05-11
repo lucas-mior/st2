@@ -356,9 +356,12 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         int32 last_data_y = total_reflowed_count - 1;
         if (desired_screen_top + new_nrows > last_data_y + 1) {
             int32 empty_bottom_rows = (desired_screen_top + new_nrows) - (last_data_y + 1);
-            desired_screen_top -= empty_bottom_rows;
-            if (desired_screen_top < 0) {
-                desired_screen_top = 0;
+            int32 old_empty_bottom_rows = (old_nrows - 1) - last_used_line;
+            if (empty_bottom_rows > old_empty_bottom_rows) {
+                desired_screen_top -= (empty_bottom_rows - old_empty_bottom_rows);
+                if (desired_screen_top < 0) {
+                    desired_screen_top = 0;
+                }
             }
         }
     }
