@@ -439,6 +439,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         ImageList *im_final = term.images;
         while (im_final != NULL) {
             ImageList *next_im = im_final->next;
+            int32 limit_x;
 
             if (im_final->y >= OFFSET_REF) {
                 im_final->y = im_final->y - OFFSET_REF - screen_top_idx;
@@ -460,7 +461,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                 continue;
             }
 
-            int32 limit_x = im_final->x + im_final->cols;
+            limit_x = im_final->x + im_final->cols;
             if (limit_x > new_ncols) {
                 limit_x = new_ncols;
             }
