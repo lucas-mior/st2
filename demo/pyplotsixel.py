@@ -170,3 +170,56 @@ class _BackendSixelAgg(_Backend):
         kwargs["figsize"] = ((cols * 10) / dpi, ((lines - 3) * 20) / dpi)
 
         return super().new_figure_manager(num, *args, **kwargs)
+
+
+if __name__ == '__main__':
+    import matplotlib
+    matplotlib.use("module://pyplotsixel")
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    plt.figure(figsize=(6,4), facecolor="none")
+
+    ax_left = plt.axes()
+    ax_left.set_facecolor("#111111")
+
+    ax_left.tick_params(colors="white")
+    for spine in ax_left.spines.values():
+        spine.set_edgecolor("white")
+
+    ax_right = ax_left.twinx()
+
+    ax_right.tick_params(colors="white")
+    for spine in ax_right.spines.values():
+        spine.set_edgecolor("white")
+
+    x = np.linspace(0, 10, 100)
+    y1 = np.sin(x)
+    y2 = np.exp(x)
+
+    ax_left.plot(x, y1, label="sin(x)",
+                 color="tab:blue", linewidth=2, linestyle="dashed")
+    ax_right.plot(x, y2, label="exp(x)",
+                  color="tab:orange", linewidth=2)
+
+    ax_left.grid(axis="x", color="#222222")
+
+    xmin, xmax = ax_left.get_xlim()
+    ax_left.set_xlim(xmin, xmax)
+    ax_left.set_ylim(ax_left.get_ylim())
+    ax_right.set_ylim(ax_right.get_ylim())
+
+    ax_left.hlines(ax_left.get_yticks(), xmin=xmin, xmax=10, 
+                   color="#222222", linewidth=0.8, zorder=0)
+
+    ax_right.hlines(ax_right.get_yticks(), xmin=0, xmax=xmax, 
+                    color="#222222", linewidth=0.8, zorder=0)
+
+    ax_left.legend(loc="lower left", bbox_to_anchor=(0, 1),
+                   frameon=False, labelcolor="white")
+    ax_right.legend(loc="lower right", bbox_to_anchor=(1, 1),
+                    frameon=False, labelcolor="white")
+
+    plt.title("Functions", color="white", pad=25)
+
+    plt.show()
