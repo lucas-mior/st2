@@ -800,6 +800,43 @@ main(void) {
             assert(false);
         }
     }
+    {
+        current_test_name = "Scenario U: Maintain Cursor Visual Y After Clear (Ctrl+L)";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(20, 5);
+        term_reset();
+
+        /* 1. Fill the terminal and history to simulate a busy session */
+        for (int32 i = 0; i < 15; i += 1) {
+            test_inject_text("OLD_HISTORY_DATA\n");
+        }
+
+        /* 2. Simulate Ctrl+L (Clear Screen)
+         * Shell typically moves cursor to 0,0 and clears the visible display */
+        term_move_to(0, 0);
+        term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, true);
+
+        /* 3. Shell draws the new prompt at the top */
+        test_inject_text("prompt> ");
+        check_consistent_state();
+
+        /* 4. Shrink the width of the terminal */
+        term_resize(10, 5);
+        check_consistent_state();
+
+        /* 5. ASSERTIONS:
+         * The cursor MUST remain at Y=0.
+         * The history MUST NOT bleed into the visible screen. */
+        if (term.cursor.y != 0) {
+            error("[%s] Cursor shifted downwards after clear and resize.\n", current_test_name);
+            error("Expected Y=0, Actual Y=%d\n", term.cursor.y);
+            assert(false);
+        }
+
+        /* Row 0 should be the prompt, Row 1 should be completely empty */
+        test_verify_viewport_line(0, "prompt> ");
+        test_verify_viewport_line(1, "");
+    }
 
     printf("\nAll tests passed successfully!\n");
     return 0;
