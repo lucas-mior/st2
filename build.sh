@@ -241,7 +241,7 @@ case "$target" in
         with_other chibicc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
     elif [ "$CC" = "cproc" ]; then
         CPPFLAGS="$CPPFLAGS -D__attribute=__attribute__"
-        with_other cproc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
+        with_other cproc   $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
     else
         $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
         # $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
