@@ -167,11 +167,13 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
             continue;
         }
 
-        int32 new_cols = im_alt->x + im_alt->cols;
-        if (term.ncols < new_cols) {
-            new_cols = term.ncols;
+        {
+            int32 new_cols = im_alt->x + im_alt->cols;
+            if (term.ncols < new_cols) {
+                new_cols = term.ncols;
+            }
+            im_alt->cols = new_cols - im_alt->x;
         }
-        im_alt->cols = new_cols - im_alt->x;
 
         if (im_alt->cols <= 0) {
             sixel_image_delete(im_alt);
