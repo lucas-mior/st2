@@ -89,6 +89,7 @@ static void
 term_resize_alt(int32 new_ncols, int32 new_nrows) {
     int32 shift = 0;
     int64 old_line_size = (int64)term.ncols*SIZEOF(StGlyph);
+    ImageList *im_alt;
 
     if ((term.ncols == new_ncols) && (term.nrows == new_nrows)) {
         term_full_dirt();
@@ -145,7 +146,7 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     term.top_scroll_limit = 0;
     term.bot_scroll_limit = new_nrows - 1;
 
-    ImageList *im_alt = term.images;
+    im_alt = term.images;
     while (im_alt != NULL) {
         ImageList *next_im = im_alt->next;
 
