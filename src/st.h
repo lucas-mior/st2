@@ -311,6 +311,7 @@ static struct {
     Atom xtarget;
     char *primary;
     char *clipboard;
+    int32 clipboard_len;
     struct timespec tclick1;
     struct timespec tclick2;
 } xsel;

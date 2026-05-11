@@ -20,11 +20,15 @@ user_clipboard_copy(union Arg *arg) {
     Atom clipboard;
     (void)arg;
 
-    free(xsel.clipboard);
+    free2(xsel.clipboard, xsel.clipboard_len + 1);
     xsel.clipboard = NULL;
+    xsel.clipboard_len = 0;
 
     if (xsel.primary != NULL) {
-        xsel.clipboard = xstrdup(xsel.primary);
+        xsel.clipboard_len = strlen32(xsel.primary);
+        xsel.clipboard = malloc2(xsel.clipboard_len + 1);
+        memcpy64(xsel.clipboard, xsel.primary, xsel.clipboard_len + 1);
+
         clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
         XSetSelectionOwner(x_window.display,
                            clipboard, x_window.win,
