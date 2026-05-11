@@ -23,6 +23,8 @@ stty(char **args) {
     char *token;
     pid_t pid2;
 
+    ASSERT(args[0]);
+
     if ((n = strlen32(CONF_STTY_ARGS)) > SIZEOF(cmd) - 1) {
         error("CONF_STTY_ARGS is too long.\n");
         fatal(EXIT_FAILURE);
