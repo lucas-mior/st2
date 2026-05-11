@@ -158,38 +158,38 @@ if [ "$target" = "cross" ]; then
 fi
 
 case "$target" in
-"debug")
+debug)
     CFLAGS="$CFLAGS -g3 -fsanitize-trap=undefined"
     CPPFLAGS="$CPPFLAGS $GNUSOURCE -DDEBUGGING=1"
     exe="bin/${program}_debug"
     ;;
-"perf")
+perf)
     CFLAGS="$CFLAGS -g -O2 -flto"
     CPPFLAGS="$CPPFLAGS $GNUSOURCE"
     exe="bin/${program}_perf"
     ;;
-"valgrind")
+valgrind)
     CFLAGS="$CFLAGS -g3 -O0 -ftree-vectorize"
     CPPFLAGS="$CPPFLAGS $GNUSOURCE -DDEBUGGING=1"
     ;;
-"callgrind")
+callgrind)
     CFLAGS="$CFLAGS -g3 -O2 -ftree-vectorize"
     CPPFLAGS="$CPPFLAGS $GNUSOURCE"
     ;;
-"test")
+test)
     CFLAGS="$CFLAGS -g3 $GNUSOURCE -DDEBUGGING=1 -fsanitize-trap=undefined -Wno-address"
     ;;
-"check")
+check)
     CC=gcc
     CFLAGS="$CFLAGS $GNUSOURCE -DDEBUGGING=1 -fanalyzer"
     ;;
-"build"|"run")
+build|run)
     CFLAGS="$CFLAGS $GNUSOURCE -O2 -flto -march=native -ftree-vectorize"
     ;;
-"release")
+release)
     CFLAGS="$CFLAGS $GNUSOURCE -DRELEASING=1 -O2 -flto -march=native -ftree-vectorize"
     ;;
-"fast_feedback")
+fast_feedback)
     CC=clang
     CFLAGS="$CFLAGS $GNUSOURCE -Werror"
     ;;
@@ -225,7 +225,7 @@ if [ "$CC" = "clang" ]; then
 fi
 
 case "$target" in
-"fast_feedback")
+fast_feedback)
     trace_on
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS && "$exe"
     trace_off
@@ -269,7 +269,7 @@ install)
 	tic -sx st.info
 	echo "Please see the README regarding the terminfo entry of st."
 	;;
-"test")
+test)
     for src in $(find . -iname "*.c" | sort); do
         trace_off
         name=$(basename "$src")
@@ -342,7 +342,7 @@ uninstall)
 esac
 
 case "$target" in
-"valgrind")
+valgrind)
     vg_flags="$vg_flags --error-exitcode=1"
     vg_flags="$vg_flags --leak-check=no"
     # vg_flags="$vg_flags --show-leak-kinds=definite"
@@ -358,7 +358,7 @@ case "$target" in
     trace_off
     exit
     ;;
-"callgrind")
+callgrind)
     out="callgrind_$(date +%s).callgrind"
     trace_on
     valgrind --tool=callgrind --callgrind-out-file="$out" bin/$program
@@ -366,7 +366,7 @@ case "$target" in
     trace_off
     exit
     ;;
-"cachegrind")
+cachegrind)
     out="cachegrind_$(date +%s).callgrind"
     trace_on
     valgrind --tool=cachegrind --cachegrind-out-file="$out" bin/$program
@@ -374,7 +374,7 @@ case "$target" in
     trace_off
     exit
     ;;
-"check")
+check)
     CC=gcc CFLAGS="-fanalyzer" ./build.sh 2>&1 \
         | sed -E 's/\[[0-9;]*[mK]//g' \
           | tee "gcc-analyzer-$(date +%s).txt"
@@ -384,7 +384,7 @@ case "$target" in
           > "scan-build-$(date +%s).txt" &
     exit
     ;;
-"perf")
+perf)
     trace_on
     perf record -F 999 -g --call-graph dwarf -o bin/perf.data "$exe"
     perf report -n -g --input bin/perf.data
