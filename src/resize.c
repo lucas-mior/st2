@@ -466,10 +466,12 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                 limit_x = new_ncols;
             }
 
-            StGlyph *line = term_line_abs(im_final->y);
-            for (int32 i = im_final->x; i < limit_x; i += 1) {
-                if ((line[i].mode & ATTR_SET) == 0) {
-                    line[i].mode |= ATTR_SIXEL;
+            {
+                StGlyph *line = term_line_abs(im_final->y);
+                for (int32 i = im_final->x; i < limit_x; i += 1) {
+                    if ((line[i].mode & ATTR_SET) == 0) {
+                        line[i].mode |= ATTR_SIXEL;
+                    }
                 }
             }
 
