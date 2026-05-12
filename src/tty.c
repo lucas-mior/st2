@@ -70,7 +70,7 @@ stty(char **args) {
 
 static void __attribute((noreturn))
 exec_shell(char *cmd, char **args) {
-    char *shell;
+    char *SHELL;
     char *arg;
     struct passwd *pw;
 
@@ -86,11 +86,12 @@ exec_shell(char *cmd, char **args) {
         }
     }
 
-    if ((shell = getenv("SHELL")) == NULL) {
+    GETENV(SHELL);
+    if (SHELL == NULL) {
         if (pw->pw_shell[0]) {
-            shell = pw->pw_shell;
+            SHELL = pw->pw_shell;
         } else {
-            shell = cmd;
+            SHELL = cmd;
         }
     }
 
@@ -102,7 +103,7 @@ exec_shell(char *cmd, char **args) {
             program = CONF_UTMP;
             arg = NULL;
         } else {
-            program = shell;
+            program = SHELL;
             arg = NULL;
         }
     }
@@ -113,7 +114,7 @@ exec_shell(char *cmd, char **args) {
     unsetenv("TERMCAP");
     setenv("LOGNAME", pw->pw_name, 1);
     setenv("USER", pw->pw_name, 1);
-    setenv("SHELL", shell, 1);
+    setenv("SHELL", SHELL, 1);
     setenv("HOME", pw->pw_dir, 1);
     setenv("TERM", CONF_TERM_NAME, 1);
 
