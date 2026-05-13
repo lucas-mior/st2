@@ -287,7 +287,6 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
 
     face = XftLockFace(st_font->match);
     st_font->hbfont = hb_ft_font_create(face, NULL);
-    XftUnlockFace(st_font->match);
 
     if ((XftPatternGetInteger(pattern, "slant", 0, &want_attr)
          == XftResultMatch)) {
@@ -443,7 +442,6 @@ x_load_spare_font(FcPattern *pattern, int32 flags) {
 
     face = XftLockFace(frc[frc_len].font);
     frc[frc_len].hbfont = hb_ft_font_create(face, NULL);
-    XftUnlockFace(frc[frc_len].font);
 
     frc[frc_len].flags = flags;
     frc[frc_len].unicodep = 0;
@@ -541,6 +539,7 @@ static void
 x_unload_font(StFont *f) {
     if (f->hbfont) {
         hb_font_destroy(f->hbfont);
+        XftUnlockFace(f->match);
     }
     XftFontClose(x_window.display, f->match);
     FcPatternDestroy(f->pattern);
@@ -556,6 +555,7 @@ x_unload_fonts(void) {
         frc_len -= 1;
         if (frc[frc_len].hbfont) {
             hb_font_destroy(frc[frc_len].hbfont);
+            XftUnlockFace(frc[frc_len].font);
         }
         XftFontClose(x_window.display, frc[frc_len].font);
     }
@@ -633,23 +633,32 @@ x_im_open(Display *display) {
 static int32
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                         int32 len, int32 x, int32 y) {
-    int32 win_x = term_window.hborderpx + x*term_window.cw;
-    int32 win_y = term_window.vborderpx + y*term_window.ch;
+    int32 win_x = term_window.hborderpx + x * term_window.cw;
+    int32 win_y = term_window.vborderpx + y * term_window.ch;
     enum GlyphAttribute prevmode = ATTR_LAST;
     StFont *font_local = &draw_context.font;
     int32 frc_flags = FRC_NORMAL;
-    int32 rune_width = term_window.cw;
     int32 nfont_specs = 0;
     int32 xp = win_x;
-    int32 yp = win_y + font_local->ascent;
+    hb_buffer_t *buffer = hb_buffer_create();
+    uint32 *text_run = malloc2((uint32)(len * 32) * SIZEOF(uint32));
+    int32 i = 0;
 
-    for (int32 i = 0; i < len; i += 1) {
-        uint32 rune = glyphs[i].rune;
-        enum GlyphAttribute mode = glyphs[i].mode;
-        FT_UInt glyph_idx;
+    while (i < len) {
+        StGlyph base_glyph = glyphs[i];
+        enum GlyphAttribute mode = base_glyph.mode;
+        uint32 first_rune = base_glyph.rune;
+        XftFont *current_xfont = NULL;
+        hb_font_t *current_hbfont = NULL;
         int32 nfonts = 0;
+        FT_UInt glyph_idx = 0;
+        int32 run_len = 0;
+        int32 text_run_len = 0;
+        int32 run_width = 0;
 
         if (mode == ATTR_WDUMMY) {
+            xp += term_window.cw;
+            i += 1;
             continue;
         }
 
@@ -657,11 +666,6 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             prevmode = mode;
             font_local = &draw_context.font;
             frc_flags = FRC_NORMAL;
-            if (mode & ATTR_WIDE) {
-                rune_width = term_window.cw*2;
-            } else {
-                rune_width = term_window.cw;
-            }
             if (mode & ATTR_ITALIC) {
                 if (mode & ATTR_BOLD) {
                     font_local = &draw_context.ibfont;
@@ -674,97 +678,190 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                 font_local = &draw_context.bfont;
                 frc_flags = FRC_BOLD;
             }
-            yp = win_y + font_local->ascent;
         }
 
         if (mode & ATTR_BOXDRAW) {
-            glyph_idx = boxdrawindex(&glyphs[i]);
-        } else {
-            glyph_idx = XftCharIndex(x_window.display, font_local->match, rune);
-        }
-
-        if (glyph_idx) {
+            glyph_idx = boxdrawindex(&base_glyph);
             specs[nfont_specs].font = font_local->match;
             specs[nfont_specs].glyph = glyph_idx;
             specs[nfont_specs].x = (int16)xp;
-            specs[nfont_specs].y = (int16)yp;
-            xp += rune_width;
+            specs[nfont_specs].y = (int16)(win_y + font_local->ascent);
+
+            if (mode & ATTR_WIDE) {
+                xp += term_window.cw * 2;
+            } else {
+                xp += term_window.cw;
+            }
             nfont_specs += 1;
+            i += 1;
             continue;
         }
 
-        while (nfonts < frc_len) {
-            glyph_idx = XftCharIndex(x_window.display, frc[nfonts].font, rune);
-            if (glyph_idx) {
-                if (frc[nfonts].flags == frc_flags) {
-                    break;
+        if (first_rune & MULTI_CODE_POINT_FLAG) {
+            uint32 pool_index = first_rune & ~MULTI_CODE_POINT_FLAG;
+            first_rune = string_pool[pool_index].runes[0];
+        }
+
+        glyph_idx = XftCharIndex(x_window.display, font_local->match, first_rune);
+        if (glyph_idx) {
+            current_xfont = font_local->match;
+            current_hbfont = font_local->hbfont;
+        } else {
+            while (nfonts < frc_len) {
+                glyph_idx = XftCharIndex(x_window.display, frc[nfonts].font, first_rune);
+                if (glyph_idx) {
+                    if (frc[nfonts].flags == frc_flags) {
+                        break;
+                    }
                 }
+                if (!glyph_idx) {
+                    if (frc[nfonts].flags == frc_flags) {
+                        if (frc[nfonts].unicodep == first_rune) {
+                            break;
+                        }
+                    }
+                }
+                nfonts += 1;
             }
-            if (!glyph_idx) {
-                if (frc[nfonts].flags == frc_flags) {
-                    if (frc[nfonts].unicodep == rune) {
+
+            if (nfonts >= frc_len) {
+                FcResult fc_result;
+                FcPattern *fc_pattern = NULL;
+                FcPattern *fontpattern = NULL;
+                FcFontSet *fcsets[] = {NULL};
+                FcCharSet *fc_charset = NULL;
+                FT_Face face = NULL;
+
+                if (!font_local->set) {
+                    font_local->set = FcFontSort(0, font_local->pattern, 1, 0, &fc_result);
+                }
+                fcsets[0] = font_local->set;
+
+                fc_pattern = FcPatternDuplicate(font_local->pattern);
+                fc_charset = FcCharSetCreate();
+
+                FcCharSetAddChar(fc_charset, first_rune);
+                FcPatternAddCharSet(fc_pattern, FC_CHARSET, fc_charset);
+                FcPatternAddBool(fc_pattern, FC_SCALABLE, 1);
+
+                FcConfigSubstitute(0, fc_pattern, FcMatchPattern);
+                FcDefaultSubstitute(fc_pattern);
+
+                fontpattern = FcFontSetMatch(0, fcsets, 1, fc_pattern, &fc_result);
+
+                if (frc_len >= frc_cap) {
+                    int32 old_cap = frc_cap;
+                    frc_cap += 16;
+                    frc = realloc2(frc, old_cap, frc_cap, SIZEOF(FontCache));
+                }
+
+                frc[frc_len].font = XftFontOpenPattern(x_window.display, fontpattern);
+                if (!frc[frc_len].font) {
+                    error("XftFontOpenPattern failed seeking fallback font: %s\n", strerror(errno));
+                    exit(EXIT_FAILURE);
+                }
+
+                face = XftLockFace(frc[frc_len].font);
+                frc[frc_len].hbfont = hb_ft_font_create(face, NULL);
+                /* CRITICAL FIX: Do NOT call XftUnlockFace here. Let HarfBuzz keep the pointer valid. */
+
+                frc[frc_len].flags = frc_flags;
+                frc[frc_len].unicodep = first_rune;
+
+                nfonts = frc_len;
+                frc_len += 1;
+
+                FcPatternDestroy(fc_pattern);
+                FcCharSetDestroy(fc_charset);
+            }
+
+            current_xfont = frc[nfonts].font;
+            current_hbfont = frc[nfonts].hbfont;
+        }
+
+        while (i + run_len < len) {
+            StGlyph next_glyph = glyphs[i + run_len];
+            uint32 next_rune = next_glyph.rune;
+
+            if (next_glyph.mode == ATTR_WDUMMY) {
+                run_len += 1;
+                run_width += term_window.cw;
+                continue;
+            }
+            if (next_glyph.mode != mode) {
+                break;
+            }
+            if (next_glyph.mode & ATTR_BOXDRAW) {
+                break;
+            }
+
+            if (next_rune & MULTI_CODE_POINT_FLAG) {
+                uint32 pool_index = next_rune & ~MULTI_CODE_POINT_FLAG;
+                next_rune = string_pool[pool_index].runes[0];
+            }
+
+            if (run_len > 0) {
+                if (current_xfont) {
+                    if (!XftCharIndex(x_window.display, current_xfont, next_rune)) {
                         break;
                     }
                 }
             }
-            nfonts += 1;
+
+            if (glyphs[i + run_len].rune & MULTI_CODE_POINT_FLAG) {
+                uint32 pool_index = glyphs[i + run_len].rune & ~MULTI_CODE_POINT_FLAG;
+                int32 p = 0;
+                for (p = 0; p < string_pool[pool_index].length; p += 1) {
+                    text_run[text_run_len] = string_pool[pool_index].runes[p];
+                    text_run_len += 1;
+                }
+            } else {
+                text_run[text_run_len] = next_rune;
+                text_run_len += 1;
+            }
+
+            if (next_glyph.mode & ATTR_WIDE) {
+                run_width += term_window.cw * 2;
+            } else {
+                run_width += term_window.cw;
+            }
+            run_len += 1;
         }
 
-        if (nfonts >= frc_len) {
-            FcResult fc_result;
-            FcPattern *fc_pattern;
-            FcPattern *fontpattern;
-            FcFontSet *fcsets[] = {NULL};
-            FcCharSet *fc_charset;
+        if (current_hbfont) {
+            if (text_run_len > 0) {
+                uint32 glyph_count = 0;
+                hb_glyph_info_t *info = NULL;
+                hb_glyph_position_t *pos = NULL;
+                int32 current_xp = xp;
+                int32 yp = win_y + font_local->ascent;
+                uint32 j = 0;
 
-            if (!font_local->set) {
-                font_local->set = FcFontSort(0, font_local->pattern, 1, 0, &fc_result);
+                hb_buffer_clear_contents(buffer);
+                hb_buffer_add_utf32(buffer, text_run, text_run_len, 0, text_run_len);
+                hb_buffer_guess_segment_properties(buffer);
+                hb_shape(current_hbfont, buffer, NULL, 0);
+
+                info = hb_buffer_get_glyph_infos(buffer, &glyph_count);
+                pos = hb_buffer_get_glyph_positions(buffer, &glyph_count);
+
+                for (j = 0; j < glyph_count; j += 1) {
+                    specs[nfont_specs].font = current_xfont;
+                    specs[nfont_specs].glyph = info[j].codepoint;
+                    specs[nfont_specs].x = (int16)(current_xp + (pos[j].x_offset >> 6));
+                    specs[nfont_specs].y = (int16)(yp - (pos[j].y_offset >> 6));
+                    current_xp += (pos[j].x_advance >> 6);
+                    nfont_specs += 1;
+                }
             }
-            fcsets[0] = font_local->set;
-
-            fc_pattern = FcPatternDuplicate(font_local->pattern);
-            fc_charset = FcCharSetCreate();
-
-            FcCharSetAddChar(fc_charset, rune);
-            FcPatternAddCharSet(fc_pattern, FC_CHARSET, fc_charset);
-            FcPatternAddBool(fc_pattern, FC_SCALABLE, 1);
-
-            FcConfigSubstitute(0, fc_pattern, FcMatchPattern);
-            FcDefaultSubstitute(fc_pattern);
-
-            fontpattern = FcFontSetMatch(0, fcsets, 1, fc_pattern, &fc_result);
-
-            if (frc_len >= frc_cap) {
-                int32 old_cap = frc_cap;
-                frc_cap += 16;
-                frc = realloc2(frc, old_cap, frc_cap, SIZEOF(FontCache));
-            }
-
-            frc[frc_len].font = XftFontOpenPattern(x_window.display, fontpattern);
-            if (!frc[frc_len].font) {
-                error("XftFontOpenPattern failed seeking fallback font: %s\n",
-                      strerror(errno));
-                exit(EXIT_FAILURE);
-            }
-            frc[frc_len].flags = frc_flags;
-            frc[frc_len].unicodep = rune;
-
-            glyph_idx = XftCharIndex(x_window.display, frc[frc_len].font, rune);
-
-            nfonts = frc_len;
-            frc_len += 1;
-
-            FcPatternDestroy(fc_pattern);
-            FcCharSetDestroy(fc_charset);
         }
 
-        specs[nfont_specs].font = frc[nfonts].font;
-        specs[nfont_specs].glyph = glyph_idx;
-        specs[nfont_specs].x = (int16)xp;
-        specs[nfont_specs].y = (int16)yp;
-        xp += rune_width;
-        nfont_specs += 1;
+        i += run_len;
+        xp += run_width;
     }
+
+    free2(text_run, (uint32)(len * 32) * SIZEOF(uint32));
+    hb_buffer_destroy(buffer);
 
     return nfont_specs;
 }
