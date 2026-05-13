@@ -1436,12 +1436,17 @@ esc_handle(uchar ascii) {
 
 static void
 term_putc(uint32 u) {
+    static utf8proc_int32_t grapheme_state = 0;
+    static int32 expected_cursor_x = 0;
+    static int32 expected_cursor_y = 0;
     char c[UTF_SIZ];
     int32 control;
     int32 width = 0;
     int32 len;
     StGlyph *glyph;
     int32 is_modifier = 0;
+    int32 prev_x;
+    int32 prev_y;
 
     control = IS_CONTROl(u);
     if (u < 127 || !term_mode_is_set(TERM_MODE_UTF8)) {
@@ -1566,30 +1571,42 @@ check_control_code:
         }
     }
 
-    if (u == 0x200D) {
-        is_modifier = 1;
-    } else if (u >= 0xFE00 && u <= 0xFE0F) {
-        is_modifier = 1;
-    } else if (u >= 0x1F3FB && u <= 0x1F3FF) {
-        is_modifier = 1;
-    } else if (u >= 0xE0020 && u <= 0xE007F) {
-        is_modifier = 1;
+    if (term.cursor.x != expected_cursor_x || term.cursor.y != expected_cursor_y) {
+        grapheme_state = 0;
+    }
+
+    prev_x = term.cursor.x;
+    prev_y = term.cursor.y;
+
+    if (prev_x > 0) {
+        prev_x -= 1;
+    } else {
+        if (prev_y > 0) {
+            prev_y -= 1;
+            prev_x = term.ncols - 1;
+        }
+    }
+
+    if (prev_x != term.cursor.x || prev_y != term.cursor.y) {
+        StGlyph *prev_glyph = NULL;
+        uint32 prev_rune = 0;
+        
+        prev_glyph = &term.lines[prev_y][prev_x];
+        prev_rune = prev_glyph->rune;
+
+        if (prev_rune & MULTI_CODE_POINT_FLAG) {
+            uint32 pool_index = prev_rune & ~MULTI_CODE_POINT_FLAG;
+            prev_rune = string_pool[pool_index].runes[string_pool[pool_index].length - 1];
+        }
+
+        if (!utf8proc_grapheme_break_stateful((utf8proc_int32_t)prev_rune, (utf8proc_int32_t)u, &grapheme_state)) {
+            is_modifier = 1;
+        }
     }
 
     if (is_modifier) {
-        int32 prev_x = term.cursor.x;
-        int32 prev_y = term.cursor.y;
         StGlyph *prev_glyph = NULL;
         uint32 pool_index;
-
-        if (prev_x > 0) {
-            prev_x -= 1;
-        } else {
-            if (prev_y > 0) {
-                prev_y -= 1;
-                prev_x = term.ncols - 1;
-            }
-        }
 
         prev_glyph = &term.lines[prev_y][prev_x];
 
@@ -1627,7 +1644,28 @@ check_control_code:
         string_pool[pool_index].runes[string_pool[pool_index].length] = u;
         string_pool[pool_index].length += 1;
         
+        if (width > 0 && !(prev_glyph->mode & ATTR_WIDE)) {
+            prev_glyph->mode |= ATTR_WIDE;
+            if (prev_x + 1 < term.ncols) {
+                if ((term.lines[prev_y][prev_x + 1].mode & ATTR_WIDE) && (prev_x + 2 < term.ncols)) {
+                    term.lines[prev_y][prev_x + 2].rune = ' ';
+                    term.lines[prev_y][prev_x + 2].mode &= ~ATTR_WDUMMY;
+                }
+                term.lines[prev_y][prev_x + 1].rune = '\0';
+                term.lines[prev_y][prev_x + 1].mode = ATTR_WDUMMY;
+            }
+            if (term.cursor.x == prev_x + 1 && term.cursor.y == prev_y) {
+                if (term.cursor.x + 1 < term.ncols) {
+                    term_move_to(term.cursor.x + 1, term.cursor.y);
+                } else {
+                    term.cursor.state |= CURSOR_WRAPNEXT;
+                }
+            }
+        }
+        
         term.dirts[prev_y] = true;
+        expected_cursor_x = term.cursor.x;
+        expected_cursor_y = term.cursor.y;
         return;
     }
 
@@ -1686,6 +1724,9 @@ check_control_code:
         }
         term.cursor.state |= CURSOR_WRAPNEXT;
     }
+    
+    expected_cursor_x = term.cursor.x;
+    expected_cursor_y = term.cursor.y;
     return;
 }
 
