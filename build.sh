@@ -84,10 +84,12 @@ CFLAGS="$CFLAGS -Wno-bad-function-cast"
 
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags harfbuzz)"
 
 LDFLAGS="$LDFLAGS -lm -lX11 -lXft"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
 
 if [ "$target" = "test" ] && [ -z "$CC" ] && command tcc > /dev/null 2>&1; then
     CC=tcc
@@ -248,7 +250,7 @@ build|debug|run|release|valgrind|callgrind|perf|profile|cross)
     fi
 
     if [ $target = "debug" ]; then
-		gdb $exe -ex run 2>&1 | tee "gdb_output_$(date +%s).txt"
+        gdb $exe -ex run 2>&1 | tee "gdb_output_$(date +%s).txt"
     fi
     if [ $target = "run" ]; then
         $exe
@@ -257,17 +259,17 @@ build|debug|run|release|valgrind|callgrind|perf|profile|cross)
     trace_off
     ;;
 install)
-	if [ ! -f bin/st ]; then
-		"$0" build
-	fi
-	set -x
-	mkdir -p ${DESTDIR}${PREFIX}/bin
-	install -Dm755 bin/st ${DESTDIR}${PREFIX}/bin/st
-	mkdir -p ${DESTDIR}${PREFIX}/man/man1
-	chmod 644 ${DESTDIR}${PREFIX}/man/man1/st.1
-	tic -sx st.info
-	echo "Please see the README regarding the terminfo entry of st."
-	;;
+    if [ ! -f bin/st ]; then
+        "$0" build
+    fi
+    set -x
+    mkdir -p ${DESTDIR}${PREFIX}/bin
+    install -Dm755 bin/st ${DESTDIR}${PREFIX}/bin/st
+    mkdir -p ${DESTDIR}${PREFIX}/man/man1
+    chmod 644 ${DESTDIR}${PREFIX}/man/man1/st.1
+    tic -sx st.info
+    echo "Please see the README regarding the terminfo entry of st."
+    ;;
 test)
     for src in $(find . -iname "*.c" | sort); do
         trace_off
@@ -334,10 +336,10 @@ test)
     exit
     ;;
 uninstall)
-	set -x
-	rm -f ${DESTDIR}${PREFIX}/bin/st
-	rm -f ${DESTDIR}${MANPREFIX}/man1/st.1
-	;;
+    set -x
+    rm -f ${DESTDIR}${PREFIX}/bin/st
+    rm -f ${DESTDIR}${MANPREFIX}/man1/st.1
+    ;;
 esac
 
 case "$target" in
