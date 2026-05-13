@@ -676,6 +676,11 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
         }
     }
 
+    if (term.lines[y][x].rune & MULTI_CODE_POINT_FLAG) {
+        uint32 pool_index = term.lines[y][x].rune & ~MULTI_CODE_POINT_FLAG;
+        string_pool[pool_index].length = 0;
+    }
+
     term.dirts[y] = true;
     term.lines[y][x] = *attr;
     term.lines[y][x].rune = u;

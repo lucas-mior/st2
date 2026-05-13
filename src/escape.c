@@ -1440,6 +1440,7 @@ term_putc(uint32 u) {
     int32 width = 0;
     int32 len;
     StGlyph *glyph;
+    int32 is_modifier = 0;
 
     control = IS_CONTROl(u);
     if (u < 127 || !term_mode_is_set(TERM_MODE_UTF8)) {
@@ -1562,6 +1563,71 @@ check_control_code:
             term.esc = 0;
             return;
         }
+    }
+
+    if (u == 0x200D) {
+        is_modifier = 1;
+    } else if (u >= 0xFE00 && u <= 0xFE0F) {
+        is_modifier = 1;
+    } else if (u >= 0x1F3FB && u <= 0x1F3FF) {
+        is_modifier = 1;
+    } else if (u >= 0xE0020 && u <= 0xE007F) {
+        is_modifier = 1;
+    }
+
+    if (is_modifier) {
+        int32 prev_x = term.cursor.x;
+        int32 prev_y = term.cursor.y;
+        StGlyph *prev_glyph = NULL;
+        uint32 pool_index;
+
+        if (prev_x > 0) {
+            prev_x -= 1;
+        } else {
+            if (prev_y > 0) {
+                prev_y -= 1;
+                prev_x = term.ncols - 1;
+            }
+        }
+
+        prev_glyph = &term.lines[prev_y][prev_x];
+
+        if ((prev_glyph->rune & MULTI_CODE_POINT_FLAG) == 0) {
+            int32 new_index = string_pool_length;
+            if (string_pool_length >= string_pool_capacity) {
+                int32 old_capacity = string_pool_capacity;
+                int32 new_capacity = old_capacity;
+                if (new_capacity == 0) {
+                    new_capacity = 64;
+                } else {
+                    new_capacity = old_capacity * 2;
+                }
+                string_pool = realloc2(string_pool, old_capacity, new_capacity, SIZEOF(StringPool));
+                string_pool_capacity = new_capacity;
+            }
+            
+            string_pool[new_index].capacity = 4;
+            string_pool[new_index].length = 1;
+            string_pool[new_index].runes = malloc2(4 * SIZEOF(uint32));
+            string_pool[new_index].runes[0] = prev_glyph->rune;
+            
+            prev_glyph->rune = (uint32)new_index | MULTI_CODE_POINT_FLAG;
+            string_pool_length += 1;
+        }
+        
+        pool_index = prev_glyph->rune & ~MULTI_CODE_POINT_FLAG;
+        if (string_pool[pool_index].length >= string_pool[pool_index].capacity) {
+            int32 old_cap = string_pool[pool_index].capacity;
+            int32 new_cap = old_cap * 2;
+            string_pool[pool_index].runes = realloc2(string_pool[pool_index].runes, old_cap, new_cap, SIZEOF(uint32));
+            string_pool[pool_index].capacity = new_cap;
+        }
+        
+        string_pool[pool_index].runes[string_pool[pool_index].length] = u;
+        string_pool[pool_index].length += 1;
+        
+        term.dirts[prev_y] = true;
+        return;
     }
 
     if (selection_is_selected(term.cursor.x + term.scrolled_up,

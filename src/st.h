@@ -112,6 +112,18 @@ typedef struct StGlyph {
     int32 bg;                  /* background  */
 } StGlyph;
 
+#define MULTI_CODE_POINT_FLAG (1U << 31)
+
+typedef struct StringPool {
+    uint32 *runes;
+    int32 length;
+    int32 capacity;
+} StringPool;
+
+static StringPool *string_pool;
+static int32 string_pool_length;
+static int32 string_pool_capacity;
+
 union Arg {
     int64 i;
     uint64 ui;
