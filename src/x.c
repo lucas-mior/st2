@@ -1231,7 +1231,7 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     for (int32 x = x1; x < x2; x += 1) {
         StGlyph new_glyph = temp_line[x - x1];
         
-        if (new_glyph.mode == ATTR_WDUMMY) {
+        if (new_glyph.mode & ATTR_WDUMMY) {
             i += 1;
             continue;
         }

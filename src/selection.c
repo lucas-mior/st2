@@ -190,6 +190,14 @@ selection_normalize(void) {
             selection.ne.x = term.ncols - 1;
         }
     }
+
+    /* Snap to wide character boundaries to ensure atomic selection */
+    if (selection.nb.x > 0 && (term_line(selection.nb.y)[selection.nb.x].mode & ATTR_WDUMMY)) {
+        selection.nb.x -= 1;
+    }
+    if (selection.ne.x + 1 < term.ncols && (term_line(selection.ne.y)[selection.ne.x].mode & ATTR_WIDE)) {
+        selection.ne.x += 1;
+    }
     return;
 }
 
