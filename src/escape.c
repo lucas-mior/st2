@@ -1587,6 +1587,17 @@ check_control_code:
         }
     }
 
+    if (term.lines[prev_y][prev_x].mode & ATTR_WDUMMY) {
+        if (prev_x > 0) {
+            prev_x -= 1;
+        } else {
+            if (prev_y > 0) {
+                prev_y -= 1;
+                prev_x = term.ncols - 1;
+            }
+        }
+    }
+
     if (prev_x != term.cursor.x || prev_y != term.cursor.y) {
         StGlyph *prev_glyph = NULL;
         uint32 prev_rune = 0;
