@@ -660,7 +660,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         int32 run_width = 0;
         int32 temp_xp = xp;
 
-        if (mode == ATTR_WDUMMY) {
+        if (mode & ATTR_WDUMMY) {
             xp += term_window.cw;
             i += 1;
             continue;
@@ -786,9 +786,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             StGlyph next_glyph = glyphs[i + run_len];
             uint32 next_rune = next_glyph.rune;
 
-            if (next_glyph.mode == ATTR_WDUMMY) {
+            if (next_glyph.mode & ATTR_WDUMMY) {
                 run_len += 1;
-                /* Do NOT add width here; it was already accounted for by the preceding ATTR_WIDE glyph */
                 continue;
             }
             if (next_glyph.mode != mode) {
@@ -852,7 +851,6 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                 for (j = 0; j < glyph_count; j += 1) {
                     uint32 cluster = info[j].cluster;
                     
-                    /* Snap the cursor to the exact terminal grid position for the current cluster */
                     if (j == 0 || info[j].cluster != info[j - 1].cluster) {
                         current_xp = char_grid_x[cluster];
                     }
@@ -862,7 +860,6 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                     specs[nfont_specs].x = (int16)(current_xp + (pos[j].x_offset >> 6));
                     specs[nfont_specs].y = (int16)(yp - (pos[j].y_offset >> 6));
                     
-                    /* Allow internal offsets for complex emojis/ligatures that share the same cluster */
                     current_xp += (pos[j].x_advance >> 6);
                     nfont_specs += 1;
                 }
