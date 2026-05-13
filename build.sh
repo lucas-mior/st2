@@ -86,7 +86,7 @@ CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags harfbuzz)"
 
-LDFLAGS="$LDFLAGS -lm -lX11 -lXft"
+LDFLAGS="$LDFLAGS -lm -lX11 -lXft -lutf8proc"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
