@@ -788,8 +788,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
             if (next_glyph.mode == ATTR_WDUMMY) {
                 run_len += 1;
-                run_width += term_window.cw;
-                temp_xp += term_window.cw;
+                /* Do NOT add width here; it was already accounted for by the preceding ATTR_WIDE glyph */
                 continue;
             }
             if (next_glyph.mode != mode) {
