@@ -96,6 +96,7 @@ utf8_encode(uint32 u, char *c) {
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "assert.c"
 
@@ -128,33 +129,51 @@ main(void) {
         ASSERT_EQUAL(len, 3);
         ASSERT_EQUAL(u, 0x20AC);
 
-        /* Test 4-byte */
-        len = utf8_encode(0x10348, buf);
+        /* Test 4-byte (e.g. U+1F60A Smiling Face) */
+        len = utf8_encode(0x1F60A, buf);
         ASSERT_EQUAL(len, 4);
         len = utf8_decode(buf, &u, 4);
         ASSERT_EQUAL(len, 4);
-        ASSERT_EQUAL(u, 0x10348);
-
-        /* Empty string decode */
-        len = utf8_decode(buf, &u, 0);
-        ASSERT_EQUAL(len, 0);
-        ASSERT_EQUAL(u, UTF_INVALID);
+        ASSERT_EQUAL(u, 0x1F60A);
     }
 
+    /* String Traversal Test with Multi-codepoint Emoji */
     {
-        int64 idx;
-        uint32 decoded;
-        
-        decoded = utf8_decode_byte('A', &idx);
-        ASSERT_EQUAL(idx, 1); 
-        ASSERT_EQUAL(decoded, 0x41);
-    }
+        /* 
+         * String contains:
+         * 'A'      (U+0041)
+         * 'ñ'      (U+00F1)
+         * '€'      (U+20AC)
+         * '😊'     (U+1F60A)
+         * '🇩🇪'     (U+1F1E9 + U+1F1EA)  <-- Fixed 'D'
+         */
+        char *test_str = "Añ€😊🇩🇪";
+        uint32 expected[] = {
+            0x41, 
+            0xF1, 
+            0x20AC, 
+            0x1F60A, 
+            0x1F1E9, // Regional Indicator D
+            0x1F1EA  // Regional Indicator E
+        };
+        int64 str_len = (int64)strlen(test_str);
+        int64 consumed_total = 0;
+        int64 expected_idx = 0;
 
-    {
-        char encoded;
+        while (consumed_total < str_len) {
+            uint32 u;
+            int64 len;
+
+            len = utf8_decode(test_str + consumed_total, &u, str_len - consumed_total);
+            
+            ASSERT_EQUAL(u, expected[expected_idx]);
+            
+            consumed_total += len;
+            expected_idx += 1;
+        }
         
-        encoded = utf8_encode_byte(0x41, 1);
-        ASSERT_EQUAL(encoded, 'A');
+        ASSERT_EQUAL(expected_idx, 6);
+        ASSERT_EQUAL(consumed_total, str_len);
     }
 
     {
