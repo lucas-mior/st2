@@ -301,13 +301,22 @@ selection_get(void) {
     size = (term.ncols + 1)*(selection.ne.y - selection.nb.y + 1)*UTF_SIZ;
     string = malloc2(size);
     ptr = string;
+    used = 0;
 
     for (int32 y = selection.nb.y; y <= selection.ne.y; y += 1) {
         StGlyph *line = term_line(y);
         int32 line_len = term_line_len(line);
 
         if (line_len == 0) {
-            *ptr++ = '\n';
+            if (used + 2 >= size) {
+                int64 old_size = size;
+                size *= 2;
+                string = realloc2(string, old_size, size, 1);
+                ptr = string + used;
+            }
+            *ptr = '\n';
+            ptr += 1;
+            used += 1;
             continue;
         }
 
@@ -315,6 +324,7 @@ selection_get(void) {
             int32 lastx;
             StGlyph *glyph;
             StGlyph *lgp;
+            int64 required_bytes;
 
             if (selection.type == SELECTION_RECTANGULAR) {
                 glyph = &line[selection.nb.x];
@@ -334,12 +344,40 @@ selection_get(void) {
             }
             lgp = &line[MIN(lastx, line_len - 1)];
 
-            ptr = term_get_glyphs(ptr, glyph, lgp);
+            /* Calculate required space for this line segment */
+            required_bytes = 0;
+            for (StGlyph *g = glyph; g <= lgp; g += 1) {
+                if (!(g->mode & ATTR_WDUMMY)) {
+                    if (g->rune & MULTI_CODE_POINT_FLAG) {
+                        uint32 pool_index = g->rune & ~MULTI_CODE_POINT_FLAG;
+                        required_bytes += string_pool[pool_index].length * UTF_SIZ;
+                    } else {
+                        required_bytes += UTF_SIZ;
+                    }
+                }
+            }
+
+            if (used + required_bytes + 2 >= size) {
+                int64 old_size = size;
+                while (used + required_bytes + 2 >= size) {
+                    size *= 2;
+                }
+                string = realloc2(string, old_size, size, 1);
+                ptr = string + used;
+            }
+
+            {
+                char *new_ptr = term_get_glyphs(ptr, glyph, lgp);
+                used += (new_ptr - ptr);
+                ptr = new_ptr;
+            }
 
             if ((y < selection.ne.y || lastx >= line_len)
                 && (!(lgp->mode & ATTR_WRAP)
                     || selection.type == SELECTION_RECTANGULAR)) {
-                *ptr++ = '\n';
+                *ptr = '\n';
+                ptr += 1;
+                used += 1;
             }
         }
     }

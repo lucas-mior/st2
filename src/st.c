@@ -280,10 +280,18 @@ term_get_glyphs(char *buffer, StGlyph *glyph, StGlyph *lgp) {
     while (glyph <= lgp) {
         if (glyph->mode & ATTR_WDUMMY) {
             glyph += 1;
+            continue;
+        }
+
+        if (glyph->rune & MULTI_CODE_POINT_FLAG) {
+            uint32 pool_index = glyph->rune & ~MULTI_CODE_POINT_FLAG;
+            for (int32 i = 0; i < string_pool[pool_index].length; i += 1) {
+                buffer += utf8_encode(string_pool[pool_index].runes[i], buffer);
+            }
         } else {
             buffer += utf8_encode(glyph->rune, buffer);
-            glyph += 1;
         }
+        glyph += 1;
     }
     return buffer;
 }
@@ -816,15 +824,37 @@ term_dump_sel(void) {
 static void
 term_dump_line(int32 n) {
     int64 size = (int64)(term.ncols + 1)*UTF_SIZ*SIZEOF(char);
-    char *string = malloc2(size);
-    char *buffer = string;
+    char *string;
+    char *buffer;
     StGlyph *fgp = &term.lines[n][0];
     StGlyph *lgp = &fgp[term.ncols - 1];
     char *ptr;
+    int64 required_bytes;
 
     while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
         lgp -= 1;
     }
+
+    /* Verify if the pre-calculated size can accommodate the string pool items */
+    required_bytes = 0;
+    for (StGlyph *g = fgp; g <= lgp; g += 1) {
+        if (!(g->mode & ATTR_WDUMMY)) {
+            if (g->rune & MULTI_CODE_POINT_FLAG) {
+                uint32 pool_index = g->rune & ~MULTI_CODE_POINT_FLAG;
+                required_bytes += string_pool[pool_index].length * UTF_SIZ;
+            } else {
+                required_bytes += UTF_SIZ;
+            }
+        }
+    }
+
+    if (required_bytes + 2 * UTF_SIZ > size) {
+        size = required_bytes + 2 * UTF_SIZ;
+    }
+
+    string = malloc2(size);
+    buffer = string;
+
     ptr = term_get_glyphs(buffer, fgp, lgp);
 
     if (!(lgp->mode & ATTR_WRAP)) {
