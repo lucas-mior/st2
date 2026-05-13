@@ -251,7 +251,7 @@ build|debug|run|release|valgrind|callgrind|perf|profile|cross)
     fi
 
     if [ $target = "debug" ]; then
-        gdb $exe -ex run 2>&1 | tee "gdb_output_$(date +%s).txt"
+        gdb $exe -ex run 2>&1 | tee "/tmp/gdb_output_$(date +%s).txt"
     fi
     if [ $target = "run" ]; then
         $exe
