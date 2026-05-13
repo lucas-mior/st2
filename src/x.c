@@ -641,7 +641,10 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
     int32 nfont_specs = 0;
     int32 xp = win_x;
     hb_buffer_t *buffer = hb_buffer_create();
+    
+    /* Allocate space for the runes and their strict grid coordinates */
     uint32 *text_run = malloc2((uint32)(len * 32) * SIZEOF(uint32));
+    int32 *char_grid_x = malloc2((uint32)(len * 32) * SIZEOF(int32));
     int32 i = 0;
 
     while (i < len) {
@@ -655,6 +658,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         int32 run_len = 0;
         int32 text_run_len = 0;
         int32 run_width = 0;
+        int32 temp_xp = xp;
 
         if (mode == ATTR_WDUMMY) {
             xp += term_window.cw;
@@ -763,7 +767,6 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
                 face = XftLockFace(frc[frc_len].font);
                 frc[frc_len].hbfont = hb_ft_font_create(face, NULL);
-                /* CRITICAL FIX: Do NOT call XftUnlockFace here. Let HarfBuzz keep the pointer valid. */
 
                 frc[frc_len].flags = frc_flags;
                 frc[frc_len].unicodep = first_rune;
@@ -786,6 +789,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             if (next_glyph.mode == ATTR_WDUMMY) {
                 run_len += 1;
                 run_width += term_window.cw;
+                temp_xp += term_window.cw;
                 continue;
             }
             if (next_glyph.mode != mode) {
@@ -808,23 +812,24 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                 }
             }
 
+            int32 cell_width = (next_glyph.mode & ATTR_WIDE) ? (term_window.cw * 2) : term_window.cw;
+
             if (glyphs[i + run_len].rune & MULTI_CODE_POINT_FLAG) {
                 uint32 pool_index = glyphs[i + run_len].rune & ~MULTI_CODE_POINT_FLAG;
                 int32 p = 0;
                 for (p = 0; p < string_pool[pool_index].length; p += 1) {
                     text_run[text_run_len] = string_pool[pool_index].runes[p];
+                    char_grid_x[text_run_len] = temp_xp;
                     text_run_len += 1;
                 }
             } else {
                 text_run[text_run_len] = next_rune;
+                char_grid_x[text_run_len] = temp_xp;
                 text_run_len += 1;
             }
 
-            if (next_glyph.mode & ATTR_WIDE) {
-                run_width += term_window.cw * 2;
-            } else {
-                run_width += term_window.cw;
-            }
+            run_width += cell_width;
+            temp_xp += cell_width;
             run_len += 1;
         }
 
@@ -846,10 +851,19 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                 pos = hb_buffer_get_glyph_positions(buffer, &glyph_count);
 
                 for (j = 0; j < glyph_count; j += 1) {
+                    uint32 cluster = info[j].cluster;
+                    
+                    /* Snap the cursor to the exact terminal grid position for the current cluster */
+                    if (j == 0 || info[j].cluster != info[j - 1].cluster) {
+                        current_xp = char_grid_x[cluster];
+                    }
+
                     specs[nfont_specs].font = current_xfont;
                     specs[nfont_specs].glyph = info[j].codepoint;
                     specs[nfont_specs].x = (int16)(current_xp + (pos[j].x_offset >> 6));
                     specs[nfont_specs].y = (int16)(yp - (pos[j].y_offset >> 6));
+                    
+                    /* Allow internal offsets for complex emojis/ligatures that share the same cluster */
                     current_xp += (pos[j].x_advance >> 6);
                     nfont_specs += 1;
                 }
@@ -861,6 +875,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
     }
 
     free2(text_run, (uint32)(len * 32) * SIZEOF(uint32));
+    free2(char_grid_x, (uint32)(len * 32) * SIZEOF(int32));
     hb_buffer_destroy(buffer);
 
     return nfont_specs;
