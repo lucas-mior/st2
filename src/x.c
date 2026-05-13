@@ -785,6 +785,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         while (i + run_len < len) {
             StGlyph next_glyph = glyphs[i + run_len];
             uint32 next_rune = next_glyph.rune;
+            int32 cell_width;
 
             if (next_glyph.mode & ATTR_WDUMMY) {
                 run_len += 1;
@@ -810,7 +811,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                 }
             }
 
-            int32 cell_width = (next_glyph.mode & ATTR_WIDE) ? (term_window.cw * 2) : term_window.cw;
+            cell_width = (next_glyph.mode & ATTR_WIDE) ? (term_window.cw * 2) : term_window.cw;
 
             if (glyphs[i + run_len].rune & MULTI_CODE_POINT_FLAG) {
                 uint32 pool_index = glyphs[i + run_len].rune & ~MULTI_CODE_POINT_FLAG;
