@@ -26,6 +26,7 @@ typedef struct FontCache {
     XftFont *font;
     int32 flags;
     uint32 unicodep;
+    hb_font_t *hbfont;
 } FontCache;
 
 static FontCache *frc = NULL;
@@ -262,6 +263,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
     XGlyphInfo extents;
     int32 want_attr;
     int32 have_attr;
+    FT_Face face;
 
     configured = FcPatternDuplicate(pattern);
     if (!configured) {
@@ -282,6 +284,10 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
         FcPatternDestroy(match);
         return 1;
     }
+
+    face = XftLockFace(st_font->match);
+    st_font->hbfont = hb_ft_font_create(face, NULL);
+    XftUnlockFace(st_font->match);
 
     if ((XftPatternGetInteger(pattern, "slant", 0, &want_attr)
          == XftResultMatch)) {
@@ -423,6 +429,7 @@ static int32
 x_load_spare_font(FcPattern *pattern, int32 flags) {
     FcPattern *fc_pattern;
     FcResult fc_result;
+    FT_Face face;
 
     fc_pattern = FcFontMatch(NULL, pattern, &fc_result);
     if (!fc_pattern) {
@@ -433,6 +440,10 @@ x_load_spare_font(FcPattern *pattern, int32 flags) {
         FcPatternDestroy(fc_pattern);
         return 1;
     }
+
+    face = XftLockFace(frc[frc_len].font);
+    frc[frc_len].hbfont = hb_ft_font_create(face, NULL);
+    XftUnlockFace(frc[frc_len].font);
 
     frc[frc_len].flags = flags;
     frc[frc_len].unicodep = 0;
@@ -528,6 +539,9 @@ x_load_spare_fonts(void) {
 
 static void
 x_unload_font(StFont *f) {
+    if (f->hbfont) {
+        hb_font_destroy(f->hbfont);
+    }
     XftFontClose(x_window.display, f->match);
     FcPatternDestroy(f->pattern);
     if (f->set) {
@@ -540,6 +554,9 @@ static void
 x_unload_fonts(void) {
     while (frc_len > 0) {
         frc_len -= 1;
+        if (frc[frc_len].hbfont) {
+            hb_font_destroy(frc[frc_len].hbfont);
+        }
         XftFontClose(x_window.display, frc[frc_len].font);
     }
 

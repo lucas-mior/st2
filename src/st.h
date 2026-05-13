@@ -13,6 +13,8 @@
 #include <X11/keysym.h>
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
+#include <hb.h>
+#include <hb-ft.h>
 
 #include "util.c"
 
@@ -238,6 +240,7 @@ typedef struct StFont {
     XftFont *match;
     FcFontSet *set;
     FcPattern *pattern;
+    hb_font_t *hbfont;
 } StFont;
 
 #define ENUM_NAME WinMode
