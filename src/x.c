@@ -58,8 +58,8 @@ x_resize(int32 new_ncols, int32 new_nrows, int32 old_ncols) {
     x_clear(0, 0, term_window.w, term_window.h);
 
     x_window.font_spec_buf = realloc2(x_window.font_spec_buf,
-                                      10*old_ncols,
-                                      10*new_ncols, SIZEOF(XftGlyphFontSpec));
+                                      old_ncols,
+                                      new_ncols, SIZEOF(XftGlyphFontSpec));
     return;
 }
 
