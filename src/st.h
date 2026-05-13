@@ -122,9 +122,9 @@ typedef struct StringPool {
     int32 capacity;
 } StringPool;
 
-static StringPool *string_pool;
-static int32 string_pool_length;
-static int32 string_pool_capacity;
+static StringPool *string_pool = NULL;
+static int32 string_pool_length = 0;
+static int32 string_pool_capacity = 0;
 
 union Arg {
     int64 i;
