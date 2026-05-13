@@ -1445,6 +1445,7 @@ term_putc(uint32 u) {
     int32 len;
     StGlyph *glyph;
     int32 is_modifier = 0;
+    int32 cursor_moved = 0;
     int32 prev_x;
     int32 prev_y;
 
@@ -1573,6 +1574,7 @@ check_control_code:
 
     if (term.cursor.x != expected_cursor_x || term.cursor.y != expected_cursor_y) {
         grapheme_state = 0;
+        cursor_moved = 1;
     }
 
     prev_x = term.cursor.x;
@@ -1598,7 +1600,7 @@ check_control_code:
         }
     }
 
-    if (prev_x != term.cursor.x || prev_y != term.cursor.y) {
+    if (!cursor_moved && (prev_x != term.cursor.x || prev_y != term.cursor.y)) {
         StGlyph *prev_glyph = NULL;
         uint32 prev_rune = 0;
         
