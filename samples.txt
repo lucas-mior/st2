@@ -1,0 +1,32 @@
+World Scripts Sample Text
+==========================
+
+1. Latin (English)
+   Sample: The quick brown fox jumps over the lazy dog.
+
+2. Cyrillic (Russian)
+   Sample: Съешь же ещё этих мягких французских булок, да выпей чаю.
+
+3. Arabic (Modern Standard Arabic)
+   Sample: نص حكيم له سر قاطع وذو شأن عظيم مكتوب على ثوب أخضر ومطرز بالذهب.
+
+4. Simplified Chinese (Hanzi)
+   Sample: 学而时习之，不亦说乎？有朋自远方来，不亦乐乎？
+
+5. Devanagari (Hindi)
+   Sample: सभी मनुष्यों को गौरव और अधिकारों के मामले में जन्मजात स्वतन्त्रता और समानता प्राप्त है।
+
+6. Japanese (Kanji/Hiragana/Katakana)
+   Sample: いろはにほへと ちりぬるを わかよたれそ つねならむ うゐのおくやま けふこえて あさきゆめみし ゑひもせす
+
+7. Korean (Hangul)
+   Sample: 모든 인간은 태어날 때부터 자유로우며 그 존엄과 권리에 있어 동등하다.
+
+8. Greek
+   Sample: Καλημέρα! Πώς είστε; Η γνώση είναι δύναμη.
+
+9. Hebrew
+   Sample: כל בני האדם נולדו בני חורין ושווים בערכם ובזכויותיהם.
+
+11. Tamil
+    Sample: எல்லா மனிதர்களும் சுதந்திரமாகவே பிறக்கின்றனர்; அவர்கள் மதிப்பிலும் உரிமைகளிலும் சமமானவர்கள்.
