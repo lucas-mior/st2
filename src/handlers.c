@@ -83,6 +83,7 @@ handler_button_press(XEvent *xevent) {
         int32 row = xevent_row(xevent);
         char utf8_buf[5];
         int32 utf8_len;
+        char *multi_code_point = "NO";
 
         if (BETWEEN(row, 0, term.nrows - 1) && BETWEEN(col, 0, term.ncols - 1)) {
             StGlyph glyph = term.lines[row][col];
@@ -115,10 +116,14 @@ handler_button_press(XEvent *xevent) {
 
             utf8_len = (int32)utf8_encode(glyph.rune, utf8_buf);
             utf8_buf[utf8_len] = '\0';
+            if (glyph.rune & MULTI_CODE_POINT_FLAG) {
+                multi_code_point = "YES";
+            }
 
             fontname = FcNameUnparse(xfont->pattern);
             fprintf(stderr, "st Cell [%d, %d] {\n", col, row);
             fprintf(stderr, "    rune: 0x%04x = %s\n", glyph.rune, utf8_buf);
+            fprintf(stderr, "    multi code point? %s\n", multi_code_point);
             fprintf(stderr, "    font: %.50s\n", (char *)fontname);
             fprintf(stderr, "    attr: %s\n", ATTR_str(glyph.mode));
             fprintf(stderr, "    color: fg=%d, bg=%d\n\n", glyph.fg, glyph.bg);
