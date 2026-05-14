@@ -35,6 +35,7 @@
 #define RESIZE_BUFFER 1000
 #define MAX_NROWS 5000
 #define MAX_NCOLS 5000
+#define FONT_SPEC_BUF_SIZE 8
 
 #define LIMIT(x, a, b)        (x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
 #define BETWEEN(x, a, b)    ((a) <= (x) && (x) <= (b))

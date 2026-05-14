@@ -33,8 +33,6 @@ static FontCache *frc = NULL;
 static int32 frc_len = 0;
 static int32 frc_cap = 0;
 
-#define FONT_SPEC_BUF_SIZE 8
-
 static uint16
 sixd_to_16bit(int32 x) {
     int32 y;
