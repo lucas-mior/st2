@@ -20,6 +20,12 @@ static char *CONF_FONT2[] = {
 	"Noto Color Emoji:pixelsize=18:antialias=true:autohint=true",
     "Hack Nerd Font Mono:pixelsize=18:antialias=true:autohint=true",
 	"LiterationMono Nerd Font Mono:pixelsize=18:style=Regular",
+	"LiterationMono Nerd Font Mono:pixelsize=18:style=Regular",
+    "Noto Sans Mono CJK KR:pixelsize=18:style=Regular",
+    "Noto Sans Mono CJK HK:pixelsize=18:style=Regular",
+    "Noto Sans Mono CJK JP:pixelsize=18:style=Regular",
+    "Noto Sans Mono CJK SC:pixelsize=18:style=Regular",
+    "Noto Sans Mono CJK TC:pixelsize=18:style=Regular",
 	/* "Symbola:pixelsize=18:antialias=true:autohint=true", */
 	/* "Noto Color Emoji:pixelsize=18:antialias=true:autohint=true", */
     /* "OpenMoji Black:size=18", */
