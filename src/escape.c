@@ -1434,6 +1434,21 @@ esc_handle(uchar ascii) {
     return 1;
 }
 
+int32
+st_wcwidth(uint32 u) {
+    /* Modern Emojis (Supplementary Multilingual Plane) */
+    if (BETWEEN(u, 0x1F300, 0x1FAFF)) {
+        return 2;
+    }
+    
+    /* Classic Symbols and Dingbats (Basic Multilingual Plane) */
+    if (BETWEEN(u, 0x2600, 0x27BF)) {
+        return 2;
+    }
+    
+    return (int32)wcwidth((wchar_t)u);
+}
+
 static void
 term_putc(uint32 u) {
     static utf8proc_int32_t grapheme_state = 0;
@@ -1457,7 +1472,7 @@ term_putc(uint32 u) {
     } else {
         len = (int32)utf8_encode(u, c);
         if (!control) {
-            width = wcwidth((wchar_t)u);
+            width = st_wcwidth((wchar_t)u);
             if (width == -1) {
                 width = 1;
             }
