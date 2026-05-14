@@ -835,8 +835,16 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
             if (run_len > 0) {
                 if (current_xfont) {
-                    if (!XftCharIndex(x_window.display, current_xfont,
-                                      next_rune)) {
+                    bool has_glyph;
+                    bool primary_has_glyph;
+
+                    has_glyph = XftCharIndex(x_window.display, current_xfont,
+                                             next_rune) != 0;
+                    primary_has_glyph = XftCharIndex(x_window.display,
+                                                     font_local->match,
+                                                     next_rune) != 0;
+
+                    if (!has_glyph || (current_xfont != font_local->match && primary_has_glyph)) {
                         break;
                     }
                 }
