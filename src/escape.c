@@ -1436,16 +1436,34 @@ esc_handle(uchar ascii) {
 
 int32
 st_wcwidth(uint32 u) {
-    /* Modern Emojis (Supplementary Multilingual Plane) */
-    if (BETWEEN(u, 0x1F300, 0x1FAFF)) {
+    /* 
+     * Modern Emojis, Flags, Playing Cards, and Pictographs 
+     * (Expanded to start at 0x1F000 instead of 0x1F300)
+     */
+    if (BETWEEN(u, 0x1F000, 0x1FAFF)) {
         return 2;
     }
-    
-    /* Classic Symbols and Dingbats (Basic Multilingual Plane) */
+
+    /* Arrows (Includes the curving arrows like U+21AA) */
+    if (BETWEEN(u, 0x2190, 0x21FF)) {
+        return 2;
+    }
+
+    /* Miscellaneous Technical (Includes Stopwatch U+23F1, Keyboard) */
+    if (BETWEEN(u, 0x2300, 0x23FF)) {
+        return 2;
+    }
+
+    /* Miscellaneous Symbols and Dingbats (Warning, Snowflakes) */
     if (BETWEEN(u, 0x2600, 0x27BF)) {
         return 2;
     }
-    
+
+    /* Miscellaneous Symbols and Arrows (Stars, etc.) */
+    if (BETWEEN(u, 0x2B00, 0x2BFF)) {
+        return 2;
+    }
+
     return (int32)wcwidth((wchar_t)u);
 }
 
