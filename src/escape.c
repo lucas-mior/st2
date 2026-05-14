@@ -1493,7 +1493,7 @@ term_putc(uint32 u) {
     } else {
         len = (int32)utf8_encode(u, c);
         if (!control) {
-            width = st_wcwidth((wchar_t)u);
+            width = st_wcwidth(u);
             if (width == -1) {
                 width = 1;
             }
