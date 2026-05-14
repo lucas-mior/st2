@@ -77,6 +77,58 @@ handler_button_press(XEvent *xevent) {
         return;
     }
 
+    /* Log information about the clicked cell */
+    if (DEBUGGING) {
+        int32 col = xevent_col(xevent);
+        int32 row = xevent_row(xevent);
+
+        if (BETWEEN(row, 0, term.nrows - 1) && BETWEEN(col, 0, term.ncols - 1)) {
+            StGlyph glyph = term.lines[row][col];
+            StFont *st_font = &draw_context.font;
+            XftFont *xfont;
+            FcChar8 *fontname;
+
+            /* Determine base font variant based on attributes */
+            if (glyph.mode & ATTR_ITALIC) {
+                if (glyph.mode & ATTR_BOLD) {
+                    st_font = &draw_context.ibfont;
+                } else {
+                    st_font = &draw_context.ifont;
+                }
+            } else if (glyph.mode & ATTR_BOLD) {
+                st_font = &draw_context.bfont;
+            }
+            xfont = st_font->match;
+
+            /* Search Font Ring Cache if glyph was rendered via fallback */
+            if (glyph.rune != ' ' && !XftCharIndex(x_window.display, xfont, 
+                                                   glyph.rune)) {
+                for (int32 i = 0; i < frc_len; i += 1) {
+                    if (frc[i].unicodep == glyph.rune) {
+                        xfont = frc[i].font;
+                        break;
+                    }
+                }
+            }
+
+            char utf8_buf[5];
+            int32 utf8_len;
+
+            utf8_len = (int32)utf8_encode(glyph.rune, utf8_buf);
+            utf8_buf[utf8_len] = '\0';
+
+            fontname = FcNameUnparse(xfont->pattern);
+            fprintf(stderr, "st: click at cell [%d, %d]\n", col, row);
+            fprintf(stderr, "    rune: 0x%04x = %s\n", glyph.rune, utf8_buf);
+            fprintf(stderr, "    font: %.50s\n", (char *)fontname);
+            fprintf(stderr, "    attr: 0x%x (", (uint32)glyph.mode);
+            fprintf(stderr, "    %s\n", ATTR_str(glyph.mode));
+            fprintf(stderr, ")\n");
+            fprintf(stderr, "    color: fg=%d, bg=%d\n\n", glyph.fg, glyph.bg);
+            free(fontname);
+        }
+    }
+
     if (button == Button1) {
         /* Snapping behavior based on double/triple click timeouts. */
         clock_gettime(CLOCK_MONOTONIC, &tnow);
