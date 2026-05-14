@@ -641,11 +641,23 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
     int32 nfont_specs = 0;
     int32 xp = win_x;
     hb_buffer_t *buffer = hb_buffer_create();
-    
-    /* Allocate space for the runes and their strict grid coordinates */
-    uint32 *text_run = malloc2((uint32)(len * 32) * SIZEOF(uint32));
-    int32 *char_grid_x = malloc2((uint32)(len * 32) * SIZEOF(int32));
+    uint32 total_runes = 0;
+    uint32 *text_run;
+    int32 *char_grid_x;
     int32 i = 0;
+
+    /* Calculate exact space for the runes and their strict grid coordinates */
+    for (int32 k = 0; k < len; k += 1) {
+        if (glyphs[k].rune & MULTI_CODE_POINT_FLAG) {
+            uint32 pool_index = glyphs[k].rune & ~MULTI_CODE_POINT_FLAG;
+            total_runes += (uint32)string_pool[pool_index].length;
+        } else {
+            total_runes += 1;
+        }
+    }
+
+    text_run = malloc2(total_runes * SIZEOF(uint32));
+    char_grid_x = malloc2(total_runes * SIZEOF(int32));
 
     while (i < len) {
         StGlyph base_glyph = glyphs[i];
@@ -871,8 +883,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         xp += run_width;
     }
 
-    free2(text_run, (uint32)(len * 32) * SIZEOF(uint32));
-    free2(char_grid_x, (uint32)(len * 32) * SIZEOF(int32));
+    free2(text_run, total_runes * SIZEOF(uint32));
+    free2(char_grid_x, total_runes * SIZEOF(int32));
     hb_buffer_destroy(buffer);
 
     return nfont_specs;
