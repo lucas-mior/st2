@@ -640,11 +640,16 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
     int32 frc_flags = FRC_NORMAL;
     int32 nfont_specs = 0;
     int32 xp = win_x;
-    hb_buffer_t *buffer = hb_buffer_create();
-    uint32 total_runes = 0;
-    uint32 *text_run;
-    int32 *char_grid_x;
+    int32 total_runes = 0;
     int32 i = 0;
+    static uint32 *text_run = NULL;
+    static int32 *char_grid_x = NULL;
+    static int32 total_runes_capacity = 0;
+    static hb_buffer_t *buffer = NULL;
+
+    if (!buffer) {
+        buffer = hb_buffer_create();
+    }
 
     /* Calculate exact space for the runes and their strict grid coordinates */
     for (int32 k = 0; k < len; k += 1) {
@@ -656,8 +661,15 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         }
     }
 
-    text_run = malloc2(total_runes * SIZEOF(uint32));
-    char_grid_x = malloc2(total_runes * SIZEOF(int32));
+    if (total_runes > total_runes_capacity) {
+        text_run =    realloc2(text_run,
+                               total_runes_capacity,
+                               total_runes, SIZEOF(*text_run));
+        char_grid_x = realloc2(char_grid_x,
+                               total_runes_capacity,
+                               total_runes, SIZEOF(*char_grid_x));
+        total_runes_capacity = total_runes;
+    }
 
     while (i < len) {
         StGlyph base_glyph = glyphs[i];
@@ -718,13 +730,15 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
             first_rune = string_pool[pool_index].runes[0];
         }
 
-        glyph_idx = XftCharIndex(x_window.display, font_local->match, first_rune);
+        glyph_idx = XftCharIndex(x_window.display, font_local->match,
+                                 first_rune);
         if (glyph_idx) {
             current_xfont = font_local->match;
             current_hbfont = font_local->hbfont;
         } else {
             while (nfonts < frc_len) {
-                glyph_idx = XftCharIndex(x_window.display, frc[nfonts].font, first_rune);
+                glyph_idx = XftCharIndex(x_window.display, frc[nfonts].font,
+                                         first_rune);
                 if (glyph_idx) {
                     if (frc[nfonts].flags == frc_flags) {
                         break;
@@ -749,7 +763,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                 FT_Face face = NULL;
 
                 if (!font_local->set) {
-                    font_local->set = FcFontSort(0, font_local->pattern, 1, 0, &fc_result);
+                    font_local->set = FcFontSort(0, font_local->pattern, 1, 0,
+                                                 &fc_result);
                 }
                 fcsets[0] = font_local->set;
 
@@ -763,7 +778,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                 FcConfigSubstitute(0, fc_pattern, FcMatchPattern);
                 FcDefaultSubstitute(fc_pattern);
 
-                fontpattern = FcFontSetMatch(0, fcsets, 1, fc_pattern, &fc_result);
+                fontpattern = FcFontSetMatch(0, fcsets, 1, fc_pattern,
+                                             &fc_result);
 
                 if (frc_len >= frc_cap) {
                     int32 old_cap = frc_cap;
@@ -771,9 +787,11 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                     frc = realloc2(frc, old_cap, frc_cap, SIZEOF(FontCache));
                 }
 
-                frc[frc_len].font = XftFontOpenPattern(x_window.display, fontpattern);
+                frc[frc_len].font = XftFontOpenPattern(x_window.display,
+                                                       fontpattern);
                 if (!frc[frc_len].font) {
-                    error("XftFontOpenPattern failed seeking fallback font: %s\n", strerror(errno));
+                    error("XftFontOpenPattern failed seeking fallback font: "
+                          "%s\n", strerror(errno));
                     exit(EXIT_FAILURE);
                 }
 
@@ -817,16 +835,19 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
             if (run_len > 0) {
                 if (current_xfont) {
-                    if (!XftCharIndex(x_window.display, current_xfont, next_rune)) {
+                    if (!XftCharIndex(x_window.display, current_xfont,
+                                      next_rune)) {
                         break;
                     }
                 }
             }
 
-            cell_width = (next_glyph.mode & ATTR_WIDE) ? (term_window.cw * 2) : term_window.cw;
+            cell_width = (next_glyph.mode & ATTR_WIDE) ? (term_window.cw * 2)
+                                                       : term_window.cw;
 
             if (glyphs[i + run_len].rune & MULTI_CODE_POINT_FLAG) {
-                uint32 pool_index = glyphs[i + run_len].rune & ~MULTI_CODE_POINT_FLAG;
+                uint32 pool_index = glyphs[i + run_len].rune
+                                    & ~MULTI_CODE_POINT_FLAG;
                 int32 p = 0;
                 for (p = 0; p < string_pool[pool_index].length; p += 1) {
                     text_run[text_run_len] = string_pool[pool_index].runes[p];
@@ -854,7 +875,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
                 uint32 j = 0;
 
                 hb_buffer_clear_contents(buffer);
-                hb_buffer_add_utf32(buffer, text_run, text_run_len, 0, text_run_len);
+                hb_buffer_add_utf32(buffer, text_run, text_run_len, 0,
+                                    text_run_len);
                 hb_buffer_guess_segment_properties(buffer);
                 hb_shape(current_hbfont, buffer, NULL, 0);
 
@@ -863,16 +885,18 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
                 for (j = 0; j < glyph_count; j += 1) {
                     uint32 cluster = info[j].cluster;
-                    
+
                     if (j == 0 || info[j].cluster != info[j - 1].cluster) {
                         current_xp = char_grid_x[cluster];
                     }
 
                     specs[nfont_specs].font = current_xfont;
                     specs[nfont_specs].glyph = info[j].codepoint;
-                    specs[nfont_specs].x = (int16)(current_xp + (pos[j].x_offset >> 6));
-                    specs[nfont_specs].y = (int16)(yp - (pos[j].y_offset >> 6));
-                    
+                    specs[nfont_specs].x = (int16)(current_xp
+                                                   + (pos[j].x_offset >> 6));
+                    specs[nfont_specs].y = (int16)(yp
+                                                   - (pos[j].y_offset >> 6));
+
                     current_xp += (pos[j].x_advance >> 6);
                     nfont_specs += 1;
                 }
@@ -882,10 +906,6 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         i += run_len;
         xp += run_width;
     }
-
-    free2(text_run, total_runes * SIZEOF(uint32));
-    free2(char_grid_x, total_runes * SIZEOF(int32));
-    hb_buffer_destroy(buffer);
 
     return nfont_specs;
 }
