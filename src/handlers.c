@@ -81,6 +81,8 @@ handler_button_press(XEvent *xevent) {
     if (DEBUGGING) {
         int32 col = xevent_col(xevent);
         int32 row = xevent_row(xevent);
+        char utf8_buf[5];
+        int32 utf8_len;
 
         if (BETWEEN(row, 0, term.nrows - 1) && BETWEEN(col, 0, term.ncols - 1)) {
             StGlyph glyph = term.lines[row][col];
@@ -110,9 +112,6 @@ handler_button_press(XEvent *xevent) {
                     }
                 }
             }
-
-            char utf8_buf[5];
-            int32 utf8_len;
 
             utf8_len = (int32)utf8_encode(glyph.rune, utf8_buf);
             utf8_buf[utf8_len] = '\0';
