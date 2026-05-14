@@ -4,6 +4,7 @@ Terminal emulator for X based on simple terminal
 ## Changes from original st
 - Complete refactor
 - Comprehensive testing
+- Support for multi code point glyphs
 - ./build.sh instead of Makefile
 - A bunch of patches:
   * scrollback
