@@ -1073,7 +1073,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
 static void
 x_draw_glyph(StGlyph glyph, int32 x, int32 y) {
     int32 nfont_specs;
-    XftGlyphFontSpec xft_glyph_font_spec[16];
+    XftGlyphFontSpec xft_glyph_font_spec[64];
     int32 cell_count;
 
     nfont_specs = x_make_glyph_font_specs(xft_glyph_font_spec, &glyph, 1, x, y);
