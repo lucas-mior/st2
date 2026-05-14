@@ -1434,7 +1434,7 @@ esc_handle(uchar ascii) {
     return 1;
 }
 
-int32
+static int32
 st_wcwidth(uint32 u) {
     /* 
      * Modern Emojis, Flags, Playing Cards, and Pictographs 
