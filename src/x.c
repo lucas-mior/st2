@@ -1624,7 +1624,7 @@ main(void) {
     {
         XftGlyphFontSpec spec[2] = {0};
         StGlyph glyph = {0};
-        StGlyph line[4];
+        StGlyph line[4] = {0};
         StGlyph og = {0};
 
         glyph.rune = 'X';
