@@ -1622,7 +1622,7 @@ main(void) {
 
     /* Test: Drawing operations (Glyphs, Fonts, Cursor, Boxdraw) */
     {
-        XftGlyphFontSpec spec = {0};
+        XftGlyphFontSpec spec[2] = {0};
         StGlyph glyph = {0};
         StGlyph line[4];
         StGlyph og = {0};
@@ -1632,15 +1632,13 @@ main(void) {
         glyph.fg = CONF_COLOR_INDEX_FONT;
         glyph.bg = CONF_COLOR_BG;
 
-        x_make_glyph_font_specs(&spec, &glyph, 1, 0, 0);
-        x_draw_glyph_font_specs(&spec, glyph, 1, 0, 0);
+        x_make_glyph_font_specs(spec, LENGTH(spec), &glyph, 1, 0, 0);
         x_draw_glyph(glyph, 0, 0);
 
         /* Test Boxdraw specifically */
         glyph.rune = 0x2500;
         glyph.mode = ATTR_BOXDRAW;
-        x_make_glyph_font_specs(&spec, &glyph, 1, 1, 0);
-        x_draw_glyph_font_specs(&spec, glyph, 1, 1, 0);
+        x_make_glyph_font_specs(spec, LENGTH(spec), &glyph, 1, 1, 0);
 
         /* Test cursors across unfocused, focused, and shape variations */
         og.rune = 'Y';
