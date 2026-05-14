@@ -215,8 +215,8 @@ static uint32 CONF_CURSOR_SHAPE = 2;
  * Default columns and CONF_NROWS numbers
  */
 
-static int32 CONF_NCOLS = 80;
-static int32 CONF_NROWS = 24;
+static int32 CONF_NCOLS = 100;
+static int32 CONF_NROWS = 28;
 
 /*
  * Default colour and shape of the mouse cursor
