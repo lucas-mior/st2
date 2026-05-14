@@ -1,0 +1,569 @@
+☺ E0.6 smiling face U+263A
+☺️ E0.6 smiling face U+263A U+FE0F
+❄️ E0.6 snowflake U+2744 U+FE0F
+❄ E0.6 snowflake U+2744
+☃️ E0.7 snowman U+2603 U+FE0F
+☃ E0.7 snowman U+2603
+⛄ E0.6 snowman without snow U+26C4
+☄️ E1.0 comet U+2604 U+FE0F
+🔥 E0.6 fire U+1F525
+💧 E0.6 droplet U+1F4A7
+🌊 E0.6 water wave U+1F30A
+🎃 E0.6 jack-o-lantern U+1F383
+🎄 E0.6 Christmas tree U+1F384
+🎆 E0.6 fireworks U+1F386
+🎇 E0.6 sparkler U+1F387
+✨ E0.6 sparkles U+2728
+🎈 E0.6 balloon U+1F388
+🎉 E0.6 party popper U+1F389
+🎊 E0.6 confetti ball U+1F38A
+🎋 E0.6 tanabata tree U+1F38B
+🎍 E0.6 pine decoration U+1F38D
+🎎 E0.6 Japanese dolls U+1F38E
+🎏 E0.6 carp streamer U+1F38F
+🎐 E0.6 wind chime U+1F390
+🎑 E0.6 moon viewing ceremony U+1F391
+🎀 E0.6 ribbon U+1F380
+🎁 E0.6 wrapped gift U+1F381
+🎗️ E0.7 reminder ribbon U+1F397 U+FE0F
+🎗 E0.7 reminder ribbon U+1F397
+🎟️ E0.7 admission tickets U+1F39F U+FE0F
+🎟 E0.7 admission tickets U+1F39F
+🎫 E0.6 ticket U+1F3AB
+🎖️ E0.7 military medal U+1F396 U+FE0F
+🎖 E0.7 military medal U+1F396
+🏆 E0.6 trophy U+1F3C6
+⚽ E0.6 soccer ball U+26BD
+⚾ E0.6 baseball U+26BE
+🏀 E0.6 basketball U+1F3C0
+🏈 E0.6 american football U+1F3C8
+🎾 E0.6 tennis U+1F3BE
+🎳 E0.6 bowling U+1F3B3
+⛳ E0.6 flag in hole U+26F3
+⛸️ E0.7 ice skate U+26F8 U+FE0F
+⛸ E0.7 ice skate U+26F8
+🎣 E0.6 fishing pole U+1F3A3
+🎽 E0.6 running shirt U+1F3BD
+🎿 E0.6 skis U+1F3BF
+🎯 E0.6 bullseye U+1F3AF
+🔫 E0.6 water pistol U+1F52B
+🎱 E0.6 pool 8 ball U+1F3B1
+🔮 E0.6 crystal ball U+1F52E
+🎮 E0.6 video game U+1F3AE
+🕹️ E0.7 joystick U+1F579 U+FE0F
+🕹 E0.7 joystick U+1F579
+🎰 E0.6 slot machine U+1F3B0
+🎲 E0.6 game die U+1F3B2
+♠️ E0.6 spade suit U+2660 U+FE0F
+♠ E0.6 spade suit U+2660
+♥️ E0.6 heart suit U+2665 U+FE0F
+♥ E0.6 heart suit U+2665
+♦️ E0.6 diamond suit U+2666 U+FE0F
+♦ E0.6 diamond suit U+2666
+♣️ E0.6 club suit U+2663 U+FE0F
+♣ E0.6 club suit U+2663
+♟️ E11.0 chess pawn U+265F U+FE0F
+🃏 E0.6 joker U+1F0CF
+🀄 E0.6 mahjong red dragon U+1F004
+🎴 E0.6 flower playing cards U+1F3B4
+🎭 E0.6 performing arts U+1F3AD
+🖼️ E0.7 framed picture U+1F5BC U+FE0F
+🖼 E0.7 framed picture U+1F5BC
+🎨 E0.6 artist palette U+1F3A8
+👓 E0.6 glasses U+1F453
+🕶️ E0.7 sunglasses U+1F576 U+FE0F
+🕶 E0.7 sunglasses U+1F576
+👔 E0.6 necktie U+1F454
+👕 E0.6 t-shirt U+1F455
+👖 E0.6 jeans U+1F456
+👗 E0.6 dress U+1F457
+👘 E0.6 kimono U+1F458
+👙 E0.6 bikini U+1F459
+👚 E0.6 woman’s clothes U+1F45A
+👛 E0.6 purse U+1F45B
+👜 E0.6 handbag U+1F45C
+👝 E0.6 clutch bag U+1F45D
+🛍️ E0.7 shopping bags U+1F6CD U+FE0F
+🛍 E0.7 shopping bags U+1F6CD
+🎒 E0.6 backpack U+1F392
+👞 E0.6 man’s shoe U+1F45E
+👟 E0.6 running shoe U+1F45F
+👠 E0.6 high-heeled shoe U+1F460
+👡 E0.6 woman’s sandal U+1F461
+👢 E0.6 woman’s boot U+1F462
+👑 E0.6 crown U+1F451
+👒 E0.6 woman’s hat U+1F452
+🎩 E0.6 top hat U+1F3A9
+🎓 E0.6 graduation cap U+1F393
+⛑️ E0.7 rescue worker’s helmet U+26D1 U+FE0F
+⛑ E0.7 rescue worker’s helmet U+26D1
+💄 E0.6 lipstick U+1F484
+💍 E0.6 ring U+1F48D
+💎 E0.6 gem stone U+1F48E
+🔈 E0.7 speaker low volume U+1F508
+🔊 E0.6 speaker high volume U+1F50A
+📢 E0.6 loudspeaker U+1F4E2
+📣 E0.6 megaphone U+1F4E3
+🔔 E0.6 bell U+1F514
+🎼 E0.6 musical score U+1F3BC
+🎵 E0.6 musical note U+1F3B5
+🎶 E0.6 musical notes U+1F3B6
+🎙️ E0.7 studio microphone U+1F399 U+FE0F
+🎙 E0.7 studio microphone U+1F399
+🎚️ E0.7 level slider U+1F39A U+FE0F
+🎚 E0.7 level slider U+1F39A
+🎛️ E0.7 control knobs U+1F39B U+FE0F
+🎛 E0.7 control knobs U+1F39B
+🎤 E0.6 microphone U+1F3A4
+🎧 E0.6 headphone U+1F3A7
+📻 E0.6 radio U+1F4FB
+🎷 E0.6 saxophone U+1F3B7
+🎺 E0.6 trumpet U+1F3BA
+🎸 E0.6 guitar U+1F3B8
+🎹 E0.6 musical keyboard U+1F3B9
+🎻 E0.6 violin U+1F3BB
+📱 E0.6 mobile phone U+1F4F1
+📲 E0.6 mobile phone with arrow U+1F4F2
+☎️ E0.6 telephone U+260E U+FE0F
+☎ E0.6 telephone U+260E
+📞 E0.6 telephone receiver U+1F4DE
+📟 E0.6 pager U+1F4DF
+📠 E0.6 fax machine U+1F4E0
+🔋 E0.6 battery U+1F50B
+🔌 E0.6 electric plug U+1F50C
+💻 E0.6 laptop U+1F4BB
+🖥️ E0.7 desktop computer U+1F5A5 U+FE0F
+🖥 E0.7 desktop computer U+1F5A5
+🖨️ E0.7 printer U+1F5A8 U+FE0F
+🖨 E0.7 printer U+1F5A8
+⌨️ E1.0 keyboard U+2328 U+FE0F
+🖱️ E0.7 computer mouse U+1F5B1 U+FE0F
+🖱 E0.7 computer mouse U+1F5B1
+🖲️ E0.7 trackball U+1F5B2 U+FE0F
+🖲 E0.7 trackball U+1F5B2
+💽 E0.6 computer disk U+1F4BD
+💾 E0.6 floppy disk U+1F4BE
+💿 E0.6 optical disk U+1F4BF
+📀 E0.6 dvd U+1F4C0
+🎥 E0.6 movie camera U+1F3A5
+🎞️ E0.7 film frames U+1F39E U+FE0F
+🎞 E0.7 film frames U+1F39E
+📽️ E0.7 film projector U+1F4FD U+FE0F
+📽 E0.7 film projector U+1F4FD
+🎬 E0.6 clapper board U+1F3AC
+📺 E0.6 television U+1F4FA
+📷 E0.6 camera U+1F4F7
+📹 E0.6 video camera U+1F4F9
+📼 E0.6 videocassette U+1F4FC
+🔍 E0.6 magnifying glass tilted left U+1F50D
+🔎 E0.6 magnifying glass tilted right U+1F50E
+🕯️ E0.7 candle U+1F56F U+FE0F
+🕯 E0.7 candle U+1F56F
+💡 E0.6 light bulb U+1F4A1
+🔦 E0.6 flashlight U+1F526
+🏮 E0.6 red paper lantern U+1F3EE
+📔 E0.6 notebook with decorative cover U+1F4D4
+📕 E0.6 closed book U+1F4D5
+📖 E0.6 open book U+1F4D6
+📗 E0.6 green book U+1F4D7
+📘 E0.6 blue book U+1F4D8
+📙 E0.6 orange book U+1F4D9
+📚 E0.6 books U+1F4DA
+📓 E0.6 notebook U+1F4D3
+📒 E0.6 ledger U+1F4D2
+📃 E0.6 page with curl U+1F4C3
+📜 E0.6 scroll U+1F4DC
+📄 E0.6 page facing up U+1F4C4
+📰 E0.6 newspaper U+1F4F0
+🗞️ E0.7 rolled-up newspaper U+1F5DE U+FE0F
+🗞 E0.7 rolled-up newspaper U+1F5DE
+📑 E0.6 bookmark tabs U+1F4D1
+🔖 E0.6 bookmark U+1F516
+🏷️ E0.7 label U+1F3F7 U+FE0F
+🏷 E0.7 label U+1F3F7
+💰 E0.6 money bag U+1F4B0
+💴 E0.6 yen banknote U+1F4B4
+💵 E0.6 dollar banknote U+1F4B5
+💸 E0.6 money with wings U+1F4B8
+💳 E0.6 credit card U+1F4B3
+💹 E0.6 chart increasing with yen U+1F4B9
+✉️ E0.6 envelope U+2709 U+FE0F
+✉ E0.6 envelope U+2709
+📧 E0.6 e-mail U+1F4E7
+📨 E0.6 incoming envelope U+1F4E8
+📩 E0.6 envelope with arrow U+1F4E9
+📤 E0.6 outbox tray U+1F4E4
+📥 E0.6 inbox tray U+1F4E5
+📦 E0.6 package U+1F4E6
+📫 E0.6 closed mailbox with raised flag U+1F4EB
+📪 E0.6 closed mailbox with lowered flag U+1F4EA
+📬 E0.7 open mailbox with raised flag U+1F4EC
+📭 E0.7 open mailbox with lowered flag U+1F4ED
+📮 E0.6 postbox U+1F4EE
+🗳️ E0.7 ballot box with ballot U+1F5F3 U+FE0F
+🗳 E0.7 ballot box with ballot U+1F5F3
+✏️ E0.6 pencil U+270F U+FE0F
+✏ E0.6 pencil U+270F
+✒️ E0.6 black nib U+2712 U+FE0F
+✒ E0.6 black nib U+2712
+🖋️ E0.7 fountain pen U+1F58B U+FE0F
+🖋 E0.7 fountain pen U+1F58B
+🖊️ E0.7 pen U+1F58A U+FE0F
+🖊 E0.7 pen U+1F58A
+🖌️ E0.7 paintbrush U+1F58C U+FE0F
+🖌 E0.7 paintbrush U+1F58C
+🖍️ E0.7 crayon U+1F58D U+FE0F
+🖍 E0.7 crayon U+1F58D
+📝 E0.6 memo U+1F4DD
+💼 E0.6 briefcase U+1F4BC
+📁 E0.6 file folder U+1F4C1
+📂 E0.6 open file folder U+1F4C2
+🗂️ E0.7 card index dividers U+1F5C2 U+FE0F
+🗂 E0.7 card index dividers U+1F5C2
+📅 E0.6 calendar U+1F4C5
+📆 E0.6 tear-off calendar U+1F4C6
+🗒️ E0.7 spiral notepad U+1F5D2 U+FE0F
+🗒 E0.7 spiral notepad U+1F5D2
+🗓️ E0.7 spiral calendar U+1F5D3 U+FE0F
+🗓 E0.7 spiral calendar U+1F5D3
+📇 E0.6 card index U+1F4C7
+📈 E0.6 chart increasing U+1F4C8
+📉 E0.6 chart decreasing U+1F4C9
+📊 E0.6 bar chart U+1F4CA
+📋 E0.6 clipboard U+1F4CB
+📌 E0.6 pushpin U+1F4CC
+📍 E0.6 round pushpin U+1F4CD
+📎 E0.6 paperclip U+1F4CE
+🖇️ E0.7 linked paperclips U+1F587 U+FE0F
+🖇 E0.7 linked paperclips U+1F587
+📏 E0.6 straight ruler U+1F4CF
+📐 E0.6 triangular ruler U+1F4D0
+✂️ E0.6 scissors U+2702 U+FE0F
+✂ E0.6 scissors U+2702
+🗃️ E0.7 card file box U+1F5C3 U+FE0F
+🗃 E0.7 card file box U+1F5C3
+🗄️ E0.7 file cabinet U+1F5C4 U+FE0F
+🗄 E0.7 file cabinet U+1F5C4
+🗑️ E0.7 wastebasket U+1F5D1 U+FE0F
+🗑 E0.7 wastebasket U+1F5D1
+🔒 E0.6 locked U+1F512
+🔓 E0.6 unlocked U+1F513
+🔏 E0.6 locked with pen U+1F50F
+🔐 E0.6 locked with key U+1F510
+🔑 E0.6 key U+1F511
+🗝️ E0.7 old key U+1F5DD U+FE0F
+🗝 E0.7 old key U+1F5DD
+🔨 E0.6 hammer U+1F528
+⛏️ E0.7 pick U+26CF U+FE0F
+⛏ E0.7 pick U+26CF
+⚒️ E1.0 hammer and pick U+2692 U+FE0F
+🛠️ E0.7 hammer and wrench U+1F6E0 U+FE0F
+🛠 E0.7 hammer and wrench U+1F6E0
+🗡️ E0.7 dagger U+1F5E1 U+FE0F
+🗡 E0.7 dagger U+1F5E1
+⚔️ E1.0 crossed swords U+2694 U+FE0F
+💣 E0.6 bomb U+1F4A3
+🛡️ E0.7 shield U+1F6E1 U+FE0F
+🛡 E0.7 shield U+1F6E1
+🔧 E0.6 wrench U+1F527
+🔩 E0.6 nut and bolt U+1F529
+⚙️ E1.0 gear U+2699 U+FE0F
+🗜️ E0.7 clamp U+1F5DC U+FE0F
+🗜 E0.7 clamp U+1F5DC
+⚖️ E1.0 balance scale U+2696 U+FE0F
+🔗 E0.6 link U+1F517
+⛓️‍💥 E15.1 broken chain U+26D3 U+FE0F U+200D U+1F4A5
+⛓️ E0.7 chains U+26D3 U+FE0F
+⛓ E0.7 chains U+26D3
+⚗️ E1.0 alembic U+2697 U+FE0F
+📡 E0.6 satellite antenna U+1F4E1
+💉 E0.6 syringe U+1F489
+💊 E0.6 pill U+1F48A
+🚪 E0.6 door U+1F6AA
+🛏️ E0.7 bed U+1F6CF U+FE0F
+🛏 E0.7 bed U+1F6CF
+🛋️ E0.7 couch and lamp U+1F6CB U+FE0F
+🛋 E0.7 couch and lamp U+1F6CB
+🚽 E0.6 toilet U+1F6BD
+🚬 E0.6 cigarette U+1F6AC
+⚰️ E1.0 coffin U+26B0 U+FE0F
+⚱️ E1.0 funeral urn U+26B1 U+FE0F
+🗿 E0.6 moai U+1F5FF
+🏧 E0.6 ATM sign U+1F3E7
+♿ E0.6 wheelchair symbol U+267F
+🚹 E0.6 men’s room U+1F6B9
+🚺 E0.6 women’s room U+1F6BA
+🚻 E0.6 restroom U+1F6BB
+🚼 E0.6 baby symbol U+1F6BC
+🚾 E0.6 water closet U+1F6BE
+⚠️ E0.6 warning U+26A0 U+FE0F
+⚠ E0.6 warning U+26A0
+⛔ E0.6 no entry U+26D4
+🚫 E0.6 prohibited U+1F6AB
+🚭 E0.6 no smoking U+1F6AD
+🔞 E0.6 no one under eighteen U+1F51E
+☢️ E1.0 radioactive U+2622 U+FE0F
+☣️ E1.0 biohazard U+2623 U+FE0F
+⬆️ E0.6 up arrow U+2B06 U+FE0F
+⬆ E0.6 up arrow U+2B06
+↗️ E0.6 up-right arrow U+2197 U+FE0F
+↗ E0.6 up-right arrow U+2197
+➡️ E0.6 right arrow U+27A1 U+FE0F
+➡ E0.6 right arrow U+27A1
+↘️ E0.6 down-right arrow U+2198 U+FE0F
+↘ E0.6 down-right arrow U+2198
+⬇️ E0.6 down arrow U+2B07 U+FE0F
+⬇ E0.6 down arrow U+2B07
+↙️ E0.6 down-left arrow U+2199 U+FE0F
+↙ E0.6 down-left arrow U+2199
+⬅️ E0.6 left arrow U+2B05 U+FE0F
+⬅ E0.6 left arrow U+2B05
+↖️ E0.6 up-left arrow U+2196 U+FE0F
+↖ E0.6 up-left arrow U+2196
+↕️ E0.6 up-down arrow U+2195 U+FE0F
+↕ E0.6 up-down arrow U+2195
+↔️ E0.6 left-right arrow U+2194 U+FE0F
+↔ E0.6 left-right arrow U+2194
+↩️ E0.6 right arrow curving left U+21A9 U+FE0F
+↩ E0.6 right arrow curving left U+21A9
+↪️ E0.6 left arrow curving right U+21AA U+FE0F
+↪ E0.6 left arrow curving right U+21AA
+⤴️ E0.6 right arrow curving up U+2934 U+FE0F
+⤴ E0.6 right arrow curving up U+2934
+⤵️ E0.6 right arrow curving down U+2935 U+FE0F
+⤵ E0.6 right arrow curving down U+2935
+🔃 E0.6 clockwise vertical arrows U+1F503
+🔙 E0.6 BACK arrow U+1F519
+🔚 E0.6 END arrow U+1F51A
+🔛 E0.6 ON! arrow U+1F51B
+🔜 E0.6 SOON arrow U+1F51C
+🔝 E0.6 TOP arrow U+1F51D
+⚛️ E1.0 atom symbol U+269B U+FE0F
+🕉️ E0.7 om U+1F549 U+FE0F
+🕉 E0.7 om U+1F549
+✡️ E0.7 star of David U+2721 U+FE0F
+✡ E0.7 star of David U+2721
+☸️ E0.7 wheel of dharma U+2638 U+FE0F
+☸ E0.7 wheel of dharma U+2638
+☯️ E0.7 yin yang U+262F U+FE0F
+☯ E0.7 yin yang U+262F
+✝️ E0.7 latin cross U+271D U+FE0F
+✝ E0.7 latin cross U+271D
+☦️ E1.0 orthodox cross U+2626 U+FE0F
+☪️ E0.7 star and crescent U+262A U+FE0F
+☪ E0.7 star and crescent U+262A
+☮️ E1.0 peace symbol U+262E U+FE0F
+🔯 E0.6 dotted six-pointed star U+1F52F
+♈ E0.6 Aries U+2648
+♉ E0.6 Taurus U+2649
+♊ E0.6 Gemini U+264A
+♋ E0.6 Cancer U+264B
+♌ E0.6 Leo U+264C
+♍ E0.6 Virgo U+264D
+♎ E0.6 Libra U+264E
+♏ E0.6 Scorpio U+264F
+♐ E0.6 Sagittarius U+2650
+♑ E0.6 Capricorn U+2651
+♒ E0.6 Aquarius U+2652
+♓ E0.6 Pisces U+2653
+⛎ E0.6 Ophiuchus U+26CE
+▶️ E0.6 play button U+25B6 U+FE0F
+▶ E0.6 play button U+25B6
+⏩ E0.6 fast-forward button U+23E9
+⏭️ E0.7 next track button U+23ED U+FE0F
+⏭ E0.7 next track button U+23ED
+⏯️ E1.0 play or pause button U+23EF U+FE0F
+◀️ E0.6 reverse button U+25C0 U+FE0F
+◀ E0.6 reverse button U+25C0
+⏪ E0.6 fast reverse button U+23EA
+⏮️ E0.7 last track button U+23EE U+FE0F
+⏮ E0.7 last track button U+23EE
+🔼 E0.6 upwards button U+1F53C
+⏫ E0.6 fast up button U+23EB
+🔽 E0.6 downwards button U+1F53D
+⏬ E0.6 fast down button U+23EC
+⏸️ E0.7 pause button U+23F8 U+FE0F
+⏸ E0.7 pause button U+23F8
+⏹️ E0.7 stop button U+23F9 U+FE0F
+⏹ E0.7 stop button U+23F9
+⏺️ E0.7 record button U+23FA U+FE0F
+⏺ E0.7 record button U+23FA
+⏏️ E1.0 eject button U+23CF U+FE0F
+🎦 E0.6 cinema U+1F3A6
+📶 E0.6 antenna bars U+1F4F6
+📳 E0.6 vibration mode U+1F4F3
+📴 E0.6 mobile phone off U+1F4F4
+♀️ E4.0 female sign U+2640 U+FE0F
+♂️ E4.0 male sign U+2642 U+FE0F
+⚧️ E13.0 transgender symbol U+26A7 U+FE0F
+✖️ E0.6 multiply U+2716 U+FE0F
+✖ E0.6 multiply U+2716
+➕ E0.6 plus U+2795
+➖ E0.6 minus U+2796
+➗ E0.6 divide U+2797
+♾️ E11.0 infinity U+267E U+FE0F
+‼️ E0.6 double exclamation mark U+203C U+FE0F
+‼ E0.6 double exclamation mark U+203C
+⁉️ E0.6 exclamation question mark U+2049 U+FE0F
+⁉ E0.6 exclamation question mark U+2049
+❓ E0.6 red question mark U+2753
+❔ E0.6 white question mark U+2754
+❕ E0.6 white exclamation mark U+2755
+❗ E0.6 red exclamation mark U+2757
+〰️ E0.6 wavy dash U+3030 U+FE0F
+〰 E0.6 wavy dash U+3030
+💱 E0.6 currency exchange U+1F4B1
+💲 E0.6 heavy dollar sign U+1F4B2
+⚕️ E4.0 medical symbol U+2695 U+FE0F
+♻️ E0.6 recycling symbol U+267B U+FE0F
+♻ E0.6 recycling symbol U+267B
+⚜️ E1.0 fleur-de-lis U+269C U+FE0F
+🔱 E0.6 trident emblem U+1F531
+📛 E0.6 name badge U+1F4DB
+🔰 E0.6 Japanese symbol for beginner U+1F530
+⭕ E0.6 hollow red circle U+2B55
+✅ E0.6 check mark button U+2705
+☑️ E0.6 check box with check U+2611 U+FE0F
+☑ E0.6 check box with check U+2611
+✔️ E0.6 check mark U+2714 U+FE0F
+✔ E0.6 check mark U+2714
+❌ E0.6 cross mark U+274C
+❎ E0.6 cross mark button U+274E
+➰ E0.6 curly loop U+27B0
+〽️ E0.6 part alternation mark U+303D U+FE0F
+〽 E0.6 part alternation mark U+303D
+✳️ E0.6 eight-spoked asterisk U+2733 U+FE0F
+✳ E0.6 eight-spoked asterisk U+2733
+✴️ E0.6 eight-pointed star U+2734 U+FE0F
+✴ E0.6 eight-pointed star U+2734
+❇️ E0.6 sparkle U+2747 U+FE0F
+❇ E0.6 sparkle U+2747
+©️ E0.6 copyright U+00A9 U+FE0F
+© E0.6 copyright U+00A9
+®️ E0.6 registered U+00AE U+FE0F
+® E0.6 registered U+00AE
+™️ E0.6 trade mark U+2122 U+FE0F
+™ E0.6 trade mark U+2122
+#️⃣ E0.6 keycap: # U+0023 U+FE0F U+20E3
+#⃣ E0.6 keycap: # U+0023 U+20E3
+*️⃣ E2.0 keycap: * U+002A U+FE0F U+20E3
+0️⃣ E0.6 keycap: 0 U+0030 U+FE0F U+20E3
+0⃣ E0.6 keycap: 0 U+0030 U+20E3
+1️⃣ E0.6 keycap: 1 U+0031 U+FE0F U+20E3
+1⃣ E0.6 keycap: 1 U+0031 U+20E3
+2️⃣ E0.6 keycap: 2 U+0032 U+FE0F U+20E3
+2⃣ E0.6 keycap: 2 U+0032 U+20E3
+3️⃣ E0.6 keycap: 3 U+0033 U+FE0F U+20E3
+3⃣ E0.6 keycap: 3 U+0033 U+20E3
+4️⃣ E0.6 keycap: 4 U+0034 U+FE0F U+20E3
+4⃣ E0.6 keycap: 4 U+0034 U+20E3
+5️⃣ E0.6 keycap: 5 U+0035 U+FE0F U+20E3
+5⃣ E0.6 keycap: 5 U+0035 U+20E3
+6️⃣ E0.6 keycap: 6 U+0036 U+FE0F U+20E3
+6⃣ E0.6 keycap: 6 U+0036 U+20E3
+7️⃣ E0.6 keycap: 7 U+0037 U+FE0F U+20E3
+7⃣ E0.6 keycap: 7 U+0037 U+20E3
+8️⃣ E0.6 keycap: 8 U+0038 U+FE0F U+20E3
+8⃣ E0.6 keycap: 8 U+0038 U+20E3
+9️⃣ E0.6 keycap: 9 U+0039 U+FE0F U+20E3
+9⃣ E0.6 keycap: 9 U+0039 U+20E3
+🔟 E0.6 keycap: 10 U+1F51F
+🔠 E0.6 input latin uppercase U+1F520
+🔡 E0.6 input latin lowercase U+1F521
+🔢 E0.6 input numbers U+1F522
+🔣 E0.6 input symbols U+1F523
+🔤 E0.6 input latin letters U+1F524
+🅰️ E0.6 A button (blood type) U+1F170 U+FE0F
+🅰 E0.6 A button (blood type) U+1F170
+🆎 E0.6 AB button (blood type) U+1F18E
+🅱️ E0.6 B button (blood type) U+1F171 U+FE0F
+🅱 E0.6 B button (blood type) U+1F171
+🆑 E0.6 CL button U+1F191
+🆒 E0.6 COOL button U+1F192
+🆓 E0.6 FREE button U+1F193
+ℹ️ E0.6 information U+2139 U+FE0F
+ℹ E0.6 information U+2139
+🆔 E0.6 ID button U+1F194
+Ⓜ️ E0.6 circled M U+24C2 U+FE0F
+Ⓜ E0.6 circled M U+24C2
+🆕 E0.6 NEW button U+1F195
+🆖 E0.6 NG button U+1F196
+🅾️ E0.6 O button (blood type) U+1F17E U+FE0F
+🅾 E0.6 O button (blood type) U+1F17E
+🆗 E0.6 OK button U+1F197
+🅿️ E0.6 P button U+1F17F U+FE0F
+🅿 E0.6 P button U+1F17F
+🆘 E0.6 SOS button U+1F198
+🆙 E0.6 UP! button U+1F199
+🆚 E0.6 VS button U+1F19A
+🈁 E0.6 Japanese “here” button U+1F201
+🈂️ E0.6 Japanese “service charge” button U+1F202 U+FE0F
+🈂 E0.6 Japanese “service charge” button U+1F202
+🈷️ E0.6 Japanese “monthly amount” button U+1F237 U+FE0F
+🈷 E0.6 Japanese “monthly amount” button U+1F237
+🈶 E0.6 Japanese “not free of charge” button U+1F236
+🈯 E0.6 Japanese “reserved” button U+1F22F
+🉐 E0.6 Japanese “bargain” button U+1F250
+🈹 E0.6 Japanese “discount” button U+1F239
+🈚 E0.6 Japanese “free of charge” button U+1F21A
+🈲 E0.6 Japanese “prohibited” button U+1F232
+🉑 E0.6 Japanese “acceptable” button U+1F251
+🈸 E0.6 Japanese “application” button U+1F238
+🈴 E0.6 Japanese “passing grade” button U+1F234
+🈳 E0.6 Japanese “vacancy” button U+1F233
+㊗️ E0.6 Japanese “congratulations” button U+3297 U+FE0F
+㊗ E0.6 Japanese “congratulations” button U+3297
+㊙️ E0.6 Japanese “secret” button U+3299 U+FE0F
+㊙ E0.6 Japanese “secret” button U+3299
+🈺 E0.6 Japanese “open for business” button U+1F23A
+🈵 E0.6 Japanese “no vacancy” button U+1F235
+🔴 E0.6 red circle U+1F534
+🔵 E0.6 blue circle U+1F535
+⚫ E0.6 black circle U+26AB
+⚪ E0.6 white circle U+26AA
+⬛ E0.6 black large square U+2B1B
+⬜ E0.6 white large square U+2B1C
+◼️ E0.6 black medium square U+25FC U+FE0F
+◼ E0.6 black medium square U+25FC
+◻️ E0.6 white medium square U+25FB U+FE0F
+◻ E0.6 white medium square U+25FB
+◾ E0.6 black medium-small square U+25FE
+◽ E0.6 white medium-small square U+25FD
+▪️ E0.6 black small square U+25AA U+FE0F
+▪ E0.6 black small square U+25AA
+▫️ E0.6 white small square U+25AB U+FE0F
+▫ E0.6 white small square U+25AB
+🔶 E0.6 large orange diamond U+1F536
+🔷 E0.6 large blue diamond U+1F537
+🔸 E0.6 small orange diamond U+1F538
+🔹 E0.6 small blue diamond U+1F539
+🔺 E0.6 red triangle pointed up U+1F53A
+🔻 E0.6 red triangle pointed down U+1F53B
+💠 E0.6 diamond with a dot U+1F4A0
+🔘 E0.6 radio button U+1F518
+🔳 E0.6 white square button U+1F533
+🔲 E0.6 black square button U+1F532
+🏁 E0.6 chequered flag U+1F3C1
+🚩 E0.6 triangular flag U+1F6A9
+🎌 E0.6 crossed flags U+1F38C
+🏳️ E0.7 white flag U+1F3F3 U+FE0F
+🏳 E0.7 white flag U+1F3F3
+🏳️‍🌈 E4.0 rainbow flag U+1F3F3 U+FE0F U+200D U+1F308
+🏳️‍⚧️ E13.0 transgender flag U+1F3F3 U+FE0F U+200D U+26A7 U+FE0F
+🏳‍⚧️ E13.0 transgender flag U+1F3F3 U+200D U+26A7 U+FE0F
+🏳️‍⚧ E13.0 transgender flag U+1F3F3 U+FE0F U+200D U+26A7
+🏴‍☠️ E11.0 pirate flag U+1F3F4 U+200D U+2620 U+FE0F
+🇨🇳 E0.6 flag: China U+1F1E8 U+1F1F3
+🇩🇪 E0.6 flag: Germany U+1F1E9 U+1F1EA
+🇪🇸 E0.6 flag: Spain U+1F1EA U+1F1F8
+🇫🇷 E0.6 flag: France U+1F1EB U+1F1F7
+🇬🇧 E0.6 flag: United Kingdom U+1F1EC U+1F1E7
+🇮🇹 E0.6 flag: Italy U+1F1EE U+1F1F9
+🇯🇵 E0.6 flag: Japan U+1F1EF U+1F1F5
+🇰🇷 E0.6 flag: South Korea U+1F1F0 U+1F1F7
+🇷🇺 E0.6 flag: Russia U+1F1F7 U+1F1FA
+🇺🇸 E0.6 flag: United States U+1F1FA U+1F1F8
+🏴󠁧󠁢󠁥󠁮󠁧󠁿 E5.0 flag: England U+1F3F4 U+E0067 U+E0062 U+E0065 U+E006E U+E0067 U+E007F
+🏴󠁧󠁢󠁳󠁣󠁴󠁿 E5.0 flag: Scotland U+1F3F4 U+E0067 U+E0062 U+E0073 U+E0063 U+E0074 U+E007F
+🏴󠁧󠁢󠁷󠁬󠁳󠁿 E5.0 flag: Wales U+1F3F4 U+E0067 U+E0062 U+E0077 U+E006C U+E0073 U+E007F
+          

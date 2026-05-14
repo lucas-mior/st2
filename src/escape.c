@@ -1456,6 +1456,9 @@ st_wcwidth(uint32 u) {
 
     /* Miscellaneous Symbols and Dingbats (Warning, Snowflakes) */
     if (BETWEEN(u, 0x2600, 0x27BF)) {
+        if (u == 0x263A) {
+            return 1;
+        }
         return 2;
     }
 

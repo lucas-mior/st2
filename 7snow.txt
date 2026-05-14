@@ -1,0 +1,4 @@
+❄️ E0.6 snowflake U+2744 U+FE0F
+❄ E0.6 snowflake U+2744
+☃️ E0.7 snowman U+2603 U+FE0F
+☃ E0.7 snowman U+2603

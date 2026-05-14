@@ -679,8 +679,20 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
         }
     } else {
         if (term.lines[y][x].mode & ATTR_WDUMMY) {
-            term.lines[y][x - 1].rune = ' ';
-            term.lines[y][x - 1].mode &= ~ATTR_WIDE;
+             if (u == ' ') {
+                 /* * Absorb the new attributes (like background highlight)
+                  * but force the cell to remain a dummy cell so x_draw_line
+                  * skips drawing text here.
+                  */
+                 term.dirts[y] = true;
+                 term.lines[y][x] = *attr;
+                 term.lines[y][x].rune = '\0';
+                 term.lines[y][x].mode = attr->mode | ATTR_WDUMMY;
+                 return;
+             } else {
+                 term.lines[y][x - 1].rune = ' ';
+                 term.lines[y][x - 1].mode &= ~ATTR_WIDE;
+             }
         }
     }
 
