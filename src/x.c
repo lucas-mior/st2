@@ -631,8 +631,8 @@ x_im_open(Display *display) {
 }
 
 static int32
-x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
-                        int32 len, int32 x, int32 y) {
+x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
+                        StGlyph *glyphs, int32 len, int32 x, int32 y) {
     int32 win_x = term_window.hborderpx + x * term_window.cw;
     int32 win_y = term_window.vborderpx + y * term_window.ch;
     enum GlyphAttribute prevmode = ATTR_LAST;
@@ -709,6 +709,11 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
         }
 
         if (mode & ATTR_BOXDRAW) {
+            if (nfont_specs >= specs_capacity) {
+                error("font spec buffer overflow avoided\n");
+                break;
+            }
+            
             glyph_idx = boxdrawindex(&base_glyph);
             specs[nfont_specs].font = font_local->match;
             specs[nfont_specs].glyph = glyph_idx;
@@ -893,6 +898,11 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, StGlyph *glyphs,
 
                 for (j = 0; j < glyph_count; j += 1) {
                     uint32 cluster = info[j].cluster;
+
+                    if (nfont_specs >= specs_capacity) {
+                        error("font spec buffer overflow avoided\n");
+                        break;
+                    }
 
                     if (j == 0 || info[j].cluster != info[j - 1].cluster) {
                         current_xp = char_grid_x[cluster];
@@ -1113,16 +1123,19 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
 static void
 x_draw_glyph(StGlyph glyph, int32 x, int32 y) {
     int32 nfont_specs;
-    XftGlyphFontSpec xft_glyph_font_spec[64];
+    XftGlyphFontSpec xft_glyph_font_specs[32];
     int32 cell_count;
 
-    nfont_specs = x_make_glyph_font_specs(xft_glyph_font_spec, &glyph, 1, x, y);
+    nfont_specs = x_make_glyph_font_specs(xft_glyph_font_specs,
+                                          LENGTH(xft_glyph_font_specs),
+                                          &glyph, 1, x, y);
     if (glyph.mode & ATTR_WIDE) {
         cell_count = 2;
     } else {
         cell_count = 1;
     }
-    x_draw_glyph_font_specs(xft_glyph_font_spec, glyph, nfont_specs, cell_count, x, y);
+    x_draw_glyph_font_specs(xft_glyph_font_specs, glyph, nfont_specs,
+                            cell_count, x, y);
     return;
 }
 
@@ -1275,8 +1288,12 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
         }
         
         if ((i > 0) && ATTRCMP(base, new_glyph)) {
-            int32 nfont_specs = x_make_glyph_font_specs(x_window.font_spec_buf, &temp_line[ox - x1], i, ox, y1);
-            x_draw_glyph_font_specs(x_window.font_spec_buf, base, nfont_specs, i, ox, y1);
+            int32 nfont_specs = x_make_glyph_font_specs(x_window.font_spec_buf,
+                                                        term.ncols * 16,
+                                                        &temp_line[ox - x1],
+                                                        i, ox, y1);
+            x_draw_glyph_font_specs(x_window.font_spec_buf, base, nfont_specs,
+                                    i, ox, y1);
             ox = x;
             i = 0;
         }
@@ -1289,8 +1306,12 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     }
     
     if (i > 0) {
-        int32 nfont_specs = x_make_glyph_font_specs(x_window.font_spec_buf, &temp_line[ox - x1], i, ox, y1);
-        x_draw_glyph_font_specs(x_window.font_spec_buf, base, nfont_specs, i, ox, y1);
+        int32 nfont_specs = x_make_glyph_font_specs(x_window.font_spec_buf,
+                                                    term.ncols * 16,
+                                                    &temp_line[ox - x1],
+                                                    i, ox, y1);
+        x_draw_glyph_font_specs(x_window.font_spec_buf, base, nfont_specs,
+                                i, ox, y1);
     }
 
     free2(temp_line, (uint32)line_len * SIZEOF(StGlyph));
