@@ -33,6 +33,8 @@ static FontCache *frc = NULL;
 static int32 frc_len = 0;
 static int32 frc_cap = 0;
 
+#define FONT_SPEC_BUF_SIZE 8
+
 static uint16
 sixd_to_16bit(int32 x) {
     int32 y;
@@ -58,8 +60,9 @@ x_resize(int32 new_ncols, int32 new_nrows, int32 old_ncols) {
     x_clear(0, 0, term_window.w, term_window.h);
 
     x_window.font_spec_buf = realloc2(x_window.font_spec_buf,
-                                      old_ncols * 16,
-                                      new_ncols * 16, SIZEOF(XftGlyphFontSpec));
+                                      old_ncols*FONT_SPEC_BUF_SIZE,
+                                      new_ncols*FONT_SPEC_BUF_SIZE,
+                                      SIZEOF(XftGlyphFontSpec));
     return;
 }
 
@@ -1288,10 +1291,12 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
         }
         
         if ((i > 0) && ATTRCMP(base, new_glyph)) {
-            int32 nfont_specs = x_make_glyph_font_specs(x_window.font_spec_buf,
-                                                        term.ncols * 16,
-                                                        &temp_line[ox - x1],
-                                                        i, ox, y1);
+            int32 nfont_specs;
+
+            nfont_specs = x_make_glyph_font_specs(x_window.font_spec_buf,
+                                                  term.ncols*FONT_SPEC_BUF_SIZE,
+                                                  &temp_line[ox - x1],
+                                                  i, ox, y1);
             x_draw_glyph_font_specs(x_window.font_spec_buf, base, nfont_specs,
                                     i, ox, y1);
             ox = x;
@@ -1306,10 +1311,11 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     }
     
     if (i > 0) {
-        int32 nfont_specs = x_make_glyph_font_specs(x_window.font_spec_buf,
-                                                    term.ncols * 16,
-                                                    &temp_line[ox - x1],
-                                                    i, ox, y1);
+        int32 nfont_specs;
+        nfont_specs = x_make_glyph_font_specs(x_window.font_spec_buf,
+                                              term.ncols*FONT_SPEC_BUF_SIZE,
+                                              &temp_line[ox - x1],
+                                              i, ox, y1);
         x_draw_glyph_font_specs(x_window.font_spec_buf, base, nfont_specs,
                                 i, ox, y1);
     }
