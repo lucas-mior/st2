@@ -117,13 +117,12 @@ handler_button_press(XEvent *xevent) {
             utf8_buf[utf8_len] = '\0';
 
             fontname = FcNameUnparse(xfont->pattern);
-            fprintf(stderr, "st: click at cell [%d, %d]\n", col, row);
+            fprintf(stderr, "st Cell [%d, %d] {\n", col, row);
             fprintf(stderr, "    rune: 0x%04x = %s\n", glyph.rune, utf8_buf);
             fprintf(stderr, "    font: %.50s\n", (char *)fontname);
-            fprintf(stderr, "    attr: 0x%x (", (uint32)glyph.mode);
-            fprintf(stderr, "    %s\n", ATTR_str(glyph.mode));
-            fprintf(stderr, ")\n");
+            fprintf(stderr, "    attr: %s\n", ATTR_str(glyph.mode));
             fprintf(stderr, "    color: fg=%d, bg=%d\n\n", glyph.fg, glyph.bg);
+            fprintf(stderr, "}\n");
             free(fontname);
         }
     }
