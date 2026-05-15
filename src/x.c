@@ -157,6 +157,13 @@ x_set_color_name(int32 x, char *name) {
         return 1;
     }
 
+    if (name && name[0] >= '0' && name[0] <= '9') {
+        int32 color_index = atoi(name);
+        if (BETWEEN(color_index, 0, draw_context.colors_len - 1)) {
+            name = CONF_COLORS[color_index];
+        }
+    }
+
     if (!x_load_color(x, name, &xft_color)) {
         return 1;
     }
