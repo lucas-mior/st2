@@ -535,19 +535,17 @@ user_toggle_colorscheme(union Arg *arg) {
     (void)arg;
 
     if (is_light == 0) {
-        for (int32 i = 0; i <= 15; i += 1) {
-            CONF_COLORS[i] = CONF_COLORS_LIGHT[i];
-        }
-        for (int32 i = 256; i <= 259; i += 1) {
-            CONF_COLORS[i] = CONF_COLORS_LIGHT[i];
+        for (int32 i = 0; i < LENGTH(CONF_COLORS); i += 1) {
+            if (CONF_COLORS_LIGHT[i]) {
+                CONF_COLORS[i] = CONF_COLORS_LIGHT[i];
+            }
         }
         is_light = 1;
     } else {
-        for (int32 i = 0; i <= 15; i += 1) {
-            CONF_COLORS[i] = CONF_COLORS_DARK[i];
-        }
-        for (int32 i = 256; i <= 259; i += 1) {
-            CONF_COLORS[i] = CONF_COLORS_DARK[i];
+        for (int32 i = 0; i < LENGTH(CONF_COLORS); i += 1) {
+            if (CONF_COLORS_DARK[i]) {
+                CONF_COLORS[i] = CONF_COLORS_DARK[i];
+            }
         }
         is_light = 0;
     }
