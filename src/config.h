@@ -203,7 +203,7 @@ static const int32 CONF_NTRANSPARENT_COLORS = 26;
  * foreground, background, cursor, reverse cursor, selection
  */
 static int32 CONF_COLOR_INDEX_FONT = 7;
-static int32 CONF_COLOR_BG = 0;
+static int32 CONF_COLOR_BG = 256;
 static int32 CONF_COLOR_INDEX_CURSOR = 257;
 static int32 CONF_COLOR_INDEX_REVCURSOR = 258;
 static int32 CONF_COLOR_INDEX_SELECTION_BACK = 259;
