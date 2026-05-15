@@ -15,6 +15,7 @@
 #include <X11/XKBlib.h>
 #include <hb.h>
 #include <hb-ft.h>
+#include <time.h>
 
 #include "util.c"
 
@@ -410,7 +411,7 @@ static void user_smart_scroll_up(union Arg *arg);
 static void user_smart_scroll_down(union Arg *arg);
 
 static int64 xwrite(int32 fd, char *s, int64 len);
-static double timediff(struct timespec t1, struct timespec t2);
+static double timediff_ms(struct timespec t1, struct timespec t2);
 
 typedef struct MouseShortcut {
     uint32 mod;
@@ -458,5 +459,39 @@ static char *opt_title = NULL;
 static char *used_font = NULL;
 static int32 used_font_len;
 static char *program_path;
+
+static struct timespec sutv;
+
+static int su = 0;
+static int twrite_aborted = 0;
+
+static void
+tsync_begin()
+{
+	clock_gettime(CLOCK_MONOTONIC, &sutv);
+	su = 1;
+}
+
+static void
+tsync_end()
+{
+	su = 0;
+}
+
+static int
+tinsync(uint timeout)
+{
+	struct timespec now;
+	if (su && !clock_gettime(CLOCK_MONOTONIC, &now)
+	       && timediff_ms(now, sutv) >= timeout)
+		su = 0;
+	return su;
+}
+
+static int
+ttyread_pending()
+{
+	return twrite_aborted;
+}
 
 #endif /* ST_H */

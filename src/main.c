@@ -359,7 +359,7 @@ run:
             FD_SET(tty_fd, &read_fd);
             FD_SET(xfd, &read_fd);
 
-            if (XPending(x_window.display)) {
+            if (XPending(x_window.display) || ttyread_pending()) {
                 timeout = 0;
             }
 
@@ -380,7 +380,8 @@ run:
             }
             clock_gettime(CLOCK_MONOTONIC, &now);
 
-            if (FD_ISSET(tty_fd, &read_fd)) {
+            int ttyin = FD_ISSET(tty_fd, &read_fd) || ttyread_pending();
+            if (ttyin) {
                 tty_read();
             }
 
@@ -396,7 +397,7 @@ run:
                 }
             }
 
-            if (FD_ISSET(tty_fd, &read_fd) || xev) {
+            if (ttyin || xev) {
                 if (!drawing) {
                     trigger = now;
                     drawing = true;
@@ -406,6 +407,18 @@ run:
                 if (timeout > 0) {
                     continue;
                 }
+            }
+
+            if (tinsync(su_timeout)) {
+                /*
+                 * on synchronized-update draw-suspension: don't reset
+                 * drawing so that we draw ASAP once we can (just after
+                 * ESU). it won't be too soon because we already can
+                 * draw now but we skip. we set timeout > 0 to draw on
+                 * SU-timeout even without new content.
+                 */
+                timeout = CONF_LATENCY_MIN;
+                continue;
             }
 
             timeout = -1;

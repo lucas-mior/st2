@@ -344,6 +344,7 @@ term_set_dirt_attr(enum GlyphAttribute attr) {
 
 static void
 term_full_dirt(void) {
+	tsync_end();
     for (int32 i = 0; i < term.nrows; i += 1) {
         term.dirts[i] = true;
     }

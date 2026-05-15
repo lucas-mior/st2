@@ -209,7 +209,12 @@ tty_read(void) {
     if (copied >= LENGTH(buffer)) {
         copied = 0;
     }
-    ret = read64(command_fd, buffer + copied, LENGTH(buffer) - copied);
+
+    if (twrite_aborted) {
+        ret = 1;
+    } else {
+        ret = read64(command_fd, buffer + copied, LENGTH(buffer) - copied);
+    }
 
     switch (ret) {
     case 0:
@@ -217,8 +222,10 @@ tty_read(void) {
     case -1:
         error("couldn't read from CONF_SHELl: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
-    default: {
-        copied += ret;
+    default:
+        if (twrite_aborted == 0) {
+            copied += ret;
+        }
         written = term_write(buffer, copied, 0);
         copied -= written;
         /* keep any incomplete UTF-8 byte sequence for the next call */
@@ -226,7 +233,6 @@ tty_read(void) {
             memmove64(buffer, buffer + written, copied);
         }
         return ret;
-    }
     }
 }
 

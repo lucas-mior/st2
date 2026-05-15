@@ -79,6 +79,7 @@ static int32 CONF_ALLOW_WINDOW_OPS = 0;
  */
 static const float CONF_LATENCY_MIN = 2;
 static const float CONF_LATENCY_MAX = 33;
+static uint su_timeout = 200;
 
 /*
  * blinking timeout (set to 0 to disable blinking) for the terminal blinking

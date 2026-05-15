@@ -320,6 +320,13 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
             case 8452:
                 MODBIT(term.mode, set, TERM_MODE_SIXEL_CUR_RT);
                 break;
+			case 2026:
+				if (set) {
+					tsync_begin();
+				} else {
+					tsync_end();
+				}
+				break;
             default:
                 error("erresc: unknown private set/reset mode %d\n", args[i]);
                 break;
@@ -625,6 +632,9 @@ control_seq_intro_handle(void) {
                     tty_write("\033[?8452;2$y", 11, 0);
                 }
                 break;
+			case 2026:
+				tty_write(su ? "\033[?2026;1$y" : "\033[?2026;2$y", 11, 0);
+				break;
             default:
                 goto unknown;
             }
@@ -1059,6 +1069,10 @@ string_handle(void) {
                 }
             }
         }
+		if (strstr(str_escape_seq.buffer, "=1s") == str_escape_seq.buffer)
+			tsync_begin();  /* BSU */
+		else if (strstr(str_escape_seq.buffer, "=2s") == str_escape_seq.buffer)
+			tsync_end();  /* ESU */
         return;
     case '_':
     case '^':
@@ -1217,9 +1231,18 @@ dcs_handle(void) {
 
     switch (csi_escape_seq.mode[0]) {
     default:
+    unknown:
         error("erresc: unknown csi ");
         control_seq_intro_dump();
         break;
+	case '=':
+		if (csi_escape_seq.buffer[2] == 's' && csi_escape_seq.buffer[1] == '1')
+			tsync_begin();  /* BSU */
+		else if (csi_escape_seq.buffer[2] == 's' && csi_escape_seq.buffer[1] == '2')
+			tsync_end();  /* ESU */
+		else
+			goto unknown;
+		break;
     case 'q':
         if (csi_escape_seq.narg >= 2 && csi_escape_seq.arg[1] == 1) {
             transparent = 1;
@@ -1783,6 +1806,8 @@ static int32
 term_write(char *buffer, int32 buflen, bool show_ctrl) {
     int32 char_size;
     int32 n;
+	int su0 = su;
+	twrite_aborted = 0;
 
     for (n = 0; n < buflen; n += char_size) {
         uint32 u;
@@ -1801,7 +1826,10 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
             u = buffer[n] & 0xFF;
             char_size = 1;
         }
-
+		if (su0 && !su) {
+			twrite_aborted = 1;
+			break;  // ESU - allow rendering before a new BSU
+		}
         if (show_ctrl && IS_CONTROl(u)) {
             if (u & 0x80) {
                 u &= 0x7f;
