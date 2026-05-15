@@ -39,7 +39,6 @@
 #define FONT_SPEC_BUF_SIZE 8
 
 #define LIMIT(x, a, b)        (x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
-#define BETWEEN(x, a, b)    ((a) <= (x) && (x) <= (b))
 #define DIVCEIL(n, d)        (((n) + ((d) - 1)) / (d))
 #define DEFAULT(a, b)        (a) = (a) ? (a) : (b)
 #define ATTRCMP(a, b)        (((a).mode != (b).mode) \

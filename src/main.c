@@ -355,6 +355,7 @@ run:
         last_blink = (struct timespec){0};
 
         while (1) {
+            int32 tty_in;
             FD_ZERO(&read_fd);
             FD_SET(tty_fd, &read_fd);
             FD_SET(xfd, &read_fd);
@@ -380,8 +381,8 @@ run:
             }
             clock_gettime(CLOCK_MONOTONIC, &now);
 
-            int ttyin = FD_ISSET(tty_fd, &read_fd) || ttyread_pending();
-            if (ttyin) {
+            tty_in = FD_ISSET(tty_fd, &read_fd) || ttyread_pending();
+            if (tty_in) {
                 tty_read();
             }
 
@@ -397,7 +398,7 @@ run:
                 }
             }
 
-            if (ttyin || xev) {
+            if (tty_in || xev) {
                 if (!drawing) {
                     trigger = now;
                     drawing = true;

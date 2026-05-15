@@ -256,7 +256,12 @@ main(void) {
     flags = fcntl(pipefd[0], F_GETFL, 0);
     fcntl(pipefd[0], F_SETFL, flags | O_NONBLOCK);
 
-    // Setup initial terminal state
+    // Setup terminal state for mouse and selection tests
+    CONF_NCOLS = 80;
+    CONF_NROWS = 24;
+    term_allocate();
+    term_reset();
+
     term_window.mode = 0; // Standard X10 mouse mode
     buttons = 0;
     
@@ -308,6 +313,50 @@ main(void) {
     
     // Output should perfectly match col 0, row 0, proving no underflow injection
     ASSERT_EQUAL(captured_tty_buf, "\033[M#!!");
+
+    /* Test 3: Reproduce "always selects whole lines" bug on click */
+    {
+        XEvent ev_press;
+        XEvent ev_motion;
+        int32 row = 10;
+        int32 col = 15;
+
+        /* Clear the row and add a small string "ST" at the start */
+        term_clear_region(0, row, term.ncols - 1, row, 0);
+        term.lines[row][0].rune = 'S';
+        term.lines[row][0].mode |= ATTR_SET;
+        term.lines[row][1].rune = 'T';
+        term.lines[row][1].mode |= ATTR_SET;
+
+        /* Simulate the initial click (ButtonPress) way past the text */
+        memset64(&ev_press, 0, SIZEOF(ev_press));
+        ev_press.type = ButtonPress;
+        ev_press.xbutton.button = Button1;
+        ev_press.xbutton.x = term_window.hborderpx + col * term_window.cw;
+        ev_press.xbutton.y = term_window.vborderpx + row * term_window.ch;
+
+        /* handler_button_press behavior: calls selection_start */
+        selection_start(xevent_col(&ev_press), xevent_row(&ev_press), 
+                        SELECTION_SNAP_NONE);
+
+        /* Simulate slight mouse movement locking in the selection */
+        memset64(&ev_motion, 0, SIZEOF(ev_motion));
+        ev_motion.type = MotionNotify;
+        ev_motion.xbutton.state = Button1Mask;
+        ev_motion.xbutton.x = ev_press.xbutton.x;
+        ev_motion.xbutton.y = ev_press.xbutton.y;
+
+        /* handler_button_motion behavior: calls mouse_select */
+        mouse_select(&ev_motion, 0);
+
+        /* 
+         * BUG REPRODUCTION: 
+         * Instead of selecting just the clicked cell (col 15), the selection 
+         * normalizer expands the selection to the end of the window because 
+         * the click was past the text bounds.
+         */
+        ASSERT_EQUAL(selection.ne.x, term.ncols - 1);
+    }
 
     XCLOSE(&pipefd[0]);
     XCLOSE(&pipefd[1]);
