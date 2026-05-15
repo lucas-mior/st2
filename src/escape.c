@@ -1910,7 +1910,7 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
             break;
         }
         *npar += 2;
-        if (!BETWEEN(attr[*npar], 0, 255)) {
+        if (!BETWEEN(attr[*npar], 0, draw_context.colors_len)) {
             error("erresc: bad fgcolor %d\n", attr[*npar]);
         } else {
             idx = attr[*npar];
