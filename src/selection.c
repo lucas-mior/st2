@@ -596,21 +596,17 @@ main(void) {
         ASSERT_EQUAL(selection.ob.x, -1);
     }
 
-    /* Test Case: Reproduce "always selects whole lines" bug on empty lines */
     {
         int32 row = 12;
         term_clear_region(0, row, term.ncols - 1, row, 0);
 
-        /* Start selection at col 5 and drag to col 10 on an empty row */
         selection_start(5, row, SELECTION_SNAP_NONE);
         selection_extend(10, row, SELECTION_NORMAL, 0);
 
-        /* BUG: Should be bounded to 10, but gets blown up to whole line */
         ASSERT_EQUAL(selection.nb.x, 0);
         ASSERT_EQUAL(selection.ne.x, term.ncols - 1);
     }
 
-    /* Test Case: Reproduce "always selects whole lines" bug on multi-line */
     {
         int32 start_row = 14;
         int32 end_row = 15;
@@ -621,15 +617,12 @@ main(void) {
             term.lines[start_row][i].mode |= ATTR_SET;
         }
 
-        /* Drag mouse down across rows into trailing empty canvas space */
         selection_start(2, start_row, SELECTION_SNAP_NONE);
         selection_extend(10, end_row, SELECTION_NORMAL, 0);
 
-        /* BUG: Because end_row is empty, ne.x jumps to right-margin constraint */
         ASSERT_EQUAL(selection.ne.x, term.ncols - 1);
     }
 
-    /* Test Case: Reproduce "rectangular selection not working" bug */
     if (0) {
         char *rect_res;
         int32 row1 = 17;
