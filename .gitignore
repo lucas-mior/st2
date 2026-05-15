@@ -9,3 +9,4 @@ test_reflow
 *.mp4
 lflog*
 log-*.txt
+*.diff
