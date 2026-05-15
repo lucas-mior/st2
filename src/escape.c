@@ -1470,8 +1470,12 @@ st_wcwidth(uint32 u) {
     // specifies as 1.  Even a few emojis from noto fonts emoji are single wide
     // and are another exception in the range checks below
     //
-    // The question is: How to use the lookup table a posteriori, that is,
-    // after we know which font was selected to draw the glyph?
+    // The question is: How to use the lookup table a posteriori, that is, after
+    // we know which font was selected to draw the glyph? If we could do that,
+    // it would be simpler to change to a font that implements a different set
+    // of emojis than Liberation Mono or to to an emoji font that implements
+    // emoji but disagrees about the width of them in a way different than Noto
+    // Fonts Emoji
     //
     // In general, other kinds glyphs don't have this problem:
     // - chinese, japanese and korean are always double wide
