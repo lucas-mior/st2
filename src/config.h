@@ -236,7 +236,7 @@ static char *CONF_COLORS[] = {
     [255] = 0,
 
     /* more colors can be added after 255 to use with DefaultXX */
-     [256] = "#000000",
+    [256] = "#000000",
     [257] = "#ffff00",
     [258] = "#0000ff",
     [259] = "#555555",
