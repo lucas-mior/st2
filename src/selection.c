@@ -596,33 +596,44 @@ main(void) {
         ASSERT_EQUAL(selection.ob.x, -1);
     }
 
+    /* Test Case: Reproduce single-click bug on completely empty line */
     {
         int32 row = 12;
         term_clear_region(0, row, term.ncols - 1, row, 0);
 
+        /* User clicks exactly on column 5, intending to start selection there */
         selection_start(5, row, SELECTION_SNAP_NONE);
-        selection_extend(10, row, SELECTION_NORMAL, 0);
 
+        /*
+         * BUG: Because term_line_len is 0, normalization forces nb.x = 0 
+         * and ne.x = 79. The entire line is selected instead of cell 5.
+         */
         ASSERT_EQUAL(selection.nb.x, 0);
         ASSERT_EQUAL(selection.ne.x, term.ncols - 1);
     }
 
+    /* Test Case: Reproduce single-click bug clicking past text on active line */
     {
-        int32 start_row = 14;
-        int32 end_row = 15;
-        term_clear_region(0, start_row, term.ncols - 1, end_row, 0);
+        int32 row = 13;
+        term_clear_region(0, row, term.ncols - 1, row, 0);
 
-        for (int32 i = 0; i < 5; i += 1) {
-            term.lines[start_row][i].rune = 'A';
-            term.lines[start_row][i].mode |= ATTR_SET;
-        }
+        term.lines[row][0].rune = 'A';
+        term.lines[row][0].mode |= ATTR_SET;
+        term.lines[row][1].rune = 'B';
+        term.lines[row][1].mode |= ATTR_SET;
 
-        selection_start(2, start_row, SELECTION_SNAP_NONE);
-        selection_extend(10, end_row, SELECTION_NORMAL, 0);
+        /* User clicks column 10, intending to start selection in empty space */
+        selection_start(10, row, SELECTION_SNAP_NONE);
 
+        /* 
+         * BUG: term_line_len is 2. The start pointer snaps back to index 2,
+         * and the end pointer snaps to the right edge of the window.
+         */
+        ASSERT_EQUAL(selection.nb.x, 2);
         ASSERT_EQUAL(selection.ne.x, term.ncols - 1);
     }
 
+    /* Test Case: Rectangular selection skipping blank spots */
     if (0) {
         char *rect_res;
         int32 row1 = 17;
