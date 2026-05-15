@@ -1459,6 +1459,23 @@ esc_handle(uchar ascii) {
 
 static int32
 st_wcwidth(uint32 u) {
+    // TODO: implement a complete lookup table for a pair of fonts:
+    //
+    // - Liberation Mono (or other good monospace font)
+    // - Noto Fonts Emoji
+    //
+    // Since some emojis are drawn as single wide using the normal font, this
+    // function has to return 1 for those, but still has to return 2 for other
+    // emojis that the font needs 2 cells to draw, but unicode officialy
+    // specifies as 1.  Even a few emojis from noto fonts emoji are single wide
+    // and are another exception in the range checks below
+    //
+    // The question is: How to use the lookup table a posteriori, that is,
+    // after we know which font was selected to draw the glyph?
+    //
+    // In general, other kinds glyphs don't have this problem:
+    // - chinese, japanese and korean are always double wide
+
     /* 
      * Modern Emojis, Flags, Playing Cards, and Pictographs 
      * (Expanded to start at 0x1F000 instead of 0x1F300)
