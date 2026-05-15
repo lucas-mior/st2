@@ -159,7 +159,7 @@ static char *CONF_COLORS_DARK[] = {
 };
 
 static char *CONF_COLORS_LIGHT[] = {
-    [0] = "#eeeeee",
+    [0] = "#d0d0d0",
     [1] = "#cc0000",
     [2] = "#008800",
     [3] = "#aa8800",
@@ -175,10 +175,10 @@ static char *CONF_COLORS_LIGHT[] = {
     [13] = "#990099",
     [14] = "#005588",
     [15] = "#111111",
-    [256] = "#dddddd",
+    [256] = "#d0d0d0",
     [257] = "#cc9900",
     [258] = "#004477",
-    [259] = "#cccccc",
+    [259] = "#222222",
 };
 
 /* Terminal colors (16 first used in escape sequence) */
