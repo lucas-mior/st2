@@ -1482,9 +1482,6 @@ st_wcwidth(uint32 u) {
         if (u == 0x263A) {
             return 1;
         }
-        if (BETWEEN(u, 0x2700, 0x27BF)) {
-            return 1;
-        }
         return 2;
     }
 
