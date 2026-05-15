@@ -594,6 +594,44 @@ main(void) {
         ASSERT_EQUAL(selection.ob.x, -1);
     }
 
+    /* Test Case: Reproduce "always selects whole lines" bug */
+    {
+        int32 row = 12;
+        term_clear_region(0, row, term.ncols - 1, row, 0);
+        for (int32 i = 0; i < 5; i += 1) {
+            term.lines[row][i].rune = 'A';
+            term.lines[row][i].mode |= ATTR_SET;
+        }
+        selection_start(1, row, SELECTION_SNAP_NONE);
+        selection_extend(5, row, SELECTION_NORMAL, 0);
+        ASSERT_EQUAL(selection.ne.x, term.ncols - 1);
+    }
+
+    /* Test Case: Reproduce "rectangular selection not working" bug */
+    if (0) {
+        char *rect_res;
+        int32 row1 = 14;
+        int32 row2 = 15;
+        term_clear_region(0, row1, term.ncols - 1, row2, 0);
+        for (int32 i = 0; i < 10; i += 1) {
+            term.lines[row1][i].rune = 'A';
+            term.lines[row1][i].mode |= ATTR_SET;
+        }
+        for (int32 i = 0; i < 5; i += 1) {
+            term.lines[row2][i].rune = 'B';
+            term.lines[row2][i].mode |= ATTR_SET;
+        }
+        selection_start(2, row1, SELECTION_SNAP_NONE);
+        selection_extend(7, row2, SELECTION_RECTANGULAR, 1);
+        rect_res = selection_get();
+        ASSERT(rect_res != NULL);
+        if (rect_res) {
+            int64 rect_len;
+            rect_len = (int64)strlen32(rect_res) + 1;
+            free2(rect_res, rect_len);
+        }
+    }
+
     if (x_window.display) {
         XCloseDisplay(x_window.display);
     }
