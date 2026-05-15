@@ -409,6 +409,7 @@ static void user_copy_output(union Arg *arg);
 static void user_url_select(union Arg *arg);
 static void user_smart_scroll_up(union Arg *arg);
 static void user_smart_scroll_down(union Arg *arg);
+static void user_toggle_colorscheme(union Arg *arg);
 
 static int64 xwrite(int32 fd, char *s, int64 len);
 static double timediff_ms(struct timespec t1, struct timespec t2);

@@ -135,6 +135,52 @@ static int32 CONF_TAB_NSPACES = 4;
 /* bg opacity */
 static double CONF_ALPHA = 0.85;
 
+static char *CONF_COLORS_DARK[] = {
+    [0] = "#000000",
+    [1] = "#ff0000",
+    [2] = "#00ff00",
+    [3] = "#ffff00",
+    [4] = "#0088ff",
+    [5] = "#ff00ff",
+    [6] = "#00aaaa",
+    [7] = "#ffffff",
+    [8]  = "#333333",
+    [9]  = "#ff6600",
+    [10] = "#00cc00",
+    [11] = "#ffbb00",
+    [12] = "#0066ff",
+    [13] = "#c600c6",
+    [14] = "#0066aa",
+    [15] = "#f1f1f1",
+    [256] = "#000000",
+    [257] = "#ffff00",
+    [258] = "#0000ff",
+    [259] = "#555555",
+};
+
+static char *CONF_COLORS_LIGHT[] = {
+    [0] = "#eeeeee",
+    [1] = "#cc0000",
+    [2] = "#008800",
+    [3] = "#aa8800",
+    [4] = "#0044ff",
+    [5] = "#b800b8",
+    [6] = "#008888",
+    [7] = "#000000",
+    [8]  = "#cccccc",
+    [9]  = "#ff5500",
+    [10] = "#00aa00",
+    [11] = "#cc9900",
+    [12] = "#0022cc",
+    [13] = "#990099",
+    [14] = "#005588",
+    [15] = "#111111",
+    [256] = "#dddddd",
+    [257] = "#cc9900",
+    [258] = "#004477",
+    [259] = "#cccccc",
+};
+
 /* Terminal colors (16 first used in escape sequence) */
 static char *CONF_COLORS[] = {
 	/* 8 normal colors */
@@ -287,6 +333,7 @@ static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
 	{ Mod1Mask,              XK_Escape,     user_vim_select,      {.i = 0} },
 	{ Mod1Mask,              XK_c,          user_copy_output,     {.i = 0} },
 	{ Mod1Mask,              XK_u,          user_url_select,      {.i = 0} },
+    { ControlMask|ShiftMask, XK_T,          user_toggle_colorscheme, {.i = 0} },
 };
 
 /*

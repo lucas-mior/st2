@@ -529,6 +529,34 @@ user_url_select(union Arg *arg) {
     return;
 }
 
+static void
+user_toggle_colorscheme(union Arg *arg) {
+    static int32 is_light = 0;
+    (void)arg;
+
+    if (is_light == 0) {
+        for (int32 i = 0; i <= 15; i += 1) {
+            CONF_COLORS[i] = CONF_COLORS_LIGHT[i];
+        }
+        for (int32 i = 256; i <= 259; i += 1) {
+            CONF_COLORS[i] = CONF_COLORS_LIGHT[i];
+        }
+        is_light = 1;
+    } else {
+        for (int32 i = 0; i <= 15; i += 1) {
+            CONF_COLORS[i] = CONF_COLORS_DARK[i];
+        }
+        for (int32 i = 256; i <= 259; i += 1) {
+            CONF_COLORS[i] = CONF_COLORS_DARK[i];
+        }
+        is_light = 0;
+    }
+
+    x_load_colors();
+    redraw();
+    return;
+}
+
 #if TESTING_user
 
 #include <stdbool.h>
