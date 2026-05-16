@@ -691,6 +691,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
         int32 text_run_len = 0;
         int32 run_width = 0;
         int32 temp_xp = xp;
+        bool is_unrenderable = false;
 
         if (mode & ATTR_WDUMMY) {
             xp += term_window.cw;
@@ -776,8 +777,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
                 FT_Face face = NULL;
 
                 if (!font_local->set) {
-                    font_local->set = FcFontSort(0, font_local->pattern, 1, 0,
-                                                 &fc_result);
+                    font_local->set = FcFontSort(0, font_local->pattern,
+                                                 1, 0, &fc_result);
                 }
                 fcsets[0] = font_local->set;
 
@@ -825,6 +826,13 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
             current_hbfont = frc[nfonts].hbfont;
         }
 
+        if (XftCharIndex(x_window.display, current_xfont, first_rune) == 0) {
+            is_unrenderable = true;
+            first_rune = 0x25A1;
+            current_xfont = font_local->match;
+            current_hbfont = font_local->hbfont;
+        }
+
         while (i + run_len < len) {
             StGlyph next_glyph = glyphs[i + run_len];
             uint32 next_rune = next_glyph.rune;
@@ -847,6 +855,9 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
             }
 
             if (run_len > 0) {
+                if (is_unrenderable) {
+                    break;
+                }
                 if (current_xfont) {
                     bool has_glyph;
                     bool primary_has_glyph;
@@ -857,10 +868,15 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
                                                      font_local->match,
                                                      next_rune) != 0;
 
-                    if (!has_glyph || (current_xfont != font_local->match && primary_has_glyph)) {
+                    if (!has_glyph || (current_xfont != font_local->match
+                                       && primary_has_glyph)) {
                         break;
                     }
                 }
+            }
+
+            if (is_unrenderable) {
+                next_rune = 0x25A1;
             }
 
             cell_width = (next_glyph.mode & ATTR_WIDE) ? (term_window.cw * 2)
