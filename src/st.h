@@ -26,7 +26,6 @@
 #define TRUE_GREEN(x) (uint16)(((x) & 0xff00))
 #define TRUE_BLUE(x) (uint16)(((x) & 0xff) << 8)
 
-#define UTF_INVALID 0xFFFD
 #define UTF_SIZ 4
 #define ESC_BUF_SIZ (128*UTF_SIZ)
 #define ESC_ARG_SIZ 16

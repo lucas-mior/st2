@@ -836,13 +836,13 @@ term_dump_sel(void) {
 
 static void
 term_dump_line(int32 n) {
-    int64 size = (int64)(term.ncols + 1)*UTF_SIZ*SIZEOF(char);
+    int32 size = (term.ncols + 1)*UTF_SIZ*SIZEOF(char);
     char *string;
     char *buffer;
     StGlyph *fgp = &term.lines[n][0];
     StGlyph *lgp = &fgp[term.ncols - 1];
     char *ptr;
-    int64 required_bytes;
+    int32 required_bytes;
 
     while (lgp > fgp && !(lgp->mode & (ATTR_SET | ATTR_WRAP))) {
         lgp -= 1;

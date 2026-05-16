@@ -1839,7 +1839,7 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
                                           (uchar *)buffer + n, buflen - n);
             continue;
         } else if (term_mode_is_set(TERM_MODE_UTF8)) {
-            char_size = (int32)utf8_decode(buffer + n, &u, (int64)(buflen - n));
+            char_size = utf8_decode(buffer + n, &u, buflen - n);
             if (char_size == 0) {
                 break;
             }
