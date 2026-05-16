@@ -1535,7 +1535,7 @@ term_putc(uint32 u) {
         width = 1;
         len = 1;
     } else {
-        len = (int32)utf8_encode(u, c);
+        len = utf8_encode(u, c);
         if (!control) {
             width = st_wcwidth(u);
             if (width == -1) {
