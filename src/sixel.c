@@ -313,9 +313,29 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
         dst = (uint32 *)image->pixels;
         for (int32 j = 0; j < image->height && (y < h); j += 1) {
             uint16 *src = sixel_state->image.data + sixel_image->width*y;
-            for (int32 x = 0; x < w; x += 1) {
+            int32 x = 0;
+            for (; x + 7 < w; x += 8) {
+                const uint32 zeros[8] = {0};
+                dst[0] = sixel_state->image.palette[src[0]];
+                dst[1] = sixel_state->image.palette[src[1]];
+                dst[2] = sixel_state->image.palette[src[2]];
+                dst[3] = sixel_state->image.palette[src[3]];
+                dst[4] = sixel_state->image.palette[src[4]];
+                dst[5] = sixel_state->image.palette[src[5]];
+                dst[6] = sixel_state->image.palette[src[6]];
+                dst[7] = sixel_state->image.palette[src[7]];
+                if (!trans
+                        && !memcmp64((void *)zeros,
+                                     &sixel_state->image.palette[src[0]],
+                                     SIZEOF(zeros))) {
+                    trans = 1;
+                }
+                src += 8;
+                dst += 8;
+            }
+            for (; x < w; x += 1) {
                 uint32 color = sixel_state->image.palette[*src++];
-                if (!trans && (color == 0)) {
+                if (!trans && color == 0) {
                     trans = 1;
                 }
                 *dst++ = color;
