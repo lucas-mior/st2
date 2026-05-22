@@ -368,7 +368,9 @@ handler_button_release(XEvent *xevent) {
     }
     if (button == Button1) {
         mouse_select(xevent, 1);
-        user_clipboard_copy(NULL);
+        if (!user_clipboard_copy_selection_image(xevent->xbutton.time)) {
+            user_clipboard_copy(NULL);
+        }
     }
     return;
 }

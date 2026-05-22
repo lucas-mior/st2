@@ -90,12 +90,17 @@ read_file_alloc(char *path, char **out, int32 *out_len) {
 }
 
 static int32
-image_to_png_bytes(ImageList *image, char **out, int32 *out_len) {
+pixels_to_png_bytes(uint32 *pixels, int32 width, int32 height,
+                    char **out, int32 *out_len) {
     char path[] = "/tmp/st-image-clipboard-XXXXXX";
     int32 fd;
     Imlib_Image im;
     Imlib_Load_Error err = IMLIB_LOAD_ERROR_NONE;
     int32 ok;
+
+    if (!pixels || width <= 0 || height <= 0) {
+        return 0;
+    }
 
     fd = mkstemp(path);
     if (fd < 0) {
@@ -103,9 +108,8 @@ image_to_png_bytes(ImageList *image, char **out, int32 *out_len) {
     }
     close(fd);
 
-    im = imlib_create_image_using_copied_data(image->width,
-                                              image->height,
-                                              (DATA32 *)image->pixels);
+    im = imlib_create_image_using_copied_data(width, height,
+                                              (DATA32 *)pixels);
     if (!im) {
         unlink(path);
         return 0;
@@ -127,102 +131,208 @@ image_to_png_bytes(ImageList *image, char **out, int32 *out_len) {
     return ok;
 }
 
-static ImageList *
-image_at_window_pixel(int32 win_x, int32 win_y) {
-    int32 x = win_x - term_window.hborderpx;
-    int32 y = win_y - term_window.vborderpx;
-    ImageList *match = NULL;
+static int32
+selection_image_cell_rect(int32 *out_x1, int32 *out_y1,
+                          int32 *out_x2, int32 *out_y2) {
+    int32 x1;
+    int32 y1;
+    int32 x2;
+    int32 y2;
+    int32 any_image = 0;
 
-    if (x < 0 || y < 0
-        || x >= term_window.tty_width
-        || y >= term_window.tty_height) {
-        return NULL;
+    if (selection.ob.x == -1
+        || selection.alt != term_mode_is_set(TERM_MODE_ALTSCREEN)) {
+        return 0;
     }
 
-    for (ImageList *image = term.images; image; image = image->next) {
-        int32 rel_y;
-        int32 scaled_w;
-        int32 scaled_h;
-        int32 image_x;
-        int32 image_y;
-        int32 height_in_rows;
-        int32 col;
-        int32 src_x;
-        int32 src_y;
-        uint32 pixel;
+    x1 = selection.nb.x;
+    y1 = selection.nb.y;
+    x2 = selection.ne.x;
+    y2 = selection.ne.y;
 
-        if (!image->pixels
-            || image->width <= 0
-            || image->height <= 0
-            || image->cw <= 0
-            || image->ch <= 0) {
-            continue;
+    if (x1 < 0 || x2 >= term.ncols || x1 > x2) {
+        return 0;
+    }
+    if (y1 < 0 || y2 >= term.nrows || y1 > y2) {
+        return 0;
+    }
+
+    /*
+     * For image copy, treat the normalized selection bounds as a rectangular
+     * crop.  This matches what users visually do when dragging over an image,
+     * even if the regular text-selection shape is not rectangular.
+     */
+    for (int32 y = y1; y <= y2; y += 1) {
+        StGlyph *line = term_line(y);
+        for (int32 x = x1; x <= x2; x += 1) {
+            if (!(line[x].mode & ATTR_SIXEL)) {
+                return 0;
+            }
+            any_image = 1;
         }
+    }
 
-        rel_y = image->y + term.scrolled_up;
-        scaled_w = (image->width * term_window.cw) / image->cw;
-        scaled_h = (image->height * term_window.ch) / image->ch;
-        image_x = image->x * term_window.cw;
-        image_y = rel_y * term_window.ch;
-        height_in_rows = (image->height + image->ch - 1) / image->ch;
+    if (!any_image) {
+        return 0;
+    }
 
-        scaled_w = (int32)MAX(scaled_w, 1);
-        scaled_h = (int32)MAX(scaled_h, 1);
+    *out_x1 = x1;
+    *out_y1 = y1;
+    *out_x2 = x2;
+    *out_y2 = y2;
+    return 1;
+}
 
-        if (image->x >= term.ncols
-            || rel_y >= term.nrows
-            || rel_y + height_in_rows <= 0
-            || image->y < -term.n_hist
-            || image->y >= term.nrows) {
-            continue;
-        }
+static void
+copy_image_to_selection_pixels(ImageList *image,
+                               int32 sel_px_x, int32 sel_px_y,
+                               int32 sel_px_w, int32 sel_px_h,
+                               uint32 *dst_pixels) {
+    int32 rel_y;
+    int32 scaled_w;
+    int32 scaled_h;
+    int32 image_px_x;
+    int32 image_px_y;
+    int32 ix1;
+    int32 iy1;
+    int32 ix2;
+    int32 iy2;
+    uint32 *src_pixels;
 
-        if (x < image_x || x >= image_x + scaled_w
-            || y < image_y || y >= image_y + scaled_h) {
-            continue;
-        }
+    if (!image
+        || !image->pixels
+        || image->width <= 0
+        || image->height <= 0
+        || image->cw <= 0
+        || image->ch <= 0) {
+        return;
+    }
 
-        col = x / term_window.cw;
-        if (col < image->x
-            || col >= image->x + image->cols
-            || col >= term.ncols) {
-            continue;
-        }
-        if (!(term_line_abs(image->y)[col].mode & ATTR_SIXEL)) {
-            continue;
-        }
+    rel_y = image->y + term.scrolled_up;
+    scaled_w = (image->width * term_window.cw) / image->cw;
+    scaled_h = (image->height * term_window.ch) / image->ch;
+    scaled_w = (int32)MAX(scaled_w, 1);
+    scaled_h = (int32)MAX(scaled_h, 1);
 
-        src_x = ((x - image_x) * image->width) / scaled_w;
-        src_y = ((y - image_y) * image->height) / scaled_h;
-        LIMIT(src_x, 0, image->width - 1);
+    image_px_x = image->x * term_window.cw;
+    image_px_y = rel_y * term_window.ch;
+
+    ix1 = (int32)MAX(sel_px_x, image_px_x);
+    iy1 = (int32)MAX(sel_px_y, image_px_y);
+    ix2 = (int32)MIN(sel_px_x + sel_px_w, image_px_x + scaled_w);
+    iy2 = (int32)MIN(sel_px_y + sel_px_h, image_px_y + scaled_h);
+
+    if (ix1 >= ix2 || iy1 >= iy2) {
+        return;
+    }
+
+    src_pixels = (uint32 *)image->pixels;
+
+    for (int32 py = iy1; py < iy2; py += 1) {
+        int32 src_y = ((py - image_px_y) * image->height) / scaled_h;
+        int32 dst_y = py - sel_px_y;
         LIMIT(src_y, 0, image->height - 1);
 
-        pixel = ((uint32 *)image->pixels)[src_y * image->width + src_x];
-        if (image->transparent && ((pixel >> 24) == 0)) {
-            continue;
+        for (int32 px = ix1; px < ix2; px += 1) {
+            int32 src_x = ((px - image_px_x) * image->width) / scaled_w;
+            int32 dst_x = px - sel_px_x;
+            uint32 pixel;
+
+            LIMIT(src_x, 0, image->width - 1);
+            pixel = src_pixels[src_y * image->width + src_x];
+
+            /* The X11 renderer uses the clipmask only to skip transparent
+             * source pixels; it does not alpha-blend them into the terminal.
+             */
+            if (image->transparent && ((pixel >> 24) == 0)) {
+                continue;
+            }
+
+            dst_pixels[dst_y * sel_px_w + dst_x] = pixel;
         }
-
-        match = image;
     }
-
-    return match;
+    return;
 }
 
 static int32
-user_copy_image_at(int32 win_x, int32 win_y, Time time) {
-    ImageList *image;
+user_clipboard_copy_selection_image(Time time) {
+    int32 x1;
+    int32 y1;
+    int32 x2;
+    int32 y2;
+    int32 out_w;
+    int32 out_h;
+    int64 pixel_count;
+    int64 pixel_bytes;
+    uint32 *pixels;
     char *png;
     int32 png_len;
+    int32 wrote_pixels = 0;
     Atom clipboard;
 
-    image = image_at_window_pixel(win_x, win_y);
-    if (!image) {
+    if (!selection_image_cell_rect(&x1, &y1, &x2, &y2)) {
         return 0;
     }
 
-    if (!image_to_png_bytes(image, &png, &png_len)) {
+    out_w = (x2 - x1 + 1) * term_window.cw;
+    out_h = (y2 - y1 + 1) * term_window.ch;
+    if (out_w <= 0 || out_h <= 0) {
         return 0;
     }
+
+    pixel_count = (int64)out_w * (int64)out_h;
+    pixel_bytes = pixel_count * SIZEOF(*pixels);
+    if (pixel_count <= 0 || pixel_bytes <= 0 || pixel_bytes > INT32_MAX) {
+        return 0;
+    }
+
+    pixels = malloc2(pixel_bytes);
+    memset64(pixels, 0, pixel_bytes);
+
+    for (ImageList *image = term.images; image; image = image->next) {
+        int64 before_checksum = 0;
+        int64 after_checksum = 0;
+
+        /* A cheap test to avoid claiming success for an all-transparent crop.
+         * This is not used as a hash; it only detects whether we changed data.
+         */
+        for (int32 i = 0; i < 8 && i < pixel_count; i += 1) {
+            before_checksum += pixels[i];
+        }
+
+        copy_image_to_selection_pixels(image,
+                                       x1 * term_window.cw,
+                                       y1 * term_window.ch,
+                                       out_w, out_h,
+                                       pixels);
+
+        for (int32 i = 0; i < 8 && i < pixel_count; i += 1) {
+            after_checksum += pixels[i];
+        }
+        if (before_checksum != after_checksum) {
+            wrote_pixels = 1;
+        }
+    }
+
+    if (!wrote_pixels) {
+        for (int64 i = 0; i < pixel_count; i += 1) {
+            if (pixels[i] != 0) {
+                wrote_pixels = 1;
+                break;
+            }
+        }
+    }
+
+    if (!wrote_pixels) {
+        free2(pixels, pixel_bytes);
+        return 0;
+    }
+
+    if (!pixels_to_png_bytes(pixels, out_w, out_h, &png, &png_len)) {
+        free2(pixels, pixel_bytes);
+        return 0;
+    }
+    free2(pixels, pixel_bytes);
 
     user_clipboard_clear();
     xsel.clipboard = png;
