@@ -148,7 +148,7 @@ sixel_image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
     int64 old_size;
 
     size = width*height*SIZEOF(uint16);
-    alt_buffer = (uint16 *)malloc2(size);
+    alt_buffer = malloc2(size);
     if (alt_buffer == NULL) {
         old_size = sixel_image->width*sixel_image->height*SIZEOF(uint16);
         free2(sixel_image->data, old_size);
