@@ -82,6 +82,7 @@ CFLAGS="$CFLAGS -Wno-comma"
 CFLAGS="$CFLAGS -Wno-undef"
 CFLAGS="$CFLAGS -Wno-cast-align"
 CFLAGS="$CFLAGS -Wno-bad-function-cast"
+CFLAGS="$CFLAGS -Wno-unused-variable"
 
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
@@ -91,6 +92,7 @@ LDFLAGS="$LDFLAGS -lm -lX11 -lXft -lutf8proc"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
 
 if [ "$target" = "test" ] && [ -z "$CC" ] && command tcc > /dev/null 2>&1; then
     CC=tcc

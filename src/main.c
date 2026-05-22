@@ -303,9 +303,11 @@ run:
 
         xsel.primary = NULL;
         xsel.clipboard = NULL;
+        xsel.clipboard_len = 0;
         if ((xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0)) == None) {
             xsel.xtarget = XA_STRING;
         }
+        xsel.clipboard_target = xsel.xtarget;
 
         boxdraw_xinit(x_window.display,
                       x_window.color_map, x_window.xft_draw, x_window.visual);

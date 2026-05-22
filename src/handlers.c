@@ -255,9 +255,9 @@ handler_selection_request(XEvent *xevent) {
     XSelectionRequestEvent *xselection_request_event;
     XSelectionEvent xselection_event;
     Atom xa_targets;
-    Atom string;
     Atom clipboard;
-    char *selection_text;
+    char *selection_text = NULL;
+    int32 selection_text_len = 0;
 
     xselection_request_event = (XSelectionRequestEvent *)xevent;
     xselection_event.type = SelectionNotify;
@@ -269,37 +269,72 @@ handler_selection_request(XEvent *xevent) {
         xselection_request_event->property = xselection_request_event->target;
     }
 
-    /* reject */
+    /* reject by default */
     xselection_event.property = None;
 
     xa_targets = XInternAtom(x_window.display, "TARGETS", 0);
+    clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
+
     if (xselection_request_event->target == xa_targets) {
-        /* respond with the supported type */
-        string = xsel.xtarget;
+        Atom targets[4];
+        int32 ntargets = 0;
+
+        targets[ntargets++] = xa_targets;
+
+        if (xselection_request_event->selection == XA_PRIMARY) {
+            if (xsel.primary != NULL) {
+                targets[ntargets++] = xsel.xtarget;
+                targets[ntargets++] = XA_STRING;
+            }
+        } else if (xselection_request_event->selection == clipboard) {
+            if (xsel.clipboard != NULL) {
+                targets[ntargets++] = xsel.clipboard_target;
+                if (xsel.clipboard_target == xsel.xtarget) {
+                    targets[ntargets++] = XA_STRING;
+                }
+            }
+        } else {
+            error("Unhandled clipboard selection 0x%lx\n",
+                  xselection_request_event->selection);
+        }
+
         XChangeProperty(xselection_request_event->display,
                         xselection_request_event->requestor,
                         xselection_request_event->property, XA_ATOM, 32,
-                        PropModeReplace, (uchar *)&string, 1);
+                        PropModeReplace, (uchar *)targets, ntargets);
         xselection_event.property = xselection_request_event->property;
-    } else if (xselection_request_event->target == xsel.xtarget
-               || xselection_request_event->target == XA_STRING) {
-        clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
+    } else {
         if (xselection_request_event->selection == XA_PRIMARY) {
-            selection_text = xsel.primary;
+            if (xselection_request_event->target == xsel.xtarget
+                || xselection_request_event->target == XA_STRING) {
+                selection_text = xsel.primary;
+                if (selection_text != NULL) {
+                    selection_text_len = strlen32(selection_text);
+                }
+            }
         } else if (xselection_request_event->selection == clipboard) {
-            selection_text = xsel.clipboard;
+            if (xsel.clipboard != NULL) {
+                if (xselection_request_event->target == xsel.clipboard_target) {
+                    selection_text = xsel.clipboard;
+                    selection_text_len = xsel.clipboard_len;
+                } else if (xsel.clipboard_target == xsel.xtarget
+                           && xselection_request_event->target == XA_STRING) {
+                    selection_text = xsel.clipboard;
+                    selection_text_len = xsel.clipboard_len;
+                }
+            }
         } else {
             error("Unhandled clipboard selection 0x%lx\n",
-                    xselection_request_event->selection);
-            return;
+                  xselection_request_event->selection);
         }
+
         if (selection_text != NULL) {
             XChangeProperty(xselection_request_event->display,
                             xselection_request_event->requestor,
                             xselection_request_event->property,
                             xselection_request_event->target, 8,
                             PropModeReplace, (uchar *)selection_text,
-                            strlen32(selection_text));
+                            selection_text_len);
             xselection_event.property = xselection_request_event->property;
         }
     }

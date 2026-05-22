@@ -11,6 +11,8 @@
 #define TESTING_mouse 0
 #endif
 
+static int32 mouse_image_click_consumed = 0;
+
 static int32
 xevent_col(XEvent *xevent) {
     int32 x = xevent->xbutton.x - term_window.hborderpx;
@@ -203,6 +205,22 @@ mouse_action(XEvent *xevent, uint32 release) {
     MouseShortcut *mouse_shortcut;
     /* ignore Button<N>mask for Button<N> - it's set on release */
     uint32 state = xevent->xbutton.state & ~button_mask(xevent->xbutton.button);
+
+    if (xevent->xbutton.button == Button1) {
+        if (release && mouse_image_click_consumed) {
+            mouse_image_click_consumed = 0;
+            return 1;
+        }
+        if (!release) {
+            mouse_image_click_consumed = 0;
+            if (user_copy_image_at(xevent->xbutton.x,
+                                   xevent->xbutton.y,
+                                   xevent->xbutton.time)) {
+                mouse_image_click_consumed = 1;
+                return 1;
+            }
+        }
+    }
 
     for (mouse_shortcut = CONF_MOUSE_SHORTCUTS;
          mouse_shortcut < CONF_MOUSE_SHORTCUTS + LENGTH(CONF_MOUSE_SHORTCUTS);

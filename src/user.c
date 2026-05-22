@@ -2,6 +2,10 @@
 #define USER_C
 
 #include <termios.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <Imlib2.h>
 #include "st.h"
 #include "util.c"
 #include "config.h"
@@ -16,18 +20,26 @@
 #endif
 
 static void
+user_clipboard_clear(void) {
+    free2(xsel.clipboard, xsel.clipboard_len + 1);
+    xsel.clipboard = NULL;
+    xsel.clipboard_len = 0;
+    xsel.clipboard_target = xsel.xtarget;
+    return;
+}
+
+static void
 user_clipboard_copy(union Arg *arg) {
     Atom clipboard;
     (void)arg;
 
-    free2(xsel.clipboard, xsel.clipboard_len + 1);
-    xsel.clipboard = NULL;
-    xsel.clipboard_len = 0;
+    user_clipboard_clear();
 
     if (xsel.primary != NULL) {
         xsel.clipboard_len = strlen32(xsel.primary);
         xsel.clipboard = malloc2(xsel.clipboard_len + 1);
         memcpy64(xsel.clipboard, xsel.primary, xsel.clipboard_len + 1);
+        xsel.clipboard_target = xsel.xtarget;
 
         clipboard = XInternAtom(x_window.display, "CLIPBOARD", 0);
         XSetSelectionOwner(x_window.display,
@@ -35,6 +47,196 @@ user_clipboard_copy(union Arg *arg) {
                            CurrentTime);
     }
     return;
+}
+
+static int32
+read_file_alloc(char *path, char **out, int32 *out_len) {
+    int32 fd;
+    off_t size;
+    char *data;
+    int64 used = 0;
+
+    fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        return 0;
+    }
+
+    size = lseek(fd, 0, SEEK_END);
+    if (size < 0 || size > INT32_MAX - 1) {
+        close(fd);
+        return 0;
+    }
+    if (lseek(fd, 0, SEEK_SET) < 0) {
+        close(fd);
+        return 0;
+    }
+
+    data = malloc2((int64)size + 1);
+    while (used < size) {
+        ssize_t n = read(fd, data + used, (size_t)(size - used));
+        if (n <= 0) {
+            free2(data, (int64)size + 1);
+            close(fd);
+            return 0;
+        }
+        used += n;
+    }
+    data[size] = '\0';
+
+    close(fd);
+    *out = data;
+    *out_len = (int32)size;
+    return 1;
+}
+
+static int32
+image_to_png_bytes(ImageList *image, char **out, int32 *out_len) {
+    char path[] = "/tmp/st-image-clipboard-XXXXXX";
+    int32 fd;
+    Imlib_Image im;
+    Imlib_Load_Error err = IMLIB_LOAD_ERROR_NONE;
+    int32 ok;
+
+    fd = mkstemp(path);
+    if (fd < 0) {
+        return 0;
+    }
+    close(fd);
+
+    im = imlib_create_image_using_copied_data(image->width,
+                                              image->height,
+                                              (DATA32 *)image->pixels);
+    if (!im) {
+        unlink(path);
+        return 0;
+    }
+
+    imlib_context_set_image(im);
+    imlib_image_set_has_alpha(1);
+    imlib_image_set_format("png");
+    imlib_save_image_with_error_return(path, &err);
+    imlib_free_image();
+
+    if (err != IMLIB_LOAD_ERROR_NONE) {
+        unlink(path);
+        return 0;
+    }
+
+    ok = read_file_alloc(path, out, out_len);
+    unlink(path);
+    return ok;
+}
+
+static ImageList *
+image_at_window_pixel(int32 win_x, int32 win_y) {
+    int32 x = win_x - term_window.hborderpx;
+    int32 y = win_y - term_window.vborderpx;
+    ImageList *match = NULL;
+
+    if (x < 0 || y < 0
+        || x >= term_window.tty_width
+        || y >= term_window.tty_height) {
+        return NULL;
+    }
+
+    for (ImageList *image = term.images; image; image = image->next) {
+        int32 rel_y;
+        int32 scaled_w;
+        int32 scaled_h;
+        int32 image_x;
+        int32 image_y;
+        int32 height_in_rows;
+        int32 col;
+        int32 src_x;
+        int32 src_y;
+        uint32 pixel;
+
+        if (!image->pixels
+            || image->width <= 0
+            || image->height <= 0
+            || image->cw <= 0
+            || image->ch <= 0) {
+            continue;
+        }
+
+        rel_y = image->y + term.scrolled_up;
+        scaled_w = (image->width * term_window.cw) / image->cw;
+        scaled_h = (image->height * term_window.ch) / image->ch;
+        image_x = image->x * term_window.cw;
+        image_y = rel_y * term_window.ch;
+        height_in_rows = (image->height + image->ch - 1) / image->ch;
+
+        scaled_w = (int32)MAX(scaled_w, 1);
+        scaled_h = (int32)MAX(scaled_h, 1);
+
+        if (image->x >= term.ncols
+            || rel_y >= term.nrows
+            || rel_y + height_in_rows <= 0
+            || image->y < -term.n_hist
+            || image->y >= term.nrows) {
+            continue;
+        }
+
+        if (x < image_x || x >= image_x + scaled_w
+            || y < image_y || y >= image_y + scaled_h) {
+            continue;
+        }
+
+        col = x / term_window.cw;
+        if (col < image->x
+            || col >= image->x + image->cols
+            || col >= term.ncols) {
+            continue;
+        }
+        if (!(term_line_abs(image->y)[col].mode & ATTR_SIXEL)) {
+            continue;
+        }
+
+        src_x = ((x - image_x) * image->width) / scaled_w;
+        src_y = ((y - image_y) * image->height) / scaled_h;
+        LIMIT(src_x, 0, image->width - 1);
+        LIMIT(src_y, 0, image->height - 1);
+
+        pixel = ((uint32 *)image->pixels)[src_y * image->width + src_x];
+        if (image->transparent && ((pixel >> 24) == 0)) {
+            continue;
+        }
+
+        match = image;
+    }
+
+    return match;
+}
+
+static int32
+user_copy_image_at(int32 win_x, int32 win_y, Time time) {
+    ImageList *image;
+    char *png;
+    int32 png_len;
+    Atom clipboard;
+
+    image = image_at_window_pixel(win_x, win_y);
+    if (!image) {
+        return 0;
+    }
+
+    if (!image_to_png_bytes(image, &png, &png_len)) {
+        return 0;
+    }
+
+    user_clipboard_clear();
+    xsel.clipboard = png;
+    xsel.clipboard_len = png_len;
+    xsel.clipboard_target = XInternAtom(x_window.display, "image/png", False);
+
+    clipboard = XInternAtom(x_window.display, "CLIPBOARD", False);
+    XSetSelectionOwner(x_window.display, clipboard, x_window.win, time);
+    if (XGetSelectionOwner(x_window.display, clipboard) != x_window.win) {
+        user_clipboard_clear();
+        return 0;
+    }
+
+    return 1;
 }
 
 static void

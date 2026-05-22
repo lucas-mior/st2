@@ -327,6 +327,7 @@ static struct {
     char *primary;
     char *clipboard;
     int32 clipboard_len;
+    Atom clipboard_target;
     struct timespec tclick1;
     struct timespec tclick2;
 } xsel;
@@ -389,6 +390,7 @@ static void reflow_scroll_down(int32 n);
 
 static void user_clipboard_copy(union Arg *arg);
 static void user_clipboard_paste(union Arg *arg);
+static int32 user_copy_image_at(int32 win_x, int32 win_y, Time time);
 static void user_toggle_numlock(union Arg *arg);
 static void user_selection_paste(union Arg *arg);
 static void user_change_alpha(union Arg *arg);
