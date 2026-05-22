@@ -286,7 +286,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
     tail = NULL;
     for (int32 i = 0; i < nimages; i += 1) {
         ImageList *image = malloc2(SIZEOF(*image));
-        char trans = 0;
+        int32 trans = 0;
         uint32 *dst;
 
         if (!tail) {
@@ -315,7 +315,9 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
             uint16 *src = sixel_state->image.data + sixel_image->width*y;
             for (int32 x = 0; x < w; x += 1) {
                 uint32 color = sixel_state->image.palette[*src++];
-                trans |= (color == 0);
+                if (!trans && (color == 0)) {
+                    trans = 1;
+                }
                 *dst++ = color;
             }
             y += 1;
