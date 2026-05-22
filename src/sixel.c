@@ -648,12 +648,14 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sixel_state->params[4]
                             = (uint32)MIN(sixel_state->params[4], 100);
                         
-                        fprintf(stderr,
-                                "SIXEL: Defined Index %d as HLS(%u,%u,%u)\n",
-                                sixel_state->color_index,
-                                sixel_state->params[2],
-                                sixel_state->params[3],
-                                sixel_state->params[4]);
+                        if (DEBUGGING) {
+                            fprintf(stderr,
+                                    "SIXEL: Defined idx %d = HLS(%u,%u,%u)\n",
+                                    sixel_state->color_index,
+                                    sixel_state->params[2],
+                                    sixel_state->params[3],
+                                    sixel_state->params[4]);
+                        }
 
                         sixel_image->palette[sixel_state->color_index]
                             = hls2rgb(sixel_state->params[2],
