@@ -365,7 +365,8 @@ valgrind)
 callgrind)
     out="callgrind_$(date +%s).callgrind"
     trace_on
-    valgrind --tool=callgrind --callgrind-out-file="$out" bin/$program
+    valgrind --tool=callgrind --callgrind-out-file="$out" \
+        bin/$program -e vim "$HOME/imgs/00teste/test.md"
     kcachegrind "$out"
     trace_off
     exit
