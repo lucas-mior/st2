@@ -674,8 +674,8 @@ CAT(hash_remove_pre_calc_, HASH_TYPE)(struct Map *map,
     if (CAT(hash_probe_, HASH_TYPE)(map, key, key_length, hash, base_index, &target_idx))
 #endif
     {
-        target = &map->array[target_idx];
 #if !HASH_KEY_FIXED_LEN
+        target = &map->array[target_idx];
   #if HASH_DUPLICATE_KEYS
         arena_decr(map->arena_keys, target->key);
   #endif
@@ -830,6 +830,7 @@ static bool hash_remove_map_by_value(struct Hash_map_by_value *, int64 *);
 #define HASH_VALUE_TYPE int32
 #define HASH_VALUE_FORMATTER "%d"
 #define HASH_TYPE map_by_value
+#define HASH_PADDING_TYPE uint32
 #define HASH_DUPLICATE_KEYS 0
 #include "hash.c"
 

@@ -33,6 +33,8 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include <float.h>
+#include <dirent.h>
+#include <ctype.h>
 
 #include "platform_detection.h"
 
@@ -47,6 +49,10 @@
 #define TESTING_util 1
 #elif !defined(TESTING_util)
 #define TESTING_util 0
+#endif
+
+#if defined(__EMSCRIPTEN__)
+#include <emscripten/emscripten.h>
 #endif
 
 #if !TESTING_util
@@ -76,11 +82,18 @@ _Generic((ARRAY), \
 #include "sfa.h"
 
 #define CLAMP(VAR, VMIN, VMAX) \
-_Generic((VAR), \
-    float: clamp_double, \
-    double: clamp_double, \
-    default: clamp_int64 \
+_Generic((VAR),                \
+    float: clamp_double,       \
+    double: clamp_double,      \
+    default: clamp_int64       \
 )(VAR, VMIN, VMAX)
+
+#define SQUARE(VAR)           \
+_Generic((VAR),               \
+    float: square_double,     \
+    double: square_double,    \
+    default: square_int64     \
+)(VAR)
 
 #define CLAMP_TYPE double
 #include "clamp.h"
@@ -191,7 +204,7 @@ memmem64(void *haystack, int64 hay_len, void *needle, int64 needle_len) {
         memmem64(LONG, LONG_LEN, SHORT, LEN)
 #define MEMMEM(...) SELECT_ON_NUM_ARGS(MEMMEM_, __VA_ARGS__)
 
-static bool
+INLINE bool
 strequal(char *s1, char *s2) {
     return !strcmp(s1, s2);
 }
@@ -302,10 +315,10 @@ begins_with(char *string, int32 string_len, char *literal, int32 length) {
     }
 }
 
-#define BEGINS_WITH_3(LONG, LONG_LEN, SHORT) \
-        begins_with(LONG, LONG_LEN, SHORT, strlen32(SHORT))
-#define BEGINS_WITH_4(LONG, LONG_LEN, SHORT, LEN) \
-        begins_with(LONG, LONG_LEN, SHORT, LEN)
+#define BEGINS_WITH_3(STRING, STRING_LEN, PREFIX) \
+        begins_with(STRING, STRING_LEN, PREFIX, strlen32(PREFIX))
+#define BEGINS_WITH_4(STRING, STRING_LEN, PREFIX, PREFIX_LEN) \
+        begins_with(STRING, STRING_LEN, PREFIX, PREFIX_LEN)
 #define BEGINS_WITH(...) SELECT_ON_NUM_ARGS(BEGINS_WITH_, __VA_ARGS__)
 
 INLINE char *
@@ -321,10 +334,10 @@ ends_with(char *string, int32 string_len, char *literal, int32 length) {
     }
 }
 
-#define ENDS_WITH_3(LONG, LONG_LEN, SHORT) \
-        ends_with(LONG, LONG_LEN, SHORT, strlen32(SHORT))
-#define ENDS_WITH_4(LONG, LONG_LEN, SHORT, LEN) \
-        ends_with(LONG, LONG_LEN, SHORT, LEN)
+#define ENDS_WITH_3(STRING, STRING_LEN, SUFFIX) \
+        ends_with(STRING, STRING_LEN, SUFFIX, strlen32(SUFFIX))
+#define ENDS_WITH_4(STRING, STRING_LEN, SUFFIX, SUFFIX_LEN) \
+        ends_with(STRING, STRING_LEN, SUFFIX, SUFFIX_LEN)
 #define ENDS_WITH(...) SELECT_ON_NUM_ARGS(ENDS_WITH_, __VA_ARGS__)
 
 INLINE int
@@ -412,45 +425,13 @@ random_ascii_string(char *buffer, int32 capacity, int32 min_len) {
     return len;
 }
 
-#define X64(FUNC, TYPE) \
-INLINE int64 \
-CAT(FUNC, 64)(int fd, void *buffer, int64 size) { \
-    TYPE instance = 0; \
-    ssize_t w; \
-    (void)instance; \
-    if (size == 0) \
-        return 0; \
-    if (size < 0) {\
-        error("Error: Invalid size = %lld\n", (llong)size); \
-        fatal(EXIT_FAILURE); \
-    } \
-    if ((ullong)size >= (ullong)MAXOF(instance)) { \
-        error("Error: Size (%lld) is too big for %s\n", (llong)size, #FUNC); \
-        fatal(EXIT_FAILURE); \
-    } \
-    w = FUNC(fd, buffer, (TYPE)size); \
-    return (int64)w; \
-}
-
-#if OS_WINDOWS
-X64(write, uint)
-X64(read, uint)
-#define RW_CAST uint
-#else
-X64(write, size_t)
-X64(read, size_t)
-#define RW_CAST size_t
-#endif
-
-#undef X64
-
 static void
 write_all(int fd, char *buffer, int64 left) {
     int64 written = 0;
     int64 w;
 
     while (left > 0) {
-        if ((w = write(fd, buffer + written, (RW_CAST)left)) <= 0) {
+        if ((w = write(fd, buffer + written, (RW_TYPE)left)) <= 0) {
             fprintf(stderr, "Error writing: %s.\n", strerror(errno));
             fatal(EXIT_FAILURE);
         }
@@ -460,34 +441,11 @@ write_all(int fd, char *buffer, int64 left) {
     return;
 }
 
-#define X64(FUNC) \
-INLINE int64 \
-CAT(FUNC, 64)(void *buffer, int64 size, int64 n, FILE *file) { \
-    size_t rw; \
-    if ((size_t)size >= (SIZE_MAX/(size_t)n)) { \
-        error("Error: Overflow (%lld*%lld)\n", (llong)size, (llong)n); \
-        fatal(EXIT_FAILURE); \
-    } \
-    if ((size <= 0) || (n <= 0)) { \
-        error("Error: Invalid size(%lld) or n(%lld)\n", (llong)size, (llong)n); \
-        fatal(EXIT_FAILURE); \
-    } \
-    if ((ullong)size >= (ullong)SIZE_MAX) { \
-        error("Error: Size (%lld) is bigger than SIZEMAX\n", (llong)size); \
-        fatal(EXIT_FAILURE); \
-    } \
-    if ((ullong)n >= (ullong)SIZE_MAX) { \
-        error("Error: Number (%lld) is bigger than SIZEMAX\n", (llong)size); \
-        fatal(EXIT_FAILURE); \
-    } \
-    rw = FUNC(buffer, (size_t)size, (size_t)n, file); \
-    return (int64)rw; \
-}
+#define RW_FUNCTION write
+#include "rw_function.h"
 
-X64(fwrite)
-X64(fread)
-
-#undef X64
+#define RW_FUNCTION read
+#include "rw_function.h"
 
 static void
 qsort64(void *base, int64 n, int64 size,
@@ -495,12 +453,13 @@ qsort64(void *base, int64 n, int64 size,
     int (*compar_consted)(const void *, const void *);
     compar_consted = (int (*)(const void *, const void *)) compar;
     if (DEBUGGING) {
-        if ((size_t)size >= (SIZE_MAX / (size_t)n)) {
-            error("Error: Overflow (%lld*%lld)\n", (llong)size, (llong)n);
+        if ((size <= 0) || (n <= 0)) {
+            error("Error: Invalid size(%lld) or n(%lld)\n",
+                  (llong)size, (llong)n);
             fatal(EXIT_FAILURE);
         }
-        if ((size <= 0) || (n <= 0)) {
-            error("Error: Invalid size(%lld) or n(%lld)\n", (llong)size, (llong)n);
+        if ((size_t)size >= (SIZE_MAX / (size_t)n)) {
+            error("Error: Overflow (%lld*%lld)\n", (llong)size, (llong)n);
             fatal(EXIT_FAILURE);
         }
         if ((ullong)size >= (ullong)SIZE_MAX) {
@@ -782,11 +741,69 @@ xclose(char *file, int line, int *fd, char *fd_var_name, char *filename) {
 static int
 xunlink(char *filename) {
     if (unlink(filename) < 0) {
-        error("Error in unlink(%s): %s.\n", filename, strerror(errno));
+        error2("Error in unlink(%s): %s.\n", filename, strerror(errno));
         return -1;
     }
     return 0;
 }
+
+static FILE *
+xfopen(char *file, int32 line, char *func, char *filename, char *mode) {
+    FILE *f;
+    char *mode_long = "what";
+
+    if (strequal(mode, "w")) {
+        mode_long = "writing";
+    }
+    if (strequal(mode, "r")) {
+        mode_long = "reading";
+    }
+    if (strequal(mode, "r+")) {
+        mode_long = "reading and writing";
+    }
+    if (strequal(mode, "w+")) {
+        mode_long = "reading and writing";
+    }
+    if (strequal(mode, "a")) {
+        mode_long = "appending";
+    }
+    if (strequal(mode, "a+")) {
+        mode_long = "reading and appending";
+    }
+
+    if ((f = fopen(filename, mode)) == NULL) {
+        error_impl(file, line, func, "Error opening %s for %s: %s.\n",
+                   filename, mode_long, strerror(errno));
+        return NULL;
+    }
+    return f;
+}
+
+#define XFOPEN(FILENAME, MODE) \
+    xfopen(__FILE__, __LINE__, (char *)__func__, FILENAME, MODE)
+
+static int
+xfclose(char *file, int32 line, char *func, FILE *f, char *filename) {
+    if (fclose(f)) {
+        error_impl(file, line, func,
+                   "Error closing %s: %s.\n", filename, strerror(errno));
+        return -1;
+    }
+    return 0;
+}
+
+#define XFCLOSE(F, FILENAME) \
+    xfclose(__FILE__, __LINE__, (char *)__func__, F, FILENAME)
+
+static int
+xclosedir(DIR *dir, char *dirname) {
+    if (closedir(dir)) {
+        error2("Error closing directory %s: %s.\n", dirname, strerror(errno));
+        return -1;
+    }
+    return 0;
+}
+
 
 #if OS_WINDOWS
 static int
@@ -811,7 +828,7 @@ util_command(int argc, char **argv) {
 
     {
         char *exe = ".exe";
-        int64 exe_len = (int64)(strlen32(exe));
+        int64 exe_len = strlen32(exe);
         if (memmem64(argv[0], len0 + 1, exe, exe_len + 1) == NULL) {
             memcpy64(argv0_windows, argv[0], len0);
             memcpy64(argv0_windows + len0, exe, exe_len + 1);
@@ -973,17 +990,10 @@ error_impl(char *file, int32 line, char *func, char *format, ...) {
     n = vsnprintf(buffer, (size_t)m, format, args);
 
     if (n >= m) {
-        if (1) {
-            m = n + 1;
-            big_buffer = xmalloc(m, false);
-            n = vsnprintf(big_buffer, (size_t)m, format, args);
-            pbuffer = big_buffer;
-        } else {
-            fprintf(stderr,
-                    "%s:%d %s(): Error in vsnprintf(\"%s\") (n = %lld).\n",
-                    file, line, func, format, (llong)n);
-            fatal(EXIT_FAILURE);
-        }
+        m = n + 1;
+        big_buffer = xmalloc(m, false);
+        n = vsnprintf(big_buffer, (size_t)m, format, args);
+        pbuffer = big_buffer;
     }
 
     va_end(args);
@@ -1045,6 +1055,16 @@ error_async_safe(char *message) {
 
 void __attribute((noreturn))
 fatal(int status) {
+#if defined(__EMSCRIPTEN__)
+    char stack[8192];
+    int32 flags = EM_LOG_C_STACK
+                  |EM_LOG_JS_STACK
+                  |EM_LOG_DEMANGLE
+                  |EM_LOG_NO_PATHS;
+
+    emscripten_get_callstack(flags, stack, SIZEOF(stack));
+    error2("fatal(%d) call stack:\n%s\n", status, stack);
+#endif
     if (DEBUGGING) {
         (void)status;
         raise(SIGILL);
@@ -1059,7 +1079,7 @@ util_segv_handler(int32 unused) {
     char *message = "Memory error. Please send a bug report.\n";
     (void)unused;
 
-    write64(STDERR_FILENO, message, (uint32)strlen32(message));
+    write64(STDERR_FILENO, message, strlen32(message));
     for (uint32 i = 0; i < LENGTH(notifiers); i += 1) {
         execlp(notifiers[i],
                notifiers[i], "-u", "critical", program, message, NULL);
@@ -1614,12 +1634,15 @@ basename2(char *path, int32 *full_length, int32 *base_len) {
 static char *
 path_basename(char *path, int32 path_len) {
     int32 slash = -1;
+    int32 start;
+
     for (int32 i = 0; i < path_len; i += 1) {
         if (path[i] == '/') {
             slash = i;
         }
     }
-    int32 start = slash + 1;
+
+    start = slash + 1;
     return xstrndup(path + start, path_len - start);
 }
 
@@ -1802,7 +1825,8 @@ timezone_init(void) {
 #define GETENV(VAR) do { \
     if ((VAR = getenv(#VAR)) == NULL) { \
         if (DEBUGGING) { \
-            error(RED("%s") " is not defined.", #VAR); \
+            error_impl(__FILE__, __LINE__, (char *)__func__, \
+                       RED("%s") " is not defined.", #VAR); \
         } \
     } else { \
         int32 len = strlen32(VAR); \
@@ -1851,9 +1875,7 @@ read_entire_file(char *path, int32 *file_len) {
         r = 0;
     }
     data[r] = '\0';
-    if (fclose(fp)) {
-        error("Error closing %s: %s.\n", path, strerror(errno));
-    }
+    XFCLOSE(fp, path);
 
     if (r >= MAXOF(*file_len)) {
         error("Only files up to 2GB are supported.\n");
@@ -1865,22 +1887,27 @@ read_entire_file(char *path, int32 *file_len) {
 
 static void
 write_entire_file(char *path, char *text, int64 text_len) {
-    FILE *f;
+    FILE *file;
 
-    if ((f = fopen(path, "wb")) == NULL) {
+    if (text_len < 0) {
+        error("Error writing negative length %lld to %s.",
+              (llong)text_len, path);
+        fatal(EXIT_FAILURE);
+    }
+
+    if ((file = fopen(path, "wb")) == NULL) {
         error("Error opening %s for writing: %s", path, strerror(errno));
         fatal(EXIT_FAILURE);
     }
 
-    if (fwrite64(text, 1, text_len, f) != text_len) {
+    if ((text_len > 0) && (fwrite64(text, 1, text_len, file) != text_len)) {
         error("Error writing %lld bytes to %s: %s.",
               (llong)text_len, path, strerror(errno));
         fatal(EXIT_FAILURE);
     }
-    if (fclose(f)) {
-        error("Error closing %s: %s.", path, strerror(errno));
-        fatal(EXIT_FAILURE);
-    }
+
+    XFCLOSE(file, path);
+    return;
 }
 
 void
@@ -1889,7 +1916,7 @@ sb_reserve(StrBuilder *str_builder, int32 extra) {
     int32 old_cap = str_builder->cap;
     int32 cap;
 
-    if (need <= str_builder->cap) {
+    if (str_builder->data && need <= str_builder->cap) {
         return;
     }
     if (need >= MAXOF(str_builder->cap)) {
@@ -1897,7 +1924,11 @@ sb_reserve(StrBuilder *str_builder, int32 extra) {
         fatal(EXIT_FAILURE);
     }
 
-    if (str_builder->cap <= 0) {
+    if (!str_builder->data) {
+        old_cap = 0;
+    }
+
+    if (!str_builder->data || str_builder->cap <= 0) {
         cap = 256;
     } else {
         cap = str_builder->cap;
@@ -1997,6 +2028,16 @@ parse_option(char **parsed, char *arg, char *option_name) {
         return true;
     }
     return false;
+}
+
+static bool
+is_ident_start_char(char c) {
+    return isalpha((uint8)c) || c == '_';
+}
+
+static bool
+is_ident_char(char c) {
+    return isalnum((uint8)c) || c == '_';
 }
 
 static void
@@ -2111,7 +2152,7 @@ command_run_capture(Command *command, char *cwd) {
         XCLOSE(&pipefd[1]);
 
         execvp(command->argv[0], command->argv);
-        perror("execvp");
+        error("Error executing %s: %s.\n", command->argv[0], strerror(errno));
         _exit(127);
     default:
         XCLOSE(&pipefd[1]);
@@ -2282,6 +2323,9 @@ util_functions_sink(void) {
     (void)util_filename_from;
     (void)util_string_int32;
     (void)util_die_notify;
+    (void)remove_escape_sequences;
+    (void)xfclose;
+    (void)xclosedir;
 #if OS_UNIX
     (void)util_copy_file_sync;
     (void)util_copy_file_async;
@@ -2309,6 +2353,7 @@ util_functions_sink(void) {
     (void)bytes_pretty;
     (void)qsort64;
     (void)print_timings;
+    (void)strncmp32;
 
     (void)xmmap_commit;
     (void)xstrdup;

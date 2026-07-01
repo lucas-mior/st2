@@ -7,6 +7,12 @@
 #include "meta.h"
 #include "util.c"
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_meta_generate 1
+#elif !defined(TESTING_meta_generate)
+#define TESTING_meta_generate 0
+#endif
+
 static StrBuilder
 c_string_literal(char *value, int32 value_len) {
     StrBuilder out = {0};
@@ -24,7 +30,7 @@ c_string_literal(char *value, int32 value_len) {
 
     if (out.cap != out.len + 1) {
         out.data
-        = realloc2(out.data, out.cap, out.len + 1, SIZEOF(out.data[0]));
+            = realloc2(out.data, out.cap, out.len + 1, SIZEOF(out.data[0]));
         out.cap = out.len + 1;
     }
 
@@ -79,6 +85,8 @@ emit_string_array_initializer(StrBuilder *out, char *field, char **values,
         int32 fb_len = SNPRINTF(fb, "%s%d", fallback_prefix, i);
         char *value;
         int32 value_len;
+        StrBuilder cs;
+
         if (values[i]) {
             value = values[i];
             value_len = value_lens[i];
@@ -86,7 +94,8 @@ emit_string_array_initializer(StrBuilder *out, char *field, char **values,
             value = fb;
             value_len = fb_len;
         }
-        StrBuilder cs = c_string_literal(value, value_len);
+
+        cs = c_string_literal(value, value_len);
         sb_printf(out, "        %s,\n", cs.data);
         free2(cs.data, cs.cap);
     }
@@ -104,17 +113,20 @@ emit_lens_initializer(StrBuilder *out, char *field, char **values,
 
     sb_printf(out, "    .%s = { ", field);
     for (int32 i = 0; i < count; i += 1) {
-        if (i) {
-            SB_APPEND(out, ", ");
-        }
         char fb[32];
         int32 fb_len = SNPRINTF(fb, "%s%d", fallback_prefix, i);
         int32 value_len;
+
+        if (i > 0) {
+            SB_APPEND(out, ", ");
+        }
+
         if (values[i]) {
             value_len = value_lens[i];
         } else {
             value_len = fb_len;
         }
+
         sb_printf(out, "%d", value_len);
     }
     SB_APPEND(out, " },\n");
@@ -161,7 +173,7 @@ emit_u64_array_initializer(StrBuilder *out, char *field, uint64 *values,
 
 static void
 c_emit_wrapped_expr(StrBuilder *out, char *indent, char *prefix, char *expr,
-                     char *suffix) {
+                    char *suffix) {
     int32 prefix_len = strlen32(prefix);
 
     SB_APPEND(out, indent);
@@ -179,7 +191,6 @@ c_emit_wrapped_expr(StrBuilder *out, char *indent, char *prefix, char *expr,
     SB_APPEND(out, suffix);
     SB_APPEND(out, "\n");
 }
-
 
 #if TESTING_meta_generate
 
@@ -218,12 +229,11 @@ test_emit_string_and_lens_initializers(void) {
     int32 lens[3] = {5, 0, 6};
 
     emit_string_array_initializer(&out, "names", values, lens, 3, "v");
-    ASSERT_EQUAL(out.data,
-                 "    .names = {\n"
-                 "        \"alpha\",\n"
-                 "        \"v1\",\n"
-                 "        \"quo\\\"te\",\n"
-                 "    },\n");
+    ASSERT_EQUAL(out.data, "    .names = {\n"
+                           "        \"alpha\",\n"
+                           "        \"v1\",\n"
+                           "        \"quo\\\"te\",\n"
+                           "    },\n");
 
     sb_free(&out);
     emit_lens_initializer(&out, "name_lens", values, lens, 3, "v");
@@ -254,10 +264,9 @@ test_emit_wrapped_expr(void) {
     StrBuilder out = {0};
 
     c_emit_wrapped_expr(&out, "  ", "return ", "f(a,b)", ";");
-    ASSERT_EQUAL(out.data,
-                 "  return f(\n"
-                 "         a,\n"
-                 "         b);\n");
+    ASSERT_EQUAL(out.data, "  return f(\n"
+                           "         a,\n"
+                           "         b);\n");
     free2(out.data, out.cap);
     return;
 }
