@@ -5,9 +5,9 @@ normal="(($protocols://|www\.)[a-zA-Z0-9.]*[:]?[a-zA-Z0-9./@$&%?$\#=_~-]*)"
 urlregex="$normal|((magnet:\?xt=urn:btih:)[a-zA-Z0-9]*)"
 
 urls=$(sed 's/.*│//g' \
-       | tr -d '\n' \
+       | tr '\n' ' ' \
        | grep -aEo "$urlregex" \
-       | uniq \
+       | sort -u \
        | sed "s/\(\.\|,\|;\|\!\|\?\)$//; s/^www./http:\/\/www\./")
 
 if [ -z "$urls" ]; then
@@ -20,8 +20,7 @@ if [ -z "$chosen" ]; then
     exit 0
 fi
 
-echo "$chosen" \
-    | tr -d '\n' \
+printf "%s" "$chosen" \
     | xclip -selection clipboard
 
 setsid xdg-open "$chosen" >/dev/null 2>&1 &
