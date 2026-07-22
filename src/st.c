@@ -286,10 +286,10 @@ term_get_glyphs(char *buffer, StGlyph *glyph, StGlyph *lgp) {
         if (glyph->rune & MULTI_CODE_POINT_FLAG) {
             uint32 pool_index = glyph->rune & ~MULTI_CODE_POINT_FLAG;
             for (int32 i = 0; i < string_pool[pool_index].length; i += 1) {
-                buffer += utf8_encode(string_pool[pool_index].runes[i], buffer);
+                buffer += utf8_encode_raw(string_pool[pool_index].runes[i], buffer);
             }
         } else {
-            buffer += utf8_encode(glyph->rune, buffer);
+            buffer += utf8_encode_raw(glyph->rune, buffer);
         }
         glyph += 1;
     }
@@ -670,7 +670,7 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
      */
     if ((term.translation_table[term.charset] == CS_GRAPHIC0)
         && BETWEEN(u, 0x41, 0x7e) && vt100_0[u - 0x41]) {
-        utf8_decode(vt100_0[u - 0x41], &u, UTF_SIZ);
+        utf8_decode_raw(vt100_0[u - 0x41], &u, UTF_SIZ);
     }
 
     if (term.lines[y][x].mode & ATTR_WIDE) {

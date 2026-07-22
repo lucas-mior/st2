@@ -228,7 +228,11 @@ scan_literal_token(char *text, int32 text_len, int32 start) {
     i = quote_index + 1;
     while (i < text_len) {
         if (text[i] == '\\') {
-            i += 2;
+            if ((i + 1) < text_len) {
+                i += 2;
+            } else {
+                i = text_len;
+            }
             continue;
         }
         if (text[i] == quote) {
@@ -441,7 +445,8 @@ static void
 tokenize_line_with_flags(Line *line, bool *in_block_comment, int32 flags) {
     int32 i;
 
-    if ((flags & TOKENIZE_PREPROCESSOR_LINES)
+    if (!*in_block_comment
+        && (flags & TOKENIZE_PREPROCESSOR_LINES)
         && line_starts_preprocessor(line->text, line->len)) {
         line_add_token(line, TOKEN_PREPROC, line->text, line->len, 0);
         return;
@@ -587,9 +592,8 @@ token_is_trivia(Token *token) {
 static int32
 tokenization_significant_at_or_after(Tokenization *tokenization,
                                      int32 token_index) {
-    int32 result;
-
-    result = token_index;
+    int32 result = token_index;
+    assert(token_index >= 0);
     while ((result < tokenization->token_count)
            && token_is_trivia(&tokenization->tokens[result])) {
         result += 1;
@@ -871,6 +875,14 @@ test_literal_scanners(void) {
     ASSERT_EQUAL(scan_literal_token(literal, strlen32(literal), 0), 6);
     ASSERT_EQUAL(scan_literal_token("u8\"xy\";", strlen32("u8\"xy\";"), 0), 6);
     ASSERT_EQUAL(scan_literal_token("name", strlen32("name"), 0), 0);
+
+    {
+        char trailing_escape[] = {'\"', 'a', '\\'};
+
+        ASSERT_EQUAL(scan_literal_token(trailing_escape,
+                                        LENGTH(trailing_escape), 0),
+                     LENGTH(trailing_escape));
+    }
     return;
 }
 
@@ -1001,6 +1013,27 @@ test_tokenize_block_comment_across_lines(void) {
     ASSERT_EQUAL(second.token_count, 6);
     test_assert_token(&second.tokens[0], TOKEN_COMMENT, "world */", 0);
     test_assert_token(&second.tokens[2], TOKEN_IDENT, "int", 9);
+
+    free_line_tokens(&first);
+    free_line_tokens(&second);
+
+    first = (Line){0};
+    second = (Line){0};
+    in_block_comment = false;
+
+    first.text = "/* hello\n";
+    first.len = strlen32(first.text);
+    tokenize_cstyle_line(&first, &in_block_comment);
+    ASSERT(in_block_comment);
+
+    second.text = "# still a comment */ int x;\n";
+    second.len = strlen32(second.text);
+    tokenize_cstyle_line(&second, &in_block_comment);
+    ASSERT(!in_block_comment);
+    ASSERT_EQUAL(second.token_count, 7);
+    test_assert_token(&second.tokens[0], TOKEN_COMMENT,
+                      "# still a comment */", 0);
+    test_assert_token(&second.tokens[2], TOKEN_IDENT, "int", 21);
 
     free_line_tokens(&first);
     free_line_tokens(&second);

@@ -114,7 +114,7 @@ handler_button_press(XEvent *xevent) {
                 }
             }
 
-            utf8_len = utf8_encode(glyph.rune, utf8_buf);
+            utf8_len = utf8_encode_raw(glyph.rune, utf8_buf);
             utf8_buf[utf8_len] = '\0';
             if (glyph.rune & MULTI_CODE_POINT_FLAG) {
                 multi_code_point = "YES";
@@ -540,7 +540,7 @@ tried_custom_keys:
         if (win_mode_is_set(WIN_MODE_8BIT)) {
             if (*buffer < 0177) {
                 c = (uint32)(*buffer | 0x80);
-                len = utf8_encode(c, buffer);
+                len = utf8_encode_raw(c, buffer);
             }
         } else {
             buffer[1] = buffer[0];

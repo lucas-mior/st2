@@ -581,7 +581,7 @@ dump_for_editor(int32 fd, int32 *out_row, int32 *out_col) {
 
         for (int32 x = 0; x < last_pos; x += 1) {
             if (!(line[x].mode & ATTR_WDUMMY)) {
-                xwrite(fd, buffer, utf8_encode(line[x].rune, buffer));
+                xwrite(fd, buffer, utf8_encode_raw(line[x].rune, buffer));
             }
         }
         
@@ -724,7 +724,7 @@ dump_terminal_to_fd(int32 fd) {
         end = &line[last_pos + 1];
         while (line < end) {
             if (!(line->mode & ATTR_WDUMMY)) {
-                if (xwrite(fd, buffer, utf8_encode(line->rune, buffer)) < 0) {
+                if (xwrite(fd, buffer, utf8_encode_raw(line->rune, buffer)) < 0) {
                     goto cleanup;
                 }
             }

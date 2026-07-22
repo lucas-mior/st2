@@ -1535,7 +1535,7 @@ term_putc(uint32 u) {
         width = 1;
         len = 1;
     } else {
-        len = utf8_encode(u, c);
+        len = utf8_encode_raw(u, c);
         if (!control) {
             width = st_wcwidth(u);
             if (width == -1) {
@@ -1839,7 +1839,7 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
                                           (uchar *)buffer + n, buflen - n);
             continue;
         } else if (term_mode_is_set(TERM_MODE_UTF8)) {
-            char_size = utf8_decode(buffer + n, &u, buflen - n);
+            char_size = utf8_decode_raw(buffer + n, &u, buflen - n);
             if (char_size == 0) {
                 break;
             }
