@@ -10,7 +10,7 @@ _Static_assert(CHAR_BIT == 8, "primitives.h requires CHAR_BIT == 8");
 
 #define CHAR_BIT2 8
 
-_Static_assert(~(0ul) == 18446744073709551615ul,
+_Static_assert(~(0ull) == 18446744073709551615ul,
                "primitives.h requires unsigned long to be 64 bits");
 _Static_assert((unsigned char)~0 == (unsigned char)255,
                "primitives.h requires CHAR_BIT == 8");
@@ -77,84 +77,43 @@ _Static_assert(sizeof(intptr) == sizeof(void *),
 #define INT_MAX 2147483647
 #define UINT_MAX 4294967295u
 
-#define LONG_MIN (sizeof(long == 4)                 \
+#define LONG_MIN ((sizeof(long) == 4)               \
                   ? (-2147483647L - 1L)             \
-                  : (-9223372036854775807ll - 1ll)
-#define LONG_MAX (sizeof(long == 4)                 \
+                  : (-9223372036854775807ll - 1ll))
+#define LONG_MAX ((sizeof(long) == 4)               \
                   ? 2147483647L                     \
-                  : 9223372036854775807ll
-#define ULONG_MAX (sizeof(long == 4)                \
-                  ? 4294967295u                     \
-                  : 18446744073709551615ul
+                  : 9223372036854775807ll)
+#define ULONG_MAX ((sizeof(long) == 4)              \
+                   ? 4294967295u                    \
+                   : 18446744073709551615ul)
 
-#if !defined(LLONG_MIN)
-#define LLONG_MIN (-9223372036854775807l - 1l)
-#endif
-#if !defined(LLONG_MAX)
-#define LLONG_MAX 9223372036854775807l
-#endif
-#if !defined(ULLONG_MAX)
+#define LLONG_MIN (-9223372036854775807ll - 1ll)
+#define LLONG_MAX 9223372036854775807ll
 #define ULLONG_MAX 18446744073709551615ul
-#endif
 
-#if !defined(INT8_MIN)
 #define INT8_MIN SCHAR_MIN
-#endif
-#if !defined(INT8_MAX)
 #define INT8_MAX SCHAR_MAX
-#endif
-#if !defined(UINT8_MAX)
 #define UINT8_MAX UCHAR_MAX
-#endif
 
-#if !defined(INT16_MIN)
 #define INT16_MIN SHRT_MIN
-#endif
-#if !defined(INT16_MAX)
 #define INT16_MAX SHRT_MAX
-#endif
-#if !defined(UINT16_MAX)
 #define UINT16_MAX USHRT_MAX
-#endif
 
-#if !defined(INT32_MIN)
 #define INT32_MIN INT_MIN
-#endif
-#if !defined(INT32_MAX)
 #define INT32_MAX INT_MAX
-#endif
-#if !defined(UINT32_MAX)
 #define UINT32_MAX UINT_MAX
-#endif
 
-#if !defined(INT64_MIN)
 #define INT64_MIN LLONG_MIN
-#endif
-#if !defined(INT64_MAX)
 #define INT64_MAX LLONG_MAX
-#endif
-#if !defined(UINT64_MAX)
 #define UINT64_MAX ULLONG_MAX
-#endif
 
-#if !defined(INTPTR_MIN)
 #define INTPTR_MIN LLONG_MIN
-#endif
-#if !defined(INTPTR_MAX)
 #define INTPTR_MAX LLONG_MAX
-#endif
-#if !defined(UINTPTR_MAX)
 #define UINTPTR_MAX ULLONG_MAX
-#endif
-#if !defined(PTRDIFF_MIN)
+
 #define PTRDIFF_MIN LONG_MIN
-#endif
-#if !defined(PTRDIFF_MAX)
 #define PTRDIFF_MAX LONG_MAX
-#endif
-#if !defined(SIZE_MAX)
 #define SIZE_MAX ULONG_MAX
-#endif
 
 #endif
 
