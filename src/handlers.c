@@ -152,9 +152,9 @@ handler_button_press(XEvent *xevent) {
 
 static void
 handler_selection_notify(XEvent *xevent) {
-    uint64 nitems_return;
-    uint64 offset;
-    uint64 bytes_after_return;
+    ulong nitems_return;
+    ulong offset;
+    ulong bytes_after_return;
     int32 actual_format_return;
     uchar *prop_return;
     uchar *last;
