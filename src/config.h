@@ -1,7 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <stdint.h>
 #include <limits.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>

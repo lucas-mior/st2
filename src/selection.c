@@ -1,7 +1,7 @@
 #if !defined(SELECTION_C)
 #define SELECTION_C
 
-#include "util.c"
+#include "cbase.h"
 #include "st.h"
 #include "config.h"
 

@@ -1,7 +1,6 @@
 #ifndef ST_H
 #define ST_H
 
-#include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <wchar.h>

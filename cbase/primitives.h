@@ -53,63 +53,41 @@ _Static_assert(sizeof(uintptr) == sizeof(void *),
 _Static_assert(sizeof(intptr) == sizeof(void *),
                "intptr must match pointer width");
 
-#if !defined(SCHAR_MIN)
-#define SCHAR_MIN (-127 - 1)
-#endif
-#if !defined(SCHAR_MAX)
-#define SCHAR_MAX 127
-#endif
-#if !defined(UCHAR_MAX)
-#define UCHAR_MAX 255
-#endif
-#if !defined(CHAR_MIN)
-#define CHAR_MIN (((char)-1 < 0) ? SCHAR_MIN : 0)
-#endif
-#if !defined(CHAR_MAX)
-#define CHAR_MAX (((char)-1 < 0) ? SCHAR_MAX : UCHAR_MAX)
-#endif
 
-#if !defined(SHRT_MIN)
-#define SHRT_MIN (-32767 - 1)
-#endif
-#if !defined(SHRT_MAX)
-#define SHRT_MAX 32767
-#endif
-#if !defined(USHRT_MAX)
-#define USHRT_MAX 65535
-#endif
-
-#if !defined(INT_MIN)
-#define INT_MIN (-2147483647 - 1)
-#endif
-#if !defined(INT_MAX)
-#define INT_MAX 2147483647
-#endif
-#if !defined(UINT_MAX)
-#define UINT_MAX 4294967295u
-#endif
-
-#if !OS_WINDOWS
-  #if !defined(LONG_MIN)
-    #define LONG_MIN (-9223372036854775807ll - 1ll)
-  #endif
-  #if !defined(LONG_MAX)
-    #define LONG_MAX 9223372036854775807ll
-  #endif
-  #if !defined(ULLONG_MAX)
-    #define ULLONG_MAX 18446744073709551615ul
+#if defined(__has_include)
+  #if __has_include(<stdint.h>)
+    #include <stdint.h>
+    #define HAS_STDINT 1
+  #else
+    #define HAS_STDINT 0
   #endif
 #else
-  #if !defined(LONG_MIN)
-    #define LONG_MIN (-2147483647L - 1L)
-  #endif
-  #if !defined(LONG_MAX)
-    #define LONG_MAX 2147483647L
-  #endif
-  #if !defined(ULLONG_MAX)
-    #define ULLONG_MAX 4294967295u
-  #endif
+  #define HAS_STDINT 0
 #endif
+
+#if !HAS_STDINT
+
+#define SCHAR_MIN (-127 - 1)
+#define SCHAR_MAX 127
+#define UCHAR_MAX 255
+#define CHAR_MIN (((char)-1 < 0) ? SCHAR_MIN : 0)
+#define CHAR_MAX (((char)-1 < 0) ? SCHAR_MAX : UCHAR_MAX)
+#define SHRT_MIN (-32767 - 1)
+#define SHRT_MAX 32767
+#define USHRT_MAX 65535
+#define INT_MIN (-2147483647 - 1)
+#define INT_MAX 2147483647
+#define UINT_MAX 4294967295u
+
+#define LONG_MIN (sizeof(long == 4)                 \
+                  ? (-2147483647L - 1L)             \
+                  : (-9223372036854775807ll - 1ll)
+#define LONG_MAX (sizeof(long == 4)                 \
+                  ? 2147483647L                     \
+                  : 9223372036854775807ll
+#define ULONG_MAX (sizeof(long == 4)                \
+                  ? 4294967295u                     \
+                  : 18446744073709551615ul
 
 #if !defined(LLONG_MIN)
 #define LLONG_MIN (-9223372036854775807l - 1l)
@@ -119,10 +97,6 @@ _Static_assert(sizeof(intptr) == sizeof(void *),
 #endif
 #if !defined(ULLONG_MAX)
 #define ULLONG_MAX 18446744073709551615ul
-#endif
-
-#if !defined(ULLONG_MAX)
-#define ULLONG_MAX 18446744073709551615ull
 #endif
 
 #if !defined(INT8_MIN)
@@ -182,6 +156,8 @@ _Static_assert(sizeof(intptr) == sizeof(void *),
 #endif
 #if !defined(SIZE_MAX)
 #define SIZE_MAX ULONG_MAX
+#endif
+
 #endif
 
 #endif /* PRIMITIVES_H */
