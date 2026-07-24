@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL
 // Copyright (c) 2026 Lucas Mior
 
+// this is almost completely self contained,
+// it only depends on platform_detection.h,
+// but not on anything else on cbase/
+
 #if !defined(BASE_MACROS_H)
 #define BASE_MACROS_H
 
