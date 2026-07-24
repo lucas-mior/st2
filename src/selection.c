@@ -306,7 +306,13 @@ selection_get(void) {
         return NULL;
     }
 
-    size = (term.ncols + 1)*(selection.ne.y - selection.nb.y + 1)*UTF_SIZ;
+    size = ((int64)term.ncols + 1)
+           * ((int64)selection.ne.y - selection.nb.y + 1)
+           * UTF_SIZ;
+    /* A zero capacity would stay zero when doubled below. */
+    if (size < UTF_SIZ) {
+        size = UTF_SIZ;
+    }
     string = malloc2(size);
     ptr = string;
     used = 0;
