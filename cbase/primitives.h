@@ -4,21 +4,21 @@
 #if !defined(PRIMITIVES_H)
 #define PRIMITIVES_H
 
-#if !defined(CHAR_BIT)
-#define CHAR_BIT 8
+#if defined(CHAR_BIT)
+_Static_assert(CHAR_BIT == 8, "primitives.h requires CHAR_BIT == 8");
 #endif
 
-_Static_assert(CHAR_BIT == 8,
-               "primitives.h requires CHAR_BIT == 8");
+#define CHAR_BIT2 8
+
 _Static_assert(~(0ul) == 18446744073709551615ul,
                "primitives.h requires unsigned long to be 64 bits");
 _Static_assert((unsigned char)~0 == (unsigned char)255,
                "primitives.h requires CHAR_BIT == 8");
-_Static_assert(sizeof(char)*CHAR_BIT      == 8,  "char must be 8 bits");
-_Static_assert(sizeof(short)*CHAR_BIT     == 16, "short must be 16 bits");
-_Static_assert(sizeof(int)*CHAR_BIT       == 32, "int must be 32 bits");
-_Static_assert(sizeof(long long)*CHAR_BIT == 64, "long long must be 64 bits");
-_Static_assert(sizeof(void *)*CHAR_BIT    == 64, "pointers must be 64 bits");
+_Static_assert(sizeof(char)*CHAR_BIT2      == 8,  "char must be 8 bits");
+_Static_assert(sizeof(short)*CHAR_BIT2     == 16, "short must be 16 bits");
+_Static_assert(sizeof(int)*CHAR_BIT2       == 32, "int must be 32 bits");
+_Static_assert(sizeof(long long)*CHAR_BIT2 == 64, "long long must be 64 bits");
+_Static_assert(sizeof(void *)*CHAR_BIT2    == 64, "pointers must be 64 bits");
 
 typedef unsigned char uchar;
 typedef unsigned short ushort;
