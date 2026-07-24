@@ -74,25 +74,6 @@
 #define CC_TOY !(CC_GCC || CC_CLANG || CC_TCC || CC_MSVC)
 
 #if OS_WINDOWS
-#include <windows.h>
-#endif
-
-#if OS_UNIX
-#include <sys/mman.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <poll.h>
-#endif
-
-#if OS_MAC
-#include <sys/param.h>
-#undef MIN
-#undef MAX
-#endif
-
-#if OS_WINDOWS
 #define RW_TYPE uint
 #else
 #define RW_TYPE size_t
