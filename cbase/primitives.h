@@ -4,6 +4,8 @@
 #if !defined(PRIMITIVES_H)
 #define PRIMITIVES_H
 
+#include "platform_detection.h"
+
 #if defined(CHAR_BIT)
 _Static_assert(CHAR_BIT == 8, "primitives.h requires CHAR_BIT == 8");
 #endif
@@ -87,22 +89,38 @@ _Static_assert(sizeof(intptr) == sizeof(void *),
 #define UINT_MAX 4294967295u
 #endif
 
-#if !defined(LONG_MIN)
-#define LONG_MIN (-9223372036854775807l - 1l)
-#endif
-#if !defined(LONG_MAX)
-#define LONG_MAX 9223372036854775807l
-#endif
-#if !defined(ULONG_MAX)
-#define ULONG_MAX 18446744073709551615ul
+#if !OS_WINDOWS
+  #if !defined(LONG_MIN)
+    #define LONG_MIN (-9223372036854775807ll - 1ll)
+  #endif
+  #if !defined(LONG_MAX)
+    #define LONG_MAX 9223372036854775807ll
+  #endif
+  #if !defined(ULLONG_MAX)
+    #define ULLONG_MAX 18446744073709551615ul
+  #endif
+#else
+  #if !defined(LONG_MIN)
+    #define LONG_MIN (-2147483647L - 1L)
+  #endif
+  #if !defined(LONG_MAX)
+    #define LONG_MAX 2147483647L
+  #endif
+  #if !defined(ULLONG_MAX)
+    #define ULLONG_MAX 4294967295u
+  #endif
 #endif
 
 #if !defined(LLONG_MIN)
-#define LLONG_MIN (-9223372036854775807ll - 1ll)
+#define LLONG_MIN (-9223372036854775807l - 1l)
 #endif
 #if !defined(LLONG_MAX)
-#define LLONG_MAX 9223372036854775807ll
+#define LLONG_MAX 9223372036854775807l
 #endif
+#if !defined(ULLONG_MAX)
+#define ULLONG_MAX 18446744073709551615ul
+#endif
+
 #if !defined(ULLONG_MAX)
 #define ULLONG_MAX 18446744073709551615ull
 #endif
