@@ -63,6 +63,17 @@ _Static_assert(sizeof(intptr) == sizeof(void *),
   #define HAS_STDINT 0
 #endif
 
+#if defined(__has_include)
+  #if __has_include(<stdbool.h>)
+    #include <stdbool.h>
+    #define HAS_STDBOOl 1
+  #else
+    #define HAS_STDBOOL 0
+  #endif
+#else
+  #define HAS_STDBOOL 0
+#endif
+
 #if !HAS_STDINT
 
 #define SCHAR_MIN (-127 - 1)
