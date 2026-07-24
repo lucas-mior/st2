@@ -226,12 +226,8 @@ mouse_action(XEvent *xevent, uint32 release) {
 }
 
 #if TESTING_mouse
-
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
 #include "assert.c"
 #include "st.c"

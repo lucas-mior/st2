@@ -1950,14 +1950,9 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
 }
 
 #if TESTING_escape
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
-
-#include "assert.c"
 #include "st.c"
 #include "x.c"
 #include "user.c"

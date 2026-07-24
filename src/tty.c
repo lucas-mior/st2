@@ -348,13 +348,9 @@ tty_hangup(void) {
 }
 
 #if TESTING_tty
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/wait.h>
-
-#include "assert.c"
 #include "st.c"
 #include "x.c"
 #include "user.c"

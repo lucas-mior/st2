@@ -879,12 +879,9 @@ hls2rgb(uint32 hue, uint32 lum, uint32 sat) {
 }
 
 #if TESTING_sixel
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "assert.c"
 #include "st.c"
 #include "user.c"
 

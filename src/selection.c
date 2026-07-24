@@ -446,12 +446,11 @@ selection_set(char *string, Time t) {
 }
 
 #if TESTING_selection
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
 #include <X11/Xlib.h>
 
-#include "assert.c"
 #include "st.c"
 #include "user.c"
 

@@ -583,11 +583,8 @@ handler_configure_notify(XEvent *xevent) {
 }
 
 #if TESTING_handlers
-
-#include <stdbool.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/wait.h>
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
 #include "assert.c"
 #include "tty.c"

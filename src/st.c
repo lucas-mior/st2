@@ -1170,15 +1170,12 @@ term_cursor(enum CursorMovement mode) {
 }
 
 #if TESTING_st
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xft/Xft.h>
-#include <fcntl.h>
-#include <unistd.h>
 
-#include "assert.c"
 #include "user.c"
 #include "x.c"
 

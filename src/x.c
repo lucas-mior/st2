@@ -1391,11 +1391,9 @@ x_bell(void) {
 }
 
 #if TESTING_x
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
-
-#include "assert.c"
 #include "user.c"
 #include "st.c"
 #include "boxdraw.c"

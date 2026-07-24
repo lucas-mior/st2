@@ -50,11 +50,8 @@ usage(void) {
 }
 
 #if TESTING_st_util
-
-#include <stdbool.h>
-#include <stdlib.h>
-
-#include "assert.c"
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
 int
 main(void) {

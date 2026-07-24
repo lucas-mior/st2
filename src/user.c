@@ -868,12 +868,8 @@ user_toggle_colorscheme(union Arg *arg) {
 }
 
 #if TESTING_user
-
-#include <stdbool.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <fcntl.h>
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
 #include "assert.c"
 #include "st.c"

@@ -86,11 +86,9 @@ base64_decode(char *src, int32 *allocated_length) {
 }
 
 #if TESTING_base64
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
-
-#include "assert.c"
 #include "st.c"
 #include "user.c"
 

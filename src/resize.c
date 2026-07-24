@@ -529,11 +529,9 @@ x_configure_resize(int32 new_width, int32 new_height) {
 }
 
 #if TESTING_resize
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
-
-#include "assert.c"
 #include "user.c"
 #include "st.c"
 

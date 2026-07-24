@@ -254,11 +254,9 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
 }
 
 #if TESTING_boxdraw
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
-
-#include "assert.c"
 #include "st.c"
 #include "user.c"
 #include "selection.c"

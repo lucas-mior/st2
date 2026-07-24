@@ -1,7 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
 #include "st.c"
 #include "user.c"
