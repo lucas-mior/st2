@@ -129,7 +129,7 @@ _Generic((SIZE), \
     #define RUNNING_ON_VALGRIND 0
 #endif
 
-#if OS_GCC || OS_CLANG
+#if CC_GCC || CC_CLANG
 #define UNUSED __attribute__((unused))
 #else
 #define UNUSED

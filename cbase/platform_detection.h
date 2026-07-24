@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL
 // Copyright (c) 2026 Lucas Mior
 
+// this is completely self contained,
+// it does not depend on any other cbase/files
+
 #if !defined(PLATFORM_DETECTION_H)
 #define PLATFORM_DETECTION_H
 
