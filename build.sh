@@ -383,10 +383,14 @@ check)
     CC=gcc CFLAGS="-fanalyzer" ./build.sh 2>&1 \
         | sed -E 's/\[[0-9;]*[mK]//g' \
           | tee "gcc-analyzer-$(date +%s).txt"
-    setsid -f \
-        scan-build --view -analyze-headers --status-bugs ./build.sh 2>&1 \
+
+    CFLAGS="--analyze -Xanalyzer -analyzer-output=text"
+    CFLAGS="$CFLAGS -Xanalyzer -analyzer-werror"
+    CFLAGS="$CFLAGS -Xanalyzer -analyzer-opt-analyze-headers"
+    CFLAGS="$CFLAGS -Wno-unused-command-line-argument"
+    CC=clang CFLAGS="$CFLAGS" ./build.sh 2>&1 \
         | sed -E 's/\[[0-9;]*[mK]//g' \
-          > "scan-build-$(date +%s).txt" &
+          | tee "clang-analyzer-$(date +%s).txt"
     exit
     ;;
 perf)
