@@ -4,8 +4,6 @@
 #if !defined(PRIMITIVES_H)
 #define PRIMITIVES_H
 
-#include "platform_detection.h"
-
 #if defined(CHAR_BIT)
 _Static_assert(CHAR_BIT == 8, "primitives.h requires CHAR_BIT == 8");
 #endif
