@@ -481,8 +481,6 @@ static void command_env_push(Command *, char *);
 static void command_env_push_length(Command *, char *, int32);
 static void command_error_set(Command *, int32);
 static bool command_flags_capture(enum CommandFlag);
-static bool command_flags_capture_stderr(enum CommandFlag);
-static bool command_flags_capture_stdout(enum CommandFlag);
 static enum CommandFlag command_flags_normalized(enum CommandFlag);
 static void command_free(Command *);
 static void command_print(Command *);
