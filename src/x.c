@@ -638,6 +638,48 @@ x_im_open(Display *display) {
     return 1;
 }
 
+static bool
+x_font_is_color(XftFont *font) {
+#if defined(FC_COLOR)
+    FcBool color = FcFalse;
+
+    if (font == NULL || font->pattern == NULL) {
+        return false;
+    }
+    if (FcPatternGetBool(font->pattern, FC_COLOR, 0, &color) != FcResultMatch) {
+        return false;
+    }
+
+    return color != FcFalse;
+#else
+    (void)font;
+    return false;
+#endif
+}
+
+static void
+x_draw_xft_glyph_font_specs(XftColor *fg,
+                            XftGlyphFontSpec *specs, int32 glyph_count) {
+    int32 i;
+
+    i = 0;
+    while (i < glyph_count) {
+        int32 run_len;
+
+        run_len = 1;
+        if (!x_font_is_color(specs[i].font)) {
+            while (i + run_len < glyph_count
+                   && !x_font_is_color(specs[i + run_len].font)) {
+                run_len += 1;
+            }
+        }
+
+        XftDrawGlyphFontSpec(x_window.xft_draw, fg, specs + i, run_len);
+        i += run_len;
+    }
+    return;
+}
+
 static int32
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
                         StGlyph *glyphs, int32 len, int32 x, int32 y) {
@@ -1109,7 +1151,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     if (base.mode & ATTR_BOXDRAW) {
         drawboxes(win_x, win_y, single_char_width, term_window.ch, fg, bg, specs, glyph_count);
     } else {
-        XftDrawGlyphFontSpec(x_window.xft_draw, fg, specs, glyph_count);
+        x_draw_xft_glyph_font_specs(fg, specs, glyph_count);
     }
 
     if (base.mode & ATTR_UNDERLINE) {
