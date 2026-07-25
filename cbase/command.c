@@ -43,8 +43,7 @@ command_flags_normalized(enum CommandFlag flags) {
 
 static bool
 command_flags_capture(enum CommandFlag flags) {
-    return (flags & COMMAND_FLAG_CAPTURE_STDOUT)
-           || (flags & COMMAND_FLAG_CAPTURE_STDERR);
+    return flags & (COMMAND_FLAG_CAPTURE_STDOUT | COMMAND_FLAG_CAPTURE_STDERR);
 }
 
 #if OS_UNIX
