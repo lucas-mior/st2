@@ -538,10 +538,10 @@ control_seq_intro_handle(void) {
                     break;
                 } else {
                     if (pi == 2 && (pa == 1 || pa == 2 || pa == 4)) {
-                        llong mw = (llong)MIN(term.ncols*term_window.cw,
-                                              DECSIXEL_WIDTH_MAX);
-                        llong mh = (llong)MIN(term.nrows*term_window.ch,
-                                              DECSIXEL_HEIGHT_MAX);
+                        int64 mw = MIN(term.ncols*term_window.cw,
+                                       DECSIXEL_WIDTH_MAX);
+                        int64 mh = MIN(term.nrows*term_window.ch,
+                                       DECSIXEL_HEIGHT_MAX);
                         n = SNPRINTF(buffer, "\033[?2;0;%lld;%lldS", mw, mh);
                         tty_write(buffer, n, 1);
                         break;
