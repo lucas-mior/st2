@@ -782,12 +782,6 @@ exec_external_pipe(int32 argc, char **argv) {
     return;
 }
 
-static void
-user_external_pipe(union Arg *arg) {
-    exec_external_pipe(0, arg->v);
-    return;
-}
-
 #include "gen/copy_output.h"
 #include "gen/copy_url.h"
 

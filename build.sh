@@ -34,7 +34,7 @@ mkdir -p gen
 CPPFLAGS="$CPPFLAGS -I$dir/gen"
 
 cd "$dir" || exit
-program=$(basename "$(readlink -f "$dir")")
+program=$(basename "$(readlink -f "$(dirname "$0")")")
 script=$(basename "$0")
 
 . ./targets
@@ -76,7 +76,6 @@ CFLAGS="$CFLAGS -Wno-cast-qual"
 CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 CFLAGS="$CFLAGS -Wno-unknown-pragmas"
 CFLAGS="$CFLAGS -Wno-format-security"
-CFLAGS="$CFLAGS -Wno-unused-function"
 CFLAGS="$CFLAGS -Wno-reserved-identifier"
 CFLAGS="$CFLAGS -Wno-comma"
 CFLAGS="$CFLAGS -Wno-undef"

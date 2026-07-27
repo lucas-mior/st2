@@ -398,7 +398,6 @@ static void user_zoom_reset(union Arg *arg);
 static void user_tty_send(union Arg *arg);
 static void user_scroll_down(union Arg *arg);
 static void user_scroll_up(union Arg *arg);
-static void user_external_pipe(union Arg *arg);
 static void user_print_screen(union Arg *arg);
 static void user_print_sel(union Arg *arg);
 static void user_send_break(union Arg *arg);
