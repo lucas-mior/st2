@@ -1,0 +1,11 @@
+
+build.sh  
++ ctags --kinds-C=+l+d cbase/arena.c cbase/array.c cbase/assert.c cbase/cbase_main_separate_object.c cbase/command.c cbase/generic.c cbase/hash.c cbase/memory.c cbase/meta_common.c cbase/meta_generate.c cbase/meta_parse.c cbase/meta_tokenize.c cbase/minmax.c cbase/sort.c cbase/threads.c cbase/utf8.c cbase/util.c cbase/xenums.c src/arg.h src/boxdraw_data.h src/config.h src/sixel.h src/st.h src/base64.c src/boxdraw.c src/escape.c src/handlers.c src/main.c src/mouse.c src/resize.c src/selection.c src/sixel.c src/st.c src/st_util.c src/test_resize_scroll.c src/tty.c src/user.c src/x.c
++ vtags.sed tags
++ + uniq
+sort
++ [ clang = chibicc ]
++ [ clang = cproc ]
++ clang -I/home/lucas/.local/src/st/cbase -I. -I/home/lucas/.local/src/st/gen -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread --analyze -Xanalyzer -analyzer-output=text -Xanalyzer -analyzer-werror -Xanalyzer -analyzer-opt-analyze-headers -Wno-unused-command-line-argument -std=c11 -Wfatal-errors -Wall -Wextra -fdiagnostics-color=always -Werror -Wno-format-pedantic -Wno-unknown-warning-option -Wno-gnu-union-cast -Wno-unused-macros -Wno-type-limits -Wno-constant-logical-operand -Wno-float-equal -Wno-cast-qual -Wno-deprecated-declarations -Wno-unknown-pragmas -Wno-format-security -Wno-reserved-identifier -Wno-comma -Wno-undef -Wno-cast-align -Wno-bad-function-cast -Wno-unused-variable -O2 -flto -march=native -ftree-vectorize -Weverything -Wno-pedantic -Wno-unsafe-buffer-usage -Wno-format-nonliteral -Wno-disabled-macro-expansion -Wno-c++-keyword -Wno-pre-c11-compat -Wno-implicit-void-ptr-cast -Wno-implicit-int-enum-cast -Wno-covered-switch-default -Wno-documentation -Wno-documentation-unknown-command -Wno-padded -Wno-cast-function-type-strict -Wno-assign-enum -Wno-used-but-marked-unused -Wno-double-promotion -Wno-cast-function-type-strict -Wno-unneeded-internal-declaration -Wno-undefined-internal src/main.c -o bin/st -lm -lX11 -lXft -lutf8proc -lfontconfig -lfreetype -lharfbuzz -lImlib2
++ [ build = debug ]
++ [ build = run ]
