@@ -136,7 +136,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
 
     if (out) {
         term.mode |= TERM_MODE_PRINT;
-        io_fd = (!strcmp(out, "-")) ? 1 : open(out, O_WRONLY | O_CREAT, 0666);
+        io_fd = (strequal(out, "-")) ? 1 : open(out, O_WRONLY | O_CREAT, 0666);
         if (io_fd < 0) {
             error("Error opening %s:%s\n", out, strerror(errno));
         }
