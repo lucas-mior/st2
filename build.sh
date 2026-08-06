@@ -326,7 +326,7 @@ test)
                 if ! $test_exe < /dev/null; then
                     gdb --quiet \
                         -ex 'break exit' -ex run -ex backtrace -ex quit \
-                        $test_exe 2>&1 < /dev/null | tee /dev/tty | $xsel -b
+                        $test_exe 2>&1 < /dev/null | tee /dev/tty | $xsel -i -b
                     exit 1
                 fi
             else
