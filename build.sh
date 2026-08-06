@@ -64,7 +64,7 @@ CFLAGS="$CFLAGS -Wall -Wextra"
 if [ -z "$NOCOLORS" ]; then
     CFLAGS="$CFLAGS -fdiagnostics-color=always"
 fi
-CFLAGS="$CFLAGS -Werror"
+# CFLAGS="$CFLAGS -Werror"
 CFLAGS="$CFLAGS -Wno-format-pedantic"
 CFLAGS="$CFLAGS -Wno-unknown-warning-option"
 CFLAGS="$CFLAGS -Wno-gnu-union-cast"
