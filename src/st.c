@@ -1259,7 +1259,7 @@ main(void) {
         
         ptr = term_get_glyphs(buffer, &line[0], &line[1]);
         *ptr = '\0';
-        ASSERT(strcmp(buffer, "AB") == 0);
+        ASSERT_EQUAL(buffer, "AB");
     }
 
     /* Test: term_set_sixel_attr */
