@@ -758,7 +758,7 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
 
         for (int32 w = width; w > 0; w -= n) {
             char c = 0;
-            n = (int32)MIN(w, 8);
+            n = MIN(w, 8);
 
             if (msb) {
                 int32 b = 0x80;
