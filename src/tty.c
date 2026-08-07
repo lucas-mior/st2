@@ -3,6 +3,7 @@
 
 #include <pty.h>
 #include <pwd.h>
+#include "cbase.h"
 #include "st.h"
 #include "config.h"
 #include "handlers.c"
