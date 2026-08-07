@@ -1,6 +1,7 @@
 #if !defined(ST_C)
 #define ST_C
 
+#include "cbase.h"
 #include "st.h"
 #include "boxdraw.c"
 #include "handlers.c"
