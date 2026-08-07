@@ -6,13 +6,10 @@
 #if !defined(SIXEL_C)
 #define SIXEL_C
 
-#include <stdlib.h>
-#include <stdio.h>
+#include "cbase.h"
 
 #include "st.h"
 #include "sixel.h"
-#include "cbase/minmax.c"
-#include "util.c"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_sixel 1
