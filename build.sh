@@ -221,7 +221,7 @@ callgrind)
     CPPFLAGS="$CPPFLAGS $GNUSOURCE"
     ;;
 test)
-    CFLAGS="$CFLAGS -g3 $GNUSOURCE -DDEBUGGING=1 -fsanitize-trap=undefined -Wno-address"
+    CFLAGS="$CFLAGS -g3 $GNUSOURCE -DDEBUGGING=1 -fsanitize-trap=undefined"
     ;;
 check)
     CC=gcc
