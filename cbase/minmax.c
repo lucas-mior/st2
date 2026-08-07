@@ -284,8 +284,8 @@ _Generic((VAR2), \
     uint:    SIGNED_UNSIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_UINT   ), \
     ulong:   SIGNED_UNSIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_ULONG  ), \
     ullong:  SIGNED_UNSIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_ULLONG ), \
-    float:   BOTH_DOUBLE(MODE,    VAR1, VAR2, TYPE1, TYPE_FLOAT  ), \
-    double:  BOTH_DOUBLE(MODE,    VAR1, VAR2, TYPE1, TYPE_DOUBLE ), \
+    float:   BOTH_DOUBLE(MODE,     VAR1, VAR2, TYPE1, TYPE_FLOAT  ), \
+    double:  BOTH_DOUBLE(MODE,     VAR1, VAR2, TYPE1, TYPE_DOUBLE ), \
     default: UNSUPPORTED_TYPE_FOR_GENERIC_FIRST_SIGNED() \
 )
 #define BOTH_UNSIGNED(MODE, VAR1, VAR2, TYPE1, TYPE2) \
@@ -297,18 +297,18 @@ _Generic((VAR2), \
 #define FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE1) \
 _Generic((VAR2), \
     char:    CHAR_FOR_UNSIGNED(MODE, VAR1, VAR2, TYPE1), \
-    schar:   UNSIGNED_SIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_SCHAR  ), \
-    short:   UNSIGNED_SIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_SHORT  ), \
-    int:     UNSIGNED_SIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_INT    ), \
-    long:    UNSIGNED_SIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_LONG   ), \
-    llong:   UNSIGNED_SIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_LLONG  ), \
-    uchar:   BOTH_UNSIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_UCHAR  ), \
-    ushort:  BOTH_UNSIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_USHORT ), \
-    uint:    BOTH_UNSIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_UINT   ), \
-    ulong:   BOTH_UNSIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_ULONG  ), \
-    ullong:  BOTH_UNSIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_ULLONG ), \
-    float:   BOTH_DOUBLE(MODE,    VAR1, VAR2, TYPE1, TYPE_FLOAT  ), \
-    double:  BOTH_DOUBLE(MODE,    VAR1, VAR2, TYPE1, TYPE_DOUBLE ), \
+    schar:   UNSIGNED_SIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_SCHAR  ), \
+    short:   UNSIGNED_SIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_SHORT  ), \
+    int:     UNSIGNED_SIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_INT    ), \
+    long:    UNSIGNED_SIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_LONG   ), \
+    llong:   UNSIGNED_SIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_LLONG  ), \
+    uchar:   BOTH_UNSIGNED(MODE,     VAR1, VAR2, TYPE1, TYPE_UCHAR  ), \
+    ushort:  BOTH_UNSIGNED(MODE,     VAR1, VAR2, TYPE1, TYPE_USHORT ), \
+    uint:    BOTH_UNSIGNED(MODE,     VAR1, VAR2, TYPE1, TYPE_UINT   ), \
+    ulong:   BOTH_UNSIGNED(MODE,     VAR1, VAR2, TYPE1, TYPE_ULONG  ), \
+    ullong:  BOTH_UNSIGNED(MODE,     VAR1, VAR2, TYPE1, TYPE_ULLONG ), \
+    float:   BOTH_DOUBLE(MODE,       VAR1, VAR2, TYPE1, TYPE_FLOAT  ), \
+    double:  BOTH_DOUBLE(MODE,       VAR1, VAR2, TYPE1, TYPE_DOUBLE ), \
     default: UNSUPPORTED_TYPE_FOR_GENERIC_FIRST_UNSIGNED() \
 )
 #define BOTH_DOUBLE(MODE, VAR1, VAR2, TYPE1, TYPE2) \
@@ -334,60 +334,54 @@ _Generic((VAR2), \
 #define POINTERS(MODE, VAR1, VAR2) \
     get_pointer_##MODE((void *)(uintptr)(VAR1), (void *)(uintptr)(VAR2))
 
-#define MINMAX_COMPARE(MODE, VAR1, VAR2) \
-_Generic((VAR1), \
-    void *: _Generic((VAR2), \
-        char *: POINTERS(MODE, VAR1, VAR2), \
-        void *: POINTERS(MODE, VAR1, VAR2), \
+#define MINMAX_COMPARE(MODE, VAR1, VAR2)                             \
+_Generic((VAR1),                                                     \
+    void *: _Generic((VAR2),                                         \
+        char *: POINTERS(MODE, VAR1, VAR2),                          \
+        void *: POINTERS(MODE, VAR1, VAR2),                          \
         default: UNSUPPORTED_TYPE_FOR_GENERIC_MINMAX_COMPARE_VOIDP() \
-    ), \
-    char: _Generic((VAR2), \
-        char:    BOTH_CHAR(MODE, VAR1, VAR2), \
-        default: FIRST_CHAR(MODE, VAR1, VAR2) \
-    ), \
-    schar: _Generic((VAR2), \
-        schar:   BOTH_SCHAR(MODE, VAR1, VAR2), \
-        default: FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_SCHAR) \
-    ), \
-    short: _Generic((VAR2), \
-        short:   BOTH_SHORT(MODE, VAR1, VAR2), \
-        default: FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_SHORT) \
-    ), \
-    int: _Generic((VAR2), \
-        int:     BOTH_INT(MODE, VAR1, VAR2), \
-        default: FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_INT) \
-    ), \
-    long: _Generic((VAR2), \
-        long:    BOTH_LONG(MODE, VAR1, VAR2), \
-        default: FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_LONG) \
-    ), \
-    llong: _Generic((VAR2), \
-        llong:   BOTH_LLONG(MODE, VAR1, VAR2), \
-        default: FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_LLONG) \
-    ), \
-    uchar: _Generic((VAR2), \
-        uchar:   BOTH_UCHAR(MODE, VAR1, VAR2), \
-        default: FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_UCHAR) \
-    ), \
-    ushort: _Generic((VAR2), \
-        ushort:  BOTH_USHORT(MODE, VAR1, VAR2), \
-        default: FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_USHORT) \
-    ), \
-    uint: _Generic((VAR2), \
-        uint:    BOTH_UINT(MODE, VAR1, VAR2), \
-        default: FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_UINT) \
-    ), \
-    ulong: _Generic((VAR2), \
-        ulong:   BOTH_ULONG(MODE, VAR1, VAR2), \
-        default: FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_ULONG) \
-    ), \
-    ullong: _Generic((VAR2), \
-        ullong:  BOTH_ULLONG(MODE, VAR1, VAR2), \
-        default: FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_ULLONG) \
-    ), \
-    float:   FIRST_DOUBLE(MODE,  VAR1, VAR2, TYPE_FLOAT  ), \
-    double:  FIRST_DOUBLE(MODE,  VAR1, VAR2, TYPE_DOUBLE ), \
-    default: UNSUPPORTED_TYPE_FOR_GENERIC_MINMAX_COMPARE() \
+    ),                                                               \
+    char: _Generic((VAR2),                                           \
+        char:    BOTH_CHAR(MODE, VAR1, VAR2),                        \
+        default: FIRST_CHAR(MODE, VAR1, VAR2)                        \
+    ),                                                               \
+    schar: _Generic((VAR2),                                          \
+        schar:   BOTH_SCHAR(MODE, VAR1, VAR2),                       \
+        default: FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_SCHAR)          \
+    ),                                                               \
+    short: _Generic((VAR2),                                          \
+        short:   BOTH_SHORT(MODE, VAR1, VAR2),                       \
+        default: FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_SHORT)          \
+    ),                                                               \
+    int: _Generic((VAR2),                                            \
+        int:     BOTH_INT(MODE, VAR1, VAR2),                         \
+        default: FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_INT)            \
+    ),                                                               \
+    long: _Generic((VAR2),                                           \
+        long:    BOTH_LONG(MODE, VAR1, VAR2),                        \
+        default: FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_LONG)           \
+    ),                                                               \
+    uchar: _Generic((VAR2),                                          \
+        uchar:   BOTH_UCHAR(MODE, VAR1, VAR2),                       \
+        default: FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_UCHAR)        \
+    ),                                                               \
+    ushort: _Generic((VAR2),                                         \
+        ushort:  BOTH_USHORT(MODE, VAR1, VAR2),                      \
+        default: FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_USHORT)       \
+    ),                                                               \
+    uint: _Generic((VAR2),                                           \
+        uint:    BOTH_UINT(MODE, VAR1, VAR2),                        \
+        default: FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_UINT)         \
+    ),                                                               \
+    ulong: _Generic((VAR2),                                          \
+        ulong:   BOTH_ULONG(MODE, VAR1, VAR2),                       \
+        default: FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_ULONG)        \
+    ),                                                               \
+    llong:   FIRST_SIGNED(MODE, VAR1, VAR2, TYPE_LLONG),             \
+    ullong:  FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_ULLONG),          \
+    float:   FIRST_DOUBLE(MODE,  VAR1, VAR2, TYPE_FLOAT  ),          \
+    double:  FIRST_DOUBLE(MODE,  VAR1, VAR2, TYPE_DOUBLE ),          \
+    default: UNSUPPORTED_TYPE_FOR_GENERIC_MINMAX_COMPARE()           \
 )
 
 #if defined(MIN)
