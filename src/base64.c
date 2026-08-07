@@ -1,7 +1,7 @@
 #if !defined(BASE64_C)
 #define BASE64_C
 
-#include <ctype.h>
+#include "cbase.h"
 #include "st.h"
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)

@@ -1,26 +1,6 @@
 #if !defined(ST_C)
 #define ST_C
 
-#include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdbool.h>
-#include <limits.h>
-#include <pwd.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <signal.h>
-#include <sys/ioctl.h>
-#include <sys/select.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <termios.h>
-#include <unistd.h>
-#include <wchar.h>
-#include <assert.h>
-
 #include "st.h"
 #include "boxdraw.c"
 #include "handlers.c"

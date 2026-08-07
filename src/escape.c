@@ -1,13 +1,13 @@
 #if !defined(ESCAPE_C)
 #define ESCAPE_C
 
-#include <wchar.h>
-#include <ctype.h>
+#include "cbase.h"
 
 #include "st.h"
 #include "config.h"
 #include "base64.c"
 #include "x.c"
+
 #include <utf8proc.h>
 
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
