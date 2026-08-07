@@ -65,7 +65,7 @@ EOF_TARGETS
 )
 fi
 
-target="${1:-build}"
+target="${1:-debug}"
 target_line=$target
 if [ "$target" = "cross" ] && [ -n "${2:-}" ]; then
     target_line="$target $2"
@@ -298,9 +298,6 @@ build|debug|run|release|valgrind|callgrind|perf|profile|cross)
         #     src/test_resize_scroll.c -o bin/test_resize_scroll $LDFLAGS
     fi
 
-    if [ $target = "debug" ]; then
-        gdb $exe -ex run 2>&1 | tee "/tmp/gdb_output_$(date +%s).txt"
-    fi
     if [ $target = "run" ]; then
         $exe
     fi
