@@ -13,3 +13,4 @@ log-*.txt
 *-flexipatch*
 *.o
 *.cmd
+*temp_delete_me*
