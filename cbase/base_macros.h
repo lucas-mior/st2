@@ -1,16 +1,36 @@
 // SPDX-License-Identifier: AGPL
 // Copyright (c) 2026 Lucas Mior
 
+// this is almost completely self contained,
+// it only depends on platform_detection.h,
+// but not on anything else on cbase/
+
 #if !defined(BASE_MACROS_H)
 #define BASE_MACROS_H
 
 #include "platform_detection.h"
 
+#if !defined(CBASE_API_DECL)
+#define CBASE_API_DECL extern
+#endif
+
+#if !defined(CBASE_API_DEF)
+#define CBASE_API_DEF
+#endif
+
+#if !defined(CBASE_PRIVATE)
+#define CBASE_PRIVATE static
+#endif
+
+#if !defined(CBASE_TEMPLATE)
+#define CBASE_TEMPLATE static
+#endif
+
 #define S(...) #__VA_ARGS__
 #define QUOTE(x) S(x)
 
 #define STRLIT_LEN(s) ((int32)(sizeof("" s) - 1))
-#define STRLIT_ARGS(s) s, STRLIT_LEN(s)
+#define STRLIT(s) s, STRLIT_LEN(s)
 
 #define CAT_(a, b) a ## b
 #define CAT_SELECT(a, b) CAT_(a, b)
@@ -65,6 +85,10 @@
 #define BBLUE(S)   "\x1b[1;34m" S RESET
 #define BCYAN(S)   "\x1b[1;35m" S RESET
 
+#define SECONDS_AS_NANOS(X) ((X)*1000ll*1000ll*1000ll)
+#define MILLIS_AS_NANOS(X)  ((X)*1000ll*1000ll)
+#define MICROS_AS_NANOS(X)  ((X)*1000ll)
+
 #define SIZEKB(X) ((int64)(X)*1024ll)
 #define SIZEMB(X) ((int64)(X)*1024ll*1024ll)
 #define SIZEGB(X) ((int64)(X)*1024ll*1024ll*1024ll)
@@ -72,7 +96,7 @@
 #if defined(SIZEOF)
 #undef SIZEOF
 #endif
-#define SIZEOF(X) ((int64)sizeof(X))
+#define SIZEOF(...) ((int64)sizeof(__VA_ARGS__))
 #define LENGTH(x) (int32)((sizeof(x) / sizeof(*x)))
 #define SWAP(x, y) do { __typeof__(x) SWAP = x; x = y; y = SWAP; } while (0)
 
@@ -91,17 +115,28 @@ _Generic((SIZE), \
     int:    ALIGN_POWER_OF_2_((uint)SIZE,   (uint)A)    \
 )
 
-#define ALIGNMENT 16ul
+#if ARCH_AVX512
+#define ALIGNMENT 64ll
+#elif ARCH_AVX2 || ARCH_AVX
+#define ALIGNMENT 32ll
+#elif ARCH_SSE
+#define ALIGNMENT 16ll
+#else
+#define ALIGNMENT 8ll
+#endif
+
 #if defined(ALIGN)
 #undef ALIGN
 #endif
-#define ALIGN(x) ALIGN_POWER_OF_2(x, ALIGNMENT)
+#define ALIGN(x) ALIGN_POWER_OF_2(x, (ullong)ALIGNMENT)
 
 #if defined(__GNUC__)
+#define ASSUME_ALIGNED_EXPR(X) __builtin_assume_aligned((X), ALIGNMENT)
 #define ASSUME_ALIGNED(X) do { \
     X = __builtin_assume_aligned(X, ALIGNMENT); \
 } while (0)
 #else
+#define ASSUME_ALIGNED_EXPR(X) (X)
 #define ASSUME_ALIGNED(X) do {} while (0)
 #endif
 
@@ -119,6 +154,7 @@ _Generic((SIZE), \
   #endif
 #endif
 
+// cproc uses gcc pre processor but __has_include does not work properly
 #if !defined(__CPROC__) && defined(__has_include)
   #if __has_include(<valgrind/valgrind.h>)
     #include <valgrind/valgrind.h>
@@ -129,34 +165,15 @@ _Generic((SIZE), \
     #define RUNNING_ON_VALGRIND 0
 #endif
 
-#if !defined(FLAGS_HUGE_PAGES)
-#if defined(MAP_HUGETLB) && defined(MAP_HUGE_2MB)
-#define FLAGS_HUGE_PAGES MAP_HUGETLB | MAP_HUGE_2MB
-#else
-#define FLAGS_HUGE_PAGES 0
-#endif
-#endif
-
-#if !defined(MAP_POPULATE)
-#define MAP_POPULATE 0
-#endif
-
-#if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
-#define MAP_ANON MAP_ANONYMOUS
-#elif !defined(MAP_ANONYMOUS) && defined(MAP_ANON)
-#define MAP_ANONYMOUS MAP_ANON
-#elif !defined(MAP_ANONYMOUS) && !defined(MAP_ANON)
-#define MAP_ANON 0
-#define MAP_ANONYMOUS 0
-#endif
-
-#if defined(__GNUC__) || defined(__clang__)
-#define UNUSED __attribute__((unused))
+#if CC_GCC || CC_CLANG
+#define UNUSED __attribute((unused))
 #else
 #define UNUSED
 #endif
 
-#define π 3.14159265358979323846264338327950288
+#define π  3.14159265358979323846264338327950288
+#define π2 2*π
+#define τ  2*π
 
 #if !defined(__has_builtin)
   #define __has_builtin(x) 0
@@ -170,6 +187,8 @@ _Generic((SIZE), \
   #define UNREACHABLE() do { } while(0)
 #endif
 
+// __func__ returns const char *
+// which breaks the qualifiers when passing it around
 #define FUNC__ (char *)__func__
 #define FUNC FUNC__
 
@@ -178,9 +197,9 @@ _Generic((SIZE), \
 #endif
 
 #if TESTING
-  #define TRAP(...) raise(SIGILL)
+  #define TRAP(...) do { raise(SIGILL); exit(EXIT_FAILURE); } while (0)
 #else
-  #if defined(__GNUC__) || defined(__clang__)
+  #if CC_GCC || CC_CLANG
     #define TRAP(...) __builtin_trap()
   #elif defined(_MSC_VER)
     #define TRAP(...) __debugbreak()

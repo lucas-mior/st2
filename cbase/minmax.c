@@ -4,30 +4,21 @@
 #if !defined(MINMAX_C)
 #define MINMAX_C
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <float.h>
-#include <assert.h>
-#include <signal.h>
-#include <stdio.h>
-
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_minmax 1
 #elif !defined(TESTING_minmax)
 #define TESTING_minmax 0
 #endif
 
-#include "platform_detection.h"
+#include "libc.h"
 #include "primitives.h"
 #include "base_macros.h"
-#include "generic.c"
+#include "platform_detection.h"
 
 #define GENERATE_COMPARE_POINTERS(MODE, SYMBOL) \
 static void * \
 get_pointer_##MODE(void *var1, void *var2) { \
-    if ((uintptr_t)var1 SYMBOL (uintptr_t)var2) { \
+    if ((uintptr)var1 SYMBOL (uintptr)var2) { \
         return var1; \
     } else { \
         return var2; \
@@ -216,7 +207,7 @@ _Generic((VAR2), \
     default: UNSUPPORTED_TYPE_FOR_GENERIC_FIRST_DOUBLE()        \
 )
 #define POINTERS(MODE, VAR1, VAR2) \
-    get_pointer_##MODE((void *)(uintptr_t)(VAR1), (void *)(uintptr_t)(VAR2))
+    get_pointer_##MODE((void *)(uintptr)(VAR1), (void *)(uintptr)(VAR2))
 
 #define MINMAX_COMPARE(MODE, VAR1, VAR2) \
 _Generic((VAR1), \
@@ -251,7 +242,8 @@ _Generic((VAR1), \
 #define MAX(VAR1, VAR2) MINMAX_COMPARE(max, VAR1, VAR2)
 
 #if TESTING_minmax
-#include "assert.c"
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
 int
 main(void) {

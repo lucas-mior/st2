@@ -12,21 +12,254 @@
 
 #include "cbase.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <pthread.h>
-
-#include "platform_detection.h"
-#include "base_macros.h"
-#include "primitives.h"
-#include "rapidhash.h"
-
 static int64 memory_page_size = 0;
 
 #include "memory.h"
+
+static int64
+memory_allocation_size(int64 size) {
+    if (size == 0) {
+        size = 1;
+    }
+    ASSERT(size > 0);
+    ASSERT(size <= (INT64_MAX - (ALIGNMENT - 1)));
+    return ALIGN(size);
+}
+
+static void
+memory_assert_aligned_pointer(void *p) {
+    if (((uintptr)p % ALIGNMENT) != 0) {
+        TRAP();
+    }
+    return;
+}
+
+static int64
+memory_mapping_size(int64 size) {
+    if (size < 0) {
+        error("Invalid size = %lld\n", size);
+        fatal(EXIT_FAILURE);
+    }
+    if (size == 0) {
+        size = 1;
+    }
+
+    if (memory_page_size == 0) {
+#if OS_UNIX
+        long page_size;
+
+        if ((page_size = sysconf(_SC_PAGESIZE)) <= 0) {
+            error("Error getting page size: %s.\n", strerror(errno));
+            fatal(EXIT_FAILURE);
+        }
+        memory_page_size = (int64)page_size;
+#elif OS_WINDOWS
+        SYSTEM_INFO system_info;
+
+        GetSystemInfo(&system_info);
+        memory_page_size = (int64)system_info.dwPageSize;
+        if (memory_page_size <= 0) {
+            fprintf(stderr, "Error getting page size.\n");
+            fatal(EXIT_FAILURE);
+        }
+#else
+        memory_page_size = 4096;
+#endif
+    }
+
+    return ALIGN_POWER_OF_2(size, memory_page_size);
+}
+
+#if !OS_WINDOWS
+static bool
+memory_uses_os_allocator(int64 size) {
+    ASSERT(size > 0);
+    return !RUNNING_ON_VALGRIND && (size >= MEMORY_OS_ALLOC_THRESHOLD);
+}
+#endif
+
+static void
+memory_check_size_t(int64 size) {
+    if ((ullong)size >= (ullong)SIZE_MAX) {
+        error("Error: Size (%lld) is bigger than SIZEMAX.\n", size);
+        fatal(EXIT_FAILURE);
+    }
+    return;
+}
+
+#if !OS_WINDOWS
+static void *
+memory_os_alloc(int64 size) {
+    void *p;
+    int64 map_size;
+
+    ASSERT(size > 0);
+    map_size = memory_mapping_size(size);
+    memory_check_size_t(map_size);
+
+#if OS_UNIX
+    p = mmap(NULL, (size_t)map_size, PROT_READ | PROT_WRITE,
+             MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    if (p == MAP_FAILED) {
+        error("Error in mmap(%lld): %s.\n", map_size, strerror(errno));
+        fatal(EXIT_FAILURE);
+    }
+#else
+    p = malloc((size_t)map_size);
+    if (p == NULL) {
+        error("Failed to allocate %lld bytes.\n", map_size);
+        fatal(EXIT_FAILURE);
+    }
+#endif
+
+    memory_assert_aligned_pointer(p);
+    ASSUME_ALIGNED(p);
+    return p;
+}
+
+static void
+memory_os_free(void *p, int64 size) {
+    int64 map_size;
+
+    ASSERT(p != NULL);
+    ASSERT(size > 0);
+    map_size = memory_mapping_size(size);
+    memory_check_size_t(map_size);
+
+#if OS_UNIX
+    if (munmap(p, (size_t)map_size) < 0) {
+        error("Error in munmap(%p, %lld): %s.\n",
+              p, map_size, strerror(errno));
+        fatal(EXIT_FAILURE);
+    }
+#else
+    (void)map_size;
+    free(p);
+#endif
+    return;
+}
+
+static void *
+memory_os_realloc(void *old, int64 old_size, int64 new_size) {
+    void *p;
+    int64 old_map_size;
+    int64 new_map_size;
+
+    ASSERT(old != NULL);
+    ASSERT(memory_uses_os_allocator(old_size));
+    ASSERT(memory_uses_os_allocator(new_size));
+
+    old_map_size = memory_mapping_size(old_size);
+    new_map_size = memory_mapping_size(new_size);
+    memory_check_size_t(old_map_size);
+    memory_check_size_t(new_map_size);
+    if (old_map_size == new_map_size) {
+        return old;
+    }
+
+#if defined(SYS_mremap)
+  #if !defined(MREMAP_MAYMOVE)
+    #define MREMAP_MAYMOVE 1
+  #endif
+    errno = 0;
+    p = (void *)syscall(SYS_mremap, old, (size_t)old_map_size,
+                        (size_t)new_map_size, MREMAP_MAYMOVE);
+    if (p == MAP_FAILED) {
+        error("Error in mremap(%p, %lld, %lld): %s.\n",
+              old, old_map_size, new_map_size, strerror(errno));
+        fatal(EXIT_FAILURE);
+    }
+    memory_assert_aligned_pointer(p);
+    ASSUME_ALIGNED(p);
+    return p;
+#elif OS_UNIX
+    if (new_map_size < old_map_size) {
+        uchar *tail = (uchar *)old + new_map_size;
+        int64 tail_size = old_map_size - new_map_size;
+
+        if (munmap(tail, (size_t)tail_size) < 0) {
+            error("Error in munmap(%p, %lld): %s.\n",
+                  tail, tail_size, strerror(errno));
+            fatal(EXIT_FAILURE);
+        }
+        return old;
+    } else {
+        uchar *tail = (uchar *)old + old_map_size;
+        int64 tail_size = new_map_size - old_map_size;
+
+        p = mmap(tail, (size_t)tail_size, PROT_READ | PROT_WRITE,
+                 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        if (p == tail) {
+            return old;
+        }
+        if (p != MAP_FAILED) {
+            if (munmap(p, (size_t)tail_size) < 0) {
+                error("Error in munmap(%p, %lld): %s.\n",
+                      p, tail_size, strerror(errno));
+                fatal(EXIT_FAILURE);
+            }
+        }
+    }
+#endif
+
+    p = memory_os_alloc(new_size);
+    memcpy64(p, old, old_size < new_size ? old_size : new_size);
+    memory_os_free(old, old_size);
+    return p;
+}
+#endif
+
+static void *
+memory_aligned_alloc(int64 size) {
+    void *p;
+
+    ASSERT(size > 0);
+    ASSERT((size % ALIGNMENT) == 0);
+    memory_check_size_t(size);
+
+#if !OS_WINDOWS
+    if (memory_uses_os_allocator(size)) {
+        p = memory_os_alloc(size);
+        return p;
+    }
+#endif
+
+#if OS_WINDOWS
+    p = _aligned_malloc((size_t)size, (size_t)ALIGNMENT);
+#else
+    p = aligned_alloc((size_t)ALIGNMENT, (size_t)size);
+#endif
+    if (p == NULL) {
+        error("Failed to allocate %lld bytes.\n", size);
+        fatal(EXIT_FAILURE);
+    }
+    memory_assert_aligned_pointer(p);
+    ASSUME_ALIGNED(p);
+
+    return p;
+}
+
+static void
+memory_aligned_free(void *p, int64 size) {
+    if (p == NULL) {
+        return;
+    }
+
+    size = memory_allocation_size(size);
+#if !OS_WINDOWS
+    if (memory_uses_os_allocator(size)) {
+        memory_os_free(p, size);
+        return;
+    }
+#endif
+
+#if OS_WINDOWS
+    _aligned_free(p);
+#else
+    free(p);
+#endif
+    return;
+}
 
 typedef struct DebugAllocInfo {
     int64 size;
@@ -47,20 +280,58 @@ typedef struct DebugAllocInfo {
 #include "hash.c"
 
 static struct Hash_alloc_map *allocations = NULL;
+#if OS_UNIX
 static pthread_mutex_t allocations_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+static void
+allocations_lock(void) {
+    xpthread_mutex_lock(&allocations_mutex);
+    return;
+}
+
+static void
+allocations_unlock(void) {
+    xpthread_mutex_unlock(&allocations_mutex);
+    return;
+}
+#elif OS_WINDOWS
+static SRWLOCK allocations_mutex = SRWLOCK_INIT;
+
+static void
+allocations_lock(void) {
+    AcquireSRWLockExclusive(&allocations_mutex);
+    return;
+}
+
+static void
+allocations_unlock(void) {
+    ReleaseSRWLockExclusive(&allocations_mutex);
+    return;
+}
+#else
+static void
+allocations_lock(void) {
+    return;
+}
+
+static void
+allocations_unlock(void) {
+    return;
+}
+#endif
+
 #define X64(FUNC) \
-INLINE void \
+CBASE_API_DEF void \
 CAT(FUNC, 64)(void *dest, void *source, int64 n) { \
     if (n == 0) \
         return; \
     if (DEBUGGING) { \
         if (n < 0) { \
-            error("Error: Invalid n = %lld\n", (llong)n); \
+            error("Error: Invalid n = %lld\n", n); \
             fatal(EXIT_FAILURE); \
         } \
         if ((ullong)n >= (ullong)SIZE_MAX) { \
-            error("Error: n (%lld) is bigger than SIZEMAX\n", (llong)n); \
+            error("Error: n (%lld) is bigger than SIZEMAX\n", n); \
             fatal(EXIT_FAILURE); \
         } \
     } \
@@ -72,18 +343,18 @@ X64(memcpy)
 X64(memmove)
 #undef X64
 
-INLINE void
+CBASE_API_DEF void
 memset64(void *buffer, int value, int64 size) {
     if (size == 0) {
         return;
     }
     if (DEBUGGING) {
         if (size < 0) {
-            error("Error: Invalid size = %lld\n", (llong)size);
+            error("Error: Invalid size = %lld\n", size);
             fatal(EXIT_FAILURE);
         }
         if ((ullong)size >= (ullong)SIZE_MAX) {
-            error("Error: Size (%lld) is bigger than SIZEMAX\n", (llong)size);
+            error("Error: Size (%lld) is bigger than SIZEMAX\n", size);
             fatal(EXIT_FAILURE);
         }
     }
@@ -91,17 +362,12 @@ memset64(void *buffer, int value, int64 size) {
     return;
 }
 
-INLINE void *
+CBASE_API_DEF void *
 xmalloc(int64 size, bool zero) {
     void *p;
 
-    if (size == 0) {
-        size = 1;
-    }
-    if ((p = malloc((size_t)size)) == NULL) {
-        error("Failed to allocate %lld bytes.\n", (llong)size);
-        fatal(EXIT_FAILURE);
-    }
+    size = memory_allocation_size(size);
+    p = memory_aligned_alloc(size);
     if (zero) {
         memset64(p, 0, size);
     }
@@ -109,13 +375,13 @@ xmalloc(int64 size, bool zero) {
     return p;
 }
 
-static void
+CBASE_API_DEF void
 memory_check(void) {
     if (RUNNING_ON_VALGRIND) {
         return;
     }
 
-    pthread_mutex_lock(&allocations_mutex);
+    allocations_lock();
     if (allocations) {
         for (uint32 i = 0; i < allocations->capacity; i += 1) {
             Bucket_alloc_map *bucket = &allocations->array[i];
@@ -133,7 +399,7 @@ memory_check(void) {
                 if (p[-MEMORY_PADDING + j] != 0xDC) {
                     error_impl(info.file, info.line, info.func,
                                "Memory underflow detected (size %lld).\n",
-                               (llong)info.size);
+                               info.size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -142,7 +408,7 @@ memory_check(void) {
                 if (p[info.size + j] != 0xDC) {
                     error_impl(info.file, info.line, info.func,
                                "Memory overflow detected (size %lld).\n",
-                               (llong)info.size);
+                               info.size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -152,19 +418,20 @@ memory_check(void) {
                     if (p[j] != 0xCD) {
                         error_impl(info.file, info.line, info.func,
                                    "Use after free detected (size %lld).\n",
-                                   (llong)info.size);
+                                   info.size);
                         fatal(EXIT_FAILURE);
                     }
                 }
             }
         }
     }
-    pthread_mutex_unlock(&allocations_mutex);
+    allocations_unlock();
     return;
 }
 
-static void *
+CBASE_API_DEF void *
 malloc_debug(char *file, int32 line, char *func, int64 size, bool zero) {
+    int64 alloc_size;
     void *p;
     uchar *ptr;
     void *base_p;
@@ -179,16 +446,22 @@ malloc_debug(char *file, int32 line, char *func, int64 size, bool zero) {
 
     if (size < 0) {
         error_impl(file, line, func,
-                   "Invalid allocation size = %lld.\n", (llong)size);
+                   "Invalid allocation size = %lld.\n", size);
         fatal(EXIT_FAILURE);
     }
-    if (size >= (MAXOF(size) - 2*MEMORY_PADDING)) {
+    if (size > (MAXOF(size) - (ALIGNMENT - 1))) {
         error_impl(file, line, func,
-                   "Allocation size (%lld) is too big.\n", (llong)size);
+                   "Allocation size (%lld) is too big.\n", size);
+        fatal(EXIT_FAILURE);
+    }
+    alloc_size = memory_allocation_size(size);
+    if (alloc_size >= (MAXOF(alloc_size) - 2*MEMORY_PADDING)) {
+        error_impl(file, line, func,
+                   "Allocation size (%lld) is too big.\n", size);
         fatal(EXIT_FAILURE);
     }
 
-    base_p = xmalloc(size + 2*MEMORY_PADDING, false);
+    base_p = xmalloc(alloc_size + 2*MEMORY_PADDING, false);
     ptr = (uchar *)base_p;
 
     for (int32 j = 0; j < MEMORY_PADDING; j += 1) {
@@ -199,6 +472,8 @@ malloc_debug(char *file, int32 line, char *func, int64 size, bool zero) {
     }
 
     p = ptr + MEMORY_PADDING;
+    memory_assert_aligned_pointer(p);
+    ASSUME_ALIGNED(p);
     memset64(p, 0xCD, size);
 
     {
@@ -211,12 +486,12 @@ malloc_debug(char *file, int32 line, char *func, int64 size, bool zero) {
         info.func = func;
         info.reallocated = 0;
 
-        pthread_mutex_lock(&allocations_mutex);
+        allocations_lock();
         if (allocations == NULL) {
             allocations = hash_create_alloc_map(1024, "DebugAllocations");
         }
         hash_insert_alloc_map(allocations, &key, info);
-        pthread_mutex_unlock(&allocations_mutex);
+        allocations_unlock();
     }
 
     if (zero) {
@@ -226,67 +501,164 @@ malloc_debug(char *file, int32 line, char *func, int64 size, bool zero) {
     return p;
 }
 
-INLINE void *
-xrealloc(void *old, int64 new_size) {
+CBASE_API_DEF void *
+aligned_realloc(void *old, int64 old_size, int64 new_size) {
+    void *p;
+#if !OS_WINDOWS
+    int64 copy_size;
+    bool old_uses_os;
+    bool new_uses_os;
+#endif
+
+    if (old_size < 0) {
+        error("Error: Invalid old size = %lld.\n", old_size);
+        fatal(EXIT_FAILURE);
+    }
+    if (new_size < 0) {
+        error("Error: Invalid new size = %lld.\n", new_size);
+        fatal(EXIT_FAILURE);
+    }
+    old_size = memory_allocation_size(old_size);
+    new_size = memory_allocation_size(new_size);
+
+#if OS_WINDOWS
+    p = _aligned_realloc(old, (size_t)new_size, (size_t)ALIGNMENT);
+    if (p == NULL) {
+        error("Failed to reallocate %lld bytes.\n", new_size);
+        fatal(EXIT_FAILURE);
+    }
+    memory_assert_aligned_pointer(p);
+    ASSUME_ALIGNED(p);
+    return p;
+#else
+    old_uses_os = memory_uses_os_allocator(old_size);
+    new_uses_os = memory_uses_os_allocator(new_size);
+
+    if (old == NULL) {
+        p = memory_aligned_alloc(new_size);
+        return p;
+    }
+    if (old_uses_os && new_uses_os) {
+        p = memory_os_realloc(old, old_size, new_size);
+        return p;
+    }
+
+    p = memory_aligned_alloc(new_size);
+    copy_size = old_size;
+    if (new_size < copy_size) {
+        copy_size = new_size;
+    }
+    if (copy_size > 0) {
+        memcpy64(p, old, copy_size);
+    }
+    memory_aligned_free(old, old_size);
+
+    return p;
+#endif
+}
+
+CBASE_API_DEF void *
+xrealloc(void *old, int64 old_size, int64 new_size) {
     void *p;
     uint64 old_save = (uint64)old;
 
-    if ((p = realloc(old, (size_t)new_size)) == NULL) {
+    p = aligned_realloc(old, old_size, new_size);
+    if (p == NULL) {
         error("Failed to reallocate %lld bytes from %llx.\n",
-              (llong)new_size, (ullong)old_save);
+              new_size, (ullong)old_save);
         fatal(EXIT_FAILURE);
     }
 
     return p;
 }
 
-INLINE void *
+CBASE_API_DEF void *
 realloc4(void *old, int64 old_capacity, int64 new_capacity, int64 obj_size) {
-    int64 new_size = new_capacity*obj_size;
-    (void)old_capacity;
+    int64 new_size;
 
-    return xrealloc(old, new_size);
+    if (obj_size <= 0) {
+        error("realloc: invalid object size = %lld.\n", obj_size);
+        fatal(EXIT_FAILURE);
+    }
+    if (old_capacity < 0) {
+        error("realloc: invalid old capacity = %lld.\n", old_capacity);
+        fatal(EXIT_FAILURE);
+    }
+    if (new_capacity < 0) {
+        error("realloc: invalid capacity = %lld.\n", new_capacity);
+        fatal(EXIT_FAILURE);
+    }
+    if ((MAXOF(new_size) / obj_size) < old_capacity) {
+        error("realloc: %lld objects of size %lld is too much.\n",
+              old_capacity, obj_size);
+        fatal(EXIT_FAILURE);
+    }
+    if ((MAXOF(new_size) / obj_size) < new_capacity) {
+        error("realloc: %lld objects of size %lld is too much.\n",
+              new_capacity, obj_size);
+        fatal(EXIT_FAILURE);
+    }
+    new_size = memory_allocation_size(new_capacity*obj_size);
+
+    return xrealloc(old, old_capacity*obj_size, new_size);
 }
 
-static void *
+CBASE_API_DEF void *
 realloc_debug(char *file, int32 line, char *func,
               void *old, int64 old_capacity, int64 new_capacity,
               int64 obj_size) {
     int64 old_size;
     int64 new_size;
+    int64 old_alloc_size;
+    int64 new_alloc_size;
     void *p;
     void *old_base;
     void *base_p;
     uchar *ptr;
-    (void)old_capacity;
 
     if (obj_size <= 0) {
         error_impl(file, line, func,
-                   "realloc: invalid object size = %lld.\n", (llong)obj_size);
+                   "realloc: invalid object size = %lld.\n", obj_size);
+        fatal(EXIT_FAILURE);
+    }
+    if (old_capacity < 0) {
+        error_impl(file, line, func,
+                   "realloc: invalid old capacity = %lld.\n", old_capacity);
         fatal(EXIT_FAILURE);
     }
     if (new_capacity < 0) {
         error_impl(file, line, func,
-                   "realloc: invalid capacity = %lld.\n", (llong)new_capacity);
+                   "realloc: invalid capacity = %lld.\n", new_capacity);
+        fatal(EXIT_FAILURE);
+    }
+    if ((MAXOF(old_size) / obj_size) < old_capacity) {
+        error_impl(file, line, func,
+                   "realloc: %lld objects of size %lld is too much.\n",
+                   old_capacity, obj_size);
         fatal(EXIT_FAILURE);
     }
     if ((MAXOF(new_size) / obj_size) < new_capacity) {
         error_impl(file, line, func,
                    "realloc: %lld objects of size %lld is too much.\n",
-                   (llong)new_capacity, (llong)obj_size);
+                   new_capacity, obj_size);
+        fatal(EXIT_FAILURE);
+    }
+    if ((new_capacity*obj_size) > (MAXOF(new_size) - (ALIGNMENT - 1))) {
+        error_impl(file, line, func,
+                   "realloc: %lld objects of size %lld is too much.\n",
+                   new_capacity, obj_size);
         fatal(EXIT_FAILURE);
     }
 
     if (RUNNING_ON_VALGRIND) {
-        if (new_capacity == 0) {
-            new_capacity = 1;
-        }
-        return xrealloc(old, new_capacity*obj_size);
+        return xrealloc(old, old_capacity*obj_size, new_capacity*obj_size);
     }
 
     old_size = old_capacity*obj_size;
     new_size = new_capacity*obj_size;
-    ASSERT(new_size <= (MAXOF(new_size) - 2*MEMORY_PADDING));
+    old_alloc_size = memory_allocation_size(old_size);
+    new_alloc_size = memory_allocation_size(new_size);
+    ASSERT(new_alloc_size <= (MAXOF(new_alloc_size) - 2*MEMORY_PADDING));
 
     {
         DebugAllocInfo info;
@@ -298,7 +670,7 @@ realloc_debug(char *file, int32 line, char *func,
         info.func = func;
         info.reallocated = 0;
 
-        pthread_mutex_lock(&allocations_mutex);
+        allocations_lock();
 
         if (old && (allocations == NULL)) {
             error_impl(file, line, func,
@@ -329,7 +701,7 @@ realloc_debug(char *file, int32 line, char *func,
                            "Reallocation old size does not match size"
                            " allocated on %s:%d: %s(): %lld != %lld\n",
                            old_info.file, old_info.line, old_info.func,
-                           (llong)old_info.size, (llong)old_size);
+                           old_info.size, old_size);
                 fatal(EXIT_FAILURE);
             }
 
@@ -339,7 +711,7 @@ realloc_debug(char *file, int32 line, char *func,
                                "Memory underflow detected before realloc.\n");
                     error_impl(old_info.file, old_info.line, old_info.func,
                                "Allocated here (old size = %lld bytes).\n",
-                               (llong)old_size);
+                               old_size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -349,7 +721,7 @@ realloc_debug(char *file, int32 line, char *func,
                                "Memory overflow detected before realloc.\n");
                     error_impl(old_info.file, old_info.line, old_info.func,
                                "Allocated here (old size = %lld bytes).\n",
-                               (llong)old_size);
+                               old_size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -359,7 +731,7 @@ realloc_debug(char *file, int32 line, char *func,
 
             if (MEMORY_CHECK_DOUBLE_FREE || MEMORY_CHECK_USE_AFTER_FREE) {
                 int64 copy_size = old_size;
-                base_p = xmalloc(new_size + 2*MEMORY_PADDING, false);
+                base_p = xmalloc(new_alloc_size + 2*MEMORY_PADDING, false);
 
                 if (new_size < old_size) {
                     copy_size = new_size;
@@ -378,11 +750,13 @@ realloc_debug(char *file, int32 line, char *func,
                 }
             } else {
                 old_base = ((uchar *)old - MEMORY_PADDING);
-                base_p = xrealloc(old_base, new_size + 2*MEMORY_PADDING);
+                base_p = xrealloc(old_base, old_alloc_size + 2*MEMORY_PADDING,
+                                  new_alloc_size + 2*MEMORY_PADDING);
             }
         } else {
             old_base = NULL;
-            base_p = xrealloc(old_base, new_size + 2*MEMORY_PADDING);
+            base_p = xrealloc(old_base, 0,
+                              new_alloc_size + 2*MEMORY_PADDING);
         }
 
         ptr = (uchar *)base_p;
@@ -395,16 +769,18 @@ realloc_debug(char *file, int32 line, char *func,
         }
 
         p = ptr + MEMORY_PADDING;
+        memory_assert_aligned_pointer(p);
+        ASSUME_ALIGNED(p);
         p_key = (intptr)p;
         hash_insert_alloc_map(allocations, &p_key, info);
 
-        pthread_mutex_unlock(&allocations_mutex);
+        allocations_unlock();
     }
 
     return p;
 }
 
-static void *
+CBASE_API_DEF void *
 realloc_flex_debug(char *file, int32 line, char *func,
                    void *old, int64 struct_size,
                    int64 old_capacity, int64 new_capacity, int64 obj_size) {
@@ -414,46 +790,71 @@ realloc_flex_debug(char *file, int32 line, char *func,
     uchar *ptr;
     int64 new_size;
     int64 old_size;
-    (void)old_capacity;
+    int64 new_alloc_size;
+    int64 old_alloc_size;
 
     if (obj_size <= 0) {
         error_impl(file, line, func,
-                   "Invalid object size = %lld.\n", (llong)obj_size);
+                   "Invalid object size = %lld.\n", obj_size);
         fatal(EXIT_FAILURE);
     }
     if (struct_size < 0) {
         error_impl(file, line, func,
-                   "Invalid struct size = %lld.\n", (llong)struct_size);
+                   "Invalid struct size = %lld.\n", struct_size);
+        fatal(EXIT_FAILURE);
+    }
+    if (old_capacity < 0) {
+        error_impl(file, line, func,
+                   "Invalid old capacity = %lld.\n", old_capacity);
         fatal(EXIT_FAILURE);
     }
     if (new_capacity < 0) {
         error_impl(file, line, func,
-                   "Invalid new capacity = %lld.\n", (llong)new_capacity);
+                   "Invalid new capacity = %lld.\n", new_capacity);
+        fatal(EXIT_FAILURE);
+    }
+    if ((INT64_MAX / obj_size) < old_capacity) {
+        error_impl(file, line, func,
+                   "Allocating %lld objects of size %lld is too much.\n",
+                   old_capacity, obj_size);
+        fatal(EXIT_FAILURE);
+    }
+    if ((INT64_MAX - struct_size) < (old_capacity*obj_size)) {
+        error_impl(file, line, func,
+                   "Allocating %lld objects of size %lld is too much.\n",
+                   old_capacity, obj_size);
         fatal(EXIT_FAILURE);
     }
     if ((INT64_MAX / obj_size) < new_capacity) {
         error_impl(file, line, func,
                    "Allocating %lld objects of size %lld is too much.\n",
-                   (llong)new_capacity, (llong)obj_size);
+                   new_capacity, obj_size);
         fatal(EXIT_FAILURE);
     }
     if ((INT64_MAX - struct_size) < (new_capacity*obj_size)) {
         error_impl(file, line, func,
                    "Allocating %lld objects of size %lld is too much.\n",
-                   (llong)new_capacity, (llong)obj_size);
+                   new_capacity, obj_size);
+        fatal(EXIT_FAILURE);
+    }
+    if ((struct_size + new_capacity*obj_size) >
+        (INT64_MAX - (ALIGNMENT - 1))) {
+        error_impl(file, line, func,
+                   "Allocating %lld objects of size %lld is too much.\n",
+                   new_capacity, obj_size);
         fatal(EXIT_FAILURE);
     }
 
     if (RUNNING_ON_VALGRIND) {
-        if (new_capacity == 0) {
-            new_capacity = 1;
-        }
-        return realloc(old, (size_t)(struct_size + new_capacity*obj_size));
+        return xrealloc(old, struct_size + old_capacity*obj_size,
+                        struct_size + new_capacity*obj_size);
     }
 
     old_size = struct_size + old_capacity*obj_size;
     new_size = struct_size + new_capacity*obj_size;
-    ASSERT(new_size <= (MAXOF(new_size) - 2*MEMORY_PADDING));
+    old_alloc_size = memory_allocation_size(old_size);
+    new_alloc_size = memory_allocation_size(new_size);
+    ASSERT(new_alloc_size <= (MAXOF(new_alloc_size) - 2*MEMORY_PADDING));
 
     {
         DebugAllocInfo info;
@@ -465,7 +866,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
         info.func = func;
         info.reallocated = 0;
 
-        pthread_mutex_lock(&allocations_mutex);
+        allocations_lock();
 
         if (old && (allocations == NULL)) {
             error_impl(file, line, func,
@@ -496,7 +897,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
                            "Reallocation old size does not match size"
                            " allocated on %s:%d: %s(): %lld != %lld\n",
                            old_info.file, old_info.line, old_info.func,
-                           (llong)old_info.size, (llong)old_size);
+                           old_info.size, old_size);
                 fatal(EXIT_FAILURE);
             }
 
@@ -506,7 +907,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
                                "Memory underflow detected before realloc\n");
                     error_impl(old_info.file, old_info.line, old_info.func,
                                "Allocated here (old size = %lld bytes).\n",
-                               (llong)old_size);
+                               old_size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -516,7 +917,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
                                "Memory overflow detected before realloc.\n");
                     error_impl(old_info.file, old_info.line, old_info.func,
                                "Allocated here (old size = %lld bytes).\n",
-                               (llong)old_size);
+                               old_size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -526,7 +927,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
 
             if (MEMORY_CHECK_DOUBLE_FREE || MEMORY_CHECK_USE_AFTER_FREE) {
                 int64 copy_size = old_size;
-                base_p = xmalloc(new_size + 2*MEMORY_PADDING, false);
+                base_p = xmalloc(new_alloc_size + 2*MEMORY_PADDING, false);
 
                 if (new_size < old_size) {
                     copy_size = new_size;
@@ -546,11 +947,13 @@ realloc_flex_debug(char *file, int32 line, char *func,
                 }
             } else {
                 old_base = ((uchar *)old - MEMORY_PADDING);
-                base_p = xrealloc(old_base, new_size + 2*MEMORY_PADDING);
+                base_p = xrealloc(old_base, old_alloc_size + 2*MEMORY_PADDING,
+                                  new_alloc_size + 2*MEMORY_PADDING);
             }
         } else {
             old_base = NULL;
-            base_p = xrealloc(old_base, new_size + 2*MEMORY_PADDING);
+            base_p = xrealloc(old_base, 0,
+                              new_alloc_size + 2*MEMORY_PADDING);
         }
 
         ptr = (uchar *)base_p;
@@ -563,30 +966,38 @@ realloc_flex_debug(char *file, int32 line, char *func,
         }
 
         p = ptr + MEMORY_PADDING;
+        memory_assert_aligned_pointer(p);
+        ASSUME_ALIGNED(p);
         p_key = (intptr)p;
         hash_insert_alloc_map(allocations, &p_key, info);
 
-        pthread_mutex_unlock(&allocations_mutex);
+        allocations_unlock();
     }
 
     return p;
 }
 
-static void
+CBASE_API_DEF void
 free_debug(char *file, int32 line, char *func,
            void *pointer, int64 size) {
     DebugAllocInfo info;
     intptr pointer_key = (intptr)pointer;
 
     if (RUNNING_ON_VALGRIND) {
-        free(pointer);
+        memory_aligned_free(pointer, size);
         return;
     }
 
     if (size < 0) {
         error_impl(file, line, func,
                    "Error: freeing allocation of negative size = %lld.\n",
-                   (llong)size);
+                   size);
+        fatal(EXIT_FAILURE);
+    }
+    if (size > (MAXOF(size) - (ALIGNMENT - 1))) {
+        error_impl(file, line, func,
+                   "Error: freeing allocation of too large size = %lld.\n",
+                   size);
         fatal(EXIT_FAILURE);
     }
 
@@ -594,7 +1005,7 @@ free_debug(char *file, int32 line, char *func,
         return;
     }
 
-    pthread_mutex_lock(&allocations_mutex);
+    allocations_lock();
 
     if (allocations == NULL) {
         error_impl(file, line, func,
@@ -614,7 +1025,7 @@ free_debug(char *file, int32 line, char *func,
         if (info.size != size) {
             error_impl(file, line, func,
                        "Allocation size mismatch: Expected %lld, got %lld.\n",
-                       (llong)info.size, (llong)size);
+                       info.size, size);
             error_impl(info.file, info.line, info.func,
                        "Memory was allocated here. (reallocated = %d)\n",
                        info.reallocated);
@@ -650,7 +1061,7 @@ free_debug(char *file, int32 line, char *func,
                 memset64(pointer, 0xCD, size);
             }
         } else {
-            free(ptr - MEMORY_PADDING);
+            memory_aligned_free(ptr - MEMORY_PADDING, size + 2*MEMORY_PADDING);
         }
     } else {
         error_impl(file, line, func,
@@ -658,115 +1069,84 @@ free_debug(char *file, int32 line, char *func,
         fatal(EXIT_FAILURE);
     }
 
-    pthread_mutex_unlock(&allocations_mutex);
+    allocations_unlock();
 
     return;
 }
 
-INLINE void
+CBASE_API_DEF void
 free2_(void *pointer, int64 size) {
-    (void)size;
+    if (size < 0) {
+        error("Error: freeing allocation of negative size = %lld.\n", size);
+        fatal(EXIT_FAILURE);
+    }
     if (pointer) {
-        free(pointer);
+        memory_aligned_free(pointer, size);
     }
     return;
 }
 
 #if OS_UNIX
-static void *
+CBASE_API_DEF void *
 xmmap_commit(int64 *size) {
     void *p;
     int64 size_original = *size;
 
-    if (*size < 0) {
-        error("Invalid size = %lld\n", (llong)*size);
-        fatal(EXIT_FAILURE);
-    }
-    if (*size == 0) {
-        *size = 1;
-    }
-
-    if (RUNNING_ON_VALGRIND) {
-        return xmalloc(*size, true);
-    }
-    if (memory_page_size == 0) {
-        long aux;
-        if ((aux = sysconf(_SC_PAGESIZE)) <= 0) {
-            error("Error getting page size: %s.\n", strerror(errno));
-            fatal(EXIT_FAILURE);
-        }
-        memory_page_size = aux;
-    }
+    *size = memory_mapping_size(*size);
 
     do {
-        if ((*size >= SIZEMB(2)) && FLAGS_HUGE_PAGES) {
-            *size = ALIGN_POWER_OF_2(*size, SIZEMB(2));
+        if ((size_original >= SIZEMB(2)) && FLAGS_HUGE_PAGES) {
+            *size = ALIGN_POWER_OF_2(size_original, SIZEMB(2));
             p = mmap(NULL, (size_t)*size, PROT_READ | PROT_WRITE,
-                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE
-                     | FLAGS_HUGE_PAGES,
+                     MAP_ANONYMOUS | MAP_PRIVATE | FLAGS_HUGE_PAGES,
                      -1, 0);
             if (p != MAP_FAILED) {
                 break;
             }
         }
-        *size = ALIGN_POWER_OF_2(size_original, memory_page_size);
+        *size = memory_mapping_size(size_original);
         p = mmap(NULL, (size_t)*size, PROT_READ | PROT_WRITE,
-                 MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE, -1, 0);
+                 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     } while (0);
     if (p == MAP_FAILED) {
-        error("Error in mmap(%lld): %s.\n", (llong)*size, strerror(errno));
+        error("Error in mmap(%lld): %s.\n", *size, strerror(errno));
         fatal(EXIT_FAILURE);
     }
     return p;
 }
-static void
+CBASE_API_DEF void
 xmunmap(void *p, int64 size) {
-    if (RUNNING_ON_VALGRIND) {
-        free(p);
-        return;
-    }
     if (munmap(p, (size_t)size) < 0) {
         error("Error in munmap(%p, %lld): %s.\n",
-              p, (llong)size, strerror(errno));
+              p, size, strerror(errno));
         fatal(EXIT_FAILURE);
     }
     return;
 }
 #elif OS_WINDOWS
-static void *
+CBASE_API_DEF void *
 xmmap_commit(int64 *size) {
     void *p;
 
+    *size = memory_mapping_size(*size);
     if (RUNNING_ON_VALGRIND) {
-        if (*size == 0) {
-            *size = 1;
-        }
         return xmalloc(*size, true);
-    }
-    if (memory_page_size == 0) {
-        SYSTEM_INFO system_info;
-        GetSystemInfo(&system_info);
-        memory_page_size = system_info.dwPageSize;
-        if (memory_page_size <= 0) {
-            fprintf(stderr, "Error getting page size.\n");
-            fatal(EXIT_FAILURE);
-        }
     }
 
     p = VirtualAlloc(NULL, (size_t)*size, MEM_COMMIT | MEM_RESERVE,
                      PAGE_READWRITE);
     if (p == NULL) {
         fprintf(stderr, "Error in VirtualAlloc(%lld): %lu.\n",
-                        (llong)*size, GetLastError());
+                        *size, GetLastError());
         fatal(EXIT_FAILURE);
     }
     return p;
 }
-static void
+CBASE_API_DEF void
 xmunmap(void *p, int64 size) {
     (void)size;
     if (RUNNING_ON_VALGRIND) {
-        free(p);
+        memory_aligned_free(p, size);
         return;
     }
     if (!VirtualFree(p, 0, MEM_RELEASE)) {
@@ -775,36 +1155,37 @@ xmunmap(void *p, int64 size) {
     return;
 }
 #else
-static void *
+CBASE_API_DEF void *
 xmmap_commit(int64 *size) {
     void *p;
 
+    *size = memory_mapping_size(*size);
     p = malloc2(*size);
     memset64(p, 0, *size);
     return p;
 }
-static void
+CBASE_API_DEF void
 xmunmap(void *p, int64 size) {
     free2(p, (int64)size);
     return;
 }
 #endif
 
-static void *
+CBASE_API_DEF void *
 xmemdup(void *source, int64 size) {
     void *p = malloc2(size);
     memcpy64(p, source, size);
     return p;
 }
 
-static char *
+CBASE_API_DEF char *
 xstrdup(char *string) {
     char *p;
     int64 length = strlen32(string) + 1;
 
     if ((p = malloc2(length)) == NULL) {
         error("Error allocating %lld bytes to duplicate '%s': %s\n",
-              (llong)length, string, strerror(errno));
+              length, string, strerror(errno));
         fatal(EXIT_FAILURE);
     }
 
@@ -812,7 +1193,7 @@ xstrdup(char *string) {
     return p;
 }
 
-static char *
+CBASE_API_DEF char *
 xstrndup(char *s, int64 n) {
     char *out = malloc2(n + 1);
     memcpy64(out, s, n);
@@ -823,8 +1204,10 @@ xstrndup(char *s, int64 n) {
 #if 0 == TESTING_memory
 static inline void
 memory_functions_sink(void) {
+    (void)memory_functions_sink;
     (void)memory_check;
     (void)realloc4;
+    (void)aligned_realloc;
     (void)free2_;
     (void)realloc_flex_debug;
     return;
@@ -835,8 +1218,6 @@ memory_functions_sink(void) {
 #define CBASE_IMPLEMENT
 #include "cbase.h"
 // flags: -lm
-#include <signal.h>
-#include <setjmp.h>
 
 static sigjmp_buf test_jump_env;
 static bool caught_expected_fail = false;
@@ -859,6 +1240,26 @@ typedef struct TestString {
     int32 len;
     int32 padding;
 } TestString;
+
+static void
+test_debug_free_raw(void *p, int64 size) {
+    intptr key;
+
+    if (p == NULL) {
+        return;
+    }
+
+    key = (intptr)p;
+    allocations_lock();
+    if (allocations != NULL) {
+        hash_remove_alloc_map(allocations, &key);
+    }
+    allocations_unlock();
+
+    memory_aligned_free((uchar *)p - MEMORY_PADDING,
+                        memory_allocation_size(size) + 2*MEMORY_PADDING);
+    return;
+}
 
 #define ASSERT_EXPECTED_FATAL(BLOCK) do { \
     caught_expected_fail = false; \
@@ -886,6 +1287,17 @@ int main(void) {
     }
 
     printf("--- Starting Comprehensive Memory Tests ---\n");
+
+    {
+        int64 size = 1;
+        char *mapping;
+
+        mapping = xmmap_commit(&size);
+        ASSERT_MORE(size, 1);
+        ASSERT_EQUAL(size % memory_page_size, 0);
+        ASSERT_EQUAL(mapping[0], 0);
+        xmunmap(mapping, size);
+    }
 
     {
         int64 size = 256;
@@ -929,6 +1341,38 @@ int main(void) {
         printf("realloc2 (shrink) successful.\n");
 
         free2(arr, shrink*SIZEOF(int64));
+    }
+
+    {
+        int64 small_size = MEMORY_OS_ALLOC_THRESHOLD / 2;
+        int64 large_size = MEMORY_OS_ALLOC_THRESHOLD * 2;
+        int64 shrink_size = MEMORY_OS_ALLOC_THRESHOLD / 4;
+        uchar *p = xmalloc(small_size, false);
+
+        for (int64 i = 0; i < small_size; i += 1) {
+            p[i] = (uchar)(i & 0xFF);
+        }
+
+        p = aligned_realloc(p, small_size, large_size);
+        for (int64 i = 0; i < small_size; i += 1) {
+            ASSERT(p[i] == (uchar)(i & 0xFF));
+        }
+
+        for (int64 i = small_size; i < large_size; i += 1) {
+            p[i] = (uchar)(i & 0xFF);
+        }
+
+        p = aligned_realloc(p, large_size, large_size*2);
+        for (int64 i = 0; i < large_size; i += 1) {
+            ASSERT(p[i] == (uchar)(i & 0xFF));
+        }
+
+        p = aligned_realloc(p, large_size*2, shrink_size);
+        for (int64 i = 0; i < shrink_size; i += 1) {
+            ASSERT(p[i] == (uchar)(i & 0xFF));
+        }
+        free2_(p, shrink_size);
+        printf("large aligned_realloc transitions preserved data.\n");
     }
 
     {
@@ -1062,7 +1506,7 @@ int main(void) {
         ASSERT_EXPECTED_FATAL({
             free2(untracked, 16);
         });
-        pthread_mutex_unlock(&allocations_mutex);
+        allocations_unlock();
     }
 
     {
@@ -1071,8 +1515,8 @@ int main(void) {
         ASSERT_EXPECTED_FATAL({
             free2(p, size + 1); // Incorrect size
         });
-        pthread_mutex_unlock(&allocations_mutex);
-        free(p - MEMORY_PADDING);
+        allocations_unlock();
+        test_debug_free_raw(p, size);
     }
 
     {
@@ -1082,8 +1526,8 @@ int main(void) {
         ASSERT_EXPECTED_FATAL({
             free2(p, size); // Double free
         });
-        pthread_mutex_unlock(&allocations_mutex);
-        free(p - MEMORY_PADDING);
+        allocations_unlock();
+        test_debug_free_raw(p, size);
     }
 
     {
@@ -1093,7 +1537,7 @@ int main(void) {
             // Realloc with wrong old size
             realloc2(arr, count + 5, 20, SIZEOF(int64));
         });
-        pthread_mutex_unlock(&allocations_mutex);
+        allocations_unlock();
         free2(arr, count*SIZEOF(int64));
     }
 
@@ -1109,7 +1553,7 @@ int main(void) {
             // Realloc flex with wrong old capacity
             realloc_flex(flex, count + 2, 10, SIZEOF(int64));
         });
-        pthread_mutex_unlock(&allocations_mutex);
+        allocations_unlock();
         free2(flex, initial_size);
     }
 
@@ -1119,7 +1563,7 @@ int main(void) {
             // Realloc with untracked pointer
             realloc2(invalid_ptr, 1, 10, SIZEOF(int64));
         });
-        pthread_mutex_unlock(&allocations_mutex);
+        allocations_unlock();
     }
 
     {
@@ -1129,8 +1573,8 @@ int main(void) {
             p[-MEMORY_PADDING] = 0x00; // Corrupt underflow canary
             memory_check();
         });
-        pthread_mutex_unlock(&allocations_mutex);
-        free(p - MEMORY_PADDING);
+        allocations_unlock();
+        test_debug_free_raw(p, size);
     }
 
     {
@@ -1140,8 +1584,8 @@ int main(void) {
             p[size] = 0x00; // Corrupt overflow canary
             memory_check();
         });
-        pthread_mutex_unlock(&allocations_mutex);
-        free(p - MEMORY_PADDING);
+        allocations_unlock();
+        test_debug_free_raw(p, size);
     }
 
     {
@@ -1151,8 +1595,8 @@ int main(void) {
             p[-4] = 0xFF; // Corrupt underflow canary
             free2(p, size);
         });
-        pthread_mutex_unlock(&allocations_mutex);
-        free(p - MEMORY_PADDING);
+        allocations_unlock();
+        test_debug_free_raw(p, size);
     }
 
     {
@@ -1162,8 +1606,8 @@ int main(void) {
             p[size] = 0xFF; // Corrupt overflow canary
             free2(p, size);
         });
-        pthread_mutex_unlock(&allocations_mutex);
-        free(p - MEMORY_PADDING);
+        allocations_unlock();
+        test_debug_free_raw(p, size);
     }
 
     {
@@ -1174,13 +1618,14 @@ int main(void) {
             p[0] = 0xAA; // Use after free
             memory_check();
         });
-        pthread_mutex_unlock(&allocations_mutex);
-        free(p - MEMORY_PADDING);
+        allocations_unlock();
+        test_debug_free_raw(p, size);
     }
 #endif
 
     fsync(STDOUT_FILENO);
     fsync(STDERR_FILENO);
+
     printf("\nAll memory tests passed.\n");
     return EXIT_SUCCESS;
 }

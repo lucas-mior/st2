@@ -11,7 +11,15 @@
 #define ALIGNMENT 16
 #endif
 
+#define MEM_FREED 0xDC
+#define MEM_MALLOCED_UNINITIALIZED 0xCD
+#define MEM_DONT_READ 0xBD
+
 #define MEMORY_PADDING ((int32)ALIGNMENT)
+
+#if !defined(MEMORY_OS_ALLOC_THRESHOLD)
+#define MEMORY_OS_ALLOC_THRESHOLD SIZEKB(128)
+#endif
 
 #if !defined(TESTING_memory)
 #define TESTING_memory 0
@@ -39,17 +47,16 @@
 #define DEBUGGING_MEMORY DEBUGGING
 #endif
 
-static void free2_(void *, int64);
-static void free_debug(char *, int32, char *, void *, int64);
-static void *malloc_debug(char *, int32, char *, int64, bool);
-static void memcpy64(void *, void *, int64);
-static void memmove64(void *, void *, int64);
-static void memory_check(void);
-static void memory_functions_sink(void);
-static void memset64(void *, int, int64);
-static void *realloc4(void *, int64, int64, int64);
-static void *realloc_debug(char *, int32, char *, void *, int64, int64, int64);
-static void *realloc_flex_debug(
+CBASE_API_DECL void free2_(void *, int64);
+CBASE_API_DECL void free_debug(char *, int32, char *, void *, int64);
+CBASE_API_DECL void *malloc_debug(char *, int32, char *, int64, bool);
+CBASE_API_DECL void memcpy64(void *, void *, int64);
+CBASE_API_DECL void memmove64(void *, void *, int64);
+CBASE_API_DECL void memory_check(void);
+CBASE_API_DECL void memset64(void *, int, int64);
+CBASE_API_DECL void *realloc4(void *, int64, int64, int64);
+CBASE_API_DECL void *realloc_debug(char *, int32, char *, void *, int64, int64, int64);
+CBASE_API_DECL void *realloc_flex_debug(
     char *,
     int32,
     char *,
@@ -59,13 +66,14 @@ static void *realloc_flex_debug(
     int64,
     int64
 );
-static void *xmalloc(int64, bool);
-static void *xmemdup(void *, int64);
-static void *xmmap_commit(int64 *);
-static void xmunmap(void *, int64);
-static void *xrealloc(void *, int64);
-static char *xstrdup(char *);
-static char *xstrndup(char *, int64);
+CBASE_API_DECL void *aligned_realloc(void *, int64, int64);
+CBASE_API_DECL void *xmalloc(int64, bool);
+CBASE_API_DECL void *xmemdup(void *, int64);
+CBASE_API_DECL void *xmmap_commit(int64 *);
+CBASE_API_DECL void xmunmap(void *, int64);
+CBASE_API_DECL void *xrealloc(void *, int64, int64);
+CBASE_API_DECL char *xstrdup(char *);
+CBASE_API_DECL char *xstrndup(char *, int64);
 
 #if DEBUGGING_MEMORY
 #define malloc2_zero(SIZE) \
@@ -86,7 +94,8 @@ static char *xstrndup(char *, int64);
 #define realloc2(OLD, OLD_CAPACITY, NEW_CAPACITY, OBJECT_SIZE) \
     realloc4(OLD, OLD_CAPACITY, NEW_CAPACITY, OBJECT_SIZE)
 #define realloc_flex(OLD, OLD_CAPACITY, NEW_CAPACITY, OBJECT_SIZE) \
-    xrealloc(OLD, SIZEOF(*(OLD)) + (OBJECT_SIZE)*(NEW_CAPACITY))
+    xrealloc(OLD, SIZEOF(*(OLD)) + (OBJECT_SIZE)*(OLD_CAPACITY), \
+             SIZEOF(*(OLD)) + (OBJECT_SIZE)*(NEW_CAPACITY))
 #define free2(POINTER, SIZE) free2_(POINTER, SIZE)
 #endif
 

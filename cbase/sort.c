@@ -4,8 +4,6 @@
 #if !defined(SORT_C)
 #define SORT_C
 
-#include <stdlib.h>
-
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_sort 1
 #elif !defined(TESTING_sort)
@@ -14,7 +12,27 @@
 
 #include "cbase.h"
 
-static void
+typedef struct HeapNode {
+    void *value;
+    int32 p_index;
+    int32 unused;
+} HeapNode;
+
+CBASE_API_DECL void sort_heapify(HeapNode *, int32, int32, int32 (*)(void *, void *));
+CBASE_API_DECL void sort_merge_subsorted(
+    void *,
+    int32,
+    int32,
+    int64,
+    int32 (*)(void *, void *)
+);
+CBASE_API_DECL void sort_shuffle(void *, int64, int64);
+
+#if !defined(SORT_COMPARE)
+#define SORT_COMPARE(A, B) compare_func(A, B)
+#endif
+
+CBASE_API_DEF void
 sort_shuffle(void *array, int64 n, int64 size) {
     char *tmp = malloc2(size);
     char *arr = array;
@@ -34,7 +52,7 @@ sort_shuffle(void *array, int64 n, int64 size) {
     return;
 }
 
-static void
+CBASE_API_DEF void
 sort_heapify(HeapNode *heap, int32 p, int32 i,
              int32 (*compare_func)(void *a, void *b)) {
     (void)compare_func;
@@ -69,7 +87,7 @@ sort_heapify(HeapNode *heap, int32 p, int32 i,
     return;
 }
 
-static void
+CBASE_API_DEF void
 sort_merge_subsorted(
     void *array,
     int32 n,
@@ -154,6 +172,7 @@ sort_merge_subsorted(
 #if 0 == TESTING_sort
 static inline void
 sort_functions_sink(void) {
+    (void)sort_functions_sink;
     (void)sort_shuffle;
     (void)sort_heapify;
     (void)sort_merge_subsorted;

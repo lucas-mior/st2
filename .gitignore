@@ -11,3 +11,5 @@ lflog*
 log-*.txt
 *.diff
 *-flexipatch*
+*.o
+*.cmd

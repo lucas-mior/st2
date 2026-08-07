@@ -10,10 +10,7 @@
 #if !defined(HASH_H)
 #define HASH_H
 
-#include <math.h>
-#include <sys/types.h>
-#include <time.h>
-
+#include "libc.h"
 #include "base_macros.h"
 #include "primitives.h"
 #include "rapidhash.h"
@@ -27,7 +24,7 @@ INLINE uint32 hash_normal(void *map, uint64 hash);
 INLINE uint32 hash_capacity(void *map);
 INLINE uint32 hash_length(void *map);
 #if DEBUGGING
-uint32 hash_expected_collisions(void *map);
+INLINE uint32 hash_expected_collisions(void *map);
 #endif
 
 struct CommonBucket;
@@ -129,7 +126,7 @@ CAT(hash_print_summary_, HASH_TYPE)(struct Map *map) {
     (void)map;
     /* fprintf(stderr, "struct Hash%s {\n", QUOTE(HASH_TYPE)); */
     /* fprintf(stderr, "  name: %s\n", map->name); */
-    /* fprintf(stderr, "  size: %lldB\n", (llong)map->size); */
+    /* fprintf(stderr, "  size: %lldB\n", map->size); */
     /* fprintf(stderr, "  capacity: %u\n", map->capacity); */
     /* fprintf(stderr, "  bitmask: 0x%X\n", map->bitmask); */
     /* fprintf(stderr, "  length: %u\n", map->length); */
@@ -709,6 +706,11 @@ CAT(hash_ndeleted_, HASH_TYPE)(struct Map *map) {
     return ndeleted;
 }
 
+#if CC_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunneeded-internal-declaration"
+#endif
+
 static inline void
 CAT(hash_functions_sink_, HASH_TYPE)(void) {
     (void)CAT(hash_functions_sink_, HASH_TYPE);
@@ -735,8 +737,14 @@ CAT(hash_functions_sink_, HASH_TYPE)(void) {
     (void)CAT(hash_ndeleted_, HASH_TYPE);
     (void)hash_capacity;
     (void)hash_length;
+#if DEBUGGING
+    (void)hash_expected_collisions;
+#endif
     return;
 }
+#if CC_CLANG
+#pragma clang diagnostic pop
+#endif
 
 #undef HASH_VALUE_TYPE
 #undef HASH_PADDING_TYPE
@@ -780,7 +788,7 @@ hash_length(void *map) {
 }
 
 #if DEBUGGING
-uint32
+INLINE uint32
 hash_expected_collisions(void *map) {
     CommonMap *map2 = map;
     double n = map2->length;
@@ -798,8 +806,6 @@ hash_expected_collisions(void *map) {
 #if !OS_UNIX
 #error "hash.c tests only work on unix systems"
 #endif
-
-#include <assert.h>
 
 // Have to add these declarations so that clangd does not complain
 struct Hash_map_by_value;
@@ -901,12 +907,12 @@ main(void) {
         strings[i] = random_string(arena, NBYTES);
     }
 
-    clock_gettime(CLOCK_MONOTONIC_RAW, &t0);
+    time_monotonic_precise(&t0);
     for (uint32 i = 0; i < NSTRINGS; i += 1) {
         ASSERT(hash_insert_map(map, strings[i].s, strings[i].len,
                                strings[i].value));
     }
-    clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
+    time_monotonic_precise(&t1);
     PRINT_TIMINGS(NSTRINGS, t0, t1, "insertion with resizes");
 
     ASSERT(map->capacity > initial_capacity);

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL
 // Copyright (c) 2026 Lucas Mior
 
+// this is completely self contained,
+// it does not depend on any other cbase/files
+
 #if !defined(PLATFORM_DETECTION_H)
 #define PLATFORM_DETECTION_H
 
@@ -44,6 +47,14 @@
 
 #define OS_UNIX (OS_LINUX || OS_MAC || OS_BSD)
 
+#if !defined(CBASE_HAS_PROCFS)
+#define CBASE_HAS_PROCFS OS_LINUX
+#endif
+
+#if !defined(CBASE_HAS_GETTEXT)
+#define CBASE_HAS_GETTEXT OS_LINUX
+#endif
+
 #if defined(__clang__)
   #define CC_GCC 0
   #define CC_CLANG 1
@@ -73,27 +84,32 @@
 
 #define CC_TOY !(CC_GCC || CC_CLANG || CC_TCC || CC_MSVC)
 
+#if defined(__AVX512F__)
+#define ARCH_AVX512 1
+#else
+#define ARCH_AVX512 0
+#endif
+
+#if defined(__AVX__)
+#define ARCH_AVX 1
+#else
+#define ARCH_AVX 0
+#endif
+
+#if defined(__AVX2__)
+#define ARCH_AVX2 1
+#else
+#define ARCH_AVX2 0
+#endif
+
+#if defined(__SSE__) || defined(__x86_64__)
+#define ARCH_SSE 1
+#else
+#define ARCH_SSE 0
+#endif
+
 #if OS_WINDOWS
-#include <windows.h>
-#endif
-
-#if OS_UNIX
-#include <sys/mman.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <poll.h>
-#endif
-
-#if OS_MAC
-#include <sys/param.h>
-#undef MIN
-#undef MAX
-#endif
-
-#if OS_WINDOWS
-#define RW_TYPE uint
+#define RW_TYPE unsigned int
 #else
 #define RW_TYPE size_t
 #endif

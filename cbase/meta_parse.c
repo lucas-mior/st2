@@ -14,18 +14,16 @@
 
 #include "cbase.h"
 
-static void
+CBASE_API_DEF void
 free_line(Line *line) {
     free_line_tokens(line);
-    if (line->text) {
-        free2(line->text, line->len + 1);
-    }
+    free2(line->text, line->len + 1);
     line->text = NULL;
     line->len = 0;
     return;
 }
 
-static void
+CBASE_API_DEF void
 free_document(Document *doc) {
     for (int32 i = 0; i < doc->line_count; i += 1) {
         free_line(&doc->lines[i]);
@@ -35,7 +33,7 @@ free_document(Document *doc) {
     return;
 }
 
-static void
+CBASE_API_DEF void
 document_reserve_lines(Document *doc, int32 extra) {
     int32 need;
     int32 new_capacity;
@@ -55,14 +53,14 @@ document_reserve_lines(Document *doc, int32 extra) {
     return;
 }
 
-static void
+CBASE_API_DEF void
 document_add_line(Document *doc, char *text, int32 length,
                   bool *in_block_comment, int32 tokenize_flags) {
     Line *line;
 
     document_reserve_lines(doc, 1);
     line = &doc->lines[doc->line_count];
-    memset64(line, 0, SIZEOF(*line));
+    *line = (Line){0};
     line->len = length;
 
     line->text = malloc2(length + 1);
@@ -75,7 +73,7 @@ document_add_line(Document *doc, char *text, int32 length,
     return;
 }
 
-static Document *
+CBASE_API_DEF Document *
 parse_text_with_flags(char *text, int32 text_len, int32 tokenize_flags) {
     Document *doc;
     bool in_block_comment;
@@ -109,7 +107,7 @@ parse_text_with_flags(char *text, int32 text_len, int32 tokenize_flags) {
     return doc;
 }
 
-static Document *
+CBASE_API_DEF Document *
 parse_c_text(char *text, int32 text_len) {
     Document *result;
 
@@ -117,13 +115,22 @@ parse_c_text(char *text, int32 text_len) {
     return result;
 }
 
-static Document *
+CBASE_API_DEF Document *
 parse_text(char *text, int32 text_len) {
     Document *result;
 
     result = parse_text_with_flags(text, text_len, TOKENIZE_PREPROCESSOR_LINES);
     return result;
 }
+
+#if 0 == TESTING_meta_parse
+static inline void
+meta_parse_sink(void) {
+    (void)free_document;
+    (void)parse_c_text;
+    (void)parse_text;
+}
+#endif
 
 #if TESTING_meta_parse
 #define CBASE_IMPLEMENT

@@ -4,8 +4,19 @@
 #if !defined(PRIMITIVES_H)
 #define PRIMITIVES_H
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <libc.h>
+
+_Static_assert(CHAR_BIT == 8, "primitives.h requires CHAR_BIT == 8");
+
+_Static_assert(~(0ull) == 18446744073709551615ul,
+               "primitives.h requires unsigned long to be 64 bits");
+_Static_assert((unsigned char)~0 == (unsigned char)255,
+               "primitives.h requires CHAR_BIT == 8");
+_Static_assert(sizeof(char)*CHAR_BIT      == 8,  "char must be 8 bits");
+_Static_assert(sizeof(short)*CHAR_BIT     == 16, "short must be 16 bits");
+_Static_assert(sizeof(int)*CHAR_BIT       == 32, "int must be 32 bits");
+_Static_assert(sizeof(long long)*CHAR_BIT == 64, "long long must be 64 bits");
+_Static_assert(sizeof(void *)*CHAR_BIT    == 64, "pointers must be 64 bits");
 
 typedef unsigned char uchar;
 typedef unsigned short ushort;
@@ -21,16 +32,32 @@ typedef long double ldouble;
 typedef double ldouble;
 #endif
 
-typedef int8_t int8;
-typedef int16_t int16;
-typedef int32_t int32;
-typedef int64_t int64;
-typedef uint8_t uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
+typedef schar  int8;
+typedef short  int16;
+typedef int    int32;
+typedef llong  int64;
+typedef uchar  uint8;
+typedef ushort uint16;
+typedef uint   uint32;
+typedef ullong uint64;
 
 typedef uintptr_t uintptr;
-typedef intptr_t intptr;
+typedef intptr_t  intptr;
+
+#if SCHAR_MIN != -128
+#error "This compiler/machine does not use two's complement for integers. Throw it out."
+#endif
+
+#if SHRT_MIN != -32768
+#error "This compiler/machine does not use two's complement for integers. Throw it out."
+#endif
+
+#if INT_MIN != -2147483648
+#error "This compiler/machine does not use two's complement for integers. Throw it out."
+#endif
+
+#if (LLONG_MIN + 1) != -9223372036854775807
+#error "This compiler/machine does not use two's complement for integers. Throw it out."
+#endif
 
 #endif /* PRIMITIVES_H */
