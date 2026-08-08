@@ -483,7 +483,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         term.scrolled_up = 0;
     } else if (new_view_proxy >= 0) {
         int32 diff = screen_top_idx - new_view_proxy;
-        term.scrolled_up = (int32)MAX(0, MIN(diff, term.n_hist));
+        term.scrolled_up = CLAMP(diff, 0, term.n_hist);
     } else {
         term.scrolled_up = 0;
     }
