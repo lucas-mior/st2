@@ -116,9 +116,7 @@ CFLAGS="$CFLAGS -Wno-type-limits"
 CFLAGS="$CFLAGS -Wno-undef"
 CFLAGS="$CFLAGS -Wno-unknown-pragmas"
 CFLAGS="$CFLAGS -Wno-unknown-warning-option"
-CFLAGS="$CFLAGS -Wno-unused-function"
 CFLAGS="$CFLAGS -Wno-unused-macros"
-CFLAGS="$CFLAGS -Wno-unused-variable"
 
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything"
