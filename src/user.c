@@ -428,7 +428,7 @@ user_zoom(union Arg *arg) {
     union Arg larg;
 
     larg.f = used_font_size + arg->f;
-    if (larg.f >= 1.0f) {
+    if (larg.f >= 1.0) {
         zoom_abs(&larg);
     }
     return;

@@ -668,7 +668,7 @@ main(void) {
             term_set_sixel_attr(term.lines[0], 0, 9);
 
             /* Simulate a user zoom-in event (+4.0 font size) */
-            zoom_arg.f = 4.0f;
+            zoom_arg.f = 4.0;
             user_zoom(&zoom_arg);
             check_consistent_state();
 
@@ -683,7 +683,7 @@ main(void) {
             }
 
             /* Simulate a user resetting the zoom */
-            zoom_arg.f = 0.0f;
+            zoom_arg.f = 0.0;
             user_zoom_reset(&zoom_arg);
             check_consistent_state();
 

@@ -50,8 +50,8 @@ static char *CONF_VTIDEN = "\033[?62;4c"; /* VT200 family (62) with sixel (4) */
 static int const sixelbyteorder = LSBFirst;
 
 /* Kerning / character bounding-box multipliers */
-static float CONF_CHAR_WIDTH_SCALE = 1.0;
-static float CONF_CHAR_HEIGHT_SCALE = 1.0;
+static double CONF_CHAR_WIDTH_SCALE = 1.0;
+static double CONF_CHAR_HEIGHT_SCALE = 1.0;
 
 /*
  * word delimiter string
@@ -77,8 +77,8 @@ static int32 CONF_ALLOW_WINDOW_OPS = 0;
  * near CONF_LATENCY_MIN, but it waits longer for slow updates to avoid partial draw.
  * low CONF_LATENCY_MIN will tear/flicker more, as it can "detect" idle too early.
  */
-static const float CONF_LATENCY_MIN = 2;
-static const float CONF_LATENCY_MAX = 33;
+static const double CONF_LATENCY_MIN = 2.0;
+static const double CONF_LATENCY_MAX = 33.0;
 static uint su_timeout = 200;
 
 /*
@@ -392,8 +392,8 @@ static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
     { ControlMask|ShiftMask, XK_B,          user_scroll_down,     {.i = -1} },
     { ControlMask|ShiftMask, XK_L,          user_scroll_up,       {.i = +1} },
     { ControlMask|ShiftMask, XK_K,          user_scroll_down,     {.i = +1} },
-    { ControlMask|ShiftMask, XK_N,          user_change_alpha,    {.f = -0.02f} },
-    { ControlMask|ShiftMask, XK_M,          user_change_alpha,    {.f = +0.02f} },
+    { ControlMask|ShiftMask, XK_N,          user_change_alpha,    {.f = -0.02} },
+    { ControlMask|ShiftMask, XK_M,          user_change_alpha,    {.f = +0.02} },
     { Mod1Mask,              XK_Escape,     user_vim_select,      {.i = 0} },
     { Mod1Mask,              XK_c,          user_copy_output,     {.i = 0} },
     { Mod1Mask,              XK_u,          user_url_select,      {.i = 0} },
@@ -407,8 +407,8 @@ static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
     { Mod1Mask,              XK_b,          user_scroll_down,     {.i = -1} },
     { Mod1Mask,              XK_l,          user_scroll_up,       {.i = +1} },
     { Mod1Mask,              XK_k,          user_scroll_down,     {.i = +1} },
-    { Mod1Mask,              XK_n,          user_change_alpha,    {.f = -0.02f} },
-    { Mod1Mask,              XK_m,          user_change_alpha,    {.f = +0.02f} },
+    { Mod1Mask,              XK_n,          user_change_alpha,    {.f = -0.02} },
+    { Mod1Mask,              XK_m,          user_change_alpha,    {.f = +0.02} },
     { Mod1Mask,              XK_t,          user_toggle_colorscheme, {.i = 0} },
 };
 

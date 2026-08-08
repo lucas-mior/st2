@@ -58,7 +58,7 @@ main(int32 argc, char *argv[]) {
         CONF_ALLOW_ALT_SCREEN = 0;
         break;
     case 'A':
-        CONF_ALPHA = strtof(EARGF(usage()), NULL);
+        CONF_ALPHA = strtod(EARGF(usage()), NULL);
         LIMIT(CONF_ALPHA, 0.0, 1.0);
         break;
     case 'c':
