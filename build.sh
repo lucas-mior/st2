@@ -71,6 +71,22 @@ main="main.c"
 exe="bin/$program"
 mkdir -p "$(dirname "$exe")"
 
+case "$target" in
+debug|test)
+    CC="${CC:-tcc}"
+    ;;
+fast_feedback)
+    CC="${CC:-clang}"
+    ;;
+*)
+    CC="${CC:-cc}"
+    ;;
+esac
+
+if ! command -v "$CC" > /dev/null 2>&1; then
+    CC=cc
+fi
+
 CPPFLAGS="$CPPFLAGS -I."
 CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
 CPPFLAGS="$CPPFLAGS -I$dir/gen"
@@ -78,12 +94,13 @@ CPPFLAGS="$CPPFLAGS -I$dir/gen"
 CPPFLAGS="$CPPFLAGS -D_DEFAULT_SOURCE"
 CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE=600"
 
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags harfbuzz)"
+
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
-CFLAGS="$CFLAGS -Wall -Wextra"
-if [ -z "$NOCOLORS" ]; then
-    CFLAGS="$CFLAGS -fdiagnostics-color=always"
-fi
+CFLAGS="$CFLAGS -Wextra -Wall"
 CFLAGS="$CFLAGS -Werror=all -Werror=extra"
 # CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
 CFLAGS="$CFLAGS -Wno-bad-function-cast"
@@ -105,31 +122,41 @@ CFLAGS="$CFLAGS -Wno-unused-function"
 CFLAGS="$CFLAGS -Wno-unused-macros"
 CFLAGS="$CFLAGS -Wno-unused-variable"
 
-CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
-CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
-CPPFLAGS="$CPPFLAGS $(pkg-config --cflags harfbuzz)"
+if [ "$CC" = "clang" ]; then
+    CFLAGS="$CFLAGS -Weverything"
+    CFLAGS="$CFLAGS -Wno-assign-enum"
+    CFLAGS="$CFLAGS -Wno-c++-keyword"
+    CFLAGS="$CFLAGS -Wno-cast-function-type-strict"
+    CFLAGS="$CFLAGS -Wno-covered-switch-default"
+    CFLAGS="$CFLAGS -Wno-disabled-macro-expansion"
+    CFLAGS="$CFLAGS -Wno-documentation"
+    CFLAGS="$CFLAGS -Wno-documentation-unknown-command"
+    CFLAGS="$CFLAGS -Wno-double-promotion"
+    CFLAGS="$CFLAGS -Wno-format-nonliteral"
+    CFLAGS="$CFLAGS -Wno-implicit-int-enum-cast"
+    CFLAGS="$CFLAGS -Wno-implicit-void-ptr-cast"
+    CFLAGS="$CFLAGS -Wno-padded"
+    CFLAGS="$CFLAGS -Wno-pedantic"
+    CFLAGS="$CFLAGS -Wno-pre-c11-compat"
+    CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
+    CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
+
+    # to avoid using -Wno-unused-function
+    CFLAGS="$CFLAGS -Wno-unneeded-internal-declaration"
+
+    # only for the LSP. It does not understand unity builds
+    CFLAGS="$CFLAGS -Wno-undefined-internal"
+fi
+
+if [ -z "$NOCOLORS" ]; then
+    CFLAGS="$CFLAGS -fdiagnostics-color=always"
+fi
 
 LDFLAGS="$LDFLAGS -lm -lX11 -lXft -lutf8proc"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
-
-case "$target" in
-debug|test)
-    CC="${CC:-tcc}"
-    ;;
-fast_feedback)
-    CC="${CC:-clang}"
-    ;;
-*)
-    CC="${CC:-cc}"
-    ;;
-esac
-
-if ! command -v "$CC" > /dev/null 2>&1; then
-    CC=cc
-fi
 
 if ! command xsel > /dev/null 2>&1; then
     xsel=cat
@@ -192,32 +219,6 @@ fast_feedback)
     CFLAGS="$CFLAGS -O2"
     ;;
 esac
-
-if [ "$CC" = "clang" ]; then
-    CFLAGS="$CFLAGS -Weverything"
-    CFLAGS="$CFLAGS -Wno-assign-enum"
-    CFLAGS="$CFLAGS -Wno-c++-keyword"
-    CFLAGS="$CFLAGS -Wno-cast-function-type-strict"
-    CFLAGS="$CFLAGS -Wno-covered-switch-default"
-    CFLAGS="$CFLAGS -Wno-disabled-macro-expansion"
-    CFLAGS="$CFLAGS -Wno-documentation"
-    CFLAGS="$CFLAGS -Wno-documentation-unknown-command"
-    CFLAGS="$CFLAGS -Wno-double-promotion"
-    CFLAGS="$CFLAGS -Wno-format-nonliteral"
-    CFLAGS="$CFLAGS -Wno-implicit-int-enum-cast"
-    CFLAGS="$CFLAGS -Wno-implicit-void-ptr-cast"
-    CFLAGS="$CFLAGS -Wno-padded"
-    CFLAGS="$CFLAGS -Wno-pedantic"
-    CFLAGS="$CFLAGS -Wno-pre-c11-compat"
-    CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
-    CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
-
-    # to avoid using -Wno-unused-function
-    CFLAGS="$CFLAGS -Wno-unneeded-internal-declaration"
-
-    # only for the LSP. It does not understand unity builds
-    CFLAGS="$CFLAGS -Wno-undefined-internal"
-fi
 
 case "$target" in
 fast_feedback)
