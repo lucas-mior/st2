@@ -158,9 +158,9 @@ LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
 
 if ! command xsel > /dev/null 2>&1; then
-    xsel=cat
+    xsel="cat"
 else
-    xsel=xsel
+    xsel="xsel"
 fi
 
 if [ "$target" = "cross" ]; then
