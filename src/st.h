@@ -1,11 +1,6 @@
 #ifndef ST_H
 #define ST_H
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <wchar.h>
-#include <sys/types.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -13,11 +8,21 @@
 #include <X11/keysym.h>
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
+
+#if CC_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation"
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#endif
+
 #include <hb.h>
 #include <hb-ft.h>
-#include <time.h>
 
-#include "util.c"
+#if CC_CLANG
+#pragma clang diagnostic pop
+#endif
+
+#include "cbase.h"
 
 #define XEMBED_FOCUS_IN 4
 #define XEMBED_FOCUS_OUT 5
