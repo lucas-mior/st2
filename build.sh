@@ -8,8 +8,6 @@ dir=$(dirname "$(readlink -f "$0")")
 
 cd "$dir"
 cbase="cbase"
-CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
-CPPFLAGS="$CPPFLAGS -I."
 
 mkdir -p gen
 { cat st-copy-output.sh; printf '\0'; } \
@@ -19,10 +17,8 @@ mkdir -p gen
     | xxd -i -n st_copy_url    \
     | sed 's/unsigned/static unsigned/' > gen/copy_url.h
 
-CPPFLAGS="$CPPFLAGS -I$dir/gen"
-
 cd "$dir" || exit
-program=$(basename "$(readlink -f "$dir")")
+program=$(get_program "$0")
 script=$(basename "$0")
 
 if [ -f ./targets ]; then
@@ -59,25 +55,14 @@ if [ "$target" = "cross" ] && [ -n "${2:-}" ]; then
     target_line="$target $2"
 fi
 
-target_supported () {
-    wanted=$1
-    printf '%s\n' "$targets" | awk -v wanted="$wanted" '
-        {
-            line = $0
-            sub(/^# /, "", line)
-        }
-        line == wanted { found = 1 }
-        END { exit !found }
-    '
-}
-
-if ! target_supported "$target_line" && ! target_supported "$target"; then
+if ! target_supported "$targets" "$target_line" \
+        && ! target_supported "$targets" "$target"; then
     echo "usage: $script <targets>"
     printf '%s\n' "$targets"
     exit 1
 fi
 
-printf "\n${script} ${RED}${1} ${2}$RES\n"
+printf "\n${script} ${RED}${1:-} ${2:-}$RES\n"
 
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
@@ -85,6 +70,10 @@ DESTDIR="${DESTDIR:-/}"
 main="main.c"
 exe="bin/$program"
 mkdir -p "$(dirname "$exe")"
+
+CPPFLAGS="$CPPFLAGS -I."
+CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
+CPPFLAGS="$CPPFLAGS -I$dir/gen"
 
 CPPFLAGS="$CPPFLAGS -D_DEFAULT_SOURCE"
 CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE=600"
@@ -141,49 +130,11 @@ if ! command -v "$CC" > /dev/null 2>&1; then
     CC=cc
 fi
 
-noop () {
-    return
-}
-
 if ! command xsel > /dev/null 2>&1; then
-    xsel=noop
+    xsel=cat
 else
     xsel=xsel
 fi
-
-option_remove() {
-    echo "$1" | sed -E "s| *$2 +| |g"
-}
-
-with_other () {
-    compiler="$1"
-    compiler_macro=$(echo "$compiler" | tr '[:lower:]' '[:upper:]')
-    compiler_macro="__${compiler_macro}__"
-    shift
-    args="$*"
-    trace_on
-    while ! problem=$($compiler "-D${compiler_macro}" $args 2>&1); do
-        trace_off
-        problem=$(echo "$problem" | head -n 1 | tr -d "'")
-
-        sleep 0.4
-        if echo "$problem" | grep -Eq "unknown (argument|option)"; then
-            arg=$(echo "$problem" | awk '{print $NF}')
-            printf "\nRemoving argument $arg...\n"
-            args=$(option_remove "$args" "$arg")
-        elif echo "$problem" | grep -q "unknown file extension:"; then
-            arg=$(echo "$problem" | awk '{print $NF}')
-            printf "\nRemoving argument $arg...\n"
-            args=$(option_remove "$args" "$arg")
-        else
-            printf "\n\nError compiling with $compiler:\n\n%s" "${problem}\n\n"
-            return 1
-        fi
-        printf "\n"
-        trace_on
-    done
-    return 0
-}
 
 if [ "$target" = "cross" ]; then
     cross="$2"
@@ -234,7 +185,7 @@ release)
     CFLAGS="$CFLAGS $GNUSOURCE -DRELEASING=1 -O2 -flto -march=native -ftree-vectorize"
     ;;
 fast_feedback)
-    CFLAGS="$CFLAGS $GNUSOURCE -Werror"
+    CFLAGS="$CFLAGS $GNUSOURCE"
     ;;
 *)
     CFLAGS="$CFLAGS -O2"
@@ -259,7 +210,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-assign-enum"
     CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
     CFLAGS="$CFLAGS -Wno-double-promotion"
-    CFLAGS="$CFLAGS -Wno-cast-function-type-strict"
 
     # to avoid using -Wno-unused-function
     CFLAGS="$CFLAGS -Wno-unneeded-internal-declaration"
@@ -277,15 +227,14 @@ fast_feedback)
 build|debug|run|release|valgrind|callgrind|perf|profile|cross)
     trace_on
 
-    ctags --kinds-C=+l+d cbase/*.c src/*.h src/*.c  2> /dev/null || true
-    vtags.sed tags | sort | uniq > .tags.vim 2> /dev/null || true
+    build_tags cbase src
 
     if [ "$CC" = "chibicc" ]; then
         CPPFLAGS="$CPPFLAGS -D__attribute=__attribute__"
-        with_other chibicc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
+        compile_with_other chibicc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
     elif [ "$CC" = "cproc" ]; then
         CPPFLAGS="$CPPFLAGS -D__attribute=__attribute__"
-        with_other cproc   $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
+        compile_with_other cproc   $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
     else
         $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
         # $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
@@ -353,7 +302,7 @@ test)
         if [ "$CC" = "chibicc" ] || [ "$CC" = "cproc" ]; then
             cmdline_no_cc=$(option_remove "$cmdline" "$CC")
             trace_on
-            if with_other "$CC" "$cmdline_no_cc"; then
+            if compile_with_other "$CC" "$cmdline_no_cc"; then
                 /tmp/${name}_test < /dev/null
             else
                 exit 1
