@@ -129,7 +129,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-implicit-int-enum-cast"
     CFLAGS="$CFLAGS -Wno-implicit-void-ptr-cast"
     CFLAGS="$CFLAGS -Wno-padded"
-    CFLAGS="$CFLAGS -Wno-pedantic"
     CFLAGS="$CFLAGS -Wno-pre-c11-compat"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
     CFLAGS="$CFLAGS -Wno-used-but-marked-unused"

@@ -472,14 +472,14 @@ static int su = 0;
 static int twrite_aborted = 0;
 
 static void
-tsync_begin()
+tsync_begin(void)
 {
 	clock_gettime(CLOCK_MONOTONIC, &sutv);
 	su = 1;
 }
 
 static void
-tsync_end()
+tsync_end(void)
 {
 	su = 0;
 }
@@ -495,7 +495,7 @@ tinsync(uint timeout)
 }
 
 static int
-ttyread_pending()
+ttyread_pending(void)
 {
 	return twrite_aborted;
 }
