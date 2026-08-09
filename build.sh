@@ -114,12 +114,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
     CFLAGS="$CFLAGS -Wno-unused-macros"
     CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
-
-    # to avoid using -Wno-unused-function
-    CFLAGS="$CFLAGS -Wno-unneeded-internal-declaration"
-
-    # only for the LSP. It does not understand unity builds
-    CFLAGS="$CFLAGS -Wno-undefined-internal"
 fi
 
 if [ -z "$NOCOLORS" ]; then
