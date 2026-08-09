@@ -109,7 +109,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-pre-c11-compat"
     CFLAGS="$CFLAGS -Wno-reserved-identifier"
     CFLAGS="$CFLAGS -Wno-type-limits"
-    CFLAGS="$CFLAGS -Wno-unknown-pragmas"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
     CFLAGS="$CFLAGS -Wno-unused-macros"
     CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
