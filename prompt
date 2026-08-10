@@ -1,0 +1,8 @@
+X11 headers are polluting the name space. I want you to create a wrapper as a
+separate translation unit for all needed X11 stuff, removing all inclusions of
+X11 headers from the main.c translation unit (and the files that main.c
+includes).  This wrapper must not #include "cbase.h". Your job now is to
+elaborate a multi step plan for doing this X11 wrapper adaptation. Each step of
+the plan must consist of concrete tasks, not documentation or abstract stuff.
+Don't forget to update build.sh so that it links the x11 wrapper object when
+compiling main.c.

@@ -76,8 +76,6 @@ CPPFLAGS="$CPPFLAGS -I."
 CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
 CPPFLAGS="$CPPFLAGS -I$dir/gen"
 
-CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE=600"
-
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags harfbuzz)"
