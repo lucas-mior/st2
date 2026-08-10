@@ -107,7 +107,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-implicit-void-ptr-cast"
     CFLAGS="$CFLAGS -Wno-padded"
     CFLAGS="$CFLAGS -Wno-pre-c11-compat"
-    CFLAGS="$CFLAGS -Wno-reserved-identifier"
     CFLAGS="$CFLAGS -Wno-type-limits"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
     CFLAGS="$CFLAGS -Wno-unused-macros"
