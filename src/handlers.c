@@ -1,6 +1,7 @@
 #if !defined(HANDLERS_C)
 #define HANDLERS_C
 
+#include "cbase.h"
 #include "st.h"
 #include "config.h"
 #include "selection.c"
@@ -586,7 +587,6 @@ handler_configure_notify(XEvent *xevent) {
 #define CBASE_IMPLEMENT
 #include "cbase.h"
 
-#include "assert.c"
 #include "tty.c"
 #include "st.c"
 #include "x.c"

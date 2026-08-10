@@ -1,9 +1,11 @@
 #if !defined(TTY_C)
 #define TTY_C
 
+#include "cbase.h"
+
 #include <pty.h>
 #include <pwd.h>
-#include "cbase.h"
+
 #include "st.h"
 #include "config.h"
 #include "handlers.c"

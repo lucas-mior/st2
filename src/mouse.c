@@ -1,6 +1,7 @@
 #if !defined(MOUSE_C)
 #define MOUSE_C
 
+#include "cbase.h"
 #include "st.h"
 #include "config.h"
 #include "selection.c"
@@ -229,7 +230,6 @@ mouse_action(XEvent *xevent, uint32 release) {
 #define CBASE_IMPLEMENT
 #include "cbase.h"
 
-#include "assert.c"
 #include "st.c"
 #include "user.c"
 #include "tty.c"

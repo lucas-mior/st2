@@ -76,7 +76,6 @@ CPPFLAGS="$CPPFLAGS -I."
 CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
 CPPFLAGS="$CPPFLAGS -I$dir/gen"
 
-CPPFLAGS="$CPPFLAGS -D_DEFAULT_SOURCE"
 CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE=600"
 
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
@@ -127,7 +126,6 @@ if [ "$target" = "cross" ]; then
     cross="$2"
     CC="zig cc"
     CFLAGS="$CFLAGS -target $cross"
-    CFLAGS=$(option_remove "$CFLAGS" "-D_GNU_SOURCE")
 
     case $cross in
     x86_64-macos|aarch64-macos)
@@ -142,37 +140,34 @@ fi
 case "$target" in
 debug)
     CFLAGS="$CFLAGS -g3 -fsanitize-trap=undefined"
-    CPPFLAGS="$CPPFLAGS $GNUSOURCE -DDEBUGGING=1"
+    CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     exe="bin/${program}_debug"
     ;;
 perf)
     CFLAGS="$CFLAGS -g -O2 -flto"
-    CPPFLAGS="$CPPFLAGS $GNUSOURCE"
     exe="bin/${program}_perf"
     ;;
 valgrind)
     CFLAGS="$CFLAGS -g3 -O0 -ftree-vectorize"
-    CPPFLAGS="$CPPFLAGS $GNUSOURCE -DDEBUGGING=1"
+    CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     ;;
 callgrind)
     CFLAGS="$CFLAGS -g3 -O2 -ftree-vectorize"
-    CPPFLAGS="$CPPFLAGS $GNUSOURCE"
     ;;
 test)
-    CFLAGS="$CFLAGS -g3 $GNUSOURCE -DDEBUGGING=1 -fsanitize-trap=undefined"
+    CFLAGS="$CFLAGS -g3 -DDEBUGGING=1 -fsanitize-trap=undefined"
     ;;
 check)
     CC=gcc
-    CFLAGS="$CFLAGS $GNUSOURCE -DDEBUGGING=1 -fanalyzer"
+    CFLAGS="$CFLAGS -DDEBUGGING=1 -fanalyzer"
     ;;
 build|run)
-    CFLAGS="$CFLAGS $GNUSOURCE -O2 -flto -march=native -ftree-vectorize"
+    CFLAGS="$CFLAGS -O2 -flto -march=native -ftree-vectorize"
     ;;
 release)
-    CFLAGS="$CFLAGS $GNUSOURCE -DRELEASING=1 -O2 -flto -march=native -ftree-vectorize"
+    CFLAGS="$CFLAGS -DRELEASING=1 -O2 -flto -march=native -ftree-vectorize"
     ;;
 fast_feedback)
-    CFLAGS="$CFLAGS $GNUSOURCE"
     ;;
 *)
     CFLAGS="$CFLAGS -O2"

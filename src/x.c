@@ -1,6 +1,8 @@
 #if !defined(X_C)
 #define X_C
 
+#include "cbase.h"
+
 #include "st.h"
 #include "math.h"
 #include "config.h"

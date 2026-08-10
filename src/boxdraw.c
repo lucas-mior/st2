@@ -6,11 +6,13 @@
 #ifndef BOXDRAW_C
 #define BOXDRAW_C
 
-#include <X11/Xft/Xft.h>
+#include "cbase.h"
 #include "st.h"
 #include "boxdraw_data.h"
 #include "cbase/minmax.c"
 #include "config.h"
+
+#include <X11/Xft/Xft.h>
 
 /* Rounded non-negative integers division of n / d  */
 #define DIV(n, d) (((n) + (d) / 2) / (d))

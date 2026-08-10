@@ -3,8 +3,30 @@
 
 // Note: all libc or main platform headers must be included here.
 // other files include them by `#include "cbase.h"` or `#include "libc.h"`
+// Avoid including system headers in other files.
 
 #include "platform_detection.h"
+
+#if defined(__GLIBC__)
+  #include <features.h>
+#endif
+
+#if CC_CLANG
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
+
+#if OS_UNIX && !defined(_DEFAULT_SOURCE)
+  #define _DEFAULT_SOURCE
+#endif
+
+#if OS_LINUX && defined(__GLIBC__) && !defined(_GNU_SOURCE)
+  #define _GNU_SOURCE
+#endif
+
+#if CC_CLANG
+  #pragma clang diagnostic pop
+#endif
 
 #include <assert.h>
 #include <ctype.h>

@@ -1,10 +1,11 @@
 #if !defined(USER_C)
 #define USER_C
 
+#include "cbase.h"
+
 #include <termios.h>
 #include <Imlib2.h>
 
-#include "cbase.h"
 #include "st.h"
 #include "config.h"
 #include "selection.c"
@@ -869,7 +870,6 @@ user_toggle_colorscheme(union Arg *arg) {
 #define CBASE_IMPLEMENT
 #include "cbase.h"
 
-#include "assert.c"
 #include "st.c"
 #include "x.c"
 

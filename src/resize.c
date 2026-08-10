@@ -1,6 +1,7 @@
 #if !defined(RESIZE_C)
 #define RESIZE_C
 
+#include "cbase.h"
 #include "st.h"
 #include "config.h"
 #include "selection.c"
