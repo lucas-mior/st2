@@ -2,12 +2,10 @@
 #define USER_C
 
 #include <termios.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include <Imlib2.h>
+
+#include "cbase.h"
 #include "st.h"
-#include "util.c"
 #include "config.h"
 #include "selection.c"
 #include "utf8.c"
