@@ -123,12 +123,6 @@ LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
 
-if ! command xsel > /dev/null 2>&1; then
-    xsel="cat"
-else
-    xsel="xsel"
-fi
-
 if [ "$target" = "cross" ]; then
     cross="$2"
     CC="zig cc"
@@ -280,7 +274,7 @@ test)
                 if ! $test_exe < /dev/null; then
                     gdb --quiet \
                         -ex 'break exit' -ex run -ex backtrace -ex quit \
-                        $test_exe 2>&1 < /dev/null | tee /dev/tty | $xsel -b
+                        $test_exe 2>&1
                     exit 1
                 fi
             else
