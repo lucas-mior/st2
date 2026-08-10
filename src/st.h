@@ -2,7 +2,6 @@
 #define ST_H
 
 #include "cbase.h"
-#undef SIZEOF
 
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -11,10 +10,6 @@
 #include <X11/keysym.h>
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
-
-#undef SIZEOF
-#include "cbase.h"
-#define SIZEOF(X) ((int64)sizeof(X))
 
 #if CC_CLANG
 #pragma clang diagnostic push
