@@ -190,17 +190,9 @@ build|debug|run|release|valgrind|callgrind|perf|profile|cross)
 
     build_tags cbase src
 
-    if [ "$CC" = "chibicc" ]; then
-        CPPFLAGS="$CPPFLAGS -D__attribute=__attribute__"
-        compile_with_other chibicc $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
-    elif [ "$CC" = "cproc" ]; then
-        CPPFLAGS="$CPPFLAGS -D__attribute=__attribute__"
-        compile_with_other cproc   $CPPFLAGS $CFLAGS src/main.c -o $exe $LDFLAGS
-    else
-        $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
-        # $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
-        #     src/test_resize_scroll.c -o bin/test_resize_scroll $LDFLAGS
-    fi
+    $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
+    # $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
+    #     src/test_resize_scroll.c -o bin/test_resize_scroll $LDFLAGS
 
     if [ $target = "run" ]; then
         $exe
