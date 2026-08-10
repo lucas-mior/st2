@@ -1,6 +1,7 @@
 #if !defined(SELECTION_C)
 #define SELECTION_C
 
+#include "cbase.h"
 #include "util.c"
 #include "st.h"
 #include "config.h"
@@ -448,8 +449,6 @@ selection_set(char *string, Time t) {
 #if TESTING_selection
 #define CBASE_IMPLEMENT
 #include "cbase.h"
-
-#include <X11/Xlib.h>
 
 #include "st.c"
 #include "user.c"

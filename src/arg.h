@@ -6,6 +6,8 @@
 #ifndef ARG_H__
 #define ARG_H__
 
+#include "cbase.h"
+
 static char *argv0;
 
 /* use main(int32 argc, char *argv[]) */

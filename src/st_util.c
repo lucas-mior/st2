@@ -1,6 +1,7 @@
 #if !defined(ST_UTIL_C)
 #define ST_UTIL_C
 
+#include "cbase.h"
 #include "util.c"
 #include "st.h"
 #include "arg.h"

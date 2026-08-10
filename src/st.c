@@ -1154,9 +1154,6 @@ term_cursor(enum CursorMovement mode) {
 #define CBASE_IMPLEMENT
 #include "cbase.h"
 
-#include <X11/Xlib.h>
-#include <X11/Xft/Xft.h>
-
 #include "user.c"
 #include "x.c"
 

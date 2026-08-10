@@ -1,7 +1,8 @@
 #ifndef SIXEL_H
 #define SIXEL_H
 
-#include <X11/X.h>
+#include "cbase.h"
+#include "st.h"
 #include "util.c"
 
 #define DECSIXEL_PARAMS_MAX 16

@@ -1,12 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <X11/cursorfont.h>
-#include <X11/keysym.h>
-#include <X11/X.h>
-
-#include "st.h"
 #include "cbase.h"
+#include "st.h"
 
 /*
  * appearance

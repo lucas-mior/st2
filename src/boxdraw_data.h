@@ -4,6 +4,9 @@
  */
 #ifndef BOXDRAW_DATA_H
 #define BOXDRAW_DATA_H
+
+#include "cbase.h"
+
 /*
  * U+25XX codepoints data
  *
@@ -59,8 +62,6 @@
 #define TR (1<<1)
 #define BL (1<<2)
 #define BR (1<<3)
-
-#include "primitives.h"
 
 /* Data for U+2500 - U+259F except dashes/diagonals */
 static const uint16 boxdata[256] = {
