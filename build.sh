@@ -221,68 +221,9 @@ install)
     echo "Please see the README regarding the terminfo entry of st."
     ;;
 test)
-    for src in $(find . -iname "*.c" | sort); do
-        trace_off
-        name=$(basename "$src")
-
-        if [ -n "$2" ] && [ "$name" != "$2" ]; then
-            continue
-        fi
-        if [ "$name" = "main.c" ]; then
-            continue
-        fi
-        if echo "$src" | grep -q "stc/"; then
-            continue
-        fi
-        if echo "$src" | grep -q "cbase/"; then
-            continue
-        fi
-
-        name=$(echo "$name" | sed 's/\.c//')
-        test_exe="/tmp/${name}_test"
-
-        printf "\nTesting ${RED}${src}${RES} ...\n"
-
-        flags="$(awk '/\/\/ flags:/ { $1=$2=""; print $0 }' "$src")"
-        if [ $src = "src/windows_functions.c" ]; then
-            if ! zig version >/dev/null 2>&1; then
-                continue
-            fi
-            CC="zig cc"
-            cmdline="zig cc $CPPFLAGS $CFLAGS"
-            cmdline=$(option_remove "$cmdline" "-D_GNU_SOURCE")
-            cmdline="$cmdline -target x86_64-windows-gnu"
-            cmdline="$cmdline -Wno-unused-variable -DTESTING_$name=1 -DTESTING=1"
-            cmdline="$cmdline $flags -o $test_exe $src"
-        else
-            cmdline="$CC $CPPFLAGS $CFLAGS"
-            cmdline="$cmdline -Wno-unused-variable -DTESTING_$name=1 -DTESTING=1 $LDFLAGS"
-            cmdline="$cmdline $flags -o $test_exe $src"
-        fi
-
-        if [ "$CC" = "chibicc" ] || [ "$CC" = "cproc" ]; then
-            cmdline_no_cc=$(option_remove "$cmdline" "$CC")
-            trace_on
-            if compile_with_other "$CC" "$cmdline_no_cc"; then
-                /tmp/${name}_test < /dev/null
-            else
-                exit 1
-            fi
-        else
-            trace_on
-            if $cmdline; then
-                if ! $test_exe < /dev/null; then
-                    gdb --quiet \
-                        -ex 'break exit' -ex run -ex backtrace -ex quit \
-                        $test_exe 2>&1
-                    exit 1
-                fi
-            else
-                exit 1
-            fi
-        fi
-        trace_off
-    done
+    TEST_EXCLUDE_PATTERN='(^|/)cbase/' \
+    TEST_STDIN=/dev/null \
+        test "$2"
     exit
     ;;
 uninstall)
