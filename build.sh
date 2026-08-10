@@ -230,8 +230,7 @@ valgrind)
     vg_flags="$vg_flags --main-stacksize=18388608"
 
     trace_on
-    valgrind $vg_flags -s --tool=memcheck bin/$program 2>&1 \
-        | tee "valgrind_output_$(date +%s).txt"
+    valgrind $vg_flags -s --tool=memcheck bin/$program
     trace_off
     exit
     ;;
@@ -253,13 +252,15 @@ cachegrind)
     exit
     ;;
 check)
-    CC=gcc CFLAGS="-fanalyzer" ./build.sh 2>&1 \
-        | sed -E 's/\[[0-9;]*[mK]//g' \
-          | tee "gcc-analyzer-$(date +%s).txt"
-    setsid -f \
-        scan-build --view -analyze-headers --status-bugs ./build.sh 2>&1 \
-        | sed -E 's/\[[0-9;]*[mK]//g' \
-          > "scan-build-$(date +%s).txt" &
+    NOCOLORS=1 CC=gcc \
+        CFLAGS="-fanalyzer -fdiagnostics-color=never" ./build.sh
+
+    CFLAGS="--analyze -Xanalyzer -analyzer-output=text"
+    CFLAGS="$CFLAGS -Xanalyzer -analyzer-werror"
+    CFLAGS="$CFLAGS -Xanalyzer -analyzer-opt-analyze-headers"
+    CFLAGS="$CFLAGS -Wno-unused-command-line-argument"
+    CFLAGS="$CFLAGS -fno-color-diagnostics"
+    NOCOLORS=1 CC=clang CFLAGS="$CFLAGS" ./build.sh
     exit
     ;;
 perf)
