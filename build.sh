@@ -252,6 +252,7 @@ cachegrind)
     exit
     ;;
 check)
+    set +e
     NOCOLORS=1 CC=gcc \
         CFLAGS="-fanalyzer -fdiagnostics-color=never" ./build.sh
 
