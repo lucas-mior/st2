@@ -193,7 +193,28 @@ function(int32 arg) {
 }
 ```
 
-If the function header is long, and needs more than one line, put an extra new
+If the function header is long, and needs more than one line,
+break the line but keep the identation, if it fits in 80 columns:
+```c
+// good
+static void
+function_with_long_name_and_multiple_arguments(void *pointer,
+                                               char *argument_long_name) {
+    return;
+}
+
+// bad
+static void
+function_with_long_name_and_multiple_arguments(
+    void *pointer,
+    char *argument_long_name
+) {
+    return;
+}
+```
+
+If the function header is long, and the identation makes it not fit in 80
+columns, break, put an extra new
 line before the closing parenthesis:
 ```c
 // bad
@@ -211,6 +232,21 @@ function_with_long_name_and_multiple_arguments(
 ) {
     return;
 }
+```
+
+For function with many arguments, it is a good idea to group by types/intent of
+the parameter, even if it adds more lines:
+```c
+// bad
+static void
+function_with_long_name_and_multiple_arguments(MyStruct *handle, int32 x,
+                                               int32 y, double a, double b);
+
+// good
+static void
+function_with_long_name_and_multiple_arguments(MyStruct *handle,
+                                               int32 x, int32 y,
+                                               double a, double b);
 ```
 
 In standalone declarations, if one is needed at all, put all in one line. Break
