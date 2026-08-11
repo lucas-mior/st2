@@ -146,7 +146,7 @@ perf)
     exe="bin/${program}_perf"
     ;;
 valgrind)
-    CFLAGS="$CFLAGS -g3 -O0 -ftree-vectorize"
+    CFLAGS="$CFLAGS -g3 -Og -ftree-vectorize"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     ;;
 callgrind)
