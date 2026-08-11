@@ -12,7 +12,7 @@
 #include <Imlib2.h>
 #include "config.h"
 
-static void usage(void) __attribute__((noreturn));
+static noreturn void usage(void);
 
 static void (*handler[LASTEvent])(XEvent *) = {
     [KeyPress]         = handler_key_press,

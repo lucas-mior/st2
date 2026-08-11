@@ -36,7 +36,7 @@ timediff_ms(struct timespec t1, struct timespec t2) {
     return diff;
 }
 
-static void __attribute((noreturn)) 
+static noreturn void
 usage(void) {
     error("usage: %s [-aiv] [-c class] [-f font] [-g geometry]"
           " [-n name] [-o file]\n"

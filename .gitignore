@@ -16,3 +16,4 @@ scan-build*
 *.tar.gz
 *temp_delete_me*
 test_reflow
+*.obj

@@ -71,7 +71,7 @@ stty(char **args) {
     return;
 }
 
-static void __attribute((noreturn))
+static noreturn void
 exec_shell(char *cmd, char **args) {
     char *SHELL;
     char *arg;
