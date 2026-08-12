@@ -18,7 +18,7 @@ mkdir -p gen
     | sed 's/unsigned/static unsigned/' > gen/copy_url.h
 
 cd "$dir" || exit
-program=$(get_program "$0")
+program=$(common_get_program "$0")
 script=$(basename "$0")
 
 if [ -f ./targets ]; then
@@ -49,10 +49,10 @@ EOF_TARGETS
 )
 fi
 
-build_parse_args "$@"
-build_validate_mode "$script" "$targets"
+common_build_parse_args "$@"
+common_build_validate_mode "$script" "$targets"
 
-build_print_invocation "$script"
+common_build_print_invocation "$script"
 
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
@@ -60,7 +60,7 @@ DESTDIR="${DESTDIR:-/}"
 exe="bin/$program"
 mkdir -p "$(dirname "$exe")"
 
-CC=$(get_compiler "$mode")
+CC=$(common_get_compiler "$mode")
 
 CPPFLAGS="$CPPFLAGS -I."
 CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
@@ -171,7 +171,7 @@ fast_feedback)
 build|debug|run|release|valgrind|callgrind|perf|profile|cross)
     trace_on
 
-    build_tags cbase src
+    common_build_tags cbase src
 
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
     # $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
@@ -198,7 +198,7 @@ install)
 test)
     TEST_EXCLUDE_PATTERN='(^|/)cbase/' \
     TEST_STDIN=/dev/null \
-        test "$target"
+        common_test "$target"
     exit
     ;;
 uninstall)
