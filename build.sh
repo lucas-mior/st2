@@ -3,11 +3,10 @@
 # shellcheck disable=SC2086
 
 dir=$(dirname "$(readlink -f "$0")")
-# shellcheck source=/dev/null
-. "$dir/cbase/common.sh"
+cd "$dir" || exit
 
-cd "$dir"
-cbase="cbase"
+# shellcheck source=./cbase/common.sh
+. ./cbase/common.sh
 
 mkdir -p gen
 { cat st-copy-output.sh; printf '\0'; } \
@@ -63,8 +62,8 @@ mkdir -p "$(dirname "$exe")"
 CC=$(common_get_compiler "$mode")
 
 CPPFLAGS="$CPPFLAGS -I."
-CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
-CPPFLAGS="$CPPFLAGS -I$dir/gen"
+CPPFLAGS="$CPPFLAGS -Icbase"
+CPPFLAGS="$CPPFLAGS -Igen"
 
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
