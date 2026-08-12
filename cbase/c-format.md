@@ -249,8 +249,48 @@ function_with_long_name_and_multiple_arguments(MyStruct *handle,
                                                double a, double b);
 ```
 
+In function calls/definitions/headers, try to make the `_len` of a variable in
+the same line of the object it refers to:
+```c
+// bad
+static void
+function_with_long_name_and_multiple_arguments_x(MyStruct *handle, char *string,
+                                                 int32 string_len);
+function_with_long_name_and_multiple_arguments_x(handle, string_name,
+                                                 string_name_len);
+
+// good
+static void
+function_with_long_name_and_multiple_arguments(MyStruct *handle,
+                                               char *string, int32 string_len);
+function_with_long_name_and_multiple_arguments(handle,
+                                               string_name, string_name_len);
+```
+
+In the pattern above, if it is not possible to put string and string_len side by
+side withtout going over 80 columns, put them in separate lines.
+
 In standalone declarations, if one is needed at all, put all in one line. Break
 long lines so the 80-character limit rule is followed.
+
+Prefer to break after an argument than before the equal sign, specially if the
+first argument fits in the first line:
+```c
+// bad
+    array->items
+        = realloc2(array->items, old_cap, new_cap, SIZEOF(*array->items));
+// good
+    array->items = realloc2(array->items,
+                            old_cap, new_cap, SIZEOF(*array->items));
+
+// bad
+    array->items = realloc2(extremelly_long_argument_that_does_not_fit_in_this_line,
+                            old_cap, new_cap, SIZEOF(*array->items));
+// good
+    array->items
+        = realloc2(extremelly_long_argument_that_does_not_fit_in_this_line,
+                   old_cap, new_cap, SIZEOF(*array->items));
+```
 
 ```c
 static int32 function(int32 arg);

@@ -49,20 +49,10 @@ EOF_TARGETS
 )
 fi
 
-target="${1:-debug}"
-target_line=$target
-if [ "$target" = "cross" ] && [ -n "${2:-}" ]; then
-    target_line="$target $2"
-fi
+build_parse_args "$@"
+build_validate_mode "$script" "$targets"
 
-if ! target_supported "$targets" "$target_line" \
-        && ! target_supported "$targets" "$target"; then
-    echo "usage: $script <targets>"
-    printf '%s\n' "$targets"
-    exit 1
-fi
-
-printf "\n${script} ${RED}${1:-} ${2:-}$RES\n"
+build_print_invocation "$script"
 
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
@@ -70,7 +60,7 @@ DESTDIR="${DESTDIR:-/}"
 exe="bin/$program"
 mkdir -p "$(dirname "$exe")"
 
-CC=$(get_compiler "$target")
+CC=$(get_compiler "$mode")
 
 CPPFLAGS="$CPPFLAGS -I."
 CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
@@ -120,8 +110,8 @@ LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
 
-if [ "$target" = "cross" ]; then
-    cross="$2"
+if [ "$mode" = "cross" ]; then
+    cross="$target"
     CC="zig cc"
     CFLAGS="$CFLAGS -target $cross"
 
@@ -135,7 +125,7 @@ if [ "$target" = "cross" ]; then
     esac
 fi
 
-case "$target" in
+case "$mode" in
 debug)
     CFLAGS="$CFLAGS -g3 -fsanitize-trap=undefined"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
@@ -172,7 +162,7 @@ fast_feedback)
     ;;
 esac
 
-case "$target" in
+case "$mode" in
 fast_feedback)
     trace_on
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS && "$exe"
@@ -187,7 +177,7 @@ build|debug|run|release|valgrind|callgrind|perf|profile|cross)
     # $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
     #     src/test_resize_scroll.c -o bin/test_resize_scroll $LDFLAGS
 
-    if [ $target = "run" ]; then
+    if [ $mode = "run" ]; then
         $exe
     fi
 
@@ -208,7 +198,7 @@ install)
 test)
     TEST_EXCLUDE_PATTERN='(^|/)cbase/' \
     TEST_STDIN=/dev/null \
-        test "$2"
+        test "$target"
     exit
     ;;
 uninstall)
@@ -218,7 +208,7 @@ uninstall)
     ;;
 esac
 
-case "$target" in
+case "$mode" in
 valgrind)
     vg_flags="$vg_flags --error-exitcode=1"
     vg_flags="$vg_flags --leak-check=no"
@@ -274,15 +264,15 @@ perf)
 esac
 
 trace_off
-if [ "$target" = "test_all" ]; then
-    printf '%s\n' "$targets" | while IFS= read -r target; do
-        echo "$target" | grep -Eq "^(# |$)" && continue
-        if echo "$target" | grep "cross"; then
-            $0 $target
+if [ "$mode" = "test_all" ]; then
+    printf '%s\n' "$targets" | while IFS= read -r build_target; do
+        echo "$build_target" | grep -Eq "^(# |$)" && continue
+        if echo "$build_target" | grep "cross"; then
+            $0 $build_target
             continue
         fi
         for compiler in gcc tcc clang "zig cc" ; do
-            CC=$compiler $0 $target || exit
+            CC=$compiler $0 $build_target || exit
         done
     done
 fi
