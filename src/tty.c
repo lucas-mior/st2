@@ -23,7 +23,8 @@ stty(char **args) {
     int64 n;
     char *argv[256];
     int32 argc = 0;
-    char *token;
+    char *cmd_end;
+    char *arg_start;
     pid_t pid2;
 
     ASSERT(args[0]);
@@ -34,13 +35,31 @@ stty(char **args) {
     }
     memcpy64(cmd, CONF_STTY_ARGS, n + 1);
 
-    token = strtok(cmd, " ");
-    while (token != NULL) {
+    cmd_end = cmd + n;
+    arg_start = cmd;
+    while (arg_start < cmd_end) {
+        char *arg_end;
+
+        while ((arg_start < cmd_end) && (*arg_start == ' ')) {
+            arg_start += 1;
+        }
+        if (arg_start >= cmd_end) {
+            break;
+        }
         if (argc >= LENGTH(argv)) {
             break;
         }
-        argv[argc++] = token;
-        token = strtok(NULL, " ");
+
+        argv[argc] = arg_start;
+        argc += 1;
+
+        arg_end = memchr64(arg_start, ' ', cmd_end - arg_start);
+        if (arg_end == NULL) {
+            break;
+        }
+
+        *arg_end = '\0';
+        arg_start = arg_end + 1;
     }
 
     for (char **p = args; p && (s = *p); p += 1) {

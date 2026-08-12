@@ -1069,10 +1069,12 @@ string_handle(void) {
                 }
             }
         }
-		if (strstr(str_escape_seq.buffer, "=1s") == str_escape_seq.buffer)
-			tsync_begin();  /* BSU */
-		else if (strstr(str_escape_seq.buffer, "=2s") == str_escape_seq.buffer)
-			tsync_end();  /* ESU */
+        if (BEGINS_WITH(str_escape_seq.buffer, str_escape_seq.len, "=1s")) {
+            tsync_begin();  /* BSU */
+        } else if (BEGINS_WITH(str_escape_seq.buffer, str_escape_seq.len,
+                               "=2s")) {
+            tsync_end();  /* ESU */
+        }
         return;
     case '_':
     case '^':
@@ -1164,7 +1166,7 @@ term_def_tran(char ascii) {
     static int32 vcs[] = {CS_GRAPHIC0, CS_USA};
     char *p;
 
-    p = strchr(cs, ascii);
+    p = memchr64(cs, ascii, strlen32(cs));
     if (p == NULL) {
         error("esc unhandled charset: ESC ( %c\n", ascii);
     } else {

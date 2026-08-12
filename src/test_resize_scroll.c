@@ -507,7 +507,7 @@ main(void) {
             check_consistent_state();
             img_line = term_line_abs(term.images->y);
             term_get_glyphs(buf, &img_line[0], &img_line[term.ncols - 1]);
-            if (strstr(buf, "IMAGE_ANCH") == NULL) {
+            if (MEMMEM(buf, strlen32(buf), "IMAGE_ANCH") == NULL) {
                 error("[%s] Image sync failed. Found: %s\n",
                       current_test_name, buf);
                 assert(false);
@@ -574,7 +574,7 @@ main(void) {
             StGlyph *c_line = term_line(target_y);
             char c_buf[32];
             term_get_glyphs(c_buf, &c_line[0], &c_line[term.ncols - 1]);
-            if (strstr(c_buf, "OT_HERE") == NULL) {
+            if (MEMMEM(c_buf, strlen32(c_buf), "OT_HERE") == NULL) {
                 error("[%s] Cursor line content mismatch. Found: '%s'\n",
                       current_test_name, c_buf);
                 assert(false);
