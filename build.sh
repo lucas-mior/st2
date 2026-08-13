@@ -99,7 +99,7 @@ case "$mode" in
 debug)
     CFLAGS="$CFLAGS -g3 -fsanitize-trap=undefined"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
-    exe="bin/${program}_debug"
+    exe="bin/$program"
     ;;
 valgrind)
     CFLAGS="$CFLAGS -g3 -Og -ftree-vectorize"
