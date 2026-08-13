@@ -8,6 +8,19 @@ cd "$dir" || exit
 # shellcheck source=./cbase/common.sh
 . ./cbase/common.sh
 
+program=$(common_get_program "$0")
+script=$(basename "$0")
+
+common_build_parse_args "$@"
+
+case "$mode" in
+build|cachegrind|callgrind|check|cross|debug|fast_feedback|install|release|run|test|test_all|uninstall|valgrind)
+    ;;
+*)
+    common_build_unknown_mode
+    ;;
+esac
+
 mkdir -p gen
 { cat st-copy-output.sh; printf '\0'; } \
     | xxd -i -n st_copy_output \
@@ -17,10 +30,6 @@ mkdir -p gen
     | sed 's/unsigned/static unsigned/' > gen/copy_url.h
 
 cd "$dir" || exit
-program=$(common_get_program "$0")
-script=$(basename "$0")
-
-common_build_parse_args "$@"
 
 common_build_print_invocation "$script"
 
@@ -81,6 +90,7 @@ LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
 
 if [ "$mode" = "cross" ]; then
+    common_build_cross_all
     cross="$target"
     CC="zig cc"
     CFLAGS="$CFLAGS -target $cross"
@@ -126,7 +136,10 @@ fast_feedback)
 cross)
     CFLAGS="$CFLAGS -O2"
     ;;
+build|cachegrind|callgrind|check|cross|debug|fast_feedback|install|release|run|test|test_all|uninstall|valgrind)
+    ;;
 *)
+    common_build_unknown_mode
     ;;
 esac
 
@@ -227,29 +240,5 @@ esac
 
 trace_off
 if [ "$mode" = "test_all" ]; then
-    for build_target in debug build test; do
-        echo "target=$build_target"
-
-        for compiler in gcc tcc clang "zig cc"; do
-            printf '\nCC=%s%s%s\n' "$RED" "$compiler" "$RES"
-            CC="$compiler" $0 "$build_target" || exit 3
-        done
-    done
-
-    for cross_target in $cross_targets; do
-        echo "target=cross $cross_target"
-        $0 cross "$cross_target" || exit 3
-    done
-
-    exit
+    common_build_test_all "debug build test" gcc tcc clang "zig cc"
 fi
-
-
-case "$mode" in
-build|cachegrind|callgrind|check|cross|debug|fast_feedback|install|release|run|test|test_all|uninstall|valgrind)
-    ;;
-*)
-    echo "Unknown mode $mode"
-    exit 1
-    ;;
-esac
