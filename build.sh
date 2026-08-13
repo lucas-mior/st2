@@ -33,8 +33,6 @@ test
 check
 release
 run
-profile
-perf
 valgrind
 callgrind
 cachegrind
@@ -130,10 +128,6 @@ debug)
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     exe="bin/${program}_debug"
     ;;
-perf)
-    CFLAGS="$CFLAGS -g -O2 -flto"
-    exe="bin/${program}_perf"
-    ;;
 valgrind)
     CFLAGS="$CFLAGS -g3 -Og -ftree-vectorize"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
@@ -167,10 +161,11 @@ fast_feedback)
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS && "$exe"
     trace_off
     ;;
-build|debug|run|release|valgrind|callgrind|perf|profile|cross)
-    trace_on
+build|debug|run|release|valgrind|callgrind|cross)
 
     common_build_tags cbase src
+
+    trace_on
 
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
     # $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
@@ -251,13 +246,6 @@ check)
     CFLAGS="$CFLAGS -Wno-unused-command-line-argument"
     CFLAGS="$CFLAGS -fno-color-diagnostics"
     NOCOLORS=1 CC=clang CFLAGS="$CFLAGS" ./build.sh
-    exit
-    ;;
-perf)
-    trace_on
-    perf record -F 999 -g --call-graph dwarf -o bin/perf.data "$exe"
-    perf report -n -g --input bin/perf.data
-    trace_off
     exit
     ;;
 esac
