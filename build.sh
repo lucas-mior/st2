@@ -45,9 +45,13 @@ CPPFLAGS="$CPPFLAGS -I."
 CPPFLAGS="$CPPFLAGS -Icbase"
 CPPFLAGS="$CPPFLAGS -Igen"
 
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags x11)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags xft)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags harfbuzz)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags imlib2)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags libutf8proc)"
 
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
@@ -83,11 +87,14 @@ if [ -z "$NOCOLORS" ]; then
     CFLAGS="$CFLAGS -fdiagnostics-color=always"
 fi
 
-LDFLAGS="$LDFLAGS -lm -lX11 -lXft -lutf8proc"
+LDFLAGS="$LDFLAGS -lm"
+LDFLAGS="$LDFLAGS $(pkg-config --libs x11)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs xft)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs libutf8proc)"
 
 if [ "$mode" = "cross" ]; then
     common_build_cross_all
