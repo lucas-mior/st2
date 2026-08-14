@@ -3,6 +3,9 @@
 
 #include "cbase.h"
 
+#include <pty.h>
+#include <pwd.h>
+
 #include "st.h"
 #include "config.h"
 #include "handlers.c"
@@ -366,6 +369,21 @@ tty_hangup(void) {
     return;
 }
 
+#if 0 == TESTING_tty
+static inline void
+tty_functions_sink(void) {
+    (void)tty_functions_sink;
+    (void)stty;
+    (void)exec_shell;
+    (void)tty_new;
+    (void)tty_read;
+    (void)tty_write;
+    (void)tty_write_raw;
+    (void)tty_resize;
+    (void)tty_hangup;
+    return;
+}
+#endif
 #if TESTING_tty
 #define CBASE_IMPLEMENT
 #include "cbase.h"

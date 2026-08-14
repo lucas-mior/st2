@@ -226,6 +226,20 @@ mouse_action(XEvent *xevent, uint32 release) {
     return 0;
 }
 
+#if 0 == TESTING_mouse
+static inline void
+mouse_functions_sink(void) {
+    (void)mouse_functions_sink;
+    (void)xevent_col;
+    (void)xevent_row;
+    (void)match_mask_state;
+    (void)mouse_select;
+    (void)mouse_report;
+    (void)button_mask;
+    (void)mouse_action;
+    return;
+}
+#endif
 #if TESTING_mouse
 #define CBASE_IMPLEMENT
 #include "cbase.h"

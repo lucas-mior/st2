@@ -736,3 +736,16 @@ main(void) {
     printf("\nAll tests passed successfully!\n");
     return 0;
 }
+
+static inline void UNUSED
+test_resize_scroll_functions_sink(void) {
+    (void)test_resize_scroll_functions_sink;
+    (void)test_setup_x11;
+    (void)test_verify_viewport_line;
+    (void)test_verify_dump;
+    (void)test_verify_editor_dump;
+    (void)test_inject_text;
+    (void)test_verify_state;
+    (void)main;
+    return;
+}

@@ -529,6 +529,18 @@ x_configure_resize(int32 new_width, int32 new_height) {
     return;
 }
 
+#if 0 == TESTING_resize
+static inline void
+resize_functions_sink(void) {
+    (void)resize_functions_sink;
+    (void)term_resize;
+    (void)term_resize_def;
+    (void)term_resize_alt;
+    (void)term_reflow;
+    (void)x_configure_resize;
+    return;
+}
+#endif
 #if TESTING_resize
 #define CBASE_IMPLEMENT
 #include "cbase.h"

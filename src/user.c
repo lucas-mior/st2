@@ -866,6 +866,45 @@ user_toggle_colorscheme(union Arg *arg) {
     return;
 }
 
+#if 0 == TESTING_user
+static inline void
+user_functions_sink(void) {
+    (void)user_functions_sink;
+    (void)user_clipboard_clear;
+    (void)user_clipboard_copy;
+    (void)read_file_alloc;
+    (void)pixels_to_png_bytes;
+    (void)selection_image_cell_rect;
+    (void)copy_image_to_selection_pixels;
+    (void)user_clipboard_copy_selection_image;
+    (void)user_clipboard_paste;
+    (void)user_selection_paste;
+    (void)user_change_alpha;
+    (void)user_toggle_numlock;
+    (void)clear_image_pixmaps;
+    (void)zoom_abs;
+    (void)user_zoom;
+    (void)user_zoom_reset;
+    (void)user_tty_send;
+    (void)user_scroll_down;
+    (void)user_scroll_up;
+    (void)user_smart_scroll_up;
+    (void)user_smart_scroll_down;
+    (void)user_send_break;
+    (void)user_toggle_printer;
+    (void)user_print_screen;
+    (void)user_print_sel;
+    (void)dump_for_editor;
+    (void)user_vim_select;
+    (void)dump_terminal_to_fd;
+    (void)exec_external_pipe;
+    (void)user_external_pipe;
+    (void)user_copy_output;
+    (void)user_url_select;
+    (void)user_toggle_colorscheme;
+    return;
+}
+#endif
 #if TESTING_user
 #define CBASE_IMPLEMENT
 #include "cbase.h"

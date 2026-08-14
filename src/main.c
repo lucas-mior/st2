@@ -435,3 +435,11 @@ run:
         }
     }
 }
+
+static inline void UNUSED
+main_functions_sink(void) {
+    (void)main_functions_sink;
+    (void)main;
+    (void)usage;
+    return;
+}

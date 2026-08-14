@@ -50,6 +50,16 @@ usage(void) {
     exit(EXIT_FAILURE);
 }
 
+#if 0 == TESTING_st_util
+static inline void
+st_util_functions_sink(void) {
+    (void)st_util_functions_sink;
+    (void)xwrite;
+    (void)timediff_ms;
+    (void)usage;
+    return;
+}
+#endif
 #if TESTING_st_util
 #define CBASE_IMPLEMENT
 #include "cbase.h"

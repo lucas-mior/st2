@@ -253,6 +253,19 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
     return;
 }
 
+#if 0 == TESTING_boxdraw
+static inline void
+boxdraw_functions_sink(void) {
+    (void)boxdraw_functions_sink;
+    (void)boxdraw_xinit;
+    (void)isboxdraw;
+    (void)boxdrawindex;
+    (void)drawboxes;
+    (void)drawbox;
+    (void)drawboxlines;
+    return;
+}
+#endif
 #if TESTING_boxdraw
 #define CBASE_IMPLEMENT
 #include "cbase.h"

@@ -1951,6 +1951,33 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
     return idx;
 }
 
+#if 0 == TESTING_escape
+static inline void
+escape_functions_sink(void) {
+    (void)escape_functions_sink;
+    (void)control_seq_intro_parse;
+    (void)term_set_attr;
+    (void)term_set_mode;
+    (void)control_seq_intro_handle;
+    (void)control_seq_intro_reset;
+    (void)osc_color_response;
+    (void)string_handle;
+    (void)term_put_tab;
+    (void)term_def_utf8;
+    (void)term_def_tran;
+    (void)term_dec_test;
+    (void)term_str_sequence;
+    (void)dcs_handle;
+    (void)term_control_code;
+    (void)esc_handle;
+    (void)st_wcwidth;
+    (void)term_putc;
+    (void)term_write;
+    (void)control_seq_intro_dump;
+    (void)term_def_color;
+    return;
+}
+#endif
 #if TESTING_escape
 #define CBASE_IMPLEMENT
 #include "cbase.h"

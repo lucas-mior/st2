@@ -446,6 +446,25 @@ selection_set(char *string, Time t) {
     return;
 }
 
+#if 0 == TESTING_selection
+static inline void
+selection_functions_sink(void) {
+    (void)selection_functions_sink;
+    (void)selection_remove;
+    (void)selection_clear;
+    (void)selection_snap;
+    (void)selection_normalize;
+    (void)selection_start;
+    (void)selection_extend;
+    (void)selection_is_selected4;
+    (void)selection_is_selected;
+    (void)selection_get;
+    (void)selection_move_y;
+    (void)selection_scroll;
+    (void)selection_set;
+    return;
+}
+#endif
 #if TESTING_selection
 #define CBASE_IMPLEMENT
 #include "cbase.h"

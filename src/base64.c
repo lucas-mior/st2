@@ -85,6 +85,15 @@ base64_decode(char *src, int32 *allocated_length) {
     return result;
 }
 
+#if 0 == TESTING_base64
+static inline void
+base64_functions_sink(void) {
+    (void)base64_functions_sink;
+    (void)base64_decode_getc;
+    (void)base64_decode;
+    return;
+}
+#endif
 #if TESTING_base64
 #define CBASE_IMPLEMENT
 #include "cbase.h"

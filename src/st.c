@@ -1142,6 +1142,54 @@ term_cursor(enum CursorMovement mode) {
     return;
 }
 
+#if 0 == TESTING_st
+static inline void
+st_functions_sink(void) {
+    (void)st_functions_sink;
+    (void)check_consistent_state;
+    (void)term_allocate;
+    (void)term_line_len;
+    (void)term_mode_is_set;
+    (void)win_mode_is_set;
+    (void)term_line;
+    (void)term_line_abs;
+    (void)term_line_hist;
+    (void)update_wrap_next;
+    (void)term_is_wrapped;
+    (void)term_get_glyphs;
+    (void)term_set_sixel_attr;
+    (void)term_attr_set;
+    (void)term_set_dirt;
+    (void)term_set_dirt_attr;
+    (void)term_full_dirt;
+    (void)term_delete_images;
+    (void)term_reset;
+    (void)term_swap_screen;
+    (void)term_load_def_screen;
+    (void)term_load_alt_screen;
+    (void)term_scroll_down;
+    (void)term_scroll_up;
+    (void)term_new_line;
+    (void)term_move_abs_to;
+    (void)term_move_to;
+    (void)term_set_char;
+    (void)term_clear_glyph;
+    (void)term_clear_region;
+    (void)term_delete_char;
+    (void)term_insert_blank;
+    (void)term_insert_blank_line;
+    (void)term_delete_line;
+    (void)term_printer;
+    (void)term_dump_sel;
+    (void)term_dump_line;
+    (void)term_dump;
+    (void)reflow_scroll_down;
+    (void)draw;
+    (void)redraw;
+    (void)term_cursor;
+    return;
+}
+#endif
 #if TESTING_st
 #define CBASE_IMPLEMENT
 #include "cbase.h"

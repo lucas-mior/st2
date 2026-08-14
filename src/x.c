@@ -1392,6 +1392,46 @@ x_bell(void) {
     return;
 }
 
+#if 0 == TESTING_x
+static inline void
+x_functions_sink(void) {
+    (void)x_functions_sink;
+    (void)sixd_to_16bit;
+    (void)x_resize;
+    (void)x_get_color;
+    (void)x_load_color;
+    (void)x_load_colors;
+    (void)x_set_color_name;
+    (void)x_clear;
+    (void)x_hints;
+    (void)x_geom_mask_to_gravity;
+    (void)x_load_font;
+    (void)x_load_fonts;
+    (void)x_load_spare_font;
+    (void)x_load_spare_fonts;
+    (void)x_unload_font;
+    (void)x_unload_fonts;
+    (void)x_im_instantiate;
+    (void)x_im_destroy;
+    (void)x_ic_destroy;
+    (void)x_im_open;
+    (void)x_make_glyph_font_specs;
+    (void)x_draw_glyph_font_specs;
+    (void)x_draw_glyph;
+    (void)x_draw_cursor;
+    (void)x_set_icon_title;
+    (void)x_set_title;
+    (void)x_start_draw;
+    (void)x_draw_line;
+    (void)x_xim_spot;
+    (void)x_set_pointer_motion;
+    (void)x_set_mode;
+    (void)x_set_cursor;
+    (void)x_set_urgency;
+    (void)x_bell;
+    return;
+}
+#endif
 #if TESTING_x
 #define CBASE_IMPLEMENT
 #include "cbase.h"

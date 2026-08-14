@@ -583,6 +583,28 @@ handler_configure_notify(XEvent *xevent) {
     return;
 }
 
+#if 0 == TESTING_handlers
+static inline void
+handlers_functions_sink(void) {
+    (void)handlers_functions_sink;
+    (void)handler_sigchld;
+    (void)handler_button_press;
+    (void)handler_selection_notify;
+    (void)handler_prop_notify;
+    (void)handler_selection_clear;
+    (void)handler_selection_request;
+    (void)handler_button_release;
+    (void)handler_button_motion;
+    (void)handler_expose;
+    (void)handler_visibility;
+    (void)handler_unmap;
+    (void)handler_focus;
+    (void)handler_key_press;
+    (void)handler_client_message;
+    (void)handler_configure_notify;
+    return;
+}
+#endif
 #if TESTING_handlers
 #define CBASE_IMPLEMENT
 #include "cbase.h"

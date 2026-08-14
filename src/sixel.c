@@ -875,6 +875,25 @@ hls2rgb(uint32 hue, uint32 lum, uint32 sat) {
     return SIXEL_RGB(r, g, b);
 }
 
+#if 0 == TESTING_sixel
+static inline void
+sixel_functions_sink(void) {
+    (void)sixel_functions_sink;
+    (void)sixel_image_free;
+    (void)sixel_image_delete;
+    (void)sixel_image_default_pallete;
+    (void)sixel_image_init;
+    (void)sixel_image_buffer_resize;
+    (void)sixel_image_deinit;
+    (void)sixel_parser_init;
+    (void)sixel_parser_finalize;
+    (void)sixel_parser_parse;
+    (void)sixel_parser_deinit;
+    (void)sixel_create_clipmask;
+    (void)hls2rgb;
+    return;
+}
+#endif
 #if TESTING_sixel
 #define CBASE_IMPLEMENT
 #include "cbase.h"
