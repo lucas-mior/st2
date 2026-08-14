@@ -51,7 +51,7 @@ jobs:
             libutf8proc \
             x11 \
             xft
-          xxd -h >/dev/null
+          command -v xxd >/dev/null
 
       - name: Build and Test
         run: |
@@ -173,7 +173,7 @@ jobs:
               libutf8proc \
               x11 \
               xft
-            xxd -h >/dev/null
+            command -v xxd >/dev/null
             ./build.sh test
 
   netbsd:
@@ -261,5 +261,5 @@ jobs:
               libutf8proc \
               x11 \
               xft
-            xxd -h >/dev/null
+            command -v xxd >/dev/null
             ./build.sh test
