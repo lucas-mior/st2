@@ -112,6 +112,12 @@ LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs libutf8proc)"
 
+case "$(uname -a)" in
+*FreeBSD*|*NetBSD*)
+    LDFLAGS="$LDFLAGS -lutil"
+    ;;
+esac
+
 if [ "$mode" = "cross" ]; then
     common_build_cross_all
     cross="$target"
