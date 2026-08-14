@@ -38,9 +38,6 @@ jobs:
             pkgconf \
             utf8proc \
             xorg-server
-          if ! command -v xxd >/dev/null 2>&1; then
-            brew install vim
-          fi
           cc --version
           pkg-config --version
           pkg-config --libs \
@@ -51,7 +48,6 @@ jobs:
             libutf8proc \
             x11 \
             xft
-          command -v xxd >/dev/null
 
       - name: Build and Test
         run: |
@@ -82,8 +78,7 @@ jobs:
             pkg-config \
             xclip \
             xterm \
-            xvfb \
-            xxd
+            xvfb
           cc --version
           pkg-config --version
           pkg-config --libs \
@@ -123,8 +118,7 @@ jobs:
               utf8proc \
               xclip \
               xorg-vfbserver \
-              xterm \
-              xxd
+              xterm
             export DISPLAY=:99
             Xvfb "$DISPLAY" -screen 0 1024x768x24 &
             xvfb_pid=$!
@@ -157,7 +151,6 @@ jobs:
               harfbuzz \
               imlib2 \
               libutf8proc \
-              vim--no_x11 \
               xclip
             export PKG_CONFIG_PATH=/usr/X11R6/lib/pkgconfig:/usr/local/lib/pkgconfig
             export DISPLAY=:99
@@ -175,7 +168,6 @@ jobs:
               libutf8proc \
               x11 \
               xft
-            command -v xxd
             ./build.sh test
 
   netbsd:
@@ -245,7 +237,6 @@ jobs:
               imlib2 \
               pkgconf \
               utf8proc \
-              vim-share \
               xclip
 
             export DISPLAY=:99
@@ -263,5 +254,4 @@ jobs:
               libutf8proc \
               x11 \
               xft
-            command -v xxd >/dev/null
             ./build.sh test

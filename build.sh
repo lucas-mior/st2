@@ -30,13 +30,25 @@ esac
 echo "HERE $LINENO"
 mkdir -p gen
 echo "HERE $LINENO"
+script_to_header() {
+    var_name=$1
+
+    printf 'static unsigned char %s[] = {\n' "$var_name"
+    od -An -tx1 -v \
+        | awk '{
+            for (i = 1; i <= NF; i += 1) {
+                printf "    0x%s,\n", $i
+            }
+        }'
+    printf '};\n'
+    printf 'static unsigned int %s_len = sizeof(%s);\n' \
+        "$var_name" "$var_name"
+}
 trace_on
 { cat st-copy-output.sh; printf '\0'; } \
-    | xxd -i -n st_copy_output \
-    | sed 's/unsigned/static unsigned/' > gen/copy_output.h
+    | script_to_header st_copy_output > gen/copy_output.h
 { cat st-copy-url.sh;    printf '\0'; } \
-    | xxd -i -n st_copy_url    \
-    | sed 's/unsigned/static unsigned/' > gen/copy_url.h
+    | script_to_header st_copy_url > gen/copy_url.h
 trace_off
 echo "HERE $LINENO"
 cd "$dir" || exit
