@@ -11,6 +11,14 @@
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
 
+#if OS_LINUX
+#include <pty.h>
+#elif OS_OPENBSD || OS_NETBSD || OS_MAC
+#include <util.h>
+#elif OS_FREEBSD
+#include <libutil.h>
+#endif
+
 #if CC_CLANG
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"

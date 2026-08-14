@@ -16,14 +16,6 @@
 #include "st_util.c"
 #include "resize.c"
 
-#if defined(__linux)
-#include <pty.h>
-#elif defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE__)
-#include <util.h>
-#elif defined(__FreeBSD__) || defined(__DragonFly__)
-#include <libutil.h>
-#endif
-
 #if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #define TESTING_st 1
 #elif !defined(TESTING_st)
