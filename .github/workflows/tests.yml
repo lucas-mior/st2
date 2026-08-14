@@ -157,6 +157,7 @@ jobs:
               harfbuzz \
               imlib2 \
               libutf8proc \
+              vim--no_x11 \
               xclip
             export PKG_CONFIG_PATH=/usr/X11R6/lib/pkgconfig:/usr/local/lib/pkgconfig
             export DISPLAY=:99
@@ -174,7 +175,7 @@ jobs:
               libutf8proc \
               x11 \
               xft
-            command -v xxd >/dev/null
+            command -v xxd
             ./build.sh test
 
   netbsd:
