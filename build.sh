@@ -122,7 +122,7 @@ fi
 
 case "$mode" in
 debug)
-    CFLAGS="$CFLAGS -g3 -fsanitize-trap=undefined"
+    CFLAGS="$CFLAGS -g3"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     exe="bin/$program"
     ;;
@@ -134,7 +134,7 @@ callgrind)
     CFLAGS="$CFLAGS -g3 -O2 -ftree-vectorize"
     ;;
 test)
-    CFLAGS="$CFLAGS -g3 -DDEBUGGING=1 -fsanitize-trap=undefined"
+    CFLAGS="$CFLAGS -g3 -DDEBUGGING=1"
     ;;
 check)
     CC=gcc
