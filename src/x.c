@@ -1181,7 +1181,7 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph glyph,
         switch (term_window.cursor) {
         case 7:
             glyph.rune = 0x2603;
-            _X_FALLTHROUGH;
+            FALLTHROUGH;
         case 0:
         case 1:
         case 2:

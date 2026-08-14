@@ -257,7 +257,7 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
                 } else {
                     term_cursor(CURSOR_LOAD);
                 }
-                _X_FALLTHROUGH;
+                FALLTHROUGH;
             case 47:
             case 1047:
                 if (!CONF_ALLOW_ALT_SCREEN) {
@@ -880,7 +880,7 @@ string_handle(void) {
                 break;
             }
             p = str_escape_seq.args[2];
-            _X_FALLTHROUGH;
+            FALLTHROUGH;
         case 104:
             if (narg > 1) {
                 j = atoi(str_escape_seq.args[1]);
@@ -1310,7 +1310,7 @@ term_control_code(uchar ascii) {
         return;
     case '\032':
         term_set_char('?', &term.cursor.attr, term.cursor.x, term.cursor.y);
-        _X_FALLTHROUGH;
+        FALLTHROUGH;
     case '\030':
         control_seq_intro_reset();
         break;
@@ -1386,7 +1386,7 @@ esc_handle(uchar ascii) {
         return 0;
     case 'P':
         term.esc |= ESC_DCS;
-        _X_FALLTHROUGH;
+        FALLTHROUGH;
     case '_':
     case '^':
     case ']':
