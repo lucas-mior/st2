@@ -14,7 +14,11 @@ script=$(basename "$0")
 common_build_parse_args "$@"
 
 case "$mode" in
-build|cachegrind|callgrind|check|cross|debug|fast_feedback|install|release|run|test|test_all|uninstall|valgrind)
+build|cachegrind|callgrind|check)
+    ;;
+cross|debug|fast_feedback)
+    ;;
+install|release|run|test|test_all|uninstall|valgrind)
     ;;
 *)
     common_build_unknown_mode
@@ -22,12 +26,15 @@ build|cachegrind|callgrind|check|cross|debug|fast_feedback|install|release|run|t
 esac
 
 mkdir -p gen
+
+trace_on
 { cat st-copy-output.sh; printf '\0'; } \
     | xxd -i -n st_copy_output \
     | sed 's/unsigned/static unsigned/' > gen/copy_output.h
 { cat st-copy-url.sh;    printf '\0'; } \
     | xxd -i -n st_copy_url    \
     | sed 's/unsigned/static unsigned/' > gen/copy_url.h
+trace_off
 
 cd "$dir" || exit
 
@@ -142,8 +149,6 @@ fast_feedback)
     ;;
 cross)
     CFLAGS="$CFLAGS -O2"
-    ;;
-build|cachegrind|callgrind|check|cross|debug|fast_feedback|install|release|run|test|test_all|uninstall|valgrind)
     ;;
 *)
     common_build_unknown_mode
