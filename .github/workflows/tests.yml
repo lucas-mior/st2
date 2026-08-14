@@ -116,6 +116,7 @@ jobs:
               gcc \
               harfbuzz \
               imlib2 \
+              liberation-fonts-ttf \
               libX11 \
               libXft \
               pkgconf \

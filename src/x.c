@@ -334,10 +334,9 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
     return 0;
 }
 
-static void
-x_load_fonts(char *font_str, double font_size) {
+static FcPattern *
+x_load_parse_font(char *font_str) {
     FcPattern *fc_pattern;
-    double font_val;
 
     if (font_str[0] == '-') {
         fc_pattern = XftXlfdParse(font_str, False, False);
@@ -345,34 +344,85 @@ x_load_fonts(char *font_str, double font_size) {
         fc_pattern = FcNameParse((FcChar8 *)font_str);
     }
 
+    return fc_pattern;
+}
+
+static void
+x_update_used_font_string(FcPattern *fc_pattern) {
+    FcChar8 *unparsed = FcNameUnparse(fc_pattern);
+
+    if (unparsed) {
+        if ((used_font != CONF_FONT) && (used_font != opt_font)) {
+            free2(used_font, (used_font_len + 1)*SIZEOF(*used_font));
+        }
+
+        used_font_len = strlen32((char *)unparsed);
+        used_font = malloc2((used_font_len + 1)*SIZEOF(*used_font));
+        memcpy64(used_font, unparsed, used_font_len + 1);
+
+        free(unparsed);
+    }
+    return;
+}
+
+static int32
+x_load_font_or_regular(StFont *st_font, FcPattern *fc_pattern,
+                       char *font_str, char *style_name) {
+    if (x_load_font(st_font, fc_pattern) == 0) {
+        return 0;
+    }
+
+    error("Error opening %s font %s. Falling back to regular font.\n",
+          style_name, font_str);
+
+    if (x_load_font(st_font, draw_context.font.pattern) == 0) {
+        return 0;
+    }
+
+    error("Error opening fallback %s font %s\n", style_name, font_str);
+    return 1;
+}
+
+static int32
+x_load_fonts_try(char *font_str, double font_size) {
+    FcPattern *fc_pattern;
+    double font_val;
+    double new_used_font_size;
+    double new_default_font_size = default_font_size;
+
+    fc_pattern = x_load_parse_font(font_str);
     if (!fc_pattern) {
-        error("Error opening font %s\n", font_str);
-        exit(EXIT_FAILURE);
+        error("Error parsing font %s\n", font_str);
+        return 1;
     }
 
     if (font_size > 1) {
         FcPatternDel(fc_pattern, FC_PIXEL_SIZE);
         FcPatternDel(fc_pattern, FC_SIZE);
         FcPatternAddDouble(fc_pattern, FC_PIXEL_SIZE, (double)font_size);
-        used_font_size = font_size;
+        new_used_font_size = font_size;
     } else {
         if (FcPatternGetDouble(fc_pattern, FC_PIXEL_SIZE, 0, &font_val)
             == FcResultMatch) {
-            used_font_size = (double)font_val;
+            new_used_font_size = (double)font_val;
         } else if (FcPatternGetDouble(fc_pattern, FC_SIZE, 0, &font_val)
                    == FcResultMatch) {
-            used_font_size = -1;
+            new_used_font_size = -1;
         } else {
             FcPatternAddDouble(fc_pattern, FC_PIXEL_SIZE, 12);
-            used_font_size = 12;
+            new_used_font_size = 12;
         }
-        default_font_size = used_font_size;
+        new_default_font_size = new_used_font_size;
     }
 
     if (x_load_font(&draw_context.font, fc_pattern)) {
         error("Error opening font %s\n", font_str);
-        exit(EXIT_FAILURE);
+        FcPatternDestroy(fc_pattern);
+        return 1;
     }
+
+    used_font_size = new_used_font_size;
+    default_font_size = new_default_font_size;
 
     if (used_font_size < 0) {
         FcPatternGetDouble(draw_context.font.match->pattern,
@@ -383,55 +433,73 @@ x_load_fonts(char *font_str, double font_size) {
         }
     }
 
-    /* 
-     * Update used_font to a clean string representation of the current pattern.
-     * This removes the old pixelsize from the string and reflects the current state.
-     */
-    {
-        FcChar8 *unparsed = FcNameUnparse(fc_pattern);
-        if (unparsed) {
-            if ((used_font != CONF_FONT) && (used_font != opt_font)) {
-                free2(used_font, (used_font_len + 1)*SIZEOF(*used_font));
-            }
-
-            used_font_len = strlen32((char *)unparsed);
-            used_font = malloc2((used_font_len + 1)*SIZEOF(*used_font));
-            memcpy64(used_font, unparsed, used_font_len + 1);
-
-            free(unparsed);
-        }
-    }
+    x_update_used_font_string(fc_pattern);
 
     {
-        double cw = ceil((double)(draw_context.font.width)*CONF_CHAR_WIDTH_SCALE);
-        double ch = ceil((double)(draw_context.font.height)*CONF_CHAR_HEIGHT_SCALE);
+        double cw = ceil((double)(draw_context.font.width)
+                         *CONF_CHAR_WIDTH_SCALE);
+        double ch = ceil((double)(draw_context.font.height)
+                         *CONF_CHAR_HEIGHT_SCALE);
         term_window.cw = (int32)cw;
         term_window.ch = (int32)ch;
     }
 
     FcPatternDel(fc_pattern, FC_SLANT);
     FcPatternAddInteger(fc_pattern, FC_SLANT, FC_SLANT_ITALIC);
-    if (x_load_font(&draw_context.ifont, fc_pattern)) {
-        error("Error opening font %s\n", font_str);
-        exit(EXIT_FAILURE);
+    if (x_load_font_or_regular(&draw_context.ifont, fc_pattern, font_str,
+                               "italic")) {
+        FcPatternDestroy(fc_pattern);
+        return 1;
     }
 
     FcPatternDel(fc_pattern, FC_WEIGHT);
     FcPatternAddInteger(fc_pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
-    if (x_load_font(&draw_context.ibfont, fc_pattern)) {
-        error("Error opening font %s\n", font_str);
-        exit(EXIT_FAILURE);
+    if (x_load_font_or_regular(&draw_context.ibfont, fc_pattern, font_str,
+                               "italic bold")) {
+        FcPatternDestroy(fc_pattern);
+        return 1;
     }
 
     FcPatternDel(fc_pattern, FC_SLANT);
     FcPatternAddInteger(fc_pattern, FC_SLANT, FC_SLANT_ROMAN);
-    if (x_load_font(&draw_context.bfont, fc_pattern)) {
-        error("Error opening font %s\n", font_str);
-        exit(EXIT_FAILURE);
+    if (x_load_font_or_regular(&draw_context.bfont, fc_pattern, font_str,
+                               "bold")) {
+        FcPatternDestroy(fc_pattern);
+        return 1;
     }
 
     FcPatternDestroy(fc_pattern);
-    return;
+    return 0;
+}
+
+static void
+x_load_fonts(char *font_str, double font_size) {
+    if (x_load_fonts_try(font_str, font_size) == 0) {
+        return;
+    }
+
+    if (!strequal(font_str, "monospace")) {
+        if (x_load_fonts_try("monospace", font_size) == 0) {
+            return;
+        }
+    }
+
+    for (int32 i = 0; i < LENGTH(CONF_FONT2); i += 1) {
+        char *fallback_font = CONF_FONT2[i];
+
+        if (strequal(font_str, fallback_font)) {
+            continue;
+        }
+        if (strequal(fallback_font, "monospace")) {
+            continue;
+        }
+        if (x_load_fonts_try(fallback_font, font_size) == 0) {
+            return;
+        }
+    }
+
+    error("Error opening all configured fonts.\n");
+    exit(EXIT_FAILURE);
 }
 
 static int32
@@ -481,17 +549,11 @@ x_load_spare_fonts(void) {
 
     for (int32 i = 0; i < nspare_fonts; i += 1) {
         char *font_name = CONF_FONT2[i];
-        FcPattern *fc_pattern;
-
-        if (font_name[0] == '-') {
-            fc_pattern = XftXlfdParse(font_name, False, False);
-        } else {
-            fc_pattern = FcNameParse((FcChar8 *)font_name);
-        }
+        FcPattern *fc_pattern = x_load_parse_font(font_name);
 
         if (!fc_pattern) {
-            error("can't open spare font %s\n", font_name);
-            exit(EXIT_FAILURE);
+            error("can't parse spare font %s\n", font_name);
+            continue;
         }
 
         if (default_font_size > 0) {
@@ -515,28 +577,26 @@ x_load_spare_fonts(void) {
 
         if (x_load_spare_font(fc_pattern, FRC_NORMAL)) {
             error("can't open spare font %s\n", font_name);
-            exit(EXIT_FAILURE);
+            FcPatternDestroy(fc_pattern);
+            continue;
         }
 
         FcPatternDel(fc_pattern, FC_SLANT);
         FcPatternAddInteger(fc_pattern, FC_SLANT, FC_SLANT_ITALIC);
         if (x_load_spare_font(fc_pattern, FRC_ITALIC)) {
-            error("can't open spare font %s\n", font_name);
-            exit(EXIT_FAILURE);
+            error("can't open italic spare font %s\n", font_name);
         }
 
         FcPatternDel(fc_pattern, FC_WEIGHT);
         FcPatternAddInteger(fc_pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
         if (x_load_spare_font(fc_pattern, FRC_ITALICBOLD)) {
-            error("can't open spare font %s\n", font_name);
-            exit(EXIT_FAILURE);
+            error("can't open italic bold spare font %s\n", font_name);
         }
 
         FcPatternDel(fc_pattern, FC_SLANT);
         FcPatternAddInteger(fc_pattern, FC_SLANT, FC_SLANT_ROMAN);
         if (x_load_spare_font(fc_pattern, FRC_BOLD)) {
-            error("can't open spare font %s\n", font_name);
-            exit(EXIT_FAILURE);
+            error("can't open bold spare font %s\n", font_name);
         }
 
         FcPatternDestroy(fc_pattern);
@@ -547,6 +607,10 @@ x_load_spare_fonts(void) {
 
 static void
 x_unload_font(StFont *f) {
+    if (!f->match) {
+        return;
+    }
+
     if (f->hbfont) {
         hb_font_destroy(f->hbfont);
         XftUnlockFace(f->match);
@@ -556,6 +620,7 @@ x_unload_font(StFont *f) {
     if (f->set) {
         FcFontSetDestroy(f->set);
     }
+    memset64(f, 0, SIZEOF(*f));
     return;
 }
 
