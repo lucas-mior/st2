@@ -426,20 +426,20 @@ main(void) {
         printf("Running: %s...\n", current_test_name);
         srand((uint)time(NULL));
         for (int32 i = 0; i < 100; i += 1) {
-            int32 new_w = (rand() % 150) + 2;
-            int32 new_h = (rand() % 100) + 2;
-            int32 actions = rand() % 5;
+            int32 new_w = (rand_int() % 150) + 2;
+            int32 new_h = (rand_int() % 100) + 2;
+            int32 actions = rand_int() % 5;
             term_resize(new_w, new_h);
             check_consistent_state();
             for (int32 a = 0; a < actions; a += 1) {
-                int32 choice = rand() % 2;
+                int32 choice = rand_int() % 2;
                 if (choice == 0) {
                     term_new_line(true);
                 } else {
-                    int32 slen = (rand() % 80) + 1;
+                    int32 slen = (rand_int() % 80) + 1;
                     char buf[128];
                     for (int32 c = 0; c < slen; c += 1) {
-                        buf[c] = (char)('A' + (rand() % 26));
+                        buf[c] = (char)('A' + (rand_int() % 26));
                     }
                     buf[slen] = '\0';
                     test_inject_text(buf);
