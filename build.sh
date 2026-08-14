@@ -3,18 +3,19 @@
 # shellcheck disable=SC2086
 
 set -x
+echo "HERE $LINENO"
 
 dir=$(dirname "$(readlink -f "$0")")
 cd "$dir" || exit
-
+echo "HERE $LINENO"
 # shellcheck source=./cbase/common.sh
 . ./cbase/common.sh
-
+echo "HERE $LINENO"
 program=$(common_get_program "$0")
 script=$(basename "$0")
-
+echo "HERE $LINENO"
 common_build_parse_args "$@"
-
+echo "HERE $LINENO"
 case "$mode" in
 build|cachegrind|callgrind|check)
     ;;
@@ -26,9 +27,9 @@ install|release|run|test|test_all|uninstall|valgrind)
     common_build_unknown_mode
     ;;
 esac
-
+echo "HERE $LINENO"
 mkdir -p gen
-
+echo "HERE $LINENO"
 trace_on
 { cat st-copy-output.sh; printf '\0'; } \
     | xxd -i -n st_copy_output \
@@ -37,19 +38,19 @@ trace_on
     | xxd -i -n st_copy_url    \
     | sed 's/unsigned/static unsigned/' > gen/copy_url.h
 trace_off
-
+echo "HERE $LINENO"
 cd "$dir" || exit
-
+echo "HERE $LINENO"
 common_build_print_invocation "$script"
-
+echo "HERE $LINENO"
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
-
+echo "HERE $LINENO"
 exe="bin/$program"
 mkdir -p "$(dirname "$exe")"
-
+echo "HERE $LINENO"
 CC=$(common_get_compiler "$mode")
-
+echo "HERE $LINENO"
 case "$(uname -a)" in
 *MINGW*|*MSYS*|*CYGWIN*|*mingw*|*msys*|*cygwin*|*windows*)
     ;;
@@ -57,11 +58,11 @@ case "$(uname -a)" in
     CFLAGS="$CFLAGS -pthread"
     ;;
 esac
-
+echo "HERE $LINENO"
 CPPFLAGS="$CPPFLAGS -I."
 CPPFLAGS="$CPPFLAGS -Icbase"
 CPPFLAGS="$CPPFLAGS -Igen"
-
+echo "HERE $LINENO"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags x11)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags xft)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
@@ -69,7 +70,7 @@ CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags harfbuzz)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags imlib2)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags libutf8proc)"
-
+echo "HERE $LINENO"
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Wextra -Wall"
@@ -77,7 +78,7 @@ CFLAGS="$CFLAGS -Werror=all -Werror=extra"
 # CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
 CFLAGS="$CFLAGS -Wno-type-limits"
 CFLAGS="$CFLAGS -Wno-unused-function"
-
+echo "HERE $LINENO"
 if [ "$CC" = "clang" ] || [ "$CC" = "zig cc" ]; then
     CFLAGS="$CFLAGS -Weverything"
     CFLAGS="$CFLAGS -Wno-assign-enum"
@@ -100,11 +101,11 @@ if [ "$CC" = "clang" ] || [ "$CC" = "zig cc" ]; then
     CFLAGS="$CFLAGS -Wno-unused-macros"
     CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
 fi
-
+echo "HERE $LINENO"
 if [ -z "$NOCOLORS" ]; then
     CFLAGS="$CFLAGS -fdiagnostics-color=always"
 fi
-
+echo "HERE $LINENO"
 LDFLAGS="$LDFLAGS -lm"
 LDFLAGS="$LDFLAGS $(pkg-config --libs x11)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs xft)"
@@ -113,19 +114,19 @@ LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs libutf8proc)"
-
+echo "HERE $LINENO"
 case "$(uname -a)" in
 *FreeBSD*|*NetBSD*)
     LDFLAGS="$LDFLAGS -lutil"
     ;;
 esac
-
+echo "HERE $LINENO"
 if [ "$mode" = "cross" ]; then
     common_build_cross_all
     cross="$target"
     CC="zig cc"
     CFLAGS="$CFLAGS -target $cross"
-
+echo "HERE $LINENO"
     case $cross in
     x86_64-macos|aarch64-macos)
         CFLAGS="$CFLAGS -fno-lto"
@@ -135,7 +136,7 @@ if [ "$mode" = "cross" ]; then
         ;;
     esac
 fi
-
+echo "HERE $LINENO"
 case "$mode" in
 debug)
     CFLAGS="$CFLAGS -g3"
@@ -171,7 +172,7 @@ cross)
     common_build_unknown_mode
     ;;
 esac
-
+echo "HERE $LINENO"
 case "$mode" in
 fast_feedback)
     trace_on
@@ -179,19 +180,19 @@ fast_feedback)
     trace_off
     ;;
 build|debug|run|release|valgrind|callgrind|cross)
-
+echo "HERE $LINENO"
     common_build_tags cbase src
-
+echo "HERE $LINENO"
     trace_on
-
+echo "HERE $LINENO"
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
     # $CC $CPPFLAGS $CFLAGS -Wno-unused-variable \
     #     src/test_resize_scroll.c -o bin/test_resize_scroll $LDFLAGS
-
+echo "HERE $LINENO"
     if [ $mode = "run" ]; then
         $exe
     fi
-
+echo "HERE $LINENO"
     trace_off
     ;;
 install)
@@ -218,7 +219,7 @@ uninstall)
     rm -f ${DESTDIR}${MANPREFIX}/man1/st.1
     ;;
 esac
-
+echo "HERE $LINENO"
 case "$mode" in
 valgrind)
     vg_flags="$vg_flags --error-exitcode=1"
@@ -229,7 +230,7 @@ valgrind)
     # vg_flags="$vg_flags --suppressions=valgrind.supress"
     # vg_flags="$vg_flags --gen-suppressions=yes"
     vg_flags="$vg_flags --main-stacksize=18388608"
-
+echo "HERE $LINENO"
     trace_on
     valgrind $vg_flags -s --tool=memcheck bin/$program
     trace_off
@@ -256,7 +257,7 @@ check)
     set +e
     NOCOLORS=1 CC=gcc \
         CFLAGS="-fanalyzer -fdiagnostics-color=never" ./build.sh
-
+echo "HERE $LINENO"
     CFLAGS="--analyze -Xanalyzer -analyzer-output=text"
     CFLAGS="$CFLAGS -Xanalyzer -analyzer-werror"
     CFLAGS="$CFLAGS -Xanalyzer -analyzer-opt-analyze-headers"
@@ -266,7 +267,7 @@ check)
     exit
     ;;
 esac
-
+echo "HERE $LINENO"
 trace_off
 if [ "$mode" = "test_all" ]; then
     common_build_test_all "debug build test" gcc tcc clang "zig cc"
