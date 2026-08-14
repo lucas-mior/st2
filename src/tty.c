@@ -3,8 +3,6 @@
 
 #include "cbase.h"
 
-#include <pwd.h>
-
 #include "st.h"
 #include "config.h"
 #include "handlers.c"
