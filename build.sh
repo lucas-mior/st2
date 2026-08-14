@@ -48,6 +48,14 @@ mkdir -p "$(dirname "$exe")"
 
 CC=$(common_get_compiler "$mode")
 
+case "$(uname -a)" in
+*MINGW*|*MSYS*|*CYGWIN*|*mingw*|*msys*|*cygwin*|*windows*)
+    ;;
+*)
+    CFLAGS="$CFLAGS -pthread"
+    ;;
+esac
+
 CPPFLAGS="$CPPFLAGS -I."
 CPPFLAGS="$CPPFLAGS -Icbase"
 CPPFLAGS="$CPPFLAGS -Igen"
