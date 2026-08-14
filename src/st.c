@@ -1171,6 +1171,10 @@ term_cursor(enum CursorMovement mode) {
 static inline void
 st_functions_sink(void) {
     (void)st_functions_sink;
+    (void)tsync_begin;
+    (void)ttyread_pending;
+    (void)tinsync;
+    (void)tsync_end;
     (void)check_consistent_state;
     (void)term_allocate;
     (void)term_line_len;
