@@ -480,33 +480,9 @@ static struct timespec sutv;
 static int su = 0;
 static int twrite_aborted = 0;
 
-static void
-tsync_begin(void)
-{
-	clock_gettime(CLOCK_MONOTONIC, &sutv);
-	su = 1;
-}
-
-static void
-tsync_end(void)
-{
-	su = 0;
-}
-
-static int
-tinsync(uint timeout)
-{
-	struct timespec now;
-	if (su && !clock_gettime(CLOCK_MONOTONIC, &now)
-	       && timediff_ms(now, sutv) >= timeout)
-		su = 0;
-	return su;
-}
-
-static int
-ttyread_pending(void)
-{
-	return twrite_aborted;
-}
+static void tsync_begin(void);
+static void tsync_end(void);
+static int tinsync(uint timeout);
+static int ttyread_pending(void);
 
 #endif /* ST_H */

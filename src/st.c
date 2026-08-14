@@ -23,6 +23,31 @@
 #endif
 
 static void
+tsync_begin(void) {
+	clock_gettime(CLOCK_MONOTONIC, &sutv);
+	su = 1;
+}
+
+static void
+tsync_end(void) {
+	su = 0;
+}
+
+static int
+tinsync(uint timeout) {
+	struct timespec now;
+	if (su && !clock_gettime(CLOCK_MONOTONIC, &now)
+	       && timediff_ms(now, sutv) >= timeout)
+		su = 0;
+	return su;
+}
+
+static int
+ttyread_pending(void) {
+	return twrite_aborted;
+}
+
+static void
 check_consistent_state(void) {
     /* 1. Basic Geometry and Core Buffers */
     ASSERT_MORE(term.nrows, 0);
