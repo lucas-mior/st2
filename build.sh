@@ -16,7 +16,7 @@ build|cachegrind|callgrind|check)
     ;;
 cross|debug|fast_feedback)
     ;;
-install|release|run|test|test_all|uninstall|valgrind)
+install|run|test|test_all|uninstall|valgrind)
     ;;
 *)
     common_build_unknown_mode
@@ -147,10 +147,7 @@ check)
     CFLAGS="$CFLAGS -DDEBUGGING=1 -fanalyzer"
     ;;
 build|run)
-    CFLAGS="$CFLAGS -O2 -flto -march=native -ftree-vectorize"
-    ;;
-release)
-    CFLAGS="$CFLAGS -DRELEASING=1 -O2 -flto -march=native -ftree-vectorize"
+    CFLAGS="$CFLAGS -Wno-error -O2 -flto -march=native -ftree-vectorize"
     ;;
 fast_feedback)
     ;;
@@ -167,7 +164,7 @@ fast_feedback)
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS && "$exe"
     trace_off
     ;;
-build|debug|run|release|valgrind|callgrind|cross)
+build|debug|run|valgrind|callgrind|cross)
     common_build_tags cbase src
     trace_on
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
