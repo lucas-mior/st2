@@ -490,9 +490,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     for (int32 i = 0; i < total_reflowed_count; i += 1) {
-        if (ref_lines[i]) {
-            free2(ref_lines[i], new_line_size);
-        }
+        free2(ref_lines[i], new_line_size);
     }
     free2(ref_lines, (int64)capacity*SIZEOF(StGlyph *));
 
