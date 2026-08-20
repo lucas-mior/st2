@@ -1,0 +1,1493 @@
++ readlink -f ./build.sh
++ dirname /home/lucas/.local/src/000mine/st2/build.sh
++ dir=/home/lucas/.local/src/000mine/st2
++ cd /home/lucas/.local/src/000mine/st2
++ . ./cbase/common.sh
++ set -e
++ printf \033[01;38;2;255;000;000m
++ RED=[01;38;2;255;000;000m
++ printf \033[0m
++ RES=[0m
++ export RED RES
++ . ./cbase/functions_forbidden.sh
++ common_libc_never=
++ common_libc_cbase_only=
++ common_libc_cbase_dir=
++ [ -f cbase/functions_never_use.txt ]
++ common_libc_never=cbase/functions_never_use.txt
++ common_libc_cbase_dir=cbase
++ [ -f cbase/functions_allowed_cbase_only.txt ]
++ common_libc_cbase_only=cbase/functions_allowed_cbase_only.txt
++ common_libc_cbase_dir=cbase
++ [ -n cbase/functions_never_use.txt ]
++ mktemp /tmp/common_libc.XXXXXX
++ common_libc_pattern=/tmp/common_libc.Kpdvdr
++ mktemp /tmp/common_libc.XXXXXX
++ common_libc_sources=/tmp/common_libc.Wi0xH0
++ mktemp /tmp/common_libc.XXXXXX
++ common_libc_matches=/tmp/common_libc.l3Lsgo
++ mktemp /tmp/common_libc.XXXXXX
++ common_libc_matches2=/tmp/common_libc.8QJKlo
++ common_libc_cbase_abs=
++ :
++ :
++ [ -n cbase ]
++ readlink -f cbase
++ common_libc_cbase_abs=/home/lucas/.local/src/000mine/st2/cbase
++ [ ! -d . ]
++ [ . = . ]
++ find . -maxdepth 1 ( -iname *.c -o -iname *.h )
++ sort -u
++ read -r common_source
++ [ ! -d cbase ]
++ [ cbase = . ]
++ [ -n  ]
++ find cbase ( -iname *.c -o -iname *.h )
++ [ ! -d src ]
++ [ src = . ]
++ [ -n  ]
++ find src ( -iname *.c -o -iname *.h )
++ [ ! -d test ]
++ continue
++ [ ! -d tests ]
++ continue
++ echo cbase/arena.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/arena.c 
++ test_src=cbase/arena.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/arena.c
++ read -r common_source
++ grep -Eq (^|/)stc/
++ echo cbase/arena.h
++ [ -n  ]
++ common_test_source_matches_filter cbase/arena.h 
++ test_src=cbase/arena.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/arena.h
++ read -r common_source
++ echo cbase/array.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/array.c 
++ test_src=cbase/array.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/array.c
++ read -r common_source
++ echo cbase/assertions.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/assertions.c 
++ test_src=cbase/assertions.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/assertions.c
++ read -r common_source
++ grep -Eq (^|/)stc/
++ echo cbase/assertions.h
++ [ -n  ]
++ common_test_source_matches_filter cbase/assertions.h 
++ test_src=cbase/assertions.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/assertions.h
++ read -r common_source
++ echo cbase/base_macros.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/base_macros.h 
++ test_src=cbase/base_macros.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/base_macros.h
++ read -r common_source
++ echo cbase/cbase.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/cbase.c 
++ test_src=cbase/cbase.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/cbase.c
++ read -r common_source
++ echo cbase/cbase.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/cbase.h 
++ test_src=cbase/cbase.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/cbase.h
++ read -r common_source
++ + grep -Eq (^|/)stc/
+echo cbase/clamp.h
++ [ -n  ]
++ common_test_source_matches_filter cbase/clamp.h 
++ test_src=cbase/clamp.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/clamp.h
++ read -r common_source
++ echo cbase/command.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/command.c 
++ test_src=cbase/command.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/command.c
++ read -r common_source
++ echo cbase/directory.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/directory.c 
++ test_src=cbase/directory.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/directory.c
++ read -r common_source
++ echo cbase/fs.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/fs.c 
++ test_src=cbase/fs.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/fs.c
++ read -r common_source
++ echo cbase/fs_windows.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/fs_windows.c 
++ test_src=cbase/fs_windows.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/fs_windows.c
++ read -r common_source
++ echo cbase/generic.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/generic.c 
++ test_src=cbase/generic.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/generic.c
++ read -r common_source
++ echo cbase/hash.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/hash.c 
++ test_src=cbase/hash.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/hash.c
++ read -r common_source
++ grep -Eq (^|/)stc/
++ echo cbase/i18n.h
++ [ -n  ]
++ common_test_source_matches_filter cbase/i18n.h 
++ test_src=cbase/i18n.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/i18n.h
++ read -r common_source
++ grep -Eq (^|/)stc/
++ echo cbase/libc.h
++ [ -n  ]
++ common_test_source_matches_filter cbase/libc.h 
++ test_src=cbase/libc.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/libc.h
++ read -r common_source
++ + echo cbase/mem_literal_short.h
+grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/mem_literal_short.h 
++ test_src=cbase/mem_literal_short.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/mem_literal_short.h
++ read -r common_source
++ echo cbase/memory.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/memory.c 
++ test_src=cbase/memory.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/memory.c
++ read -r common_source
++ echo cbase/memory.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/memory.h 
++ test_src=cbase/memory.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/memory.h
++ read -r common_source
++ echo cbase/meta_common.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/meta_common.c 
++ test_src=cbase/meta_common.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/meta_common.c
++ read -r common_source
++ echo cbase/meta_generate.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/meta_generate.c 
++ test_src=cbase/meta_generate.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/meta_generate.c
++ read -r common_source
++ echo cbase/meta.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/meta.h 
++ test_src=cbase/meta.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/meta.h
++ read -r common_source
++ echo cbase/meta_parse.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/meta_parse.c 
++ test_src=cbase/meta_parse.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/meta_parse.c
++ read -r common_source
++ echo cbase/meta_tokenize.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/meta_tokenize.c 
++ test_src=cbase/meta_tokenize.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/meta_tokenize.c
++ read -r common_source
++ echo cbase/minmax.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/minmax.c 
++ test_src=cbase/minmax.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/minmax.c
++ read -r common_source
++ + grep -Eq (^|/)stc/
+echo cbase/platform_detection.h
++ [ -n  ]
++ common_test_source_matches_filter cbase/platform_detection.h 
++ test_src=cbase/platform_detection.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/platform_detection.h
++ read -r common_source
++ grep -Eq (^|/)stc/
++ echo cbase/primitives.h
++ [ -n  ]
++ common_test_source_matches_filter cbase/primitives.h 
++ test_src=cbase/primitives.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/primitives.h
++ read -r common_source
++ echo cbase/rapidhash.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/rapidhash.h 
++ test_src=cbase/rapidhash.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/rapidhash.h
++ read -r common_source
++ echo cbase/rw_function.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/rw_function.h 
++ test_src=cbase/rw_function.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/rw_function.h
++ read -r common_source
++ echo cbase/sfa.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/sfa.h 
++ test_src=cbase/sfa.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/sfa.h
++ read -r common_source
++ + echo cbase/sort.c
+grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/sort.c 
++ test_src=cbase/sort.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/sort.c
++ read -r common_source
++ echo cbase/string.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/string.c 
++ test_src=cbase/string.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/string.c
++ read -r common_source
++ + grepecho -Eq cbase/threads.c
+ (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/threads.c 
++ test_src=cbase/threads.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/threads.c
++ read -r common_source
++ echo cbase/time.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/time.c 
++ test_src=cbase/time.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/time.c
++ read -r common_source
++ echo cbase/try_include.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/try_include.h 
++ test_src=cbase/try_include.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/try_include.h
++ read -r common_source
++ echo cbase/utf8.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/utf8.c 
++ test_src=cbase/utf8.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/utf8.c
++ read -r common_source
++ echo cbase/util.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/util.c 
++ test_src=cbase/util.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/util.c
++ read -r common_source
++ echo cbase/windows.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/windows.c 
++ test_src=cbase/windows.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/windows.c
++ read -r common_source
++ echo cbase/xenums.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter cbase/xenums.c 
++ test_src=cbase/xenums.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n cbase/xenums.c
++ read -r common_source
++ echo src/arg.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/arg.h 
++ test_src=src/arg.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/arg.h
++ read -r common_source
++ echo src/base64.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/base64.c 
++ test_src=src/base64.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/base64.c
++ read -r common_source
++ echo src/boxdraw.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/boxdraw.c 
++ test_src=src/boxdraw.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/boxdraw.c
++ read -r common_source
++ echo src/boxdraw_data.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/boxdraw_data.h 
++ test_src=src/boxdraw_data.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/boxdraw_data.h
++ read -r common_source
++ echo src/config.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/config.h 
++ test_src=src/config.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/config.h
++ read -r common_source
++ echo src/escape.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/escape.c 
++ test_src=src/escape.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/escape.c
++ read -r common_source
++ echo src/handlers.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/handlers.c 
++ test_src=src/handlers.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/handlers.c
++ read -r common_source
++ echo src/main.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/main.c 
++ test_src=src/main.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/main.c
++ read -r common_source
++ echo src/mouse.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/mouse.c 
++ test_src=src/mouse.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/mouse.c
++ read -r common_source
++ echo src/resize.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/resize.c 
++ test_src=src/resize.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/resize.c
++ read -r common_source
++ echo src/selection.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/selection.c 
++ test_src=src/selection.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/selection.c
++ read -r common_source
++ echo src/sixel.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/sixel.c 
++ test_src=src/sixel.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/sixel.c
++ read -r common_source
++ echo src/sixel.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/sixel.h 
++ test_src=src/sixel.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/sixel.h
++ read -r common_source
++ echo src/st.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/st.c 
++ test_src=src/st.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/st.c
++ read -r common_source
++ echo src/st.h
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/st.h 
++ test_src=src/st.h
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/st.h
++ read -r common_source
++ echo src/st_util.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/st_util.c 
++ test_src=src/st_util.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/st_util.c
++ read -r common_source
++ echo src/test_resize_scroll.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/test_resize_scroll.c 
++ test_src=src/test_resize_scroll.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/test_resize_scroll.c
++ read -r common_source
++ echo src/tty.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/tty.c 
++ test_src=src/tty.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/tty.c
++ read -r common_source
++ echo src/user.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/user.c 
++ test_src=src/user.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/user.c
++ read -r common_source
++ echo src/x.c
++ grep -Eq (^|/)stc/
++ [ -n  ]
++ common_test_source_matches_filter src/x.c 
++ test_src=src/x.c
++ test_filter=
++ [ -z  ]
++ return 0
++ printf %s\n src/x.c
++ read -r common_source
++ [ -n cbase/functions_never_use.txt ]
++ awk 
+            /^[[:space:]]*(#|$)/ { next }
+            {
+                printf "(^|[^[:alnum:]_])%s[[:space:]]*\\(\n", $1
+            }
+         cbase/functions_never_use.txt
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/arena.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/arena.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/array.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/assertions.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/assertions.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/base_macros.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/cbase.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/cbase.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/clamp.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/command.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/directory.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/fs.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/fs_windows.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/generic.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/hash.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/i18n.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/libc.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/mem_literal_short.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/memory.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/memory.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/meta_common.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/meta_generate.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/meta.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/meta_parse.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/meta_tokenize.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/minmax.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/platform_detection.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/primitives.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/rapidhash.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/rw_function.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/sfa.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/sort.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/string.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/threads.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/time.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/try_include.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/utf8.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/util.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/windows.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr cbase/xenums.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/arg.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/base64.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/boxdraw.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/boxdraw_data.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/config.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/escape.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/handlers.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/main.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/mouse.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/resize.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/selection.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/sixel.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/sixel.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/st.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/st.h
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/st_util.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/test_resize_scroll.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/tty.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/user.c
++ true
++ read -r common_source
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/x.c
++ true
++ read -r common_source
++ [ -n cbase/functions_allowed_cbase_only.txt ]
++ awk 
+            /^[[:space:]]*(#|$)/ { next }
+            {
+                printf "(^|[^[:alnum:]_])%s[[:space:]]*\\(\n", $1
+            }
+         cbase/functions_allowed_cbase_only.txt
++ read -r common_source
++ readlink -f cbase/arena.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/arena.c
++ continue
++ read -r common_source
++ readlink -f cbase/arena.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/arena.h
++ continue
++ read -r common_source
++ readlink -f cbase/array.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/array.c
++ continue
++ read -r common_source
++ readlink -f cbase/assertions.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/assertions.c
++ continue
++ read -r common_source
++ readlink -f cbase/assertions.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/assertions.h
++ continue
++ read -r common_source
++ readlink -f cbase/base_macros.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/base_macros.h
++ continue
++ read -r common_source
++ readlink -f cbase/cbase.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/cbase.c
++ continue
++ read -r common_source
++ readlink -f cbase/cbase.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/cbase.h
++ continue
++ read -r common_source
++ readlink -f cbase/clamp.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/clamp.h
++ continue
++ read -r common_source
++ readlink -f cbase/command.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/command.c
++ continue
++ read -r common_source
++ readlink -f cbase/directory.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/directory.c
++ continue
++ read -r common_source
++ readlink -f cbase/fs.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/fs.c
++ continue
++ read -r common_source
++ readlink -f cbase/fs_windows.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/fs_windows.c
++ continue
++ read -r common_source
++ readlink -f cbase/generic.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/generic.c
++ continue
++ read -r common_source
++ readlink -f cbase/hash.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/hash.c
++ continue
++ read -r common_source
++ readlink -f cbase/i18n.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/i18n.h
++ continue
++ read -r common_source
++ readlink -f cbase/libc.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/libc.h
++ continue
++ read -r common_source
++ readlink -f cbase/mem_literal_short.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/mem_literal_short.h
++ continue
++ read -r common_source
++ readlink -f cbase/memory.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/memory.c
++ continue
++ read -r common_source
++ readlink -f cbase/memory.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/memory.h
++ continue
++ read -r common_source
++ readlink -f cbase/meta_common.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/meta_common.c
++ continue
++ read -r common_source
++ readlink -f cbase/meta_generate.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/meta_generate.c
++ continue
++ read -r common_source
++ readlink -f cbase/meta.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/meta.h
++ continue
++ read -r common_source
++ readlink -f cbase/meta_parse.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/meta_parse.c
++ continue
++ read -r common_source
++ readlink -f cbase/meta_tokenize.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/meta_tokenize.c
++ continue
++ read -r common_source
++ readlink -f cbase/minmax.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/minmax.c
++ continue
++ read -r common_source
++ readlink -f cbase/platform_detection.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/platform_detection.h
++ continue
++ read -r common_source
++ readlink -f cbase/primitives.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/primitives.h
++ continue
++ read -r common_source
++ readlink -f cbase/rapidhash.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/rapidhash.h
++ continue
++ read -r common_source
++ readlink -f cbase/rw_function.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/rw_function.h
++ continue
++ read -r common_source
++ readlink -f cbase/sfa.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/sfa.h
++ continue
++ read -r common_source
++ readlink -f cbase/sort.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/sort.c
++ continue
++ read -r common_source
++ readlink -f cbase/string.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/string.c
++ continue
++ read -r common_source
++ readlink -f cbase/threads.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/threads.c
++ continue
++ read -r common_source
++ readlink -f cbase/time.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/time.c
++ continue
++ read -r common_source
++ readlink -f cbase/try_include.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/try_include.h
++ continue
++ read -r common_source
++ readlink -f cbase/utf8.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/utf8.c
++ continue
++ read -r common_source
++ readlink -f cbase/util.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/util.c
++ continue
++ read -r common_source
++ readlink -f cbase/windows.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/windows.c
++ continue
++ read -r common_source
++ readlink -f cbase/xenums.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/cbase/xenums.c
++ continue
++ read -r common_source
++ readlink -f src/arg.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/arg.h
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/arg.h
++ true
++ read -r common_source
++ readlink -f src/base64.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/base64.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/base64.c
++ true
++ read -r common_source
++ readlink -f src/boxdraw.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/boxdraw.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/boxdraw.c
++ true
++ read -r common_source
++ readlink -f src/boxdraw_data.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/boxdraw_data.h
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/boxdraw_data.h
++ true
++ read -r common_source
++ readlink -f src/config.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/config.h
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/config.h
++ true
++ read -r common_source
++ readlink -f src/escape.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/escape.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/escape.c
++ true
++ read -r common_source
++ readlink -f src/handlers.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/handlers.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/handlers.c
++ true
++ read -r common_source
++ readlink -f src/main.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/main.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/main.c
++ true
++ read -r common_source
++ readlink -f src/mouse.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/mouse.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/mouse.c
++ true
++ read -r common_source
++ readlink -f src/resize.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/resize.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/resize.c
++ true
++ read -r common_source
++ readlink -f src/selection.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/selection.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/selection.c
++ true
++ read -r common_source
++ readlink -f src/sixel.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/sixel.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/sixel.c
++ true
++ read -r common_source
++ readlink -f src/sixel.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/sixel.h
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/sixel.h
++ true
++ read -r common_source
++ readlink -f src/st.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/st.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/st.c
++ true
++ read -r common_source
++ readlink -f src/st.h
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/st.h
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/st.h
++ true
++ read -r common_source
++ readlink -f src/st_util.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/st_util.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/st_util.c
++ true
++ read -r common_source
++ readlink -f src/test_resize_scroll.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/test_resize_scroll.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/test_resize_scroll.c
++ true
++ read -r common_source
++ readlink -f src/tty.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/tty.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/tty.c
++ true
++ read -r common_source
++ readlink -f src/user.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/user.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/user.c
++ true
++ read -r common_source
++ readlink -f src/x.c
++ common_source_abs=/home/lucas/.local/src/000mine/st2/src/x.c
++ grep -EnH -f /tmp/common_libc.Kpdvdr src/x.c
++ true
++ read -r common_source
++ [ -s /tmp/common_libc.l3Lsgo ]
++ [ -s /tmp/common_libc.8QJKlo ]
++ common_libc_status=0
++ [ -s /tmp/common_libc.l3Lsgo ]
++ [ -s /tmp/common_libc.8QJKlo ]
++ rm -f /tmp/common_libc.Kpdvdr /tmp/common_libc.Wi0xH0 /tmp/common_libc.l3Lsgo /tmp/common_libc.8QJKlo
++ [ 0 -ne 0 ]
++ [ -n  ]
++ alias trace_on=set -x
++ alias trace_off={ set +x; } 2>/dev/null
++ cross_targets=
++ common_command_exists zig
++ command -v zig
++ zig targets
++ + sort
+sed -n /\.libc = \.{/,/},/ s/^[[:space:]]*"\(.*\)".*/\1/p
++ grep -v -- ^loongarch64-linux-gnusf
++ grep -v 32
++ grep -v -- ^arc-
++ grep -v -- ^armeb-
++ grep -v -- ^sparc-
++ grep -v -- ^m68k-
++ grep -v -- ^csky-
++ grep -v -- ^sparc64-
++ cross_targets=aarch64_be-linux-gnu
+aarch64_be-linux-musl
+aarch64_be-netbsd-none
+aarch64-freebsd-none
+aarch64-linux-gnu
+aarch64-linux-musl
+aarch64-maccatalyst-none
+aarch64-macos-none
+aarch64-netbsd-none
+aarch64-openbsd-none
+aarch64-windows-gnu
+arm-freebsd-eabihf
+arm-linux-gnueabi
+arm-linux-gnueabihf
+arm-linux-musleabi
+arm-linux-musleabihf
+arm-netbsd-eabi
+arm-netbsd-eabihf
+arm-openbsd-eabi
+hexagon-linux-musl
+loongarch64-linux-gnu
+loongarch64-linux-musl
+loongarch64-linux-muslsf
+mips64el-linux-gnuabi64
+mips64el-linux-muslabi64
+mips64el-openbsd-none
+mips64-linux-gnuabi64
+mips64-linux-muslabi64
+mips64-openbsd-none
+mipsel-linux-gnueabi
+mipsel-linux-gnueabihf
+mipsel-linux-musleabi
+mipsel-linux-musleabihf
+mipsel-netbsd-eabi
+mipsel-netbsd-eabihf
+mips-linux-gnueabi
+mips-linux-gnueabihf
+mips-linux-musleabi
+mips-linux-musleabihf
+mips-netbsd-eabi
+mips-netbsd-eabihf
+powerpc64-freebsd-none
+powerpc64le-freebsd-none
+powerpc64le-linux-gnu
+powerpc64le-linux-musl
+powerpc64-linux-gnu
+powerpc64-linux-musl
+powerpc64-openbsd-none
+powerpc-linux-gnueabi
+powerpc-linux-gnueabihf
+powerpc-linux-musleabi
+powerpc-linux-musleabihf
+powerpc-netbsd-eabi
+powerpc-netbsd-eabihf
+powerpc-openbsd-eabihf
+riscv64-freebsd-none
+riscv64-linux-gnu
+riscv64-linux-musl
+riscv64-openbsd-none
+s390x-linux-gnu
+s390x-linux-musl
+thumbeb-linux-musleabi
+thumbeb-linux-musleabihf
+thumb-linux-musleabi
+thumb-linux-musleabihf
+thumb-windows-gnu
+x86_64-freebsd-none
+x86_64-linux-gnu
+x86_64-linux-musl
+x86_64-maccatalyst-none
+x86_64-macos-none
+x86_64-netbsd-none
+x86_64-openbsd-none
+x86_64-windows-gnu
+x86-freebsd-none
+x86-linux-gnu
+x86-linux-musl
+x86-netbsd-none
+x86-openbsd-none
+x86-windows-gnu
++ echo cross_targets = aarch64_be-linux-gnu
+aarch64_be-linux-musl
+aarch64_be-netbsd-none
+aarch64-freebsd-none
+aarch64-linux-gnu
+aarch64-linux-musl
+aarch64-maccatalyst-none
+aarch64-macos-none
+aarch64-netbsd-none
+aarch64-openbsd-none
+aarch64-windows-gnu
+arm-freebsd-eabihf
+arm-linux-gnueabi
+arm-linux-gnueabihf
+arm-linux-musleabi
+arm-linux-musleabihf
+arm-netbsd-eabi
+arm-netbsd-eabihf
+arm-openbsd-eabi
+hexagon-linux-musl
+loongarch64-linux-gnu
+loongarch64-linux-musl
+loongarch64-linux-muslsf
+mips64el-linux-gnuabi64
+mips64el-linux-muslabi64
+mips64el-openbsd-none
+mips64-linux-gnuabi64
+mips64-linux-muslabi64
+mips64-openbsd-none
+mipsel-linux-gnueabi
+mipsel-linux-gnueabihf
+mipsel-linux-musleabi
+mipsel-linux-musleabihf
+mipsel-netbsd-eabi
+mipsel-netbsd-eabihf
+mips-linux-gnueabi
+mips-linux-gnueabihf
+mips-linux-musleabi
+mips-linux-musleabihf
+mips-netbsd-eabi
+mips-netbsd-eabihf
+powerpc64-freebsd-none
+powerpc64le-freebsd-none
+powerpc64le-linux-gnu
+powerpc64le-linux-musl
+powerpc64-linux-gnu
+powerpc64-linux-musl
+powerpc64-openbsd-none
+powerpc-linux-gnueabi
+powerpc-linux-gnueabihf
+powerpc-linux-musleabi
+powerpc-linux-musleabihf
+powerpc-netbsd-eabi
+powerpc-netbsd-eabihf
+powerpc-openbsd-eabihf
+riscv64-freebsd-none
+riscv64-linux-gnu
+riscv64-linux-musl
+riscv64-openbsd-none
+s390x-linux-gnu
+s390x-linux-musl
+thumbeb-linux-musleabi
+thumbeb-linux-musleabihf
+thumb-linux-musleabi
+thumb-linux-musleabihf
+thumb-windows-gnu
+x86_64-freebsd-none
+x86_64-linux-gnu
+x86_64-linux-musl
+x86_64-maccatalyst-none
+x86_64-macos-none
+x86_64-netbsd-none
+x86_64-openbsd-none
+x86_64-windows-gnu
+x86-freebsd-none
+x86-linux-gnu
+x86-linux-musl
+x86-netbsd-none
+x86-openbsd-none
+x86-windows-gnu
++ basename ./build.sh
++ [ build.sh = common.sh ]
++ common_get_program ./build.sh
++ [ -z ./build.sh ]
++ dirname ./build.sh
++ readlink -f .
++ basename /home/lucas/.local/src/000mine/st2
++ program=st2
++ basename ./build.sh
++ script=build.sh
++ common_build_parse_args test
++ mode=test
++ target=
++ [ -n test ]
++ [ -f test ]
++ target_line=test
++ [ test = cross ]
++ return 0
++ mkdir -p gen
++ set -x
++ cat st-copy-output.sh
++ script_to_header st_copy_output
++ var_name=st_copy_output
++ printf static unsigned char %s[] = {\n st_copy_output
++ awk {
+            for (i = 1; i <= NF; i += 1) {
+                printf "    0x%s,\n", $i
+            }
+        }
++ printf \0
++ od -An -tx1 -v
++ printf };\n
++ printf static unsigned int %s_len = sizeof(%s);\n st_copy_output st_copy_output
++ cat st-copy-url.sh
++ script_to_header st_copy_url
++ var_name=st_copy_url
++ printf static unsigned char %s[] = {\n st_copy_url
++ od -An -tx1 -v
++ printf \0
++ awk {
+            for (i = 1; i <= NF; i += 1) {
+                printf "    0x%s,\n", $i
+            }
+        }
++ printf };\n
++ printf static unsigned int %s_len = sizeof(%s);\n st_copy_url st_copy_url
+
+build.sh [01;38;2;255;000;000mtest[0m
+
+Testing [01;38;2;255;000;000m./src/base64.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_base64=1 -DTESTING=1 -o /tmp/base64_test ./src/base64.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/base64_test
++ test_exe=/tmp/base64_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/base64_test
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/boxdraw.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_boxdraw=1 -DTESTING=1 -o /tmp/boxdraw_test ./src/boxdraw.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/boxdraw_test
++ test_exe=/tmp/boxdraw_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/boxdraw_test
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/escape.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_escape=1 -DTESTING=1 -o /tmp/escape_test ./src/escape.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/escape_test
++ test_exe=/tmp/escape_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/escape_test
+ESC[m
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/handlers.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_handlers=1 -DTESTING=1 -o /tmp/handlers_test ./src/handlers.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/handlers_test
++ test_exe=/tmp/handlers_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/handlers_test
+handlers.c:25 handler_sigchld():waiting for pid 0 failed: No child processes
+handlers.c:329 handler_selection_request():Unhandled clipboard selection 0x0
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/mouse.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_mouse=1 -DTESTING=1 -o /tmp/mouse_test ./src/mouse.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/mouse_test
++ test_exe=/tmp/mouse_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/mouse_test
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/resize.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_resize=1 -DTESTING=1 -o /tmp/resize_test ./src/resize.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/resize_test
++ test_exe=/tmp/resize_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/resize_test
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/selection.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_selection=1 -DTESTING=1 -o /tmp/selection_test ./src/selection.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/selection_test
++ test_exe=/tmp/selection_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/selection_test
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/sixel.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_sixel=1 -DTESTING=1 -o /tmp/sixel_test ./src/sixel.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/sixel_test
++ test_exe=/tmp/sixel_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/sixel_test
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/st.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_st=1 -DTESTING=1 -o /tmp/st_test ./src/st.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/st_test
++ test_exe=/tmp/st_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/st_test
+tty.c:357 tty_resize():Couldn't set window size: Inappropriate ioctl for device
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/st_util.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_st_util=1 -DTESTING=1 -o /tmp/st_util_test ./src/st_util.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/st_util_test
++ test_exe=/tmp/st_util_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/st_util_test
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/tty.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_tty=1 -DTESTING=1 -o /tmp/tty_test ./src/tty.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/tty_test
++ test_exe=/tmp/tty_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/tty_test
+stty: ao especificar um estilo de saída, não se pode definir um modo
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/user.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_user=1 -DTESTING=1 -o /tmp/user_test ./src/user.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/user_test
++ test_exe=/tmp/user_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/user_test
+tty.c:357 tty_resize():Couldn't set window size: Inappropriate ioctl for device
+tty.c:357 tty_resize():Couldn't set window size: Inappropriate ioctl for device
+user.c:536 user_send_break():Error sending break.
+tty.c:322 tty_write_raw():write error on tty: Bad file descriptor
++ [ 0 != 0 ]
++ return 0
+
+Testing [01;38;2;255;000;000m./src/x.c[0m ...
++ tcc -I. -Icbase -Igen -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread -DUTF8PROC_EXPORTS -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-type-limits -Wno-unused-function -fdiagnostics-color=always -g3 -DDEBUGGING=1 -Wno-unused-variable -DTESTING_x=1 -DTESTING=1 -o /tmp/x_test ./src/x.c -lm -lX11 -lXft -lfontconfig -lfreetype -lharfbuzz -lImlib2 -lutf8proc
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/x_test
++ test_exe=/tmp/x_test
++ test_status=0
++ [ -n /dev/null ]
++ /tmp/x_test
++ [ 0 != 0 ]
++ return 0
