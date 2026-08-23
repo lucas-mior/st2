@@ -633,8 +633,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             /* DECGCI Graphics Color Introducer # Pc; Pu; Px; Py; Pz */
             if (*p >= '0' && *p <= '9') {
                 sixel_state->param = sixel_state->param*10 + *p - '0';
-                sixel_state->param
-                    = (uint32)MIN(sixel_state->param, DECSIXEL_PARAMVALUE_MAX);
+                sixel_state->param = (uint32)MIN(sixel_state->param,
+                                                 DECSIXEL_PARAMVALUE_MAX);
                 p++;
             } else if (*p == ';') {
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
