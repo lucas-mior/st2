@@ -576,7 +576,7 @@ control_seq_intro_handle(void) {
             return;
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
-        x = (int32)MIN(term.cursor.x + csi_escape_seq.arg[0], term.ncols) - 1;
+        x = MIN(term.cursor.x + csi_escape_seq.arg[0], term.ncols) - 1;
         term_clear_region(term.cursor.x, term.cursor.y, x, term.cursor.y, true);
         break;
     case 'P':
@@ -995,7 +995,7 @@ string_handle(void) {
                         y_line = image->y - scr_offset;
                         if (y_line >= 0 && y_line < term.nrows && term.dirts[y_line]) {
                             StGlyph *line_ptr = term.lines[y_line];
-                            j = (int32)MIN(image->x + image->cols, term.ncols);
+                            j = MIN(image->x + image->cols, term.ncols);
                             for (i_idx = image->x; i_idx < j; i_idx += 1) {
                                 if (line_ptr[i_idx].mode & ATTR_SIXEL) {
                                     break;
