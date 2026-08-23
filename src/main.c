@@ -110,8 +110,8 @@ run:
 
     setlocale(LC_CTYPE, "");
     XSetLocaleModifiers("");
-    CONF_NCOLS = (int32)MAX(CONF_NCOLS, 1);
-    CONF_NROWS = (int32)MAX(CONF_NROWS, 1);
+    CONF_NCOLS = MAX(CONF_NCOLS, 1);
+    CONF_NROWS = MAX(CONF_NROWS, 1);
 
     term_allocate();
     term_reset();
