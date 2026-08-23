@@ -1150,7 +1150,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         } else {
             clear_y = win_y;
         }
-        x_clear((int32)MIN(win_x + width, term_window.w), clear_y, term_window.w, limit_y);
+        x_clear(MIN(win_x + width, term_window.w), clear_y,
+                term_window.w, limit_y);
     }
     if (y == 0) {
         x_clear(win_x, 0, win_x + width, term_window.vborderpx);
