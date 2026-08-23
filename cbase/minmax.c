@@ -240,22 +240,8 @@ _Generic((VAR1), \
 #endif
 
 #if CC_GCC || CC_CLANG
-#define MINMAX_COMPARE_SAME_TYPE_(RESULT, VAR1_, VAR2_, SYMBOL, VAR1, VAR2) \
-    __extension__ ({                                                        \
-        __auto_type VAR1_ = (VAR1);                                         \
-        __auto_type VAR2_ = (VAR2);                                         \
-        __auto_type RESULT = VAR2_;                                         \
-        if (VAR1_ SYMBOL VAR2_) {                                           \
-            RESULT = (__typeof__(RESULT))VAR1_;                             \
-        }                                                                   \
-        RESULT;                                                             \
-    })
-
 #define MINMAX_COMPARE_SAME_TYPE(SYMBOL, VAR1, VAR2) \
-    MINMAX_COMPARE_SAME_TYPE_(CAT(minmax_same_result_, __LINE__), \
-                              CAT(minmax_same_var1_, __LINE__),   \
-                              CAT(minmax_same_var2_, __LINE__),   \
-                              SYMBOL, VAR1, VAR2)
+    ((VAR1) SYMBOL (VAR2) ? (VAR1) : (VAR2))
 
 #define MINMAX_COMPARE_SAME_TYPE_min(VAR1, VAR2) \
     MINMAX_COMPARE_SAME_TYPE(<, VAR1, VAR2)
@@ -283,6 +269,7 @@ _Generic((VAR),                             \
     _Pragma("GCC diagnostic push")                                            \
     _Pragma("GCC diagnostic ignored \"-Wpedantic\"")                          \
     _Pragma("GCC diagnostic ignored \"-Wsign-compare\"")                      \
+    _Pragma("GCC diagnostic ignored \"-Wsign-conversion\"")                   \
     __auto_type RESULT = __builtin_choose_expr(                               \
         MINMAX_COMPARE_TYPE_PRESERVING(VAR1)                                  \
         && __builtin_types_compatible_p(__typeof__(VAR1), __typeof__(VAR2)),   \
