@@ -491,7 +491,7 @@ control_seq_intro_handle(void) {
                 n -= 1;
             }
             for (ImageList *im = term.images; im; im = im->next) {
-                n = (int32)MAX(im->y - term.scrolled_up, n);
+                n = MAX(im->y - term.scrolled_up, n);
             }
             if (n >= 0) {
                 term_scroll_up(0, term.nrows - 1, n + 1, SCROLL_SAVEHIST);
@@ -1024,7 +1024,7 @@ string_handle(void) {
                 term.images = new_images;
             }
 
-            x2_im = (int32)MIN(x2_im, term.ncols) - 1;
+            x2_im = MIN(x2_im, term.ncols) - 1;
 
             if (term_mode_is_set(TERM_MODE_SIXEL_SDM)) {
                 ImageList *im_sdm;

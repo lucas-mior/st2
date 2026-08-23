@@ -768,7 +768,7 @@ term_insert_blank(int32 n) {
     if (n <= 0) {
         return;
     }
-    dst = (int32)MIN(term.cursor.x + n, term.ncols);
+    dst = MIN(term.cursor.x + n, term.ncols);
     src = term.cursor.x;
     size = term.ncols - dst;
     if (size > 0) { /* otherwise dst would point beyond the array */
