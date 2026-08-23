@@ -484,7 +484,7 @@ term_scroll_down(int32 top, int32 n) {
     if (n <= 0) {
         return;
     }
-    n = (int32)MIN(n, bot - top + 1);
+    n = MIN(n, bot - top + 1);
 
     term_set_dirt(top, bot - n);
     term_clear_region(0, bot - n + 1, term.ncols - 1, bot, true);
@@ -876,7 +876,7 @@ term_dump(void) {
 
 static void
 reflow_scroll_down(int32 n) {
-    int32 actual_n = (int32)MIN(n, term.n_hist);
+    int32 actual_n = MIN(n, term.n_hist);
 
     if (actual_n <= 0) {
         return;
@@ -903,7 +903,7 @@ reflow_scroll_down(int32 n) {
 
     term.cursor.y += actual_n;
     term.n_hist -= actual_n;
-    term.scrolled_up = (int32)MAX(0, term.scrolled_up - actual_n);
+    term.scrolled_up = MAX(0, term.scrolled_up - actual_n);
 
     {
         ImageList *im = term.images;
@@ -982,8 +982,8 @@ draw(void) {
              */
             scaled_w = (image->width*term_window.cw) / image->cw;
             scaled_h = (image->height*term_window.ch) / image->ch;
-            scaled_w = (int32)MAX(scaled_w, 1);
-            scaled_h = (int32)MAX(scaled_h, 1);
+            scaled_w = MAX(scaled_w, 1);
+            scaled_h = MAX(scaled_h, 1);
 
             if (image->pixmap == NULL) {
                 uint32 *scaled_pixels;
