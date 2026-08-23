@@ -110,12 +110,12 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
 
     if (shift > 0) {
         /* Move the remaining pointers that fit in the new height */
-        int32 to_move = (int32)MIN(new_nrows, term.nrows - shift);
+        int32 to_move = MIN(new_nrows, term.nrows - shift);
         memmove64(term.lines, term.lines + shift, to_move*SIZEOF(*(term.lines)));
         term.cursor.y = new_nrows - 1;
     }
 
-    for (int32 i = (int32)MAX(new_nrows, shift + new_nrows); i < term.nrows; i += 1) {
+    for (int32 i = MAX(new_nrows, shift + new_nrows); i < term.nrows; i += 1) {
         free2(term.lines[i], old_line_size);
     }
     
@@ -414,7 +414,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     }
 
     {
-        int32 history_to_keep = (int32)MIN(screen_top_idx, HISTORY_SIZE);
+        int32 history_to_keep = MIN(screen_top_idx, HISTORY_SIZE);
         int32 history_start_idx = screen_top_idx - history_to_keep;
         term.n_hist = history_to_keep;
         if (history_to_keep > 0) {
@@ -514,8 +514,8 @@ x_configure_resize(int32 new_width, int32 new_height) {
 
     new_ncols = (term_window.w - 2*CONF_BORDER_PIXELS) / term_window.cw;
     new_nrows = (term_window.h - 2*CONF_BORDER_PIXELS) / term_window.ch;
-    new_ncols = (int32)MAX(1, new_ncols);
-    new_nrows = (int32)MAX(1, new_nrows);
+    new_ncols = MAX(1, new_ncols);
+    new_nrows = MAX(1, new_nrows);
 
     term_window.hborderpx = (term_window.w - new_ncols*term_window.cw) / 2;
     term_window.vborderpx = (term_window.h - new_nrows*term_window.ch) / 2;
