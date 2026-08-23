@@ -8,9 +8,11 @@ dir=$(dirname "$(readlink -f "$0")")
 cd "$dir" || exit
 # shellcheck source=./cbase/common.sh
 . ./cbase/common.sh
+
 program=$(common_get_program "$0")
 script=$(basename "$0")
 common_build_parse_args "$@"
+
 case "$mode" in
 build|cachegrind|callgrind|check)
     ;;
@@ -22,6 +24,7 @@ install|run|test|test_all|uninstall|valgrind)
     common_build_unknown_mode
     ;;
 esac
+
 mkdir -p gen
 script_to_header() {
     var_name=$1
@@ -37,11 +40,13 @@ script_to_header() {
     printf 'static unsigned int %s_len = sizeof(%s);\n' \
         "$var_name" "$var_name"
 }
+
 trace_on
 { cat st-copy-output.sh; printf '\0'; } \
     | script_to_header st_copy_output > gen/copy_output.h
 { cat st-copy-url.sh;    printf '\0'; } \
     | script_to_header st_copy_url > gen/copy_url.h
+
 trace_off
 cd "$dir" || exit
 common_build_print_invocation "$script"
