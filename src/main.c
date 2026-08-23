@@ -360,7 +360,8 @@ run:
                 tv = NULL;
             }
 
-            if (pselect((int32)MAX(xfd, tty_fd) + 1, &read_fd, NULL, NULL, tv, NULL) < 0) {
+            if (pselect(MAX(xfd, tty_fd) + 1, &read_fd,
+                        NULL, NULL, tv, NULL) < 0) {
                 if (errno == EINTR) {
                     continue;
                 }
