@@ -292,6 +292,14 @@ _Generic((VAR),                             \
 int
 main(void) {
     {
+        double x = 0.0;
+        double y = 1.0;
+        double min = MIN(x, y);
+        double max = MAX(x, y);
+        ASSERT_EQUAL(min, x);
+        ASSERT_EQUAL(max, y);
+    }
+    {
         long min01 = MIN(0, 1);
         long min11 = MIN(1, 1);
         long max11 = MAX(1, 1);
