@@ -589,8 +589,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
 
                 if (sixel_image->width < sixel_state->attributed_ph
                     || sixel_image->height < sixel_state->attributed_pv) {
-                    sx = (int32)MAX(sixel_image->width, sixel_state->attributed_ph);
-                    sy = (int32)MAX(sixel_image->height, sixel_state->attributed_pv);
+                    sx = MAX(sixel_image->width, sixel_state->attributed_ph);
+                    sy = MAX(sixel_image->height, sixel_state->attributed_pv);
 
                     /* the height of the sixel_image buffer must be divisible by 6
                      * to avoid unnecessary resizing of the sixel_image buffer when
