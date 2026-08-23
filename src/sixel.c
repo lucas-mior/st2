@@ -691,11 +691,11 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     } else if (sixel_state->params[1] == 2) {
                         /* RGB */
                         sixel_state->params[2]
-                            = (uint32)MIN(sixel_state->params[2], 100);
+                            = MIN(sixel_state->params[2], 100u);
                         sixel_state->params[3]
-                            = (uint32)MIN(sixel_state->params[3], 100);
+                            = MIN(sixel_state->params[3], 100u);
                         sixel_state->params[4]
-                            = (uint32)MIN(sixel_state->params[4], 100);
+                            = MIN(sixel_state->params[4], 100u);
                         
                         if (DEBUGGING) {
                             fprintf(stderr,
