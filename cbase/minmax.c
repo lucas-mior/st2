@@ -65,18 +65,18 @@ minmax_compare_sign_with_unsign(llong signed_value, ullong unsigned_value) {
     return 1;
 }
 
-#define GENERATE_COMPARE_SIGNED_UNSIGNED(MODE, SYMBOL) \
-static llong \
-get_signed_unsigned_##MODE(llong var1, ullong var2) { \
-    if ((minmax_compare_sign_with_unsign(var1, var2) SYMBOL 0)) { \
-        return var1; \
-    } else { \
-        if (var2 > LLONG_MAX) { \
-            fprintf(stderr, "You are working with a too large number.\n"); \
-            TRAP(); \
-        } \
-        return (llong)var2; \
-    } \
+#define GENERATE_COMPARE_SIGNED_UNSIGNED(MODE, SYMBOL)                         \
+static llong                                                                   \
+get_signed_unsigned_##MODE(llong var1, ullong var2) {                          \
+    if ((minmax_compare_sign_with_unsign(var1, var2) SYMBOL 0)) {              \
+        return var1;                                                           \
+    } else {                                                                   \
+        if (var2 > LLONG_MAX) {                                                \
+            fprintf(stderr, "You are working with a too large number.\n");     \
+            TRAP();                                                            \
+        }                                                                      \
+        return (llong)var2;                                                    \
+    }                                                                          \
 }
 
 GENERATE_COMPARE_SIGNED_UNSIGNED(min, <)
@@ -84,18 +84,18 @@ GENERATE_COMPARE_SIGNED_UNSIGNED(max, >)
 
 #undef GENERATE_COMPARE_SIGNED_UNSIGNED
 
-#define GENERATE_COMPARE_UNSIGNED_SIGNED(MODE, SYMBOL) \
-static llong \
-get_unsigned_signed_##MODE(ullong var1, llong var2) { \
-    if (((-minmax_compare_sign_with_unsign(var2, var1)) SYMBOL 0)) { \
-        if (var1 > LLONG_MAX) { \
-            fprintf(stderr, "You are working with a too large number.\n"); \
-            TRAP(); \
-        } \
-        return (llong)var1; \
-    } else { \
-        return var2; \
-    } \
+#define GENERATE_COMPARE_UNSIGNED_SIGNED(MODE, SYMBOL)                         \
+static llong                                                                   \
+get_unsigned_signed_##MODE(ullong var1, llong var2) {                          \
+    if (((-minmax_compare_sign_with_unsign(var2, var1)) SYMBOL 0)) {           \
+        if (var1 > LLONG_MAX) {                                                \
+            fprintf(stderr, "You are working with a too large number.\n");     \
+            TRAP();                                                            \
+        }                                                                      \
+        return (llong)var1;                                                    \
+    } else {                                                                   \
+        return var2;                                                           \
+    }                                                                          \
 }
 
 GENERATE_COMPARE_UNSIGNED_SIGNED(min, <)
@@ -103,14 +103,14 @@ GENERATE_COMPARE_UNSIGNED_SIGNED(max, >)
 
 #undef GENERATE_COMPARE_UNSIGNED_SIGNED
 
-#define GENERATE_COMPARE_DOUBLE(MODE, SYMBOL) \
-static double \
-get_double_##MODE(double var1, double var2) { \
-    if (var1 SYMBOL var2) { \
-        return var1; \
-    } else { \
-        return var2; \
-    } \
+#define GENERATE_COMPARE_DOUBLE(MODE, SYMBOL)            \
+static double                                            \
+get_double_##MODE(double var1, double var2) {            \
+    if (var1 SYMBOL var2) {                              \
+        return var1;                                     \
+    } else {                                             \
+        return var2;                                     \
+    }                                                    \
 }
 
 GENERATE_COMPARE_DOUBLE(min, <)
@@ -162,8 +162,8 @@ _Generic((VAR2),                                                     \
     uint:    SIGNED_UNSIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_UINT   ), \
     ulong:   SIGNED_UNSIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_ULONG  ), \
     ullong:  SIGNED_UNSIGNED(MODE, VAR1, VAR2, TYPE1, TYPE_ULLONG ), \
-    float:   BOTH_DOUBLE(MODE,    VAR1, VAR2, TYPE1, TYPE_FLOAT  ),  \
-    double:  BOTH_DOUBLE(MODE,    VAR1, VAR2, TYPE1, TYPE_DOUBLE ),  \
+    float:   BOTH_DOUBLE(MODE,     VAR1, VAR2, TYPE1, TYPE_FLOAT  ), \
+    double:  BOTH_DOUBLE(MODE,     VAR1, VAR2, TYPE1, TYPE_DOUBLE ), \
     default: UNSUPPORTED_TYPE_FOR_GENERIC_FIRST_SIGNED() \
 )
 #define BOTH_UNSIGNED(MODE, VAR1, VAR2, TYPE1, TYPE2) \
@@ -184,8 +184,8 @@ _Generic((VAR2),                                                     \
     uint:    BOTH_UNSIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_UINT   ), \
     ulong:   BOTH_UNSIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_ULONG  ), \
     ullong:  BOTH_UNSIGNED(MODE,   VAR1, VAR2, TYPE1, TYPE_ULLONG ), \
-    float:   BOTH_DOUBLE(MODE,    VAR1, VAR2, TYPE1, TYPE_FLOAT  ),  \
-    double:  BOTH_DOUBLE(MODE,    VAR1, VAR2, TYPE1, TYPE_DOUBLE ),  \
+    float:   BOTH_DOUBLE(MODE,     VAR1, VAR2, TYPE1, TYPE_FLOAT  ), \
+    double:  BOTH_DOUBLE(MODE,     VAR1, VAR2, TYPE1, TYPE_DOUBLE ), \
     default: UNSUPPORTED_TYPE_FOR_GENERIC_FIRST_UNSIGNED()           \
 )
 #define BOTH_DOUBLE(MODE, VAR1, VAR2, TYPE1, TYPE2) \
@@ -227,8 +227,8 @@ _Generic((VAR1),                                                     \
     uint:    FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_UINT   ),         \
     ulong:   FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_ULONG  ),         \
     ullong:  FIRST_UNSIGNED(MODE, VAR1, VAR2, TYPE_ULLONG ),         \
-    float:   FIRST_DOUBLE(MODE,  VAR1, VAR2, TYPE_FLOAT  ),          \
-    double:  FIRST_DOUBLE(MODE,  VAR1, VAR2, TYPE_DOUBLE ),          \
+    float:   FIRST_DOUBLE(MODE,   VAR1, VAR2, TYPE_FLOAT  ),         \
+    double:  FIRST_DOUBLE(MODE,   VAR1, VAR2, TYPE_DOUBLE ),         \
     default: UNSUPPORTED_TYPE_FOR_GENERIC_MINMAX_COMPARE()           \
 )
 
