@@ -521,7 +521,7 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
     if (n <= 0) {
         return;
     }
-    n = (int32)MIN(n, bot - top + 1);
+    n = MIN(n, bot - top + 1);
 
     if (savehist) {
         for (int32 i = 0; i < n; i += 1) {
@@ -534,11 +534,11 @@ term_scroll_up(int32 top, int32 bot, int32 n, enum ScrollMode mode) {
             term.hist[term.i_hist] = term.lines[i];
             term.lines[i] = temp;
         }
-        term.n_hist = (int32)MIN(term.n_hist + n, HISTORY_SIZE);
+        term.n_hist = MIN(term.n_hist + n, HISTORY_SIZE);
         s = n;
         if (term.scrolled_up) {
             int32 j = term.scrolled_up;
-            term.scrolled_up = (int32)MIN(j + n, HISTORY_SIZE);
+            term.scrolled_up = MIN(j + n, HISTORY_SIZE);
             s = j + n - term.scrolled_up;
         }
         if (mode != SCROLL_RESIZE) {
@@ -743,7 +743,7 @@ term_delete_char(int32 n) {
     }
 
     dst = term.cursor.x;
-    src = (int32)MIN(term.cursor.x + n, term.ncols);
+    src = MIN(term.cursor.x + n, term.ncols);
     size = term.ncols - src;
     if (size > 0) {
         /*
