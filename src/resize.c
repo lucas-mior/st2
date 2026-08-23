@@ -121,14 +121,14 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     
     term.lines = realloc2(term.lines, term.nrows, new_nrows, SIZEOF(*(term.lines)));
 
-    for (int32 j = 0; j < (int32)MIN(new_nrows, term.nrows); j += 1) {
+    for (int32 j = 0; j < MIN(new_nrows, term.nrows); j += 1) {
         term.lines[j] = realloc2(term.lines[j], term.ncols, new_ncols, SIZEOF(*(term.lines[j])));
         for (int32 k = term.ncols; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], false);
         }
     }
 
-    for (int32 j = (int32)MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
+    for (int32 j = MIN(new_nrows, term.nrows); j < new_nrows; j += 1) {
         term.lines[j] = malloc2(new_ncols*SIZEOF(StGlyph));
         for (int32 k = 0; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], false);
@@ -303,7 +303,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
 
         space_in_new = new_ncols - new_x_off;
         chars_in_old = len - old_x_off;
-        step = (int32)MIN(chars_in_old, space_in_new);
+        step = MIN(chars_in_old, space_in_new);
 
         if (old_y_idx == term.cursor.y) {
             if (new_cursor_y_proxy < 0) {
