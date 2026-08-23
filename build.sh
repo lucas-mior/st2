@@ -57,9 +57,8 @@ case "$(uname -a)" in
     CFLAGS="$CFLAGS -pthread"
     ;;
 esac
-CPPFLAGS="$CPPFLAGS -I."
-CPPFLAGS="$CPPFLAGS -Icbase"
-CPPFLAGS="$CPPFLAGS -Igen"
+
+CPPFLAGS="$CPPFLAGS -I. -Icbase -Igen"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags x11)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags xft)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
@@ -67,6 +66,7 @@ CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags harfbuzz)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags imlib2)"
 CPPFLAGS="$CPPFLAGS $(pkg-config --cflags libutf8proc)"
+
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Wextra -Wall"
@@ -74,6 +74,7 @@ CFLAGS="$CFLAGS -Werror=all -Werror=extra"
 # CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
 CFLAGS="$CFLAGS -Wno-type-limits"
 CFLAGS="$CFLAGS -Wno-unused-function"
+
 if [ "$CC" = "clang" ] || [ "$CC" = "zig cc" ]; then
     CFLAGS="$CFLAGS -Weverything"
     CFLAGS="$CFLAGS -Wno-assign-enum"
