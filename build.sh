@@ -188,7 +188,6 @@ install)
     echo "Please see the README regarding the terminfo entry of st."
     ;;
 test)
-    TEST_EXCLUDE_PATTERN='(^|/)cbase/' \
     TEST_STDIN=/dev/null \
         common_test "$target"
     exit
