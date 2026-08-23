@@ -268,7 +268,7 @@ _Generic((VAR),                             \
 #define MINMAX_COMPARE_DIAGNOSTIC_(RESULT, MODE, VAR1, VAR2) __extension__ ({ \
     __auto_type RESULT = __builtin_choose_expr(                               \
         MINMAX_COMPARE_TYPE_PRESERVING(VAR1)                                  \
-        && __builtin_types_compatible_p(__typeof__(VAR1), __typeof__(VAR2)),   \
+        && __builtin_types_compatible_p(__typeof__(VAR1), __typeof__(VAR2)),  \
         CAT(MINMAX_COMPARE_SAME_TYPE_, MODE)(VAR1, VAR2),                     \
         MINMAX_COMPARE(MODE, VAR1, VAR2));                                    \
     RESULT;                                                                   \
