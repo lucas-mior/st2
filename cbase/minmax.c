@@ -270,7 +270,8 @@ _Generic((VAR),                             \
         MINMAX_COMPARE_TYPE_PRESERVING(VAR1)                                  \
         && __builtin_types_compatible_p(__typeof__(VAR1), __typeof__(VAR2)),  \
         CAT(MINMAX_COMPARE_SAME_TYPE_, MODE)(VAR1, VAR2),                     \
-        MINMAX_COMPARE(MODE, VAR1, VAR2));                                    \
+        MINMAX_COMPARE(MODE, VAR1, VAR2)                                      \
+    );                                                                        \
     RESULT;                                                                   \
 })
 
