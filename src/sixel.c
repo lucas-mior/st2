@@ -573,10 +573,10 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 if (DEBUGGING) {
                     error("SIXEL: Finalized Raster Attrs:\n");
                     error("Pad=%u, Pan=%u, Ph=%d, Pv=%d\n",
-                           sixel_state->attributed_pad,
-                           sixel_state->attributed_pan,
-                           sixel_state->attributed_ph,
-                           sixel_state->attributed_pv);
+                          sixel_state->attributed_pad,
+                          sixel_state->attributed_pan,
+                          sixel_state->attributed_ph,
+                          sixel_state->attributed_pv);
                 }
 
                 if (sixel_state->attributed_pan <= 0) {
