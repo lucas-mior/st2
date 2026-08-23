@@ -436,8 +436,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             }
                         }
 
-                        sx = (int32)MIN(sx, DECSIXEL_WIDTH_MAX);
-                        sy = (int32)MIN(sy, DECSIXEL_HEIGHT_MAX);
+                        sx = MIN(sx, DECSIXEL_WIDTH_MAX);
+                        sy = MIN(sy, DECSIXEL_HEIGHT_MAX);
 
                         if (sixel_image_buffer_resize(sixel_image, sx, sy) < 0) {
                             error("Error in sixel_image_buffer_resize.\n");

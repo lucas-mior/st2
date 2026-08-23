@@ -17,3 +17,4 @@ scan-build*
 *temp_delete_me*
 test_reflow
 *.obj
+minmax-slides*
