@@ -75,8 +75,8 @@ drawboxes(int32 x, int32 y, int32 cw, int32 ch, XftColor *fg, XftColor *bg,
 /* implementation */
 
 static void
-drawbox(int32 x, int32 y, int32 w, int32 h, XftColor *fg, XftColor *bg,
-        uint16 bd) {
+drawbox(int32 x, int32 y, int32 w, int32 h,
+        XftColor *fg, XftColor *bg, uint16 bd) {
     uint16 cat = bd & ~(BDB | 0xff); /* mask out bold and data */
     if (bd & (BDL | BDA)) {
         /* lines (light/double/heavy/arcs) */
