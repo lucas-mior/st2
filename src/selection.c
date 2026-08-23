@@ -167,11 +167,11 @@ selection_normalize(void) {
             selection.ne.x = selection.ob.x;
         }
     } else {
-        selection.nb.x = (int32)MIN(selection.ob.x, selection.oe.x);
-        selection.ne.x = (int32)MAX(selection.ob.x, selection.oe.x);
+        selection.nb.x = MIN(selection.ob.x, selection.oe.x);
+        selection.ne.x = MAX(selection.ob.x, selection.oe.x);
     }
-    selection.nb.y = (int32)MIN(selection.ob.y, selection.oe.y);
-    selection.ne.y = (int32)MAX(selection.ob.y, selection.oe.y);
+    selection.nb.y = MIN(selection.ob.y, selection.oe.y);
+    selection.ne.y = MAX(selection.ob.y, selection.oe.y);
 
     selection_snap(&selection.nb.x, &selection.nb.y, -1);
     selection_snap(&selection.ne.x, &selection.ne.y, +1);
