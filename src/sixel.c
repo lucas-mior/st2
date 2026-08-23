@@ -270,8 +270,8 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
         sixel_image_default_pallete(sixel_image);
     }
 
-    w = (int32)MIN(sixel_state->max_x, sixel_image->width);
-    h = (int32)MIN(sixel_state->max_y, sixel_image->height);
+    w = MIN(sixel_state->max_x, sixel_image->width);
+    h = MIN(sixel_state->max_y, sixel_image->height);
 
     if ((nimages = (h + ch - 1) / ch) <= 0) {
         return -1;
@@ -300,7 +300,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
         image->y = cy + i;
         image->cols = cols;
         image->width = w;
-        image->height = (int32)MIN(h - ch*i, ch);
+        image->height = MIN(h - ch*i, ch);
         image->pixels = malloc2(image->width*image->height*4);
         image->pixmap = NULL;
         image->clipmask = NULL;
@@ -755,7 +755,7 @@ sixel_create_clipmask(char *pixels, int32 width, int32 height) {
 
         for (int32 w = width; w > 0; w -= n) {
             char c = 0;
-            n = (int32)MIN(w, 8);
+            n = MIN(w, 8);
 
             if (msb) {
                 int32 b = 0x80;
