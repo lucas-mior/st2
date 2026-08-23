@@ -121,6 +121,7 @@ GENERATE_COMPARE_DOUBLE(max, >)
 #if 0 == TESTING_minmax
 static inline void
 minmax_functions_sink(void) {
+    (void)minmax_functions_sink;
     (void)get_pointer_min;
     (void)get_pointer_max;
     (void)get_both_signed_min;
@@ -239,10 +240,54 @@ _Generic((VAR1), \
 #endif
 
 #if CC_GCC || CC_CLANG
+#define MINMAX_COMPARE_SAME_TYPE_(RESULT, VAR1_, VAR2_, SYMBOL, VAR1, VAR2) \
+    __extension__ ({                                                        \
+        __auto_type VAR1_ = (VAR1);                                         \
+        __auto_type VAR2_ = (VAR2);                                         \
+        __auto_type RESULT = VAR2_;                                         \
+        if (VAR1_ SYMBOL VAR2_) {                                           \
+            RESULT = (__typeof__(RESULT))VAR1_;                             \
+        }                                                                   \
+        RESULT;                                                             \
+    })
+
+#define MINMAX_COMPARE_SAME_TYPE(SYMBOL, VAR1, VAR2) \
+    MINMAX_COMPARE_SAME_TYPE_(CAT(minmax_same_result_, __LINE__), \
+                              CAT(minmax_same_var1_, __LINE__),   \
+                              CAT(minmax_same_var2_, __LINE__),   \
+                              SYMBOL, VAR1, VAR2)
+
+#define MINMAX_COMPARE_SAME_TYPE_min(VAR1, VAR2) \
+    MINMAX_COMPARE_SAME_TYPE(<, VAR1, VAR2)
+#define MINMAX_COMPARE_SAME_TYPE_max(VAR1, VAR2) \
+    MINMAX_COMPARE_SAME_TYPE(>, VAR1, VAR2)
+
+#define MINMAX_COMPARE_TYPE_PRESERVING(VAR) \
+_Generic((VAR),                             \
+    schar:  1,                              \
+    short:  1,                              \
+    int:    1,                              \
+    long:   1,                              \
+    llong:  1,                              \
+    uchar:  1,                              \
+    ushort: 1,                              \
+    uint:   1,                              \
+    ulong:  1,                              \
+    ullong: 1,                              \
+    float:  1,                              \
+    double: 1,                              \
+    default: 0                              \
+)
+
 #define MINMAX_COMPARE_DIAGNOSTIC_(RESULT, MODE, VAR1, VAR2) __extension__ ({ \
     _Pragma("GCC diagnostic push")                                            \
     _Pragma("GCC diagnostic ignored \"-Wpedantic\"")                          \
-    __auto_type RESULT = MINMAX_COMPARE(MODE, VAR1, VAR2);                    \
+    _Pragma("GCC diagnostic ignored \"-Wsign-compare\"")                      \
+    __auto_type RESULT = __builtin_choose_expr(                               \
+        MINMAX_COMPARE_TYPE_PRESERVING(VAR1)                                  \
+        && __builtin_types_compatible_p(__typeof__(VAR1), __typeof__(VAR2)),   \
+        CAT(MINMAX_COMPARE_SAME_TYPE_, MODE)(VAR1, VAR2),                     \
+        MINMAX_COMPARE(MODE, VAR1, VAR2));                                    \
     _Pragma("GCC diagnostic pop")                                             \
     RESULT;                                                                   \
 })
