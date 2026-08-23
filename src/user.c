@@ -210,16 +210,16 @@ copy_image_to_selection_pixels(ImageList *image,
     rel_y = image->y + term.scrolled_up;
     scaled_w = (image->width * term_window.cw) / image->cw;
     scaled_h = (image->height * term_window.ch) / image->ch;
-    scaled_w = (int32)MAX(scaled_w, 1);
-    scaled_h = (int32)MAX(scaled_h, 1);
+    scaled_w = MAX(scaled_w, 1);
+    scaled_h = MAX(scaled_h, 1);
 
     image_px_x = image->x * term_window.cw;
     image_px_y = rel_y * term_window.ch;
 
-    ix1 = (int32)MAX(sel_px_x, image_px_x);
-    iy1 = (int32)MAX(sel_px_y, image_px_y);
-    ix2 = (int32)MIN(sel_px_x + sel_px_w, image_px_x + scaled_w);
-    iy2 = (int32)MIN(sel_px_y + sel_px_h, image_px_y + scaled_h);
+    ix1 = MAX(sel_px_x, image_px_x);
+    iy1 = MAX(sel_px_y, image_px_y);
+    ix2 = MIN(sel_px_x + sel_px_w, image_px_x + scaled_w);
+    iy2 = MIN(sel_px_y + sel_px_h, image_px_y + scaled_h);
 
     if (ix1 >= ix2 || iy1 >= iy2) {
         return;
