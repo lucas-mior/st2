@@ -102,9 +102,7 @@ if [ "$CC" = "clang" ] || [ "$CC" = "zig cc" ]; then
     CFLAGS="$CFLAGS -Wno-unused-macros"
     CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
 fi
-if [ -z "$NOCOLORS" ]; then
-    CFLAGS="$CFLAGS -fdiagnostics-color=always"
-fi
+
 LDFLAGS="$LDFLAGS -lm"
 LDFLAGS="$LDFLAGS $(pkg-config --libs x11)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs xft)"
@@ -236,14 +234,13 @@ cachegrind)
     ;;
 check)
     set +e
-    NOCOLORS=1 CC=gcc \
-        CFLAGS="-fanalyzer -fdiagnostics-color=never" ./build.sh
+    CC=gcc CFLAGS="-fanalyzer -fdiagnostics-color=never" ./build.sh
     CFLAGS="--analyze -Xanalyzer -analyzer-output=text"
     CFLAGS="$CFLAGS -Xanalyzer -analyzer-werror"
     CFLAGS="$CFLAGS -Xanalyzer -analyzer-opt-analyze-headers"
     CFLAGS="$CFLAGS -Wno-unused-command-line-argument"
     CFLAGS="$CFLAGS -fno-color-diagnostics"
-    NOCOLORS=1 CC=clang CFLAGS="$CFLAGS" ./build.sh
+    CC=clang CFLAGS="$CFLAGS" ./build.sh
     exit
     ;;
 esac
