@@ -154,10 +154,8 @@ fast_feedback)
 cross)
     CFLAGS="$CFLAGS -O2"
     ;;
-*)
-    common_build_unknown_mode
-    ;;
 esac
+
 case "$mode" in
 fast_feedback)
     trace_on
