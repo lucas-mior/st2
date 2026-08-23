@@ -575,7 +575,7 @@ dump_for_editor(int32 fd, int32 *out_row, int32 *out_col) {
         last_pos += 1;
 
         if (y == term.cursor.y) {
-            last_pos = (int32)MAX(last_pos, term.cursor.x + 1);
+            last_pos = MAX(last_pos, term.cursor.x + 1);
         }
 
         for (int32 x = 0; x < last_pos; x += 1) {
