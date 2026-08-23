@@ -126,10 +126,10 @@ x_load_colors(void) {
     for (int32 i = 0; i < draw_context.colors_len; i += 1) {
         if (!x_load_color(i, NULL, &draw_context.colors[i])) {
             if (CONF_COLORS[i]) {
-                error("could not allocate color '%s'\n", CONF_COLORS[i]);
+                error("Error allocating color '%s'.\n", CONF_COLORS[i]);
                 exit(EXIT_FAILURE);
             } else {
-                error("could not allocate color %d\n", i);
+                error("Error allocating color %d.\n", i);
                 exit(EXIT_FAILURE);
             }
         }
