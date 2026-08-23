@@ -249,8 +249,7 @@ selection_extend(int32 col, int32 row, enum SelectionType type, int32 done) {
 
     if (oldey != selection.oe.y || oldex != selection.oe.x
         || oldtype != selection.type || selection.mode == SELECTION_EMPTY) {
-        term_set_dirt((int32)MIN(selection.nb.y, oldsby),
-                      (int32)MAX(selection.ne.y, oldsey));
+        term_set_dirt(MIN(selection.nb.y, oldsby), MAX(selection.ne.y, oldsey));
     }
 
     if (done) {
