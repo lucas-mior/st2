@@ -1569,7 +1569,8 @@ term_putc(uint32 u) {
                       __func__);
                 fatal(EXIT_FAILURE);
             }
-            str_escape_seq.buffer = realloc2(str_escape_seq.buffer, old_siz, new_siz, 1);
+            str_escape_seq.buffer = realloc2(str_escape_seq.buffer,
+                                             old_siz, new_siz, 1);
             str_escape_seq.siz = (int32)new_siz;
         }
 
@@ -1708,15 +1709,16 @@ check_control_code:
         if ((prev_glyph->rune & MULTI_CODE_POINT_FLAG) == 0) {
             int32 new_index = string_pool_length;
             if (string_pool_length >= string_pool_capacity) {
-                int32 old_capacity = string_pool_capacity;
-                int32 new_capacity = old_capacity;
-                if (new_capacity == 0) {
-                    new_capacity = 64;
+                int32 old_cap = string_pool_capacity;
+                int32 new_cap = old_cap;
+                if (new_cap == 0) {
+                    new_cap = 64;
                 } else {
-                    new_capacity = old_capacity * 2;
+                    new_cap = old_cap * 2;
                 }
-                string_pool = realloc2(string_pool, old_capacity, new_capacity, SIZEOF(StringPool));
-                string_pool_capacity = new_capacity;
+                string_pool = realloc2(string_pool,
+                                       old_cap, new_cap, SIZEOF(*string_pool));
+                string_pool_capacity = new_cap;
             }
             
             string_pool[new_index].capacity = 4;
@@ -1732,7 +1734,8 @@ check_control_code:
         if (string_pool[pool_index].length >= string_pool[pool_index].capacity) {
             int32 old_cap = string_pool[pool_index].capacity;
             int32 new_cap = old_cap * 2;
-            string_pool[pool_index].runes = realloc2(string_pool[pool_index].runes, old_cap, new_cap, SIZEOF(uint32));
+            string_pool[pool_index].runes = realloc2(string_pool[pool_index].runes,
+                                                     old_cap, new_cap, SIZEOF(uint32));
             string_pool[pool_index].capacity = new_cap;
         }
         
