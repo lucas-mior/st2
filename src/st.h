@@ -76,22 +76,22 @@
 #define ENUM_PREFIX_ ATTR_ 
 #define ENUM_BITFLAGS 1
 #define ENUM_FIELDS \
-    X(ATTR_SET) \
-    X(ATTR_BOLD)       \
-    X(ATTR_FAINT)      \
-    X(ATTR_ITALIC)     \
-    X(ATTR_UNDERLINE)  \
-    X(ATTR_BLINK)      \
-    X(ATTR_REVERSE)    \
-    X(ATTR_INVISIBLE)  \
-    X(ATTR_STRUCK)     \
-    X(ATTR_WRAP)       \
-    X(ATTR_WIDE)       \
-    X(ATTR_WDUMMY)     \
-    X(ATTR_SELECTED)   \
-    X(ATTR_BOXDRAW)    \
-    X(ATTR_SIXEL)      \
-    X(ATTR_BOLD_FAINT, ATTR_BOLD | ATTR_FAINT)
+    XX(ATTR_SET) \
+    XX(ATTR_BOLD)       \
+    XX(ATTR_FAINT)      \
+    XX(ATTR_ITALIC)     \
+    XX(ATTR_UNDERLINE)  \
+    XX(ATTR_BLINK)      \
+    XX(ATTR_REVERSE)    \
+    XX(ATTR_INVISIBLE)  \
+    XX(ATTR_STRUCK)     \
+    XX(ATTR_WRAP)       \
+    XX(ATTR_WIDE)       \
+    XX(ATTR_WDUMMY)     \
+    XX(ATTR_SELECTED)   \
+    XX(ATTR_BOXDRAW)    \
+    XX(ATTR_SIXEL)      \
+    XX(ATTR_BOLD_FAINT, ATTR_BOLD | ATTR_FAINT)
 #include "xenums.c"
 
 enum SelectionSnap {
@@ -109,16 +109,16 @@ enum SelectionType {
 #define ENUM_PREFIX_ TERM_MODE_
 #define ENUM_BITFLAGS 1
 #define ENUM_FIELDS \
-    X(TERM_MODE_WRAP) \
-    X(TERM_MODE_INSERT) \
-    X(TERM_MODE_ALTSCREEN) \
-    X(TERM_MODE_CRLF) \
-    X(TERM_MODE_ECHOO) \
-    X(TERM_MODE_PRINT) \
-    X(TERM_MODE_UTF8) \
-    X(TERM_MODE_SIXEL) \
-    X(TERM_MODE_SIXEL_CUR_RT) \
-    X(TERM_MODE_SIXEL_SDM)
+    XX(TERM_MODE_WRAP) \
+    XX(TERM_MODE_INSERT) \
+    XX(TERM_MODE_ALTSCREEN) \
+    XX(TERM_MODE_CRLF) \
+    XX(TERM_MODE_ECHOO) \
+    XX(TERM_MODE_PRINT) \
+    XX(TERM_MODE_UTF8) \
+    XX(TERM_MODE_SIXEL) \
+    XX(TERM_MODE_SIXEL_CUR_RT) \
+    XX(TERM_MODE_SIXEL_SDM)
 #include "cbase/xenums.c"
 
 typedef struct StGlyph {
@@ -180,9 +180,9 @@ enum CursorMovement {
 #define ENUM_PREFIX_ CURSOR_
 #define ENUM_BITFLAGS 0
 #define ENUM_FIELDS \
-    X(CURSOR_DEFAULT) \
-    X(CURSOR_WRAPNEXT) \
-    X(CURSOR_ORIGIN)
+    XX(CURSOR_DEFAULT) \
+    XX(CURSOR_WRAPNEXT) \
+    XX(CURSOR_ORIGIN)
 #include "cbase/xenums.c"
 
 enum charset {
@@ -199,15 +199,15 @@ enum charset {
 #define ENUM_PREFIX_ ESC_
 #define ENUM_BITFLAGS 1
 #define ENUM_FIELDS \
-    X(ESC_START) \
-    X(ESC_CSI) \
-    X(ESC_STR) \
-    X(ESC_ALTCHARSET) \
-    X(ESC_STR_END) \
-    X(ESC_TEST) \
-    X(ESC_UTF8) \
-    X(ESC_SIXEL) \
-    X(ESC_DCS)
+    XX(ESC_START) \
+    XX(ESC_CSI) \
+    XX(ESC_STR) \
+    XX(ESC_ALTCHARSET) \
+    XX(ESC_STR_END) \
+    XX(ESC_TEST) \
+    XX(ESC_UTF8) \
+    XX(ESC_SIXEL) \
+    XX(ESC_DCS)
 #include "cbase/xenums.c"
 
 typedef struct TCursor {
@@ -261,25 +261,25 @@ typedef struct StFont {
 #define ENUM_PREFIX_ WIN_MODE_
 #define ENUM_BITFLAGS 1
 #define ENUM_FIELDS \
-    X(WIN_MODE_VISIBLE) \
-    X(WIN_MODE_FOCUSED) \
-    X(WIN_MODE_APPKEYPAD) \
-    X(WIN_MODE_MOUSEBTN) \
-    X(WIN_MODE_MOUSEMOTION) \
-    X(WIN_MODE_REVERSE) \
-    X(WIN_MODE_KBDLOCK) \
-    X(WIN_MODE_HIDE) \
-    X(WIN_MODE_APPCURSOR) \
-    X(WIN_MODE_MOUSESGR) \
-    X(WIN_MODE_8BIT) \
-    X(WIN_MODE_BLINK) \
-    X(WIN_MODE_FBLINK) \
-    X(WIN_MODE_FOCUS) \
-    X(WIN_MODE_MOUSEX10) \
-    X(WIN_MODE_MOUSEMANY) \
-    X(WIN_MODE_BRCKTPASTE) \
-    X(WIN_MODE_NUMLOCK) \
-    X(WIN_MODE_MOUSE, WIN_MODE_MOUSEBTN    \
+    XX(WIN_MODE_VISIBLE) \
+    XX(WIN_MODE_FOCUSED) \
+    XX(WIN_MODE_APPKEYPAD) \
+    XX(WIN_MODE_MOUSEBTN) \
+    XX(WIN_MODE_MOUSEMOTION) \
+    XX(WIN_MODE_REVERSE) \
+    XX(WIN_MODE_KBDLOCK) \
+    XX(WIN_MODE_HIDE) \
+    XX(WIN_MODE_APPCURSOR) \
+    XX(WIN_MODE_MOUSESGR) \
+    XX(WIN_MODE_8BIT) \
+    XX(WIN_MODE_BLINK) \
+    XX(WIN_MODE_FBLINK) \
+    XX(WIN_MODE_FOCUS) \
+    XX(WIN_MODE_MOUSEX10) \
+    XX(WIN_MODE_MOUSEMANY) \
+    XX(WIN_MODE_BRCKTPASTE) \
+    XX(WIN_MODE_NUMLOCK) \
+    XX(WIN_MODE_MOUSE, WIN_MODE_MOUSEBTN    \
             |WIN_MODE_MOUSEMOTION \
             |WIN_MODE_MOUSEX10    \
             |WIN_MODE_MOUSEMANY)
