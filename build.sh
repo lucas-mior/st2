@@ -16,7 +16,7 @@ common_build_parse_args "$@"
 case "$mode" in
 build|cachegrind|callgrind|check)
     ;;
-cross|debug|fast_feedback)
+cross|debug|debug-fast|fast_feedback)
     ;;
 install|run|test|test_all|uninstall|valgrind)
     ;;
@@ -136,6 +136,10 @@ debug)
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     exe="bin/$program"
     ;;
+debug-fast)
+    CFLAGS="$CFLAGS -Wno-error -g2 -O2 -flto -march=native -ftree-vectorize"
+    CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
+    ;;
 valgrind)
     CFLAGS="$CFLAGS -g3 -Og -ftree-vectorize"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
@@ -166,7 +170,7 @@ fast_feedback)
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS && "$exe"
     trace_off
     ;;
-build|debug|run|valgrind|callgrind|cross)
+build|debug|debug-fast|run|valgrind|callgrind|cross)
     common_build_tags cbase src
     trace_on
     $CC $CPPFLAGS $CFLAGS src/main.c -o "$exe" $LDFLAGS
