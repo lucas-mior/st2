@@ -177,7 +177,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
         exit(EXIT_FAILURE);
     }
 
-    switch (pid = fork()) {
+    switch (st_pid = fork()) {
     case -1:
         error("fork failed: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
@@ -362,7 +362,7 @@ tty_resize(int32 tty_width, int32 tty_height) {
 static void
 tty_hangup(void) {
     /* Send SIGHUP to CONF_SHELl */
-    kill(pid, SIGHUP);
+    kill(st_pid, SIGHUP);
     return;
 }
 
@@ -475,8 +475,8 @@ main(void) {
     wait(NULL);
 
     {
-        pid = fork();
-        if (pid == 0) {
+        st_pid = fork();
+        if (st_pid == 0) {
             sleep(1);
             exit(EXIT_SUCCESS);
         }

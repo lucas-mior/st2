@@ -21,16 +21,16 @@ handler_sigchld(int32 unused) {
     pid_t p;
     (void)unused;
 
-    if ((p = waitpid(pid, &stat, WNOHANG)) < 0) {
-        error("waiting for pid %hd failed: %s\n", pid, strerror(errno));
+    if ((p = waitpid(st_pid, &stat, WNOHANG)) < 0) {
+        error("waiting for pid %hd failed: %s\n", st_pid, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
-    if (pid != p) {
+    if (st_pid != p) {
         pid_t ret = 0;
         
         while ((ret = waitpid(-1, &stat, WNOHANG)) > 0) {
-            if (ret == pid) {
+            if (ret == st_pid) {
                 if (WIFEXITED(stat) && WEXITSTATUS(stat)) {
                     error("child exited with status %d\n", WEXITSTATUS(stat));
                     exit(EXIT_FAILURE);
