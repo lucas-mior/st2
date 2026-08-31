@@ -71,31 +71,31 @@ check_consistent_state(void) {
         }
     }
 
-    ASSERT_MORE_EQUAL(term.n_hist, 0);
+    ASSERT_NON_NEGATIVE(term.n_hist);
     ASSERT_LESS_EQUAL(term.n_hist, HISTORY_SIZE);
 
-    ASSERT_MORE_EQUAL(term.i_hist, 0);
+    ASSERT_NON_NEGATIVE(term.i_hist);
     ASSERT_LESS(term.i_hist, HISTORY_SIZE);
 
     /* 3. Scrolling and Viewport Logic */
-    ASSERT_MORE_EQUAL(term.scrolled_up, 0);
+    ASSERT_NON_NEGATIVE(term.scrolled_up);
     ASSERT_LESS_EQUAL(term.scrolled_up, term.n_hist);
 
-    ASSERT_MORE_EQUAL(term.top_scroll_limit, 0);
+    ASSERT_NON_NEGATIVE(term.top_scroll_limit);
     ASSERT_LESS_EQUAL(term.top_scroll_limit, term.bot_scroll_limit);
 
-    ASSERT_MORE_EQUAL(term.bot_scroll_limit, 0);
+    ASSERT_NON_NEGATIVE(term.bot_scroll_limit);
     ASSERT_LESS(term.bot_scroll_limit, term.nrows);
 
     /* 4. Cursor and Ghost Cursor Sanity */
-    ASSERT_MORE_EQUAL(term.cursor.x, 0);
+    ASSERT_NON_NEGATIVE(term.cursor.x);
     ASSERT_LESS(term.cursor.x, term.ncols);
-    ASSERT_MORE_EQUAL(term.cursor.y, 0);
+    ASSERT_NON_NEGATIVE(term.cursor.y);
     ASSERT_LESS(term.cursor.y, term.nrows);
 
-    ASSERT_MORE_EQUAL(term.old_cursor_x, 0);
+    ASSERT_NON_NEGATIVE(term.old_cursor_x);
     ASSERT_LESS(term.old_cursor_x, term.ncols);
-    ASSERT_MORE_EQUAL(term.old_cursor_y, 0);
+    ASSERT_NON_NEGATIVE(term.old_cursor_y);
     ASSERT_LESS(term.old_cursor_y, term.nrows);
 
     /* 5. Selection Invariants */
@@ -115,9 +115,9 @@ check_consistent_state(void) {
         }
 
         /* Check X bounds */
-        ASSERT_MORE_EQUAL(selection.nb.x, 0);
+        ASSERT_NON_NEGATIVE(selection.nb.x);
         ASSERT_LESS(selection.nb.x, term.ncols);
-        ASSERT_MORE_EQUAL(selection.ne.x, 0);
+        ASSERT_NON_NEGATIVE(selection.ne.x);
         ASSERT_LESS(selection.ne.x, term.ncols);
 
         /* Check Y bounds against history + screen range */
@@ -134,7 +134,7 @@ check_consistent_state(void) {
     }
 
     /* 6. Charset and Metadata */
-    ASSERT_MORE_EQUAL(term.charset, 0);
+    ASSERT_NON_NEGATIVE(term.charset);
     ASSERT_LESS(term.charset, 4); /* CS_USA to CS_GRAPHIC1 */
 
     /* 7. Image List Consistency (Doubly Linked) */
