@@ -50,8 +50,8 @@ ttyread_pending(void) {
 static void
 check_consistent_state(void) {
     /* 1. Basic Geometry and Core Buffers */
-    ASSERT_MORE(term.nrows, 0);
-    ASSERT_MORE(term.ncols, 0);
+    ASSERT_POSITIVE(term.nrows);
+    ASSERT_POSITIVE(term.ncols);
     ASSERT_LESS(term.nrows, MAX_NROWS);
     ASSERT_LESS(term.ncols, MAX_NCOLS);
     ASSERT(term.lines);
@@ -1318,8 +1318,8 @@ main(void) {
         }
         
         term_set_sixel_attr(line, 2, 5);
-        ASSERT_MORE((int32)(line[2].mode & ATTR_SIXEL), 0);
-        ASSERT_MORE((int32)(line[5].mode & ATTR_SIXEL), 0);
+        ASSERT_POSITIVE((int32)(line[2].mode & ATTR_SIXEL));
+        ASSERT_POSITIVE((int32)(line[5].mode & ATTR_SIXEL));
     }
 
     /* Test: term_attr_set */
@@ -1381,7 +1381,7 @@ main(void) {
         
         term_set_char('X', &attr_val, 0, 0);
         ASSERT_EQUAL(term.lines[0][0].rune, 'X');
-        ASSERT_MORE((int32)(term.lines[0][0].mode & ATTR_BOLD), 0);
+        ASSERT_POSITIVE((int32)(term.lines[0][0].mode & ATTR_BOLD));
     }
 
     /* Test: term_delete_char, term_insert_blank */
@@ -1580,7 +1580,7 @@ main(void) {
     /* Test: term_load_alt_screen and term_load_def_screen */
     {
         term_load_alt_screen(true, true);
-        ASSERT_MORE((int32)(term.mode & TERM_MODE_ALTSCREEN), 0);
+        ASSERT_POSITIVE((int32)(term.mode & TERM_MODE_ALTSCREEN));
         
         term_load_def_screen(true, true);
         ASSERT_ZERO((int32)(term.mode & TERM_MODE_ALTSCREEN));

@@ -2064,7 +2064,7 @@ main(void) {
 
         attr_single[0] = 1;
         term_set_attr(attr_single, 1);
-        ASSERT_MORE((int32)(term.cursor.attr.mode & ATTR_BOLD), 0);
+        ASSERT_POSITIVE((int32)(term.cursor.attr.mode & ATTR_BOLD));
 
         attr_tc[0] = 38;
         attr_tc[1] = 2;
@@ -2081,7 +2081,7 @@ main(void) {
         
         term_args[0] = 4;
         term_set_mode(0, 1, term_args, 1);
-        ASSERT_MORE((int32)(term.mode & TERM_MODE_INSERT), 0);
+        ASSERT_POSITIVE((int32)(term.mode & TERM_MODE_INSERT));
     }
 
     /* 6. Tabs and Alignment Display Tests */
@@ -2102,7 +2102,7 @@ main(void) {
     /* 7. Strings and Sequence Initiation Tests */
     {
         term_str_sequence(0x9d);
-        ASSERT_MORE((int32)(term.esc & ESC_STR), 0);
+        ASSERT_POSITIVE((int32)(term.esc & ESC_STR));
         ASSERT_EQUAL(str_escape_seq.type, ']');
     }
 
@@ -2125,7 +2125,7 @@ main(void) {
     {
         term.mode &= ~TERM_MODE_UTF8;
         term_def_utf8('G');
-        ASSERT_MORE((int32)(term.mode & TERM_MODE_UTF8), 0);
+        ASSERT_POSITIVE((int32)(term.mode & TERM_MODE_UTF8));
         
         term.icharset = 0;
         term_def_tran('0');
@@ -2154,7 +2154,7 @@ main(void) {
         
         term.esc = 0;
         esc_ret = esc_handle('[');
-        ASSERT_MORE((int32)(term.esc & ESC_CSI), 0);
+        ASSERT_POSITIVE((int32)(term.esc & ESC_CSI));
         ASSERT_ZERO(esc_ret);
     }
 
@@ -2205,7 +2205,7 @@ main(void) {
         csi_escape_seq.arg[1] = 1; 
         
         dcs_handle();
-        ASSERT_MORE((int32)(term.mode & TERM_MODE_SIXEL), 0);
+        ASSERT_POSITIVE((int32)(term.mode & TERM_MODE_SIXEL));
     }
 
     /* 16. CSI Dump Path Testing */
