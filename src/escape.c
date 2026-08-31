@@ -2138,7 +2138,7 @@ main(void) {
         
         term.cursor.x = 10;
         term_control_code('\r');
-        ASSERT_EQUAL(term.cursor.x, 0);
+        ASSERT_ZERO(term.cursor.x);
 
         term.cursor.y = 5;
         term_control_code('\n');
@@ -2155,7 +2155,7 @@ main(void) {
         term.esc = 0;
         esc_ret = esc_handle('[');
         ASSERT_MORE((int32)(term.esc & ESC_CSI), 0);
-        ASSERT_EQUAL(esc_ret, 0);
+        ASSERT_ZERO(esc_ret);
     }
 
     /* 12. Buffer Write Test */

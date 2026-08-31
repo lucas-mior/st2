@@ -991,7 +991,7 @@ main(void) {
         user_scroll_up(&a);
         ASSERT_EQUAL(term.scrolled_up, 5);
         user_scroll_down(&a);
-        ASSERT_EQUAL(term.scrolled_up, 0);
+        ASSERT_ZERO(term.scrolled_up);
     }
 
     /* 3. Functional Tests (Parent process) */

@@ -1267,7 +1267,7 @@ main(void) {
             line[i].mode = ATTR_NONE; 
         }
         len = term_line_len(line);
-        ASSERT_EQUAL(len, 0);
+        ASSERT_ZERO(len);
         
         line[4].mode = ATTR_SET;
         len = term_line_len(line);
@@ -1286,7 +1286,7 @@ main(void) {
         
         line[4].mode = ATTR_SET;
         wrapped = term_is_wrapped(line);
-        ASSERT_EQUAL((int32)wrapped, 0);
+        ASSERT_ZERO((int32)wrapped);
         
         line[4].mode = ATTR_SET | ATTR_WRAP;
         wrapped = term_is_wrapped(line);
@@ -1328,7 +1328,7 @@ main(void) {
         
         term_reset();
         res = term_attr_set(ATTR_BOLD);
-        ASSERT_EQUAL((int32)res, 0);
+        ASSERT_ZERO((int32)res);
         
         term.lines[0][0].mode |= ATTR_BOLD;
         res = term_attr_set(ATTR_BOLD);
@@ -1409,7 +1409,7 @@ main(void) {
         
         term.mode &= ~TERM_MODE_WRAP;
         res = term_mode_is_set(TERM_MODE_WRAP);
-        ASSERT_EQUAL((int32)res, 0);
+        ASSERT_ZERO((int32)res);
 
         term_window.mode |= WIN_MODE_VISIBLE;
         res = win_mode_is_set(WIN_MODE_VISIBLE);
@@ -1445,7 +1445,7 @@ main(void) {
         
         update_wrap_next(1, 5);
         ASSERT_EQUAL(term.cursor.x, 1);
-        ASSERT_EQUAL((int32)(term.cursor.state & CURSOR_WRAPNEXT), 0);
+        ASSERT_ZERO((int32)(term.cursor.state & CURSOR_WRAPNEXT));
     }
 
     /* Test: term_delete_images */
@@ -1566,10 +1566,10 @@ main(void) {
         term.dirts[0] = true;
         
         draw();
-        ASSERT_EQUAL((int32)term.dirts[0], 0);
+        ASSERT_ZERO((int32)term.dirts[0]);
         
         redraw();
-        ASSERT_EQUAL((int32)term.dirts[0], 0);
+        ASSERT_ZERO((int32)term.dirts[0]);
     }
 
     /* Test: check_consistent_state */
@@ -1583,7 +1583,7 @@ main(void) {
         ASSERT_MORE((int32)(term.mode & TERM_MODE_ALTSCREEN), 0);
         
         term_load_def_screen(true, true);
-        ASSERT_EQUAL((int32)(term.mode & TERM_MODE_ALTSCREEN), 0);
+        ASSERT_ZERO((int32)(term.mode & TERM_MODE_ALTSCREEN));
     }
 
     /* Test: term_new_line */
@@ -1591,7 +1591,7 @@ main(void) {
         term_reset();
         term_new_line(true);
         ASSERT_EQUAL(term.cursor.y, 1);
-        ASSERT_EQUAL(term.cursor.x, 0);
+        ASSERT_ZERO(term.cursor.x);
     }
 
     /* Test: term_clear_glyph */

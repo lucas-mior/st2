@@ -292,7 +292,7 @@ main(void) {
 
     {
         int32 res = isboxdraw(0x2000);
-        ASSERT_EQUAL(res, 0);
+        ASSERT_ZERO(res);
     }
 
     {

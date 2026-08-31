@@ -921,17 +921,17 @@ main(void) {
         int32 status;
 
         status = sixel_image_init(&img, 10, 10, 1, 0, 1);
-        ASSERT_EQUAL(status, 0);
+        ASSERT_ZERO(status);
         ASSERT_EQUAL(img.width, 10);
         ASSERT_EQUAL(img.height, 10);
         ASSERT(img.use_private_register);
-        ASSERT_EQUAL(img.palette[0], 0);
+        ASSERT_ZERO(img.palette[0]);
         ASSERT_EQUAL(img.palette[1], 1);
 
         sixel_image_default_pallete(&img);
 
         status = sixel_image_buffer_resize(&img, 20, 20);
-        ASSERT_EQUAL(status, 0);
+        ASSERT_ZERO(status);
         ASSERT_EQUAL(img.width, 20);
         ASSERT_EQUAL(img.height, 20);
 
@@ -947,7 +947,7 @@ main(void) {
         int32 nimages;
 
         status = sixel_parser_init(&state, 0, 1, 0, 1, 10, 20);
-        ASSERT_EQUAL(status, 0);
+        ASSERT_ZERO(status);
         ASSERT(state.state == PARSE_STATE_DECSIXEL);
 
         sixel_image_default_pallete(&state.image);

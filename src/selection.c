@@ -624,7 +624,7 @@ main(void) {
          * BUG: Because term_line_len is 0, normalization forces nb.x = 0 
          * and ne.x = 79. The entire line is selected instead of cell 5.
          */
-        ASSERT_EQUAL(selection.nb.x, 0);
+        ASSERT_ZERO(selection.nb.x);
         ASSERT_EQUAL(selection.ne.x, term.ncols - 1);
     }
 

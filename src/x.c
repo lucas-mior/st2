@@ -1616,7 +1616,7 @@ main(void) {
     /* Test: sixd_to_16bit */
     {
         uint16 result = sixd_to_16bit(0);
-        ASSERT_EQUAL(result, 0);
+        ASSERT_ZERO(result);
 
         result = sixd_to_16bit(4);
         ASSERT_EQUAL(result, 0x3737 + 0x2828*4);
@@ -1650,13 +1650,13 @@ main(void) {
         x_load_colors();
 
         ret = x_get_color(0, &r, &g, &b);
-        ASSERT_EQUAL(ret, 0);
+        ASSERT_ZERO(ret);
 
         ret = x_get_color(9999, &r, &g, &b);
         ASSERT_EQUAL(ret, 1);
 
         ret = x_set_color_name(CONF_COLOR_BG, "black");
-        ASSERT_EQUAL(ret, 0);
+        ASSERT_ZERO(ret);
 
         ret = x_set_color_name(9999, "black");
         ASSERT_EQUAL(ret, 1);
@@ -1702,7 +1702,7 @@ main(void) {
         ASSERT_EQUAL(result, 1);
 
         result = x_set_cursor(5);
-        ASSERT_EQUAL(result, 0);
+        ASSERT_ZERO(result);
         ASSERT_EQUAL(term_window.cursor, 5);
 
         term_window.mode = WIN_MODE_VISIBLE;
@@ -1711,7 +1711,7 @@ main(void) {
 
         term_window.mode = 0;
         result = x_start_draw();
-        ASSERT_EQUAL(result, 0);
+        ASSERT_ZERO(result);
 
         term_window.mode = 0;
         x_set_mode(WIN_MODE_REVERSE, WIN_MODE_REVERSE);
