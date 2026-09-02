@@ -155,12 +155,16 @@ install)
     if [ ! -f bin/st ]; then
         "$0" build
     fi
-    set -x
+    trace_on
+
     mkdir -p ${DESTDIR}${PREFIX}/bin
     install -Dm755 bin/st ${DESTDIR}${PREFIX}/bin/st
     mkdir -p ${DESTDIR}${PREFIX}/man/man1
     chmod 644 ${DESTDIR}${PREFIX}/man/man1/st.1
     tic -sx st.info
+
+    trace_off
+
     echo "Please see the README regarding the terminfo entry of st."
     ;;
 test)
@@ -169,7 +173,6 @@ test)
     exit
     ;;
 uninstall)
-    set -x
     rm -f ${DESTDIR}${PREFIX}/bin/st
     rm -f ${DESTDIR}${MANPREFIX}/man1/st.1
     ;;
