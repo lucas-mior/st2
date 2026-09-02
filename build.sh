@@ -109,7 +109,7 @@ debug)
     exe="bin/$program"
     ;;
 debug-fast)
-    CFLAGS="$CFLAGS -Wno-error -g2 -O2 -flto -march=native -ftree-vectorize"
+    CFLAGS="$CFLAGS -g2 -O2 -flto -march=native -ftree-vectorize"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     ;;
 valgrind)
@@ -127,7 +127,7 @@ check)
     CFLAGS="$CFLAGS -DDEBUGGING=1 -fanalyzer"
     ;;
 build|run)
-    CFLAGS="$CFLAGS -Wno-error -O2 -flto -march=native -ftree-vectorize"
+    CFLAGS="$CFLAGS -O2 -flto -march=native -ftree-vectorize"
     ;;
 fast_feedback)
     ;;
