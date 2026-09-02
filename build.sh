@@ -2,8 +2,6 @@
 
 # shellcheck disable=SC2086
 
-set -x
-
 dir=$(dirname "$(readlink -f "$0")")
 cd "$dir" || exit
 # shellcheck source=./cbase/common.sh
