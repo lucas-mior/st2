@@ -63,6 +63,6 @@ static int32 sixel_parser_parse(SixelState *st, uchar *p, int32 len);
 static int32 sixel_parser_finalize(SixelState *st, struct ImageList **newimages,
                                    int32 cx, int32 cy, int32 cw, int32 ch);
 static void sixel_parser_deinit(SixelState *st);
-static Pixmap sixel_create_clipmask(char *pixels, int32 width, int32 height);
+static Pixmap sixel_create_clipmask(uint32 *pixels, int32 width, int32 height);
 
 #endif /* SIXEL_H */

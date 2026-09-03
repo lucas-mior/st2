@@ -225,7 +225,7 @@ copy_image_to_selection_pixels(ImageList *image,
         return;
     }
 
-    src_pixels = (uint32 *)image->pixels;
+    src_pixels = image->pixels;
 
     for (int32 py = iy1; py < iy2; py += 1) {
         int32 src_y = ((py - image_px_y) * image->height) / scaled_h;
@@ -396,13 +396,13 @@ static void
 clear_image_pixmaps(ImageList *list) {
     for (ImageList *image = list; image; image = image->next) {
         if (image->pixmap) {
-            XFreePixmap(x_window.display, (Drawable)image->pixmap);
+            XFreePixmap(x_window.display, image->pixmap);
         }
         if (image->clipmask) {
-            XFreePixmap(x_window.display, (Drawable)image->clipmask);
+            XFreePixmap(x_window.display, image->clipmask);
         }
-        image->pixmap = NULL;
-        image->clipmask = NULL;
+        image->pixmap = None;
+        image->clipmask = None;
     }
     return;
 }

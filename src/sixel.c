@@ -50,13 +50,13 @@ static uint32 sixel_default_color_table[] = {
 static void
 sixel_image_free(ImageList *image) {
     if (image->pixmap) {
-        XFreePixmap(x_window.display, (Drawable)image->pixmap);
+        XFreePixmap(x_window.display, image->pixmap);
     }
     if (image->clipmask) {
-        XFreePixmap(x_window.display, (Drawable)image->clipmask);
+        XFreePixmap(x_window.display, image->clipmask);
     }
     if (image->pixels) {
-        int64 pixels_size = image->width*image->height*4;
+        int64 pixels_size = image->width*image->height*SIZEOF(*image->pixels);
         free2(image->pixels, pixels_size);
     }
     free2(image, SIZEOF(*image));
@@ -301,13 +301,14 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
         image->cols = cols;
         image->width = w;
         image->height = MIN(h - ch*i, ch);
-        image->pixels = malloc2(image->width*image->height*4);
-        image->pixmap = NULL;
-        image->clipmask = NULL;
+        image->pixels = malloc2(image->width*image->height
+                                *SIZEOF(*image->pixels));
+        image->pixmap = None;
+        image->clipmask = None;
         image->cw = cw;
         image->ch = ch;
 
-        dst = (uint32 *)image->pixels;
+        dst = image->pixels;
         for (int32 j = 0; j < image->height && (y < h); j += 1) {
             uint16 *src = sixel_state->image.data + sixel_image->width*y;
             int32 x = 0;
@@ -741,11 +742,11 @@ sixel_parser_deinit(SixelState *sixel_state) {
 }
 
 static Pixmap
-sixel_create_clipmask(char *pixels, int32 width, int32 height) {
+sixel_create_clipmask(uint32 *pixels, int32 width, int32 height) {
     char *clipdata;
     char *dst;
     int32 msb = (XBitmapBitOrder(x_window.display) == MSBFirst);
-    uint32 *src = (uint32 *)pixels;
+    uint32 *src = pixels;
 
     clipdata = dst = malloc2((width + 7) / 8*height);
 

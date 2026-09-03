@@ -985,13 +985,13 @@ draw(void) {
             scaled_w = MAX(scaled_w, 1);
             scaled_h = MAX(scaled_h, 1);
 
-            if (image->pixmap == NULL) {
+            if (image->pixmap == None) {
                 uint32 *scaled_pixels;
                 uint32 *src_pixels;
                 XImage ximage;
 
                 scaled_pixels = malloc2(scaled_w*scaled_h*SIZEOF(*scaled_pixels));
-                src_pixels = (uint32 *)image->pixels;
+                src_pixels = image->pixels;
 
                 /* Fast Nearest-Neighbor scaling */
                 for (int32 sy = 0; sy < scaled_h; sy += 1) {
@@ -1002,13 +1002,13 @@ draw(void) {
                     }
                 }
 
-                image->pixmap = (void *)XCreatePixmap(x_window.display, x_window.win,
-                                                      (uint32)scaled_w, (uint32)scaled_h,
-                                                      (uint32)x_window.depth);
+                image->pixmap = XCreatePixmap(x_window.display, x_window.win,
+                                              (uint32)scaled_w, (uint32)scaled_h,
+                                              (uint32)x_window.depth);
 
                 if (image->transparent) {
-                    image->clipmask = (void *)sixel_create_clipmask((char *)scaled_pixels,
-                                                                     scaled_w, scaled_h);
+                    image->clipmask = sixel_create_clipmask(scaled_pixels,
+                                                            scaled_w, scaled_h);
                 }
 
                 ximage.format = ZPixmap;
@@ -1022,7 +1022,7 @@ draw(void) {
                 ximage.bitmap_unit = 32;
                 ximage.bitmap_pad = 32;
 
-                XPutImage(x_window.display, (Drawable)image->pixmap,
+                XPutImage(x_window.display, image->pixmap,
                           draw_context.graphics, &ximage, 0, 0, 0, 0, (uint32)scaled_w,
                           (uint32)scaled_h);
 
@@ -1063,7 +1063,7 @@ draw(void) {
                     if (image->transparent && image->clipmask) {
                         /* Mask origin must track the logical position */
                         XSetClipOrigin(x_window.display, gc, bw + image->x*term_window.cw, bh + rel_y*term_window.ch);
-                        XSetClipMask(x_window.display, gc, (Pixmap)image->clipmask);
+                        XSetClipMask(x_window.display, gc, image->clipmask);
                     } else {
                         XSetClipMask(x_window.display, gc, None);
                     }
@@ -1103,7 +1103,7 @@ draw(void) {
 
                             dest_x = bw + (x_start * term_window.cw);
 
-                            XCopyArea(x_window.display, (Drawable)image->pixmap, x_window.drawable, gc,
+                            XCopyArea(x_window.display, image->pixmap, x_window.drawable, gc,
                                       src_x, src_y, (uint32)copy_w, (uint32)draw_h,
                                       dest_x, dest_y);
                             is_deleted = 0;

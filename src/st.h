@@ -151,9 +151,9 @@ union Arg {
 typedef struct ImageList {
     struct ImageList *next;
     struct ImageList *prev;
-    uchar *pixels;
-    void *pixmap;
-    void *clipmask;
+    uint32 *pixels;
+    Pixmap pixmap;
+    Pixmap clipmask;
     int32 width;
     int32 height;
     int32 x;
