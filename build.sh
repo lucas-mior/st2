@@ -219,6 +219,7 @@ check)
     CFLAGS="$CFLAGS -Wno-unused-command-line-argument"
     CFLAGS="$CFLAGS -fno-color-diagnostics"
     CC=clang CFLAGS="$CFLAGS" ./build.sh
+    echo "static analysis finished."
     exit
     ;;
 esac
