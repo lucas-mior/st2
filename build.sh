@@ -40,9 +40,9 @@ script_to_header() {
 }
 
 trace_on
-{ cat st-copy-output.sh; printf '\0'; } \
+{ cat st2-copy-output.sh; printf '\0'; } \
     | script_to_header st_copy_output > gen/copy_output.h
-{ cat st-copy-url.sh;    printf '\0'; } \
+{ cat st2-copy-url.sh;    printf '\0'; } \
     | script_to_header st_copy_url > gen/copy_url.h
 
 trace_off
@@ -153,20 +153,20 @@ build|debug|debug-fast|run|valgrind|callgrind|cross)
     trace_off
     ;;
 install)
-    if [ ! -f bin/st ]; then
+    if [ ! -f bin/st2 ]; then
         "$0" build
     fi
     trace_on
 
     mkdir -p ${DESTDIR}${PREFIX}/bin
-    install -Dm755 bin/st ${DESTDIR}${PREFIX}/bin/st
+    install -Dm755 bin/st2 ${DESTDIR}${PREFIX}/bin/st2
     mkdir -p ${DESTDIR}${PREFIX}/man/man1
-    chmod 644 ${DESTDIR}${PREFIX}/man/man1/st.1
-    tic -sx st.info
+    chmod 644 ${DESTDIR}${PREFIX}/man/man1/st2.1
+    tic -sx st2.info
 
     trace_off
 
-    echo "Please see the README regarding the terminfo entry of st."
+    echo "Please see the README regarding the terminfo entry of st2."
     ;;
 test)
     TEST_STDIN=/dev/null \
@@ -174,8 +174,8 @@ test)
     exit
     ;;
 uninstall)
-    rm -f ${DESTDIR}${PREFIX}/bin/st
-    rm -f ${DESTDIR}${MANPREFIX}/man1/st.1
+    rm -f ${DESTDIR}${PREFIX}/bin/st2
+    rm -f ${DESTDIR}${MANPREFIX}/man1/st2.1
     ;;
 esac
 case "$mode" in
