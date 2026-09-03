@@ -18,3 +18,4 @@ scan-build*
 test_reflow
 *.obj
 minmax-slides*
+static-analyzers-warnings.txt
