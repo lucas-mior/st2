@@ -803,6 +803,7 @@ user_copy_output(union Arg *arg) {
     argv[argc++] = "sh";
     argv[argc++] = "-c";
     argv[argc++] = (char *)st_copy_output;
+    argv[argc++] = "st2-copy-output";
     argv[argc++] = winid;
     argv[argc++] = NULL;
 
@@ -830,6 +831,7 @@ user_url_select(union Arg *arg) {
     argv[argc++] = "sh";
     argv[argc++] = "-c";
     argv[argc++] = (char *)st_copy_url;
+    argv[argc++] = "st2-copy-url";
     argv[argc++] = winid;
     argv[argc++] = mode;
     argv[argc++] = NULL;
