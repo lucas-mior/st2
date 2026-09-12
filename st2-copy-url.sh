@@ -1,7 +1,7 @@
 #!/bin/sh
 
 protocols="(http|https|gopher|gemini|ftp|ftps|git)"
-normal="(($protocols://|www\.)[a-zA-Z0-9.]*[:]?[a-zA-Z0-9./@$&%?$\#=_~-]*)"
+normal="(($protocols://|www\.)[a-zA-Z0-9.]*[:]?[a-zA-Z0-9./@$&%?$+\#=_~-]*)"
 urlregex="$normal|((magnet:\?xt=urn:btih:)[a-zA-Z0-9]*)"
 
 urls=$(sed 's/.*│//g' \
