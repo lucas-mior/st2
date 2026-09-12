@@ -2,11 +2,12 @@
 
 protocols="(https?|gopher|gemini|ftps?|git)"
 domain="[a-zA-Z0-9.-]+(:[0-9]+)?"
-path="[][a-zA-Z0-9./:@$&%?+,#=_~!;*'()-]*"
-normal="(($protocols://|www\.)$domain$path)"
+urlpath="[][a-zA-Z0-9./:@$&%?+,#=_~!;*'()-]*"
+normal="(($protocols://|www\.)$domain$urlpath)"
 urlregex="$normal|(magnet:\?xt=urn:btih:[a-zA-Z0-9]+)"
 
 urls=$(sed 's/.*│//g' \
+       | sed -E ':a;N;s/\n[[:space:]]*([+%&?=/#._~:@,-])/\1/;ta;P;D' \
        | tr '\n' ' ' \
        | grep -aEo "$urlregex" \
        | sort -u \
