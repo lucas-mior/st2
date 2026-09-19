@@ -1306,7 +1306,7 @@ main(void) {
         
         ptr = term_get_glyphs(buffer, &line[0], &line[1]);
         *ptr = '\0';
-        ASSERT(strcmp(buffer, "AB") == 0);
+        ASSERT_EQUAL(buffer, strlen32(buffer), STRLIT("AB"));
     }
 
     /* Test: term_set_sixel_attr */
@@ -1318,8 +1318,8 @@ main(void) {
         }
         
         term_set_sixel_attr(line, 2, 5);
-        ASSERT_POSITIVE((int32)(line[2].mode & ATTR_SIXEL));
-        ASSERT_POSITIVE((int32)(line[5].mode & ATTR_SIXEL));
+        ASSERT(line[2].mode & ATTR_SIXEL);
+        ASSERT(line[5].mode & ATTR_SIXEL);
     }
 
     /* Test: term_attr_set */
