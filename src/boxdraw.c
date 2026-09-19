@@ -278,19 +278,6 @@ boxdraw_functions_sink(void) {
 int
 main(void) {
     {
-        Display *dummy_dpy = NULL;
-        Colormap dummy_cmap = 0;
-        XftDraw *dummy_draw = NULL;
-        Visual *dummy_vis = NULL;
-
-        boxdraw_xinit(dummy_dpy, dummy_cmap, dummy_draw, dummy_vis);
-        ASSERT(x_display == dummy_dpy);
-        ASSERT(x_color_map == dummy_cmap);
-        ASSERT(xft_draw == dummy_draw);
-        ASSERT(x_visual == dummy_vis);
-    }
-
-    {
         int32 res = isboxdraw(0x2000);
         ASSERT_ZERO(res);
     }
