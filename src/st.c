@@ -1537,8 +1537,7 @@ main(void) {
     {
         int32 temp_fd;
         
-        temp_fd = open("/dev/null", O_WRONLY);
-        if (temp_fd >= 0) {
+        if ((temp_fd = open("/dev/null", O_WRONLY)) >= 0) {
             io_fd = temp_fd;
             term_reset();
             term.lines[0][0].rune = 'D';
