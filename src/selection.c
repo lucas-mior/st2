@@ -495,7 +495,7 @@ main(void) {
         selection.ob.x = 10;
         selection_remove();
         ASSERT(selection.mode == SELECTION_IDLE);
-        ASSERT_EQUAL(selection.ob.x, -1);
+        ASSERT_EQ(selection.ob.x, -1);
     }
 
     {
@@ -510,19 +510,19 @@ main(void) {
 
         selection_start(5, 5, SELECTION_SNAP_NONE);
         ASSERT(selection.mode == SELECTION_EMPTY);
-        ASSERT_EQUAL(selection.nb.x, 5);
-        ASSERT_EQUAL(selection.nb.y, 5);
+        ASSERT_EQ(selection.nb.x, 5);
+        ASSERT_EQ(selection.nb.y, 5);
 
         selection_extend(10, 10, SELECTION_NORMAL, 0);
         ASSERT(selection.mode == SELECTION_READY);
-        ASSERT_EQUAL(selection.nb.x, 5);
-        ASSERT_EQUAL(selection.ne.x, 10);
+        ASSERT_EQ(selection.nb.x, 5);
+        ASSERT_EQ(selection.ne.x, 10);
         
         selection_extend(2, 2, SELECTION_NORMAL, 0);
-        ASSERT_EQUAL(selection.nb.x, 2);
-        ASSERT_EQUAL(selection.ne.x, 5);
-        ASSERT_EQUAL(selection.nb.y, 2);
-        ASSERT_EQUAL(selection.ne.y, 5);
+        ASSERT_EQ(selection.nb.x, 2);
+        ASSERT_EQ(selection.ne.x, 5);
+        ASSERT_EQ(selection.nb.y, 2);
+        ASSERT_EQ(selection.ne.y, 5);
     }
 
     {
@@ -534,8 +534,8 @@ main(void) {
         
         selection_start(1, 10, SELECTION_SNAP_WORD);
         
-        ASSERT_EQUAL(selection.nb.x, 1);
-        ASSERT_EQUAL(selection.ne.x, 2);
+        ASSERT_EQ(selection.nb.x, 1);
+        ASSERT_EQ(selection.ne.x, 2);
     }
 
     {
@@ -549,9 +549,9 @@ main(void) {
         selection_start(10, 10, SELECTION_SNAP_NONE);
         selection_extend(20, 15, SELECTION_RECTANGULAR, 0);
         
-        ASSERT_EQUAL(selection_is_selected(15, 12), 1);
-        ASSERT_EQUAL(selection_is_selected(5, 12), 0);
-        ASSERT_EQUAL(selection_is_selected(15, 16), 0);
+        ASSERT_EQ(selection_is_selected(15, 12), 1);
+        ASSERT_EQ(selection_is_selected(5, 12), 0);
+        ASSERT_EQ(selection_is_selected(15, 16), 0);
     }
 
     {
@@ -569,8 +569,8 @@ main(void) {
         
         result = selection_get();
         ASSERT(result != NULL);
-        ASSERT_EQUAL(result[0], 'A');
-        ASSERT_EQUAL(result[1], 'B');
+        ASSERT_EQ(result[0], 'A');
+        ASSERT_EQ(result[1], 'B');
 
         if (result) {
             int64 result_len;
@@ -590,15 +590,15 @@ main(void) {
         selection_extend(0, 10, SELECTION_NORMAL, 0);
         
         selection_move_y(2);
-        ASSERT_EQUAL(selection.nb.y, 7);
-        ASSERT_EQUAL(selection.ne.y, 12);
+        ASSERT_EQ(selection.nb.y, 7);
+        ASSERT_EQ(selection.ne.y, 12);
         
         term.scrolled_up = 0;
         selection_scroll(0, 20, -1);
-        ASSERT_EQUAL(selection.nb.y, 6);
+        ASSERT_EQ(selection.nb.y, 6);
         
         selection_scroll(10, 20, 5);
-        ASSERT_EQUAL(selection.ob.x, -1);
+        ASSERT_EQ(selection.ob.x, -1);
     }
 
     {
@@ -606,10 +606,10 @@ main(void) {
         selection.ob.x = 0; 
         
         selection_set(clip, CurrentTime);
-        ASSERT_EQUAL(xsel.primary, "test clip");
+        ASSERT_EQ(xsel.primary, "test clip");
         
         selection_clear();
-        ASSERT_EQUAL(selection.ob.x, -1);
+        ASSERT_EQ(selection.ob.x, -1);
     }
 
     /* Test Case: Reproduce single-click bug on completely empty line */
@@ -625,7 +625,7 @@ main(void) {
          * and ne.x = 79. The entire line is selected instead of cell 5.
          */
         ASSERT_ZERO(selection.nb.x);
-        ASSERT_EQUAL_VAR(selection.ne.x, term.ncols - 1);
+        ASSERT_EQ_VAR(selection.ne.x, term.ncols - 1);
     }
 
     /* Test Case: Reproduce single-click bug clicking past text on active line */
@@ -645,8 +645,8 @@ main(void) {
          * BUG: term_line_len is 2. The start pointer snaps back to index 2,
          * and the end pointer snaps to the right edge of the window.
          */
-        ASSERT_EQUAL(selection.nb.x, 2);
-        ASSERT_EQUAL_VAR(selection.ne.x, term.ncols - 1);
+        ASSERT_EQ(selection.nb.x, 2);
+        ASSERT_EQ_VAR(selection.ne.x, term.ncols - 1);
     }
 
     /* Test Case: Rectangular selection skipping blank spots */

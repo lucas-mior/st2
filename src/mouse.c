@@ -306,7 +306,7 @@ main(void) {
     // 32 + code (3 for release) = 35 '#'
     // 32 + x + 1 = 33 '!'
     // 32 + y + 1 = 33 '!'
-    ASSERT_EQUAL(captured_tty_buf, "\033[M#!!");
+    ASSERT_EQ(captured_tty_buf, "\033[M#!!");
 
     // Test 2: Border Click Mitigation
     // A click at absolute 0,0 is inside the 5px border.
@@ -324,7 +324,7 @@ main(void) {
     captured_tty_buf[bytes_read] = '\0';
     
     // Output should perfectly match col 0, row 0, proving no underflow injection
-    ASSERT_EQUAL(captured_tty_buf, "\033[M#!!");
+    ASSERT_EQ(captured_tty_buf, "\033[M#!!");
 
     /* Test 3: Reproduce "always selects whole lines" bug on click */
     {
@@ -367,7 +367,7 @@ main(void) {
          * normalizer expands the selection to the end of the window because 
          * the click was past the text bounds.
          */
-        ASSERT_EQUAL_VAR(selection.ne.x, term.ncols - 1);
+        ASSERT_EQ_VAR(selection.ne.x, term.ncols - 1);
     }
 
     XCLOSE(&pipefd[0]);

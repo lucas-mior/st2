@@ -1262,7 +1262,7 @@ main(void) {
         
         line[4].mode = ATTR_SET;
         len = term_line_len(line);
-        ASSERT_EQUAL(len, 5);
+        ASSERT_EQ(len, 5);
     }
 
     /* Test: term_is_wrapped */
@@ -1281,7 +1281,7 @@ main(void) {
         
         line[4].mode = ATTR_SET | ATTR_WRAP;
         wrapped = term_is_wrapped(line);
-        ASSERT_EQUAL((int32)wrapped, 1);
+        ASSERT_EQ((int32)wrapped, 1);
     }
 
     /* Test: term_get_glyphs */
@@ -1297,7 +1297,7 @@ main(void) {
         
         ptr = term_get_glyphs(buffer, &line[0], &line[1]);
         *ptr = '\0';
-        ASSERT_EQUAL(buffer, strlen32(buffer), STRLIT("AB"));
+        ASSERT_EQ(buffer, strlen32(buffer), STRLIT("AB"));
     }
 
     /* Test: term_set_sixel_attr */
@@ -1323,22 +1323,22 @@ main(void) {
         
         term.lines[0][0].mode |= ATTR_BOLD;
         res = term_attr_set(ATTR_BOLD);
-        ASSERT_EQUAL((int32)res, 1);
+        ASSERT_EQ((int32)res, 1);
     }
 
     /* Test: term_set_dirt, term_set_dirt_attr, term_full_dirt */
     {
         term_full_dirt();
-        ASSERT_EQUAL((int32)term.dirts[0], 1);
+        ASSERT_EQ((int32)term.dirts[0], 1);
         
         term.dirts[0] = false;
         term_set_dirt(0, 0);
-        ASSERT_EQUAL((int32)term.dirts[0], 1);
+        ASSERT_EQ((int32)term.dirts[0], 1);
         
         term.dirts[0] = false;
         term.lines[0][0].mode |= ATTR_ITALIC;
         term_set_dirt_attr(ATTR_ITALIC);
-        ASSERT_EQUAL((int32)term.dirts[0], 1);
+        ASSERT_EQ((int32)term.dirts[0], 1);
     }
 
     /* Test: term_swap_screen */
@@ -1354,12 +1354,12 @@ main(void) {
     /* Test: term_move_abs_to, term_move_to */
     {
         term_move_to(5, 2);
-        ASSERT_EQUAL(term.cursor.x, 5);
-        ASSERT_EQUAL(term.cursor.y, 2);
+        ASSERT_EQ(term.cursor.x, 5);
+        ASSERT_EQ(term.cursor.y, 2);
         
         term_move_abs_to(1, 1);
-        ASSERT_EQUAL(term.cursor.x, 1);
-        ASSERT_EQUAL(term.cursor.y, 1);
+        ASSERT_EQ(term.cursor.x, 1);
+        ASSERT_EQ(term.cursor.y, 1);
     }
 
     /* Test: term_set_char */
@@ -1371,7 +1371,7 @@ main(void) {
         attr_val.bg = 2;
         
         term_set_char('X', &attr_val, 0, 0);
-        ASSERT_EQUAL(term.lines[0][0].rune, 'X');
+        ASSERT_EQ(term.lines[0][0].rune, 'X');
         ASSERT_POSITIVE((int32)(term.lines[0][0].mode & ATTR_BOLD));
     }
 
@@ -1384,10 +1384,10 @@ main(void) {
         term.lines[0][1].mode |= ATTR_SET;
         
         term_delete_char(1);
-        ASSERT_EQUAL(term.lines[0][0].rune, 'B');
+        ASSERT_EQ(term.lines[0][0].rune, 'B');
         
         term_insert_blank(1);
-        ASSERT_EQUAL(term.lines[0][0].rune, ' ');
+        ASSERT_EQ(term.lines[0][0].rune, ' ');
     }
 
     /* Test: term_mode_is_set & win_mode_is_set */
@@ -1396,7 +1396,7 @@ main(void) {
         
         term.mode |= TERM_MODE_INSERT;
         res = term_mode_is_set(TERM_MODE_INSERT);
-        ASSERT_EQUAL((int32)res, 1);
+        ASSERT_EQ((int32)res, 1);
         
         term.mode &= ~TERM_MODE_WRAP;
         res = term_mode_is_set(TERM_MODE_WRAP);
@@ -1404,7 +1404,7 @@ main(void) {
 
         term_window.mode |= WIN_MODE_VISIBLE;
         res = win_mode_is_set(WIN_MODE_VISIBLE);
-        ASSERT_EQUAL((int32)res, 1);
+        ASSERT_EQ((int32)res, 1);
     }
 
     /* Test: term_line, term_line_abs, term_line_hist */
@@ -1418,10 +1418,10 @@ main(void) {
         term.i_hist = 0;
         
         ptr = term_line(1);
-        ASSERT_EQUAL(ptr[0].rune, 'A');
+        ASSERT_EQ(ptr[0].rune, 'A');
         
         ptr = term_line_abs(-1);
-        ASSERT_EQUAL(ptr[0].rune, 'H');
+        ASSERT_EQ(ptr[0].rune, 'H');
         
         ptr = term_line_hist(0);
         ASSERT(ptr != NULL);
@@ -1435,7 +1435,7 @@ main(void) {
         term.wrap_char_width[1] = 1;
         
         update_wrap_next(1, 5);
-        ASSERT_EQUAL(term.cursor.x, 1);
+        ASSERT_EQ(term.cursor.x, 1);
         ASSERT_ZERO((int32)(term.cursor.state & CURSOR_WRAPNEXT));
     }
 
@@ -1458,7 +1458,7 @@ main(void) {
         term.lines[1][1].mode = ATTR_SET;
         
         term_clear_region(0, 0, 2, 2, false);
-        ASSERT_EQUAL(term.lines[1][1].rune, ' ');
+        ASSERT_EQ(term.lines[1][1].rune, ' ');
     }
 
     /* Test: term_scroll_up and term_scroll_down */
@@ -1467,11 +1467,11 @@ main(void) {
         term.lines[1][0].rune = 'Y';
         
         term_scroll_up(0, 2, 1, SCROLL_NOSAVEHIST);
-        ASSERT_EQUAL(term.lines[0][0].rune, 'Y');
+        ASSERT_EQ(term.lines[0][0].rune, 'Y');
         
         term_scroll_down(0, 1);
-        ASSERT_EQUAL(term.lines[1][0].rune, 'Y');
-        ASSERT_EQUAL(term.lines[0][0].rune, ' ');
+        ASSERT_EQ(term.lines[1][0].rune, 'Y');
+        ASSERT_EQ(term.lines[0][0].rune, ' ');
     }
 
     /* Test: term_insert_blank_line and term_delete_line */
@@ -1481,12 +1481,12 @@ main(void) {
         term.lines[0][0].rune = 'Z';
         
         term_insert_blank_line(1);
-        ASSERT_EQUAL(term.lines[1][0].rune, 'Z');
-        ASSERT_EQUAL(term.lines[0][0].rune, ' ');
+        ASSERT_EQ(term.lines[1][0].rune, 'Z');
+        ASSERT_EQ(term.lines[0][0].rune, ' ');
         
         term.cursor.y = 0;
         term_delete_line(1);
-        ASSERT_EQUAL(term.lines[0][0].rune, 'Z');
+        ASSERT_EQ(term.lines[0][0].rune, 'Z');
     }
 
     /* Test: reflow_scroll_down (via term_resize) */
@@ -1497,20 +1497,20 @@ main(void) {
         term.hist[0][0].rune = 'H';
         
         term_resize(10, 6); 
-        ASSERT_EQUAL(term.lines[0][0].rune, 'H');
+        ASSERT_EQ(term.lines[0][0].rune, 'H');
     }
 
     /* Test: resize, reflow, x_configure_resize */
     {
         term_reset();
         term_resize(20, 10);
-        ASSERT_EQUAL(term.ncols, 20);
-        ASSERT_EQUAL(term.nrows, 10);
+        ASSERT_EQ(term.ncols, 20);
+        ASSERT_EQ(term.nrows, 10);
 
         term_load_alt_screen(true, true);
         term_resize(15, 8);
-        ASSERT_EQUAL(term.ncols, 15);
-        ASSERT_EQUAL(term.nrows, 8);
+        ASSERT_EQ(term.ncols, 15);
+        ASSERT_EQ(term.nrows, 8);
         term_load_def_screen(true, true);
         
         /* Initialize mock character dimensions if font load failed */
@@ -1520,8 +1520,8 @@ main(void) {
         }
         
         x_configure_resize(400, 300);
-        ASSERT_EQUAL(term_window.w, 400);
-        ASSERT_EQUAL(term_window.h, 300);
+        ASSERT_EQ(term_window.w, 400);
+        ASSERT_EQ(term_window.h, 300);
     }
 
     /* Test: printer and dump functions */
@@ -1580,7 +1580,7 @@ main(void) {
     {
         term_reset();
         term_new_line(true);
-        ASSERT_EQUAL(term.cursor.y, 1);
+        ASSERT_EQ(term.cursor.y, 1);
         ASSERT_ZERO(term.cursor.x);
     }
 
@@ -1589,10 +1589,10 @@ main(void) {
         StGlyph glyph_val;
         
         term_clear_glyph(&glyph_val, false);
-        ASSERT_EQUAL((int32)glyph_val.mode, (int32)ATTR_NONE);
-        ASSERT_EQUAL(glyph_val.rune, ' ');
-        ASSERT_EQUAL_VAR(glyph_val.fg, CONF_COLOR_INDEX_FONT);
-        ASSERT_EQUAL_VAR(glyph_val.bg, CONF_COLOR_BG);
+        ASSERT_EQ((int32)glyph_val.mode, (int32)ATTR_NONE);
+        ASSERT_EQ(glyph_val.rune, ' ');
+        ASSERT_EQ_VAR(glyph_val.fg, CONF_COLOR_INDEX_FONT);
+        ASSERT_EQ_VAR(glyph_val.bg, CONF_COLOR_BG);
     }
 
     if (x_window.display) {

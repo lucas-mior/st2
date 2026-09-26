@@ -978,11 +978,11 @@ main(void) {
     {
         term_window.mode = 0;
         user_toggle_numlock(NULL);
-        ASSERT_EQUAL((int32)term_window.mode, WIN_MODE_NUMLOCK);
+        ASSERT_EQ((int32)term_window.mode, WIN_MODE_NUMLOCK);
         
         term.mode = 0;
         user_toggle_printer(NULL);
-        ASSERT_EQUAL((int32)term.mode, TERM_MODE_PRINT);
+        ASSERT_EQ((int32)term.mode, TERM_MODE_PRINT);
     }
 
     {
@@ -991,7 +991,7 @@ main(void) {
         term.scrolled_up = 0;
         a.i = 5;
         user_scroll_up(&a);
-        ASSERT_EQUAL(term.scrolled_up, 5);
+        ASSERT_EQ(term.scrolled_up, 5);
         user_scroll_down(&a);
         ASSERT_ZERO(term.scrolled_up);
     }

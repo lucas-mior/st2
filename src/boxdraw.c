@@ -291,7 +291,7 @@ main(void) {
         idx = boxdrawindex(&g);
 
         if (CONF_BOXDRAW_BRAILLE) {
-            ASSERT_EQUAL(idx, BRL | 0x01);
+            ASSERT_EQ(idx, BRL | 0x01);
         }
     }
 

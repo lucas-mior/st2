@@ -1619,7 +1619,7 @@ main(void) {
         ASSERT_ZERO(result);
 
         result = sixd_to_16bit(4);
-        ASSERT_EQUAL(result, 0x3737 + 0x2828*4);
+        ASSERT_EQ(result, 0x3737 + 0x2828*4);
     }
 
     /* Test: x_geom_mask_to_gravity */
@@ -1627,16 +1627,16 @@ main(void) {
         int32 gravity;
         
         gravity = x_geom_mask_to_gravity(0);
-        ASSERT_EQUAL(gravity, NorthWestGravity);
+        ASSERT_EQ(gravity, NorthWestGravity);
         
         gravity = x_geom_mask_to_gravity(XNegative);
-        ASSERT_EQUAL(gravity, NorthEastGravity);
+        ASSERT_EQ(gravity, NorthEastGravity);
         
         gravity = x_geom_mask_to_gravity(YNegative);
-        ASSERT_EQUAL(gravity, SouthWestGravity);
+        ASSERT_EQ(gravity, SouthWestGravity);
         
         gravity = x_geom_mask_to_gravity(XNegative | YNegative);
-        ASSERT_EQUAL(gravity, SouthEastGravity);
+        ASSERT_EQ(gravity, SouthEastGravity);
     }
 
     /* Test: Color functions */
@@ -1653,13 +1653,13 @@ main(void) {
         ASSERT_ZERO(ret);
 
         ret = x_get_color(9999, &r, &g, &b);
-        ASSERT_EQUAL(ret, 1);
+        ASSERT_EQ(ret, 1);
 
         ret = x_set_color_name(CONF_COLOR_BG, "black");
         ASSERT_ZERO(ret);
 
         ret = x_set_color_name(9999, "black");
-        ASSERT_EQUAL(ret, 1);
+        ASSERT_EQ(ret, 1);
 
         x_load_color(0, "black", &xft_color);
         x_load_color(30, NULL, &xft_color);  /* 6x6x6 color space */
@@ -1699,15 +1699,15 @@ main(void) {
 
         term_window.cursor = 0;
         result = x_set_cursor(-1);
-        ASSERT_EQUAL(result, 1);
+        ASSERT_EQ(result, 1);
 
         result = x_set_cursor(5);
         ASSERT_ZERO(result);
-        ASSERT_EQUAL(term_window.cursor, 5);
+        ASSERT_EQ(term_window.cursor, 5);
 
         term_window.mode = WIN_MODE_VISIBLE;
         result = x_start_draw();
-        ASSERT_EQUAL(result, WIN_MODE_VISIBLE);
+        ASSERT_EQ(result, WIN_MODE_VISIBLE);
 
         term_window.mode = 0;
         result = x_start_draw();

@@ -2039,7 +2039,7 @@ main(void) {
         term_cursor(CURSOR_SAVE);
         term.cursor.x = 0;
         term_cursor(CURSOR_LOAD);
-        ASSERT_EQUAL(term.cursor.x, 42);
+        ASSERT_EQ(term.cursor.x, 42);
     }
 
     /* 3. CSI Parse & Reset Tests */
@@ -2051,8 +2051,8 @@ main(void) {
         csi_escape_seq.len = 9;
         control_seq_intro_parse();
         
-        ASSERT_EQUAL(csi_escape_seq.priv, 1);
-        ASSERT_EQUAL(csi_escape_seq.arg[1], 23);
+        ASSERT_EQ(csi_escape_seq.priv, 1);
+        ASSERT_EQ(csi_escape_seq.arg[1], 23);
     }
 
     /* 4. Attribute and TrueColor Tests */
@@ -2072,7 +2072,7 @@ main(void) {
         attr_tc[3] = 150;
         attr_tc[4] = 200;
         parsed_color = term_def_color(attr_tc, &npar, 5);
-        ASSERT_EQUAL(parsed_color, TRUECOLOR(100, 150, 200));
+        ASSERT_EQ(parsed_color, TRUECOLOR(100, 150, 200));
     }
 
     /* 5. Terminal Mode Tests */
@@ -2092,18 +2092,18 @@ main(void) {
         term.charset = 0;
 
         term_dec_test('8'); 
-        ASSERT_EQUAL((int32)term.lines[0][0].rune, (int32)'E');
+        ASSERT_EQ((int32)term.lines[0][0].rune, (int32)'E');
         
         term.cursor.x = 0;
         term_put_tab(1);
-        ASSERT_EQUAL_VAR(term.cursor.x, CONF_TAB_NSPACES);
+        ASSERT_EQ_VAR(term.cursor.x, CONF_TAB_NSPACES);
     }
 
     /* 7. Strings and Sequence Initiation Tests */
     {
         term_str_sequence(0x9d);
         ASSERT_POSITIVE((int32)(term.esc & ESC_STR));
-        ASSERT_EQUAL(str_escape_seq.type, ']');
+        ASSERT_EQ(str_escape_seq.type, ']');
     }
 
     /* 8. CSI Absolute Positioning Handling Tests */
@@ -2117,8 +2117,8 @@ main(void) {
         csi_escape_seq.narg = 2;
         control_seq_intro_handle();
         
-        ASSERT_EQUAL(term.cursor.y, 4);
-        ASSERT_EQUAL(term.cursor.x, 9);
+        ASSERT_EQ(term.cursor.y, 4);
+        ASSERT_EQ(term.cursor.x, 9);
     }
 
     /* 9. Charset and UTF-8 Configuration Tests */
@@ -2129,7 +2129,7 @@ main(void) {
         
         term.icharset = 0;
         term_def_tran('0');
-        ASSERT_EQUAL(term.translation_table[0], CS_GRAPHIC0);
+        ASSERT_EQ(term.translation_table[0], CS_GRAPHIC0);
     }
 
     /* 10. Control Codes and I/O Write Tests */
@@ -2142,10 +2142,10 @@ main(void) {
 
         term.cursor.y = 5;
         term_control_code('\n');
-        ASSERT_EQUAL(term.cursor.y, 6);
+        ASSERT_EQ(term.cursor.y, 6);
 
         term_putc('Z');
-        ASSERT_EQUAL((int32)term.lines[term.cursor.y][term.cursor.x - 1].rune, (int32)'Z');
+        ASSERT_EQ((int32)term.lines[term.cursor.y][term.cursor.x - 1].rune, (int32)'Z');
     }
 
     /* 11. Escape Initializer Handle Test */
@@ -2169,10 +2169,10 @@ main(void) {
         term.cursor.y = 10;
         write_len = term_write(write_buf, 3, false);
         
-        ASSERT_EQUAL(write_len, 3);
-        ASSERT_EQUAL((int32)term.lines[10][0].rune, (int32)'A');
-        ASSERT_EQUAL((int32)term.lines[10][1].rune, (int32)'B');
-        ASSERT_EQUAL((int32)term.lines[10][2].rune, (int32)'C');
+        ASSERT_EQ(write_len, 3);
+        ASSERT_EQ((int32)term.lines[10][0].rune, (int32)'A');
+        ASSERT_EQ((int32)term.lines[10][1].rune, (int32)'B');
+        ASSERT_EQ((int32)term.lines[10][2].rune, (int32)'C');
     }
 
     /* 13. String Parsing (OSC Title Allocation) Test */

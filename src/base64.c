@@ -110,13 +110,13 @@ main(void) {
         char c3;
 
         c1 = base64_decode_getc(&src);
-        ASSERT_EQUAL(c1, 'A');
+        ASSERT_EQ(c1, 'A');
         
         c2 = base64_decode_getc(&src);
-        ASSERT_EQUAL(c2, '=');
+        ASSERT_EQ(c2, '=');
         
         c3 = base64_decode_getc(&src);
-        ASSERT_EQUAL(c3, '=');
+        ASSERT_EQ(c3, '=');
     }
 
     {
@@ -124,32 +124,32 @@ main(void) {
         int32 len;
 
         decoded = base64_decode("", &len);
-        ASSERT_EQUAL(decoded, "");
+        ASSERT_EQ(decoded, "");
         free2(decoded, len);
 
         decoded = base64_decode("SGVsbG8=", &len);
-        ASSERT_EQUAL(decoded, "Hello");
+        ASSERT_EQ(decoded, "Hello");
         free2(decoded, len);
 
         decoded = base64_decode("YW55IGNhcm5hbCBwbGVhc3VyZS4=", &len);
-        ASSERT_EQUAL(decoded, "any carnal pleasure.");
+        ASSERT_EQ(decoded, "any carnal pleasure.");
         free2(decoded, len);
 
         decoded = base64_decode(" \n\r", &len);
-        ASSERT_EQUAL(decoded, "");
+        ASSERT_EQ(decoded, "");
         free2(decoded, len);
 
         /* Expose the space bug: space evaluates to 0 ('A') instead of being skipped. 
          * "SGVsb G8=" evaluates improperly instead of skipping the space to decode "Hello". */
         decoded = base64_decode("SGVsb G8=", &len);
-        ASSERT_EQUAL(decoded, "Hello");
+        ASSERT_EQ(decoded, "Hello");
         free2(decoded, len);
 
         /* Expose the unmapped character bug: '!' evaluates to 0 ('A') instead of -1. 
          * The presence of an invalid character should abort the decode (returning ""), 
          * but instead it silently corrupts the data. */
         decoded = base64_decode("S!VsbG8=", &len);
-        ASSERT_EQUAL(decoded, "");
+        ASSERT_EQ(decoded, "");
         free2(decoded, len);
     }
 

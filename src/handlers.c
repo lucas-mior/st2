@@ -716,7 +716,7 @@ main(void) {
         ev.type = SelectionNotify;
         ev.xselection.property = None;
         handler_selection_notify(&ev);
-        ASSERT_EQUAL(1, 1);
+        ASSERT_EQ(1, 1);
     }
 
     {
@@ -725,7 +725,7 @@ main(void) {
         ev.type = PropertyNotify;
         ev.xproperty.state = PropertyDelete;
         handler_prop_notify(&ev);
-        ASSERT_EQUAL(1, 1);
+        ASSERT_EQ(1, 1);
     }
 
     if (fork() == 0) {
@@ -784,7 +784,7 @@ main(void) {
 
         term_window.mode = WIN_MODE_KBDLOCK;
         handler_key_press(&ev);
-        ASSERT_EQUAL(1, 1);
+        ASSERT_EQ(1, 1);
     }
 
     {
@@ -796,7 +796,7 @@ main(void) {
         ev.xclient.data.l[0] = (long)None;
         ev.xclient.data.l[1] = (long)None;
         handler_client_message(&ev);
-        ASSERT_EQUAL(1, 1);
+        ASSERT_EQ(1, 1);
     }
 
     {
@@ -806,7 +806,7 @@ main(void) {
         ev.xconfigure.width = term_window.w;
         ev.xconfigure.height = term_window.h;
         handler_configure_notify(&ev);
-        ASSERT_EQUAL(1, 1);
+        ASSERT_EQ(1, 1);
     }
 
     exit(EXIT_SUCCESS);
