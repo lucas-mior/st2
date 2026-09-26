@@ -81,7 +81,7 @@ check_consistent_state(void) {
     ASSERT_LESS_EQUAL_VAR(term.scrolled_up, term.n_hist);
 
     ASSERT_NON_NEGATIVE(term.top_scroll_limit);
-    ASSERT_LESS_EQUAL(term.top_scroll_limit, term.bot_scroll_limit);
+    ASSERT_LESS_EQUAL_VAR(term.top_scroll_limit, term.bot_scroll_limit);
 
     ASSERT_BETWEEN(term.bot_scroll_limit, 0, term.nrows - 1);
 
@@ -113,15 +113,15 @@ check_consistent_state(void) {
         ASSERT_BETWEEN(selection.ne.x, 0, term.ncols - 1);
 
         /* Check Y bounds against history + screen range */
-        ASSERT_MORE_EQUAL(selection.nb.y, min_y);
-        ASSERT_LESS(selection.nb.y, max_y);
-        ASSERT_MORE_EQUAL(selection.ne.y, min_y);
-        ASSERT_LESS(selection.ne.y, max_y);
+        ASSERT_MORE_EQUAL_VAR(selection.nb.y, min_y);
+        ASSERT_LESS_VAR(selection.nb.y, max_y);
+        ASSERT_MORE_EQUAL_VAR(selection.ne.y, min_y);
+        ASSERT_LESS_VAR(selection.ne.y, max_y);
         
         /* Ensure selection endpoints are correctly ordered */
-        ASSERT_LESS_EQUAL(selection.nb.y, selection.ne.y);
+        ASSERT_LESS_EQUAL_VAR(selection.nb.y, selection.ne.y);
         if (selection.nb.y == selection.ne.y) {
-            ASSERT_LESS_EQUAL(selection.nb.x, selection.ne.x);
+            ASSERT_LESS_EQUAL_VAR(selection.nb.x, selection.ne.x);
         }
     }
 
@@ -1591,8 +1591,8 @@ main(void) {
         term_clear_glyph(&glyph_val, false);
         ASSERT_EQUAL((int32)glyph_val.mode, (int32)ATTR_NONE);
         ASSERT_EQUAL(glyph_val.rune, ' ');
-        ASSERT_EQUAL(glyph_val.fg, CONF_COLOR_INDEX_FONT);
-        ASSERT_EQUAL(glyph_val.bg, CONF_COLOR_BG);
+        ASSERT_EQUAL_VAR(glyph_val.fg, CONF_COLOR_INDEX_FONT);
+        ASSERT_EQUAL_VAR(glyph_val.bg, CONF_COLOR_BG);
     }
 
     if (x_window.display) {
