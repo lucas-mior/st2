@@ -2096,7 +2096,7 @@ main(void) {
         
         term.cursor.x = 0;
         term_put_tab(1);
-        ASSERT_EQUAL(term.cursor.x, CONF_TAB_NSPACES);
+        ASSERT_EQUAL_VAR(term.cursor.x, CONF_TAB_NSPACES);
     }
 
     /* 7. Strings and Sequence Initiation Tests */

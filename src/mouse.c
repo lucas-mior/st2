@@ -367,7 +367,7 @@ main(void) {
          * normalizer expands the selection to the end of the window because 
          * the click was past the text bounds.
          */
-        ASSERT_EQUAL(selection.ne.x, term.ncols - 1);
+        ASSERT_EQUAL_VAR(selection.ne.x, term.ncols - 1);
     }
 
     XCLOSE(&pipefd[0]);
