@@ -113,9 +113,9 @@ check_consistent_state(void) {
         ASSERT_BETWEEN(selection.ne.x, 0, term.ncols - 1);
 
         /* Check Y bounds against history + screen range */
-        ASSERT_MORE_EQUAL_VAR(selection.nb.y, min_y);
+        ASSERT_GE_VAR(selection.nb.y, min_y);
         ASSERT_LESS_VAR(selection.nb.y, max_y);
-        ASSERT_MORE_EQUAL_VAR(selection.ne.y, min_y);
+        ASSERT_GE_VAR(selection.ne.y, min_y);
         ASSERT_LESS_VAR(selection.ne.y, max_y);
         
         /* Ensure selection endpoints are correctly ordered */
