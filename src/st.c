@@ -72,16 +72,16 @@ check_consistent_state(void) {
     }
 
     ASSERT_NON_NEGATIVE(term.n_hist);
-    ASSERT_LESS_EQUAL(term.n_hist, HISTORY_SIZE);
+    ASSERT_LE(term.n_hist, HISTORY_SIZE);
 
     ASSERT_BETWEEN(term.i_hist, 0, HISTORY_SIZE - 1);
 
     /* 3. Scrolling and Viewport Logic */
     ASSERT_NON_NEGATIVE(term.scrolled_up);
-    ASSERT_LESS_EQUAL_VAR(term.scrolled_up, term.n_hist);
+    ASSERT_LE_VAR(term.scrolled_up, term.n_hist);
 
     ASSERT_NON_NEGATIVE(term.top_scroll_limit);
-    ASSERT_LESS_EQUAL_VAR(term.top_scroll_limit, term.bot_scroll_limit);
+    ASSERT_LE_VAR(term.top_scroll_limit, term.bot_scroll_limit);
 
     ASSERT_BETWEEN(term.bot_scroll_limit, 0, term.nrows - 1);
 
@@ -119,9 +119,9 @@ check_consistent_state(void) {
         ASSERT_LESS_VAR(selection.ne.y, max_y);
         
         /* Ensure selection endpoints are correctly ordered */
-        ASSERT_LESS_EQUAL_VAR(selection.nb.y, selection.ne.y);
+        ASSERT_LE_VAR(selection.nb.y, selection.ne.y);
         if (selection.nb.y == selection.ne.y) {
-            ASSERT_LESS_EQUAL_VAR(selection.nb.x, selection.ne.x);
+            ASSERT_LE_VAR(selection.nb.x, selection.ne.x);
         }
     }
 
