@@ -1591,8 +1591,8 @@ main(void) {
         term_clear_glyph(&glyph_val, false);
         ASSERT_EQ((int32)glyph_val.mode, (int32)ATTR_NONE);
         ASSERT_EQ(glyph_val.rune, ' ');
-        ASSERT_EQ_VAR(glyph_val.fg, CONF_COLOR_INDEX_FONT);
-        ASSERT_EQ_VAR(glyph_val.bg, CONF_COLOR_BG);
+        ASSERT_EQ(glyph_val.fg, CONF_COLOR_INDEX_FONT);
+        ASSERT_EQ(glyph_val.bg, CONF_COLOR_BG);
     }
 
     if (x_window.display) {

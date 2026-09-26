@@ -625,7 +625,7 @@ main(void) {
          * and ne.x = 79. The entire line is selected instead of cell 5.
          */
         ASSERT_ZERO(selection.nb.x);
-        ASSERT_EQ_VAR(selection.ne.x, term.ncols - 1);
+        ASSERT_EQ(selection.ne.x, term.ncols - 1);
     }
 
     /* Test Case: Reproduce single-click bug clicking past text on active line */
@@ -646,7 +646,7 @@ main(void) {
          * and the end pointer snaps to the right edge of the window.
          */
         ASSERT_EQ(selection.nb.x, 2);
-        ASSERT_EQ_VAR(selection.ne.x, term.ncols - 1);
+        ASSERT_EQ(selection.ne.x, term.ncols - 1);
     }
 
     /* Test Case: Rectangular selection skipping blank spots */
