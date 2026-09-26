@@ -1910,9 +1910,9 @@ control_seq_intro_dump(void) {
 static int32_t
 term_def_color(int32 *attr, int32 *npar, int32 l) {
     int32_t idx = -1;
-    uint32 r;
-    uint32 g;
-    uint32 b;
+    int32 r;
+    int32 g;
+    int32 b;
 
     switch (attr[*npar + 1]) {
     case 2:
@@ -1920,12 +1920,12 @@ term_def_color(int32 *attr, int32 *npar, int32 l) {
             error("erresc(38): Incorrect number of parameters (%d)\n", *npar);
             break;
         }
-        r = (uint32)attr[*npar + 2];
-        g = (uint32)attr[*npar + 3];
-        b = (uint32)attr[*npar + 4];
+        r = attr[*npar + 2];
+        g = attr[*npar + 3];
+        b = attr[*npar + 4];
         *npar += 4;
         if (!BETWEEN(r, 0, 255) || !BETWEEN(g, 0, 255) || !BETWEEN(b, 0, 255)) {
-            error("erresc: bad rgb color (%u,%u,%u)\n", r, g, b);
+            error("erresc: bad rgb color (%d,%d,%d)\n", r, g, b);
         } else {
             idx = (int32)TRUECOLOR(r, g, b);
         }
