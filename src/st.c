@@ -52,8 +52,8 @@ check_consistent_state(void) {
     /* 1. Basic Geometry and Core Buffers */
     ASSERT_POSITIVE(term.nrows);
     ASSERT_POSITIVE(term.ncols);
-    ASSERT_LESS(term.nrows, MAX_NROWS);
-    ASSERT_LESS(term.ncols, MAX_NCOLS);
+    ASSERT_LT(term.nrows, MAX_NROWS);
+    ASSERT_LT(term.ncols, MAX_NCOLS);
     ASSERT(term.lines);
     ASSERT(term.tabs);
     ASSERT(term.dirts);
@@ -114,9 +114,9 @@ check_consistent_state(void) {
 
         /* Check Y bounds against history + screen range */
         ASSERT_GE_VAR(selection.nb.y, min_y);
-        ASSERT_LESS_VAR(selection.nb.y, max_y);
+        ASSERT_LT_VAR(selection.nb.y, max_y);
         ASSERT_GE_VAR(selection.ne.y, min_y);
-        ASSERT_LESS_VAR(selection.ne.y, max_y);
+        ASSERT_LT_VAR(selection.ne.y, max_y);
         
         /* Ensure selection endpoints are correctly ordered */
         ASSERT_LE_VAR(selection.nb.y, selection.ne.y);
@@ -134,7 +134,7 @@ check_consistent_state(void) {
         int32 safety_limit = 0;
         while (im) {
             /* Detect infinite loops/cycles */
-            ASSERT_LESS(safety_limit, 10000); 
+            ASSERT_LT(safety_limit, 10000); 
             if (im->next) {
                 ASSERT(im->next->prev == im);
             }
