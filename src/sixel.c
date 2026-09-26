@@ -958,7 +958,7 @@ main(void) {
 
         new_images = NULL;
         nimages = sixel_parser_finalize(&state, &new_images, 0, 0, 10, 20);
-        ASSERT_MORE(nimages, -2);
+        ASSERT_GT(nimages, -2);
 
         if (new_images != NULL) {
             sixel_image_delete(new_images);
