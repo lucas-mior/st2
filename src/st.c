@@ -369,7 +369,7 @@ term_reset(void) {
     term.cursor.attr.bg = CONF_COLOR_BG;
     term.cursor.x = 0;
     term.cursor.y = 0;
-    term.cursor.state = CURSOR_DEFAULT;
+    term.cursor.state = CURSOR_NONE;
 
     memset64(term.tabs, 0, term.ncols*SIZEOF(*term.tabs));
     for (int32 i = CONF_TAB_NSPACES; i < term.ncols; i += CONF_TAB_NSPACES) {

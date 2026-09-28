@@ -73,7 +73,7 @@
 #define IS_DELIM(u) (u && wcschr(CONF_WORD_DELIMITERS, (wchar_t)u))
 
 #define ENUM_NAME GlyphAttribute
-#define ENUM_PREFIX_ ATTR_ 
+#define ENUM_PREFIX_ ATTR_
 #define ENUM_BITFLAGS 1
 #define ENUM_FIELDS \
     XX(ATTR_SET) \
@@ -119,7 +119,7 @@ enum SelectionType {
     XX(TERM_MODE_SIXEL)        \
     XX(TERM_MODE_SIXEL_CUR_RT) \
     XX(TERM_MODE_SIXEL_SDM)
-#include "cbase/xenums.c"
+#include "xenums.c"
 
 typedef struct StGlyph {
     uint32 rune;               /* character code */
@@ -178,12 +178,11 @@ enum CursorMovement {
 
 #define ENUM_NAME CursorState
 #define ENUM_PREFIX_ CURSOR_
-#define ENUM_BITFLAGS 0
+#define ENUM_BITFLAGS 1
 #define ENUM_FIELDS       \
-    XX(CURSOR_DEFAULT)    \
     XX(CURSOR_WRAPNEXT)   \
     XX(CURSOR_ORIGIN)
-#include "cbase/xenums.c"
+#include "xenums.c"
 
 enum charset {
     CS_GRAPHIC0,
@@ -208,7 +207,7 @@ enum charset {
     XX(ESC_UTF8)       \
     XX(ESC_SIXEL)      \
     XX(ESC_DCS)
-#include "cbase/xenums.c"
+#include "xenums.c"
 
 typedef struct TCursor {
     StGlyph attr; /* current char attributes */
