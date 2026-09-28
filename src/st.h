@@ -179,9 +179,9 @@ enum CursorMovement {
 #define ENUM_NAME CursorState
 #define ENUM_PREFIX_ CURSOR_
 #define ENUM_BITFLAGS 0
-#define ENUM_FIELDS \
-    XX(CURSOR_DEFAULT) \
-    XX(CURSOR_WRAPNEXT) \
+#define ENUM_FIELDS       \
+    XX(CURSOR_DEFAULT)    \
+    XX(CURSOR_WRAPNEXT)   \
     XX(CURSOR_ORIGIN)
 #include "cbase/xenums.c"
 
@@ -198,15 +198,15 @@ enum charset {
 #define ENUM_NAME EscapeState
 #define ENUM_PREFIX_ ESC_
 #define ENUM_BITFLAGS 1
-#define ENUM_FIELDS \
-    XX(ESC_START) \
-    XX(ESC_CSI) \
-    XX(ESC_STR) \
+#define ENUM_FIELDS    \
+    XX(ESC_START)      \
+    XX(ESC_CSI)        \
+    XX(ESC_STR)        \
     XX(ESC_ALTCHARSET) \
-    XX(ESC_STR_END) \
-    XX(ESC_TEST) \
-    XX(ESC_UTF8) \
-    XX(ESC_SIXEL) \
+    XX(ESC_STR_END)    \
+    XX(ESC_TEST)       \
+    XX(ESC_UTF8)       \
+    XX(ESC_SIXEL)      \
     XX(ESC_DCS)
 #include "cbase/xenums.c"
 
