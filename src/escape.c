@@ -550,6 +550,7 @@ control_seq_intro_handle(void) {
                 n = SNPRINTF(buffer, "\033[?%d;3;0S", pi);
                 tty_write(buffer, n, 1);
             }
+            break;
         }
         DEFAULT(csi_escape_seq.arg[0], 1);
         term_scroll_up(term.top_scroll_limit, term.bot_scroll_limit,
@@ -2208,7 +2209,28 @@ main(void) {
         ASSERT_POSITIVE((int32)(term.mode & TERM_MODE_SIXEL));
     }
 
-    /* 16. CSI Dump Path Testing */
+    /* 16. Private CSI S must not fall through to scroll-up */
+    {
+        term_reset();
+        term.cursor.x = 0;
+        term.cursor.y = 1;
+        term_putc('A');
+        term.cursor.x = 0;
+        term.cursor.y = 2;
+        term_putc('B');
+
+        control_seq_intro_reset();
+        csi_escape_seq.priv = 1;
+        csi_escape_seq.mode[0] = 'S';
+        csi_escape_seq.narg = 0;
+
+        control_seq_intro_handle();
+
+        ASSERT_EQ((int32)term.lines[1][0].rune, (int32)'A');
+        ASSERT_EQ((int32)term.lines[2][0].rune, (int32)'B');
+    }
+
+    /* 17. CSI Dump Path Testing */
     {
         control_seq_intro_reset();
         csi_escape_seq.buffer[0] = 'm';

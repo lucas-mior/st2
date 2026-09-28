@@ -295,8 +295,8 @@ handler_selection_request(XEvent *xevent) {
                 }
             }
         } else {
-            error("Unhandled clipboard selection 0x%lx\n",
-                  xselection_request_event->selection);
+            error("Unhandled clipboard selection 0x%llx\n",
+                  (ullong)xselection_request_event->selection);
         }
 
         XChangeProperty(xselection_request_event->display,
@@ -325,8 +325,8 @@ handler_selection_request(XEvent *xevent) {
                 }
             }
         } else {
-            error("Unhandled clipboard selection 0x%lx\n",
-                  xselection_request_event->selection);
+            error("Unhandled clipboard selection 0x%llx\n",
+                  (ullong)xselection_request_event->selection);
         }
 
         if (selection_text != NULL) {

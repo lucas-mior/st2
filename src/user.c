@@ -645,7 +645,7 @@ user_vim_select(union Arg *arg) {
             SNPRINTF(geometry,
                      "%dx%d", term.ncols, term.nrows);
             SNPRINTF(window,
-                     "%lu", x_window.win);
+                     "%llu", (ullong)x_window.win);
             SNPRINTF(cursor,
                      "call cursor(%d, %d)", target_row, target_col);
             SNPRINTF(delete_command,
@@ -798,7 +798,7 @@ user_copy_output(union Arg *arg) {
 
     (void)arg;
 
-    SNPRINTF(winid, "%lu", x_window.win);
+    SNPRINTF(winid, "%llu", (ullong)x_window.win);
 
     argv[argc++] = "sh";
     argv[argc++] = "-c";
@@ -826,7 +826,7 @@ user_url_select(union Arg *arg) {
         mode = "o";
     }
 
-    SNPRINTF(winid, "%lu", x_window.win);
+    SNPRINTF(winid, "%llu", (ullong)x_window.win);
 
     argv[argc++] = "sh";
     argv[argc++] = "-c";

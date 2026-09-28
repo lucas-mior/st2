@@ -301,7 +301,7 @@ run:
 
     {
         char buffer[SIZEOF(int64)*8 + 1];
-        SNPRINTF(buffer, "%lu", x_window.win);
+        SNPRINTF(buffer, "%llu", (ullong)x_window.win);
         setenv("WINDOWID", buffer, 1);
     }
     selection.mode = SELECTION_IDLE;
