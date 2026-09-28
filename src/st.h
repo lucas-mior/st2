@@ -108,15 +108,15 @@ enum SelectionType {
 #define ENUM_NAME TermMode
 #define ENUM_PREFIX_ TERM_MODE_
 #define ENUM_BITFLAGS 1
-#define ENUM_FIELDS \
-    XX(TERM_MODE_WRAP) \
-    XX(TERM_MODE_INSERT) \
-    XX(TERM_MODE_ALTSCREEN) \
-    XX(TERM_MODE_CRLF) \
-    XX(TERM_MODE_ECHOO) \
-    XX(TERM_MODE_PRINT) \
-    XX(TERM_MODE_UTF8) \
-    XX(TERM_MODE_SIXEL) \
+#define ENUM_FIELDS            \
+    XX(TERM_MODE_WRAP)         \
+    XX(TERM_MODE_INSERT)       \
+    XX(TERM_MODE_ALTSCREEN)    \
+    XX(TERM_MODE_CRLF)         \
+    XX(TERM_MODE_ECHOO)        \
+    XX(TERM_MODE_PRINT)        \
+    XX(TERM_MODE_UTF8)         \
+    XX(TERM_MODE_SIXEL)        \
     XX(TERM_MODE_SIXEL_CUR_RT) \
     XX(TERM_MODE_SIXEL_SDM)
 #include "cbase/xenums.c"
