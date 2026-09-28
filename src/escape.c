@@ -606,7 +606,7 @@ control_seq_intro_handle(void) {
             break;
         case 6:
             n = SNPRINTF(buffer,
-                         "\033[%i;%iR", term.cursor.y + 1, term.cursor.x + 1);
+                         "\033[%d;%dR", term.cursor.y + 1, term.cursor.x + 1);
             tty_write(buffer, (int64)n, 0);
             break;
         default:
