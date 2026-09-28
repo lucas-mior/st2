@@ -1096,7 +1096,7 @@ string_handle(void) {
                 return;
             }
 
-            if (isprint(c_code)) {
+            if (is_print(c_code)) {
                 putc((int32)c_code, stderr);
                 continue;
             }
@@ -1454,7 +1454,7 @@ esc_handle(uchar ascii) {
         break;
     default:
         error("erresc: unknown sequence ESC 0x%02X '%c'\n",
-              (uchar)ascii, isprint(ascii) ? ascii : '.');
+              (uchar)ascii, is_print(ascii) ? ascii : '.');
         break;
     }
     return 1;
@@ -1582,7 +1582,7 @@ term_putc(uint32 u) {
             bool is_sixel = true;
             for (int32 i = 0; i < str_escape_seq.len - 1; i += 1) {
                 if (str_escape_seq.buffer[i] != ';'
-                    && !isdigit((uchar)str_escape_seq.buffer[i])) {
+                    && !is_digit(str_escape_seq.buffer[i])) {
                     is_sixel = false;
                     break;
                 }
@@ -1883,7 +1883,7 @@ control_seq_intro_dump(void) {
     for (int64 i = 0; i < csi_escape_seq.len; i += 1) {
         uint32 c = csi_escape_seq.buffer[i] & 0xff;
 
-        if (isprint(c)) {
+        if (is_print(c)) {
             putc((int32)c, stderr);
             continue;
         }
