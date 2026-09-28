@@ -1089,7 +1089,7 @@ string_handle(void) {
     {
         fprintf(stderr, "ESC%c", str_escape_seq.type);
         for (int32 i = 0; i < str_escape_seq.len; i += 1) {
-            uint32 c_code = str_escape_seq.buffer[i] & 0xff;
+            int32 c_code = str_escape_seq.buffer[i] & 0xff;
 
             if (c_code == '\0') {
                 putc('\n', stderr);
@@ -1097,7 +1097,7 @@ string_handle(void) {
             }
 
             if (is_print(c_code)) {
-                putc((int32)c_code, stderr);
+                putc(c_code, stderr);
                 continue;
             }
 
@@ -1112,7 +1112,7 @@ string_handle(void) {
                 fprintf(stderr, "(\\e)");
                 break;
             default:
-                fprintf(stderr, "(%02x)", c_code);
+                fprintf(stderr, "(%02x)", (uint32)c_code);
                 break;
             }
         }
@@ -1881,10 +1881,10 @@ control_seq_intro_dump(void) {
     fprintf(stderr, "ESC[");
 
     for (int64 i = 0; i < csi_escape_seq.len; i += 1) {
-        uint32 c = csi_escape_seq.buffer[i] & 0xff;
+        int32 c = csi_escape_seq.buffer[i] & 0xff;
 
         if (is_print(c)) {
-            putc((int32)c, stderr);
+            putc(c, stderr);
             continue;
         }
 
@@ -1899,7 +1899,7 @@ control_seq_intro_dump(void) {
             fprintf(stderr, "(\\e)");
             break;
         default:
-            fprintf(stderr, "(%02x)", c);
+            fprintf(stderr, "(%02x)", (uint32)c);
             break;
         }
     }
