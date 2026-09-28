@@ -12,7 +12,7 @@
 
 static char
 base64_decode_getc(char **src) {
-    while (**src && (!is_print((uchar)**src) || is_space((uchar)**src))) {
+    while (**src && (!is_print(**src) || is_space(**src))) {
         (*src)++;
     }
     /* emulate padding if string ends */
