@@ -532,7 +532,7 @@ user_smart_scroll_down(union Arg *arg) {
 
 static void
 user_send_break(union Arg *arg) {
-    if (tcsendbreak(command_fd, 0)) {
+    if (tcsendbreak(cmd_fd, 0)) {
         error("Error sending break.\n");
     }
     (void)arg;
@@ -1018,7 +1018,7 @@ main(void) {
     /* 4. Subsystem Isolation (Forked) */
     {
         if (fork() == 0) {
-            command_fd = -1; 
+            cmd_fd = -1; 
             user_send_break(NULL);
             exit(EXIT_SUCCESS);
         }

@@ -458,7 +458,7 @@ static double used_font_size = 0;
 static double default_font_size = 0;
 static pid_t st_pid;
 static int32 io_fd = 1;
-static int32 command_fd;
+static int32 cmd_fd;
 static uint32 buttons; /* bit field of pressed buttons */
 
 static char *opt_class = NULL;

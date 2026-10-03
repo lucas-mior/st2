@@ -257,12 +257,12 @@ main(void) {
     XEvent ev;
 
     /*
-     * We create a pipe and point the global 'command_fd' to the write end.
+     * We create a pipe and point the global 'cmd_fd' to the write end.
      * When mouse_report() calls the real tty_write(), it will write 
      * directly into our pipe via pselect/write64.
      */
     xpipe(pipefd);
-    command_fd = pipefd[1];
+    cmd_fd = pipefd[1];
 
     /* Ensure the read end is non-blocking so we don't hang the test suite */
     flags = fcntl(pipefd[0], F_GETFL, 0);

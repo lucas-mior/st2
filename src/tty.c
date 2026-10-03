@@ -162,13 +162,13 @@ tty_new(char *line, char *cmd, char *out, char **args) {
     }
 
     if (line) {
-        if ((command_fd = open(line, O_RDWR)) < 0) {
+        if ((cmd_fd = open(line, O_RDWR)) < 0) {
             error("open line '%s' failed: %s\n", line, strerror(errno));
             exit(EXIT_FAILURE);
         }
-        xdup2(command_fd, 0);
+        xdup2(cmd_fd, 0);
         stty(args);
-        return command_fd;
+        return cmd_fd;
     }
 
     /* seems to work fine on linux, openbsd and freebsd */
@@ -210,11 +210,11 @@ tty_new(char *line, char *cmd, char *out, char **args) {
         }
 #endif
         XCLOSE(&aslave);
-        command_fd = amaster;
+        cmd_fd = amaster;
         signal(SIGCHLD, handler_sigchld);
         break;
     }
-    return command_fd;
+    return cmd_fd;
 }
 
 static int64
@@ -232,7 +232,7 @@ tty_read(void) {
     if (twrite_aborted) {
         ret = 1;
     } else {
-        ret = read64(command_fd, buffer + copied, LENGTH(buffer) - copied);
+        ret = read64(cmd_fd, buffer + copied, LENGTH(buffer) - copied);
     }
 
     switch (ret) {
@@ -298,11 +298,11 @@ tty_write_raw(char *s, int64 n) {
         fd_set read_fd;
         FD_ZERO(&write_fd);
         FD_ZERO(&read_fd);
-        FD_SET(command_fd, &write_fd);
-        FD_SET(command_fd, &read_fd);
+        FD_SET(cmd_fd, &write_fd);
+        FD_SET(cmd_fd, &read_fd);
 
         /* Check if we can write. */
-        if (pselect(command_fd + 1, &read_fd, &write_fd, NULL, NULL, NULL)
+        if (pselect(cmd_fd + 1, &read_fd, &write_fd, NULL, NULL, NULL)
             < 0) {
             if (errno == EINTR) {
                 continue;
@@ -310,7 +310,7 @@ tty_write_raw(char *s, int64 n) {
             error("select failed: %s\n", strerror(errno));
             exit(EXIT_FAILURE);
         }
-        if (FD_ISSET(command_fd, &write_fd)) {
+        if (FD_ISSET(cmd_fd, &write_fd)) {
             /*
              * Only write the bytes written by tty_write() or the
              * default of 256. This seems to be a reasonable value
@@ -318,7 +318,7 @@ tty_write_raw(char *s, int64 n) {
              */
             int64 size = ((n < lim) ? n : lim);
             int64 r;
-            if ((r = write64(command_fd, s, size)) < 0) {
+            if ((r = write64(cmd_fd, s, size)) < 0) {
                 error("write error on tty: %s\n", strerror(errno));
                 exit(EXIT_FAILURE);
             }
@@ -338,7 +338,7 @@ tty_write_raw(char *s, int64 n) {
                 break;
             }
         }
-        if (FD_ISSET(command_fd, &read_fd)) {
+        if (FD_ISSET(cmd_fd, &read_fd)) {
             lim = tty_read();
         }
     }
@@ -353,7 +353,7 @@ tty_resize(int32 tty_width, int32 tty_height) {
     winsize.ws_col = (uint16)term.ncols;
     winsize.ws_xpixel = (uint16)tty_width;
     winsize.ws_ypixel = (uint16)tty_height;
-    if (ioctl(command_fd, TIOCSWINSZ, &winsize) < 0) {
+    if (ioctl(cmd_fd, TIOCSWINSZ, &winsize) < 0) {
         error("Couldn't set window size: %s\n", strerror(errno));
     }
     return;
@@ -396,7 +396,7 @@ main(void) {
         int32 slave;
 
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
-            command_fd = master;
+            cmd_fd = master;
             term_allocate();
             tty_resize(800, 600);
             XCLOSE(&master);
@@ -434,7 +434,7 @@ main(void) {
 
         term_allocate();
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
-            command_fd = master;
+            cmd_fd = master;
             write(slave, "test", 4);
             tty_read();
             XCLOSE(&master);
@@ -450,7 +450,7 @@ main(void) {
 
         term_allocate();
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
-            command_fd = master;
+            cmd_fd = master;
             tty_write_raw("hello", 5);
             XCLOSE(&master);
             XCLOSE(&slave);
@@ -465,7 +465,7 @@ main(void) {
 
         term_allocate();
         if (openpty(&master, &slave, NULL, NULL, NULL) == 0) {
-            command_fd = master;
+            cmd_fd = master;
             tty_write("hello\rworld", 11, 0);
             XCLOSE(&master);
             XCLOSE(&slave);
