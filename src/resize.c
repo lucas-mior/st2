@@ -18,8 +18,8 @@ static void
 term_resize(int32 new_ncols, int32 new_nrows) {
     bool *bp;
 
-    ASSERT_POSITIVE(new_ncols);
-    ASSERT_POSITIVE(new_nrows);
+    ASSERT_GT(new_ncols, 0);
+    ASSERT_GT(new_nrows, 0);
 
     term.dirts = realloc2(term.dirts,
                           term.nrows, new_nrows, SIZEOF(*(term.dirts)));
@@ -221,8 +221,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int64 old_line_size = (int64)old_ncols*SIZEOF(StGlyph);
     int64 new_line_size = (int64)new_ncols*SIZEOF(StGlyph);
 
-    ASSERT_POSITIVE(new_ncols);
-    ASSERT_POSITIVE(new_nrows);
+    ASSERT_GT(new_ncols, 0);
+    ASSERT_GT(new_nrows, 0);
 
     if (term.scrolled_up == 0) {
         was_at_bottom = true;

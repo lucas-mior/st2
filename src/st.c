@@ -50,8 +50,8 @@ ttyread_pending(void) {
 static void
 check_consistent_state(void) {
     /* 1. Basic Geometry and Core Buffers */
-    ASSERT_POSITIVE(term.nrows);
-    ASSERT_POSITIVE(term.ncols);
+    ASSERT_GT(term.nrows, 0);
+    ASSERT_GT(term.ncols, 0);
     ASSERT_LT(term.nrows, MAX_NROWS);
     ASSERT_LT(term.ncols, MAX_NCOLS);
     ASSERT(term.lines);
@@ -71,16 +71,16 @@ check_consistent_state(void) {
         }
     }
 
-    ASSERT_NON_NEGATIVE(term.n_hist);
+    ASSERT_GE(term.n_hist, 0);
     ASSERT_LE(term.n_hist, HISTORY_SIZE);
 
     ASSERT_BETWEEN(term.i_hist, 0, HISTORY_SIZE - 1);
 
     /* 3. Scrolling and Viewport Logic */
-    ASSERT_NON_NEGATIVE(term.scrolled_up);
+    ASSERT_GE(term.scrolled_up, 0);
     ASSERT_LE_VAR(term.scrolled_up, term.n_hist);
 
-    ASSERT_NON_NEGATIVE(term.top_scroll_limit);
+    ASSERT_GE(term.top_scroll_limit, 0);
     ASSERT_LE_VAR(term.top_scroll_limit, term.bot_scroll_limit);
 
     ASSERT_BETWEEN(term.bot_scroll_limit, 0, term.nrows - 1);
@@ -1372,7 +1372,7 @@ main(void) {
         
         term_set_char('X', &attr_val, 0, 0);
         ASSERT_EQ(term.lines[0][0].rune, 'X');
-        ASSERT_POSITIVE((int32)(term.lines[0][0].mode & ATTR_BOLD));
+        ASSERT_GT((int32, 0)(term.lines[0][0].mode & ATTR_BOLD));
     }
 
     /* Test: term_delete_char, term_insert_blank */
@@ -1570,7 +1570,7 @@ main(void) {
     /* Test: term_load_alt_screen and term_load_def_screen */
     {
         term_load_alt_screen(true, true);
-        ASSERT_POSITIVE((int32)(term.mode & TERM_MODE_ALTSCREEN));
+        ASSERT_GT((int32, 0)(term.mode & TERM_MODE_ALTSCREEN));
         
         term_load_def_screen(true, true);
         ASSERT_ZERO((int32)(term.mode & TERM_MODE_ALTSCREEN));

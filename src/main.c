@@ -67,9 +67,10 @@ main(int32 argc, char *argv[]) {
         opt_font = EARGF(usage());
         break;
     case 'g':
-        x_window.geo_mask = XParseGeometry(
-            EARGF(usage()), &x_window.left_offset, &x_window.top_offset,
-            (uint32 *)&CONF_NCOLS, (uint32 *)&CONF_NROWS);
+        x_window.geo_mask =
+            XParseGeometry(EARGF(usage()),
+                           &x_window.left_offset, &x_window.top_offset,
+                           (uint32 *)&CONF_NCOLS, (uint32 *)&CONF_NROWS);
         break;
     case 'i':
         x_window.is_fixed = true;
