@@ -2065,7 +2065,7 @@ main(void) {
 
         attr_single[0] = 1;
         term_set_attr(attr_single, 1);
-        ASSERT_GT((int32, 0)(term.cursor.attr.mode & ATTR_BOLD));
+        ASSERT_GT((int32)(term.cursor.attr.mode & ATTR_BOLD), 0);
 
         attr_tc[0] = 38;
         attr_tc[1] = 2;
@@ -2082,7 +2082,7 @@ main(void) {
         
         term_args[0] = 4;
         term_set_mode(0, 1, term_args, 1);
-        ASSERT_GT((int32, 0)(term.mode & TERM_MODE_INSERT));
+        ASSERT_GT((int32)(term.mode & TERM_MODE_INSERT), 0);
     }
 
     /* 6. Tabs and Alignment Display Tests */
@@ -2103,7 +2103,7 @@ main(void) {
     /* 7. Strings and Sequence Initiation Tests */
     {
         term_str_sequence(0x9d);
-        ASSERT_GT((int32, 0)(term.esc & ESC_STR));
+        ASSERT_GT((int32)(term.esc & ESC_STR), 0);
         ASSERT_EQ(str_escape_seq.type, ']');
     }
 
@@ -2126,7 +2126,7 @@ main(void) {
     {
         term.mode &= ~TERM_MODE_UTF8;
         term_def_utf8('G');
-        ASSERT_GT((int32, 0)(term.mode & TERM_MODE_UTF8));
+        ASSERT_GT((int32)(term.mode & TERM_MODE_UTF8), 0);
         
         term.icharset = 0;
         term_def_tran('0');
@@ -2155,7 +2155,7 @@ main(void) {
         
         term.esc = 0;
         esc_ret = esc_handle('[');
-        ASSERT_GT((int32, 0)(term.esc & ESC_CSI));
+        ASSERT_GT((int32)(term.esc & ESC_CSI), 0);
         ASSERT_ZERO(esc_ret);
     }
 
@@ -2206,7 +2206,7 @@ main(void) {
         csi_escape_seq.arg[1] = 1; 
         
         dcs_handle();
-        ASSERT_GT((int32, 0)(term.mode & TERM_MODE_SIXEL));
+        ASSERT_GT((int32)(term.mode & TERM_MODE_SIXEL), 0);
     }
 
     /* 16. Private CSI S must not fall through to scroll-up */
