@@ -1372,7 +1372,7 @@ main(void) {
         
         term_set_char('X', &attr_val, 0, 0);
         ASSERT_EQ(term.lines[0][0].rune, 'X');
-        ASSERT_GT((int32, 0)(term.lines[0][0].mode & ATTR_BOLD));
+        ASSERT_GT((int32)(term.lines[0][0].mode & ATTR_BOLD), 0);
     }
 
     /* Test: term_delete_char, term_insert_blank */
@@ -1570,7 +1570,7 @@ main(void) {
     /* Test: term_load_alt_screen and term_load_def_screen */
     {
         term_load_alt_screen(true, true);
-        ASSERT_GT((int32, 0)(term.mode & TERM_MODE_ALTSCREEN));
+        ASSERT_GT((int32)(term.mode & TERM_MODE_ALTSCREEN), 0);
         
         term_load_def_screen(true, true);
         ASSERT_ZERO((int32)(term.mode & TERM_MODE_ALTSCREEN));

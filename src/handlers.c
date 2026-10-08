@@ -668,7 +668,7 @@ main(void) {
         ev.xvisibility.state = VisibilityUnobscured;
         term_window.mode = 0;
         handler_visibility(&ev);
-        ASSERT_GT((int32, 0)(term_window.mode & WIN_MODE_VISIBLE));
+        ASSERT_GT((int32)(term_window.mode & WIN_MODE_VISIBLE), 0);
 
         ev.xvisibility.state = VisibilityFullyObscured;
         handler_visibility(&ev);
