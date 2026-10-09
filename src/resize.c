@@ -399,8 +399,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     for (int32 i = 0; i < old_nrows; i += 1) {
         free2(term.lines[i], old_line_size);
     }
-    term.lines = realloc2(term.lines,
-                          old_nrows, new_nrows, SIZEOF(StGlyph *));
+    term.lines = realloc2(term.lines, old_nrows, new_nrows, SIZEOF(StGlyph *));
 
     for (int32 i = 0; i < new_nrows; i += 1) {
         int32 buffer_idx = screen_top_idx + i;
