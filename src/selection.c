@@ -474,14 +474,15 @@ selection_functions_sink(void) {
 int32
 main(void) {
     {
+        Window root;
         x_window.display = XOpenDisplay(NULL);
         if (!x_window.display) {
             exit(EXIT_FAILURE);
         }
         x_window.screen = XDefaultScreen(x_window.display);
-        x_window.win = XCreateSimpleWindow(x_window.display, 
-            RootWindow(x_window.display, x_window.screen), 0, 0, 10, 10, 
-            0, 0, 0);
+        root = RootWindow(x_window.display, x_window.screen);
+        x_window.win = XCreateSimpleWindow(x_window.display, root,
+                                           0, 0, 10, 10, 0, 0, 0);
 
         CONF_NCOLS = 80;
         CONF_NROWS = 24;
