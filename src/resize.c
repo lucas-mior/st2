@@ -80,6 +80,17 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
             }
         }
         reflow_scroll_down(new_nrows - term.nrows);
+
+        if (selection.ob.x != -1 && !selection.alt) {
+            int32 min_y = term.scrolled_up - term.n_hist;
+            int32 max_y = term.scrolled_up + new_nrows;
+
+            if (selection.nb.y < min_y || selection.ne.y >= max_y
+                || selection.ob.y < min_y || selection.ob.y >= max_y
+                || selection.oe.y < min_y || selection.oe.y >= max_y) {
+                selection_remove();
+            }
+        }
     }
     term.ncols = new_ncols;
     term.nrows = new_nrows;

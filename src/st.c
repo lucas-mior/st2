@@ -94,34 +94,27 @@ check_consistent_state(void) {
 
     /* 5. Selection Invariants */
     if (selection.ob.x != -1) {
-        /* 
-         * In this coordinate system:
-         * - The oldest history line: term.scrolled_up - term.n_hist
-         * - The bottom visible screen line: term.scrolled_up + term.nrows - 1
-         */
-        int32 min_y = term.scrolled_up - term.n_hist;
-        int32 max_y = term.scrolled_up + term.nrows;
-
-        /* If we are in AltScreen, history is logically unreachable. */
-        if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
-            min_y = 0;
-            max_y = term.nrows;
-        }
-
-        /* Check X bounds */
-        ASSERT_BETWEEN(selection.nb.x, 0, term.ncols - 1);
-        ASSERT_BETWEEN(selection.ne.x, 0, term.ncols - 1);
-
-        /* Check Y bounds against history + screen range */
-        ASSERT_GE_VAR(selection.nb.y, min_y);
-        ASSERT_LT_VAR(selection.nb.y, max_y);
-        ASSERT_GE_VAR(selection.ne.y, min_y);
-        ASSERT_LT_VAR(selection.ne.y, max_y);
-        
-        /* Ensure selection endpoints are correctly ordered */
         ASSERT_LE_VAR(selection.nb.y, selection.ne.y);
         if (selection.nb.y == selection.ne.y) {
             ASSERT_LE_VAR(selection.nb.x, selection.ne.x);
+        }
+
+        /* The inactive screen may have different dimensions and history. */
+        if (selection.alt == term_mode_is_set(TERM_MODE_ALTSCREEN)) {
+            int32 min_y = term.scrolled_up - term.n_hist;
+            int32 max_y = term.scrolled_up + term.nrows;
+
+            if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
+                min_y = 0;
+                max_y = term.nrows;
+            }
+
+            ASSERT_BETWEEN(selection.nb.x, 0, term.ncols - 1);
+            ASSERT_BETWEEN(selection.ne.x, 0, term.ncols - 1);
+            ASSERT_GE_VAR(selection.nb.y, min_y);
+            ASSERT_LT_VAR(selection.nb.y, max_y);
+            ASSERT_GE_VAR(selection.ne.y, min_y);
+            ASSERT_LT_VAR(selection.ne.y, max_y);
         }
     }
 
@@ -868,6 +861,7 @@ term_dump(void) {
 static void
 reflow_scroll_down(int32 n) {
     int32 actual_n = MIN(n, term.n_hist);
+    int32 old_scrolled_up = term.scrolled_up;
 
     if (actual_n <= 0) {
         return;
@@ -895,6 +889,10 @@ reflow_scroll_down(int32 n) {
     term.cursor.y += actual_n;
     term.n_hist -= actual_n;
     term.scrolled_up = MAX(0, term.scrolled_up - actual_n);
+
+    if (selection.ob.x != -1 && !selection.alt) {
+        selection_move_y(actual_n + term.scrolled_up - old_scrolled_up);
+    }
 
     {
         ImageList *im = term.images;

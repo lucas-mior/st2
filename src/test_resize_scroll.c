@@ -733,6 +733,132 @@ main(void) {
         test_verify_viewport_line(1, "");
     }
 
+    {
+        current_test_name = "Scenario V: Inactive Selection Width";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(180, 8);
+        term_reset();
+        term.lines[1][173].rune = 'X';
+        term.lines[1][173].mode = ATTR_SET;
+        selection_start(173, 1, SELECTION_SNAP_NONE);
+        selection_extend(173, 1, SELECTION_NORMAL, 0);
+        selection_extend(173, 1, SELECTION_NORMAL, 1);
+
+        term_load_alt_screen(true, true);
+        term_resize(98, 8);
+        ASSERT_EQ(selection.ne.x, 173);
+        check_consistent_state();
+
+        term_load_def_screen(false, true);
+        ASSERT_EQ(selection.ob.x, -1);
+        check_consistent_state();
+    }
+
+    {
+        current_test_name = "Scenario W: Inactive Selection History";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(20, 5);
+        term_reset();
+        for (int32 i = 0; i < 10; i += 1) {
+            term_new_line(true);
+        }
+
+        term.scrolled_up = term.n_hist;
+        selection_start(1, 0, SELECTION_SNAP_NONE);
+        selection_extend(2, 0, SELECTION_NORMAL, 0);
+        selection_extend(2, 0, SELECTION_NORMAL, 1);
+        user_scroll_down(&(union Arg){.i = term.n_hist});
+        ASSERT_LT(selection.nb.y, 0);
+
+        term_load_alt_screen(true, true);
+        check_consistent_state();
+        term_load_def_screen(false, true);
+        check_consistent_state();
+    }
+
+    {
+        StGlyph *selected_line;
+
+        current_test_name = "Scenario X: Height Growth Keeps Selection";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(20, 5);
+        term_reset();
+        for (int32 i = 0; i < 8; i += 1) {
+            test_inject_text("ROW\n");
+        }
+
+        selection_start(0, 1, SELECTION_SNAP_NONE);
+        selection_extend(1, 2, SELECTION_NORMAL, 0);
+        selection_extend(1, 2, SELECTION_NORMAL, 1);
+        selected_line = term_line(selection.nb.y);
+        term_resize(20, 7);
+        ASSERT_EQ(selection.nb.y, 3);
+        ASSERT_EQ(selection.ne.y, 4);
+        ASSERT(term_line(selection.nb.y) == selected_line);
+        check_consistent_state();
+
+        term_resize(20, 5);
+        term_reset();
+        for (int32 i = 0; i < 8; i += 1) {
+            test_inject_text("ROW\n");
+        }
+
+        term.scrolled_up = 3;
+        selection_start(0, 0, SELECTION_SNAP_NONE);
+        selection_extend(1, 0, SELECTION_NORMAL, 0);
+        selection_extend(1, 0, SELECTION_NORMAL, 1);
+        selected_line = term_line(selection.nb.y);
+        term_resize(20, 7);
+        ASSERT_EQ(term.scrolled_up, 1);
+        ASSERT_ZERO(selection.nb.y);
+        ASSERT(term_line(selection.nb.y) == selected_line);
+        check_consistent_state();
+
+        term_resize(20, 5);
+        term_reset();
+        for (int32 i = 0; i < 8; i += 1) {
+            test_inject_text("ROW\n");
+        }
+
+        term.scrolled_up = 2;
+        selection_start(0, 0, SELECTION_SNAP_NONE);
+        selection_extend(1, 0, SELECTION_NORMAL, 0);
+        selection_extend(1, 0, SELECTION_NORMAL, 1);
+        user_scroll_down(&(union Arg){.i = 2});
+        ASSERT_EQ(selection.nb.y, -2);
+        selected_line = term_line(selection.nb.y);
+        term_resize(20, 7);
+        ASSERT_ZERO(selection.nb.y);
+        ASSERT(term_line(selection.nb.y) == selected_line);
+        check_consistent_state();
+    }
+
+    {
+        current_test_name = "Scenario Y: Height Shrink Selection Bounds";
+        printf("Running: %s...\n", current_test_name);
+        term_resize(20, 7);
+        term_reset();
+        selection_start(1, 6, SELECTION_SNAP_NONE);
+        selection_extend(2, 6, SELECTION_NORMAL, 0);
+        selection_extend(2, 6, SELECTION_NORMAL, 1);
+        term_resize(20, 5);
+        ASSERT_EQ(selection.ob.x, -1);
+        check_consistent_state();
+
+        term_resize(20, 7);
+        term_reset();
+        for (int32 i = 0; i < 6; i += 1) {
+            term_new_line(true);
+        }
+        selection_start(1, 5, SELECTION_SNAP_NONE);
+        selection_extend(2, 5, SELECTION_NORMAL, 0);
+        selection_extend(2, 5, SELECTION_NORMAL, 1);
+        term_resize(20, 5);
+        ASSERT_EQ(selection.nb.y, 3);
+        ASSERT_EQ(selection.ne.y, 3);
+        check_consistent_state();
+    }
+
     printf("\nAll tests passed successfully!\n");
     return 0;
 }
