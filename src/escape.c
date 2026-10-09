@@ -1842,7 +1842,7 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
         if (term_mode_is_set(TERM_MODE_SIXEL)
                 && (sixel_st.state != PARSE_STATE_ESC)) {
             char_size = sixel_parser_parse(&sixel_st,
-                                          (uchar *)buffer + n, buflen - n);
+                                           (uchar *)buffer + n, buflen - n);
             continue;
         } else if (term_mode_is_set(TERM_MODE_UTF8)) {
             char_size = utf8_decode_raw(buffer + n, &u, buflen - n);
