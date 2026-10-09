@@ -107,8 +107,7 @@ pixels_to_png_bytes(uint32 *pixels, int32 width, int32 height,
     }
     close(fd);
 
-    im = imlib_create_image_using_copied_data(width, height,
-                                              (DATA32 *)pixels);
+    im = imlib_create_image_using_copied_data(width, height, (DATA32 *)pixels);
     if (!im) {
         unlink(path);
         return 0;
