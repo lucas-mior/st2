@@ -167,8 +167,7 @@ mouse_report(XEvent *xevent) {
         } else {
             c = 'M';
         }
-        len = SNPRINTF(buffer, "\033[<%d;%d;%d%c",
-                               code, x + 1, y + 1, c);
+        len = SNPRINTF(buffer, "\033[<%d;%d;%d%c", code, x + 1, y + 1, c);
     } else if (x < 223 && y < 223) {
         len = SNPRINTF(buffer, "\033[M%c%c%c",
                                32 + code, 32 + x + 1, 32 + y + 1);
