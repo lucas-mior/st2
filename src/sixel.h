@@ -1,4 +1,4 @@
-#ifndef SIXEL_H
+#if !defined(SIXEL_H)
 #define SIXEL_H
 
 #include "cbase.h"

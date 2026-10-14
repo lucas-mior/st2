@@ -3,7 +3,7 @@
  * MIT/X Consortium License
  */
 
-#ifndef BOXDRAW_C
+#if !defined(BOXDRAW_C)
 #define BOXDRAW_C
 
 #include "cbase.h"

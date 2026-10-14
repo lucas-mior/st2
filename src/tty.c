@@ -195,7 +195,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
         if (aslave > 2) {
             XCLOSE(&aslave);
         }
-#ifdef __OpenBSD__
+#if defined(__OpenBSD__)
         if (pledge("stdio getpw proc exec", NULL) == -1) {
             error("pledge\n");
             exit(EXIT_FAILURE);
@@ -203,7 +203,7 @@ tty_new(char *line, char *cmd, char *out, char **args) {
 #endif
         exec_shell(cmd, args);
     default:
-#ifdef __OpenBSD__
+#if defined(__OpenBSD__)
         if (pledge("stdio rpath tty proc exec", NULL) == -1) {
             error("pledge\n");
             exit(EXIT_FAILURE);

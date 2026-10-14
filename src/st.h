@@ -1,4 +1,4 @@
-#ifndef ST_H
+#if !defined(ST_H)
 #define ST_H
 
 #include "cbase.h"

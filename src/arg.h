@@ -3,7 +3,7 @@
  * by 20h
  */
 
-#ifndef ARG_H__
+#if !defined(ARG_H__)
 #define ARG_H__
 
 #include "cbase.h"
