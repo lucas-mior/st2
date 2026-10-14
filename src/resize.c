@@ -457,6 +457,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         while (im_final != NULL) {
             ImageList *next_im = im_final->next;
             int32 limit_x;
+            StGlyph *line;
 
             if (im_final->y >= OFFSET_REF) {
                 im_final->y = im_final->y - OFFSET_REF - screen_top_idx;
@@ -483,12 +484,10 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
                 limit_x = new_ncols;
             }
 
-            {
-                StGlyph *line = term_line_abs(im_final->y);
-                for (int32 i = im_final->x; i < limit_x; i += 1) {
-                    if ((line[i].mode & ATTR_SET) == 0) {
-                        line[i].mode |= ATTR_SIXEL;
-                    }
+            line = term_line_abs(im_final->y);
+            for (int32 i = im_final->x; i < limit_x; i += 1) {
+                if ((line[i].mode & ATTR_SET) == 0) {
+                    line[i].mode |= ATTR_SIXEL;
                 }
             }
 

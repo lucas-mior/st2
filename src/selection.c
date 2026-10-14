@@ -74,6 +74,8 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
         while (1) {
             int32 newx = *x + direction;
             int32 newy = *y;
+            StGlyph *glyph;
+            int32 delim;
 
             if (!BETWEEN(newx, 0, term.ncols - 1)) {
                 int32 xt;
@@ -101,21 +103,19 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
                 break;
             }
 
-            {
-                StGlyph *glyph = &term_line(newy)[newx];
-                int32 delim = IS_DELIM(glyph->rune);
+            glyph = &term_line(newy)[newx];
+            delim = IS_DELIM(glyph->rune);
 
-                if (!(glyph->mode & ATTR_WDUMMY)
-                    && (delim != prev_delim
-                        || (delim && !(glyph->rune == ' ' && prev_gp->rune == ' ')))) {
-                    break;
-                }
-
-                *x = newx;
-                *y = newy;
-                prev_gp = glyph;
-                prev_delim = delim;
+            if (!(glyph->mode & ATTR_WDUMMY)
+                && (delim != prev_delim
+                    || (delim && !(glyph->rune == ' ' && prev_gp->rune == ' ')))) {
+                break;
             }
+
+            *x = newx;
+            *y = newy;
+            prev_gp = glyph;
+            prev_delim = delim;
         }
         break;
     }
@@ -333,6 +333,7 @@ selection_get(void) {
             StGlyph *glyph;
             StGlyph *lgp;
             int64 required_bytes;
+            char *new_ptr;
 
             if (selection.type == SELECTION_RECTANGULAR) {
                 glyph = &line[selection.nb.x];
@@ -374,11 +375,9 @@ selection_get(void) {
                 ptr = string + used;
             }
 
-            {
-                char *new_ptr = term_get_glyphs(ptr, glyph, lgp);
-                used += (new_ptr - ptr);
-                ptr = new_ptr;
-            }
+            new_ptr = term_get_glyphs(ptr, glyph, lgp);
+            used += (new_ptr - ptr);
+            ptr = new_ptr;
 
             if ((y < selection.ne.y || lastx >= line_len)
                 && (!(lgp->mode & ATTR_WRAP)

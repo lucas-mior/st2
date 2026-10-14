@@ -956,6 +956,10 @@ draw(void) {
             int32 height_in_rows = (image->height + image->ch - 1) / image->ch;
             int32 scaled_w;
             int32 scaled_h;
+            int32 draw_w;
+            int32 draw_h;
+            int32 src_y;
+            int32 dest_y;
             next = image->next;
 
             /* Check if ANY part of the image is on the visible screen */
@@ -1025,90 +1029,88 @@ draw(void) {
                 gc = XCreateGC(x_window.display, x_window.win, GCGraphicsExposures, &gcvalues);
             }
 
-            {
-                int32 draw_w = scaled_w;
-                int32 draw_h = scaled_h;
-                int32 src_y = 0;
-                int32 dest_y = bh + rel_y*term_window.ch;
+            draw_w = scaled_w;
+            draw_h = scaled_h;
+            src_y = 0;
+            dest_y = bh + rel_y*term_window.ch;
 
-                /* Clip the top if the image starts in history */
-                if (dest_y < bh) {
-                    src_y = bh - dest_y;
-                    draw_h -= src_y;
-                    dest_y = bh;
+            /* Clip the top if the image starts in history */
+            if (dest_y < bh) {
+                src_y = bh - dest_y;
+                draw_h -= src_y;
+                dest_y = bh;
+            }
+
+            /* Clip the bottom if the image extends past the screen */
+            if (dest_y + draw_h > bh + term_h) {
+                draw_h = (bh + term_h) - dest_y;
+            }
+
+            if (draw_h > 0 && draw_w > 0) {
+                bool is_deleted = true;
+                int32 x_limit;
+                int32 x_start;
+                StGlyph *line_ptr;
+
+                if (image->transparent && image->clipmask) {
+                    /* Mask origin must track the logical position */
+                    XSetClipOrigin(x_window.display, gc, bw + image->x*term_window.cw, bh + rel_y*term_window.ch);
+                    XSetClipMask(x_window.display, gc, image->clipmask);
+                } else {
+                    XSetClipMask(x_window.display, gc, None);
                 }
 
-                /* Clip the bottom if the image extends past the screen */
-                if (dest_y + draw_h > bh + term_h) {
-                    draw_h = (bh + term_h) - dest_y;
+                x_limit = image->x + image->cols;
+                if (term.ncols < x_limit) {
+                    x_limit = term.ncols;
                 }
-
-                if (draw_h > 0 && draw_w > 0) {
-                    bool is_deleted = true;
-                    int32 x_limit;
-                    int32 x_start;
-                    StGlyph *line_ptr;
-
-                    if (image->transparent && image->clipmask) {
-                        /* Mask origin must track the logical position */
-                        XSetClipOrigin(x_window.display, gc, bw + image->x*term_window.cw, bh + rel_y*term_window.ch);
-                        XSetClipMask(x_window.display, gc, image->clipmask);
-                    } else {
-                        XSetClipMask(x_window.display, gc, None);
-                    }
-
-                    x_limit = image->x + image->cols;
-                    if (term.ncols < x_limit) {
-                        x_limit = term.ncols;
-                    }
                     
-                    x_start = image->x;
-                    line_ptr = term_line_abs(image->y) + image->x;
+                x_start = image->x;
+                line_ptr = term_line_abs(image->y) + image->x;
 
-                    while (x_start < x_limit) {
-                        int32 mode = line_ptr->mode & ATTR_SIXEL;
-                        int32 x_end = x_start + 1;
+                while (x_start < x_limit) {
+                    int32 mode = line_ptr->mode & ATTR_SIXEL;
+                    int32 x_end = x_start + 1;
 
-                        while (x_end < x_limit) {
-                            int32 next_mode;
+                    while (x_end < x_limit) {
+                        int32 next_mode;
 
-                            line_ptr += 1;
-                            next_mode = line_ptr->mode & ATTR_SIXEL;
-                            if (next_mode != mode) {
-                                break;
-                            }
-                            x_end += 1;
+                        line_ptr += 1;
+                        next_mode = line_ptr->mode & ATTR_SIXEL;
+                        if (next_mode != mode) {
+                            break;
                         }
-
-                        if (mode != 0) {
-                            int32 src_x = (x_start - image->x) * term_window.cw;
-                            int32 copy_w = (x_end - x_start) * term_window.cw;
-                            int32 remaining_w = scaled_w - src_x;
-                            int32 dest_x;
-
-                            if (remaining_w < copy_w) {
-                                copy_w = remaining_w;
-                            }
-
-                            dest_x = bw + (x_start * term_window.cw);
-
-                            XCopyArea(x_window.display, image->pixmap, x_window.drawable, gc,
-                                      src_x, src_y, (uint32)copy_w, (uint32)draw_h,
-                                      dest_x, dest_y);
-                            is_deleted = 0;
-                        }
-
-                        x_start = x_end;
+                        x_end += 1;
                     }
 
-                    if (image->clipmask) {
-                        XSetClipMask(x_window.display, gc, None);
+                    if (mode != 0) {
+                        int32 src_x = (x_start - image->x) * term_window.cw;
+                        int32 copy_w = (x_end - x_start) * term_window.cw;
+                        int32 remaining_w = scaled_w - src_x;
+                        int32 dest_x;
+
+                        if (remaining_w < copy_w) {
+                            copy_w = remaining_w;
+                        }
+
+                        dest_x = bw + (x_start * term_window.cw);
+
+                        XCopyArea(x_window.display, image->pixmap, x_window.drawable, gc,
+                                  src_x, src_y, (uint32)copy_w, (uint32)draw_h,
+                                  dest_x, dest_y);
+                        is_deleted = 0;
                     }
 
-                    if (is_deleted != 0) {
-                        if ((image->x + image->cols) <= term.ncols) {
-                            sixel_image_delete(image);
-                        }
+                    x_start = x_end;
+                }
+
+                if (image->clipmask) {
+                    XSetClipMask(x_window.display, gc, None);
+                }
+
+                if (is_deleted != 0) {
+                    if ((image->x + image->cols) <= term.ncols) {
+                        sixel_image_delete(image);
                     }
                 }
             }

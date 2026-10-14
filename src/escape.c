@@ -646,22 +646,23 @@ control_seq_intro_handle(void) {
         if (csi_escape_seq.priv) {
             goto unknown;
         } else {
+            int32 t;
+            int32 b;
+
             DEFAULT(csi_escape_seq.arg[0], 1);
             DEFAULT(csi_escape_seq.arg[1], term.nrows);
-            {
-                int32 t = csi_escape_seq.arg[0] - 1;
-                int32 b = csi_escape_seq.arg[1] - 1;
+            t = csi_escape_seq.arg[0] - 1;
+            b = csi_escape_seq.arg[1] - 1;
 
-                LIMIT(t, 0, term.nrows - 1);
-                LIMIT(b, 0, term.nrows - 1);
-                if (t > b) {
-                    int32 temp_val = t;
-                    t = b;
-                    b = temp_val;
-                }
-                term.top_scroll_limit = t;
-                term.bot_scroll_limit = b;
+            LIMIT(t, 0, term.nrows - 1);
+            LIMIT(b, 0, term.nrows - 1);
+            if (t > b) {
+                int32 temp_val = t;
+                t = b;
+                b = temp_val;
             }
+            term.top_scroll_limit = t;
+            term.bot_scroll_limit = b;
             term_move_abs_to(0, 0);
         }
         break;
