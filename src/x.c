@@ -135,8 +135,8 @@ x_load_colors(void) {
         }
     }
 
-    draw_context.colors[CONF_COLOR_BG].color.alpha
-        = (uint16)(0xffff*CONF_ALPHA);
+    draw_context.colors[CONF_COLOR_BG].color.alpha =
+        (uint16)(0xffff*CONF_ALPHA);
     draw_context.colors[CONF_COLOR_BG].pixel &= 0x00FFFFFF;
     draw_context.colors[CONF_COLOR_BG].pixel
         |= ((uint32)(0xFF*CONF_ALPHA) & 0xFF) << 24;
@@ -175,8 +175,8 @@ x_set_color_name(int32 x, char *name) {
     draw_context.colors[x] = xft_color;
 
     if (x == CONF_COLOR_BG) {
-        draw_context.colors[CONF_COLOR_BG].color.alpha
-            = (uint16)(0xffff*CONF_ALPHA);
+        draw_context.colors[CONF_COLOR_BG].color.alpha =
+            (uint16)(0xffff*CONF_ALPHA);
         draw_context.colors[CONF_COLOR_BG].pixel &= 0x00FFFFFF;
         draw_context.colors[CONF_COLOR_BG].pixel
             |= ((uint32)(0xff*CONF_ALPHA) & 0xff) << 24;
@@ -689,14 +689,14 @@ x_im_open(Display *display) {
         error("XSetIMValues: Could not set XNDestroyCallback.\n");
     }
 
-    x_window.ime.spotlist
-        = XVaCreateNestedList(0, XNSpotLocation, &x_window.ime.point, NULL);
+    x_window.ime.spotlist = XVaCreateNestedList(0, XNSpotLocation,
+                                                &x_window.ime.point, NULL);
 
     if (x_window.ime.xic == NULL) {
-        x_window.ime.xic
-            = XCreateIC(x_window.ime.xim, XNInputStyle,
-                        XIMPreeditNothing | XIMStatusNothing, XNClientWindow,
-                        x_window.win, XNDestroyCallback, &icdestroy, NULL);
+        x_window.ime.xic = XCreateIC(x_window.ime.xim, XNInputStyle,
+                                     XIMPreeditNothing | XIMStatusNothing,
+                                     XNClientWindow, x_window.win,
+                                     XNDestroyCallback, &icdestroy, NULL);
     }
     if (x_window.ime.xic == NULL) {
         error("XCreateIC: Could not create input context.\n");
@@ -1587,16 +1587,15 @@ main(void) {
         x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
                                           x_window.visual, x_window.color_map);
 
-        x_window.xembed
-            = XInternAtom(x_window.display, "_XEMBED", False);
-        x_window.wm_delete_win
-            = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
-        x_window.net_wm_name
-            = XInternAtom(x_window.display, "_NET_WM_NAME", False);
-        x_window.net_wm_iconname
-            = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
-        x_window.net_wm_pid
-            = XInternAtom(x_window.display, "_NET_WM_PID", False);
+        x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
+        x_window.wm_delete_win = XInternAtom(x_window.display,
+                                             "WM_DELETE_WINDOW", False);
+        x_window.net_wm_name = XInternAtom(x_window.display,
+                                           "_NET_WM_NAME", False);
+        x_window.net_wm_iconname = XInternAtom(x_window.display,
+                                               "_NET_WM_ICON_NAME", False);
+        x_window.net_wm_pid = XInternAtom(x_window.display,
+                                          "_NET_WM_PID", False);
 
         xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
         if (xsel.xtarget == None) {

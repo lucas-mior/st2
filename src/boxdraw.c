@@ -124,10 +124,8 @@ drawbox(int32 x, int32 y, int32 w, int32 h,
         XftColor xfc;
 
         xrc.red = (uint16)DIV(fg->color.red*d + bg->color.red*(4 - d), 4);
-        xrc.green
-            = (uint16)DIV(fg->color.green*d + bg->color.green*(4 - d), 4);
-        xrc.blue
-            = (uint16)DIV(fg->color.blue*d + bg->color.blue*(4 - d), 4);
+        xrc.green = (uint16)DIV(fg->color.green*d + bg->color.green*(4 - d), 4);
+        xrc.blue = (uint16)DIV(fg->color.blue*d + bg->color.blue*(4 - d), 4);
 
         XftColorAllocValue(x_display, x_visual, x_color_map, &xrc, &xfc);
         XftDrawRect(xft_draw, &xfc, x, y, (uint32)w, (uint32)h);
