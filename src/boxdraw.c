@@ -181,7 +181,8 @@ drawboxlines(int32 x, int32 y, int32 w, int32 h, XftColor *fg, uint16 bd) {
     int32 base_s = MAX(1, DIV(mwh, 8));
     int32 bold = (bd & BDB) && mwh >= 6; /* possibly ignore boldness */
     int32 s = bold ? MAX(base_s + 1, DIV(3*base_s, 2)) : base_s;
-    int32 w2 = DIV(w - s, 2), h2 = DIV(h - s, 2);
+    int32 w2 = DIV(w - s, 2);
+    int32 h2 = DIV(h - s, 2);
     /* the s-by-s square (x + w2, y + h2, s, s) is the center texel.    */
     /* The base length (per direction till edge) includes this square.  */
 
