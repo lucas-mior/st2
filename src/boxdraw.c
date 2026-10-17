@@ -104,7 +104,8 @@ drawbox(int32 x, int32 y, int32 w, int32 h,
 
     } else if (cat == BBQ) {
         /* Quadrants */
-        int32 w2 = DIV(w, 2), h2 = DIV(h, 2);
+        int32 w2 = DIV(w, 2);
+        int32 h2 = DIV(h, 2);
         if (bd & TL) {
             XftDrawRect(xft_draw, fg, x, y, (uint32)w2, (uint32)h2);
         }
@@ -136,7 +137,9 @@ drawbox(int32 x, int32 y, int32 w, int32 h,
     } else if (cat == BRL) {
         /* braille, each data bit corresponds to one dot at 2x4 grid */
         int32 w1 = DIV(w, 2);
-        int32 h1 = DIV(h, 4), h2 = DIV(h, 2), h3 = DIV(3*h, 4);
+        int32 h1 = DIV(h, 4);
+        int32 h2 = DIV(h, 2);
+        int32 h3 = DIV(3*h, 4);
 
         if (bd & 1) {
             XftDrawRect(xft_draw, fg, x, y, (uint32)w1, (uint32)h1);
