@@ -12,7 +12,8 @@ test_setup_x11(void) {
     Window root;
 
     if (!(x_window.display = XOpenDisplay(NULL))) {
-        error("Error: Cannot open X display. X11 tests require an active display.\n");
+        error("Error: Cannot open X display. "
+              "X11 tests require an active display.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -27,8 +28,9 @@ test_setup_x11(void) {
     }
 
     used_font = CONF_FONT;
-    
-    /* Set dummy window dimensions so x_configure_resize doesn't shrink grid to 0 */
+
+    /* Set dummy window dimensions so x_configure_resize doesn't shrink grid
+     * to 0 */
     term_window.w = 800;
     term_window.h = 600;
     term_window.hborderpx = 0;
@@ -37,18 +39,22 @@ test_setup_x11(void) {
     x_load_fonts(used_font, 0);
 
     x_window.win = XCreateSimpleWindow(x_window.display, root, 0, 0,
-                                       (uint32)term_window.w, (uint32)term_window.h,
+                                       (uint32)term_window.w,
+                                       (uint32)term_window.h,
                                        0, 0, 0);
 
     x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
-                                      (uint32)term_window.w, (uint32)term_window.h,
+                                      (uint32)term_window.w,
+                                      (uint32)term_window.h,
                                       (uint32)x_window.depth);
 
-    x_window.color_map = XCreateColormap(x_window.display, root, x_window.visual, None);
-    
-    /* We MUST load the colors before creating the XftDraw context or calling x_clear */
+    x_window.color_map = XCreateColormap(x_window.display, root,
+                                         x_window.visual, None);
+
+    /* We MUST load the colors before creating the XftDraw context or calling
+     * x_clear */
     x_load_colors();
-    
+
     x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
                                       x_window.visual, x_window.color_map);
 
@@ -59,7 +65,7 @@ test_setup_x11(void) {
         draw_context.graphics = XCreateGC(x_window.display, x_window.win,
                                           GCGraphicsExposures, &xgc_values);
     }
-    
+
     return;
 }
 
@@ -247,7 +253,8 @@ test_verify_state(int32 expected_count,
         char buffer[1024];
 
         if (idx < active_hist) {
-            int32 hist_idx = (term.i_hist - active_hist + 1 + idx + HISTORY_SIZE) % HISTORY_SIZE;
+            int32 hist_idx = (term.i_hist - active_hist + 1 + idx
+                              + HISTORY_SIZE) % HISTORY_SIZE;
             line = term.hist[hist_idx];
         } else {
             int32 lines_idx = idx - active_hist;
@@ -272,7 +279,8 @@ test_verify_state(int32 expected_count,
             } else {
                 is_hist = "no";
             }
-            error("[%s] Content mismatch at absolute line %d (In History: %s):\n",
+            error("[%s] Content mismatch at absolute line %d "
+                  "(In History: %s):\n",
                   current_test_name, idx, is_hist);
             error("  Expected: '%s'\n", expected_texts[idx]);
             error("  Actual:   '%s'\n", buffer);
@@ -301,7 +309,7 @@ main(void) {
     CONF_NROWS = init_rows;
     term_allocate();
     term_reset();
-    
+
     /* Initialize dummy X11 connection for UI-dependent tests (like zoom) */
     test_setup_x11();
 
@@ -316,13 +324,13 @@ main(void) {
         test_inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         check_consistent_state();
         {
-            char *state_texts[] = { 
+            char *state_texts[] = {
                 "", "", "", "", "", "", "", "", "",
-                "ABCDEFGHIJKLMNOPQRST", "UVWXYZ" 
+                "ABCDEFGHIJKLMNOPQRST", "UVWXYZ"
             };
-            bool state_wraps[] = { 
+            bool state_wraps[] = {
                 false, false, false, false, false, false, false, false, false,
-                true, false 
+                true, false
             };
             test_verify_state(11, state_texts, state_wraps, 6, 9);
         }
@@ -335,13 +343,13 @@ main(void) {
         term_resize(30, 10);
         check_consistent_state();
         {
-            char *state_texts[] = { 
+            char *state_texts[] = {
                 "", "", "", "", "", "", "", "", "",
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             };
-            bool state_wraps[] = { 
+            bool state_wraps[] = {
                 false, false, false, false, false, false, false, false, false,
-                false 
+                false
             };
             test_verify_state(10, state_texts, state_wraps, 26, 9);
         }
@@ -354,13 +362,13 @@ main(void) {
         term_resize(15, 10);
         check_consistent_state();
         {
-            char *state_texts[] = { 
+            char *state_texts[] = {
                 "", "", "", "", "", "", "", "", "",
-                "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ" 
+                "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ"
             };
-            bool state_wraps[] = { 
+            bool state_wraps[] = {
                 false, false, false, false, false, false, false, false, false,
-                true, false 
+                true, false
             };
             test_verify_state(11, state_texts, state_wraps, 11, 9);
         }
@@ -522,7 +530,8 @@ main(void) {
         term_reset();
         test_inject_text("TOP\n");
         test_inject_text("ANCHOR\n");
-        test_inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_MANY_ROWS_WHEN_SHRINKING");
+        test_inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_"
+                         "MANY_ROWS_WHEN_SHRINKING");
         {
             ImageList *img = malloc2(SIZEOF(ImageList));
             StGlyph *n_img_line = NULL;
@@ -613,11 +622,11 @@ main(void) {
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
-        
+
         test_inject_text("SHORT\n");
         term.cursor.x = 8;
         term.cursor.y = 1;
-        
+
         test_verify_editor_dump("SHORT\n         \n\n\n\n", 2, 9);
     }
 
@@ -630,15 +639,16 @@ main(void) {
         for (int32 i = 0; i < 10; i += 1) {
             term_new_line(true);
         }
-        
+
         test_inject_text("ALTSCREEN\n");
         term.cursor.x = 5;
         term.cursor.y = 1;
 
         term.mode |= TERM_MODE_ALTSCREEN;
 
-        test_verify_editor_dump("\n\n\n\n\n\n\n\n      \n\nALTSCREEN\n\n", term.n_hist + 1, 1);
-        
+        test_verify_editor_dump("\n\n\n\n\n\n\n\n      \n\nALTSCREEN\n\n",
+                                term.n_hist + 1, 1);
+
         term.mode &= ~TERM_MODE_ALTSCREEN;
     }
 
@@ -674,7 +684,8 @@ main(void) {
 
             if (term.images->cw != 10 || term.images->ch != 20 ||
                 term.images->width != 100 || term.images->height != 200) {
-                error("[%s] Image attributes mutated unexpectedly after zoom in.\n", current_test_name);
+                error("[%s] Image attributes mutated unexpectedly "
+                      "after zoom in.\n", current_test_name);
                 error("Expected: cw=10, ch=20, w=100, h=200\n");
                 error("Actual:   cw=%d, ch=%d, w=%d, h=%d\n",
                       term.images->cw, term.images->ch,
@@ -689,14 +700,16 @@ main(void) {
 
             if (term.images->cw != 10 || term.images->ch != 20 ||
                 term.images->width != 100 || term.images->height != 200) {
-                error("[%s] Image attributes mutated unexpectedly after zoom reset.\n", current_test_name);
+                error("[%s] Image attributes mutated unexpectedly "
+                      "after zoom reset.\n", current_test_name);
                 assert(false);
             }
         }
     }
 
     {
-        current_test_name = "Scenario U: Maintain Cursor Visual Y After Clear (Ctrl+L)";
+        current_test_name =
+            "Scenario U: Maintain Cursor Visual Y After Clear (Ctrl+L)";
         printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
@@ -723,7 +736,8 @@ main(void) {
          * The cursor MUST remain at Y=0.
          * The history MUST NOT bleed into the visible screen. */
         if (term.cursor.y != 0) {
-            error("[%s] Cursor shifted downwards after clear and resize.\n", current_test_name);
+            error("[%s] Cursor shifted downwards after clear and resize.\n",
+                  current_test_name);
             error("Expected Y=0, Actual Y=%d\n", term.cursor.y);
             assert(false);
         }

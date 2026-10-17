@@ -320,13 +320,13 @@ term_set_mode(int32 priv, int32 set, int32 *args, int32 narg) {
             case 8452:
                 MODBIT(term.mode, set, TERM_MODE_SIXEL_CUR_RT);
                 break;
-			case 2026:
-				if (set) {
-					tsync_begin();
-				} else {
-					tsync_end();
-				}
-				break;
+            case 2026:
+                if (set) {
+                    tsync_begin();
+                } else {
+                    tsync_end();
+                }
+                break;
             default:
                 error("erresc: unknown private set/reset mode %d\n", args[i]);
                 break;
@@ -633,9 +633,9 @@ control_seq_intro_handle(void) {
                     tty_write("\033[?8452;2$y", 11, 0);
                 }
                 break;
-			case 2026:
-				tty_write(su ? "\033[?2026;1$y" : "\033[?2026;2$y", 11, 0);
-				break;
+            case 2026:
+                tty_write(su ? "\033[?2026;1$y" : "\033[?2026;2$y", 11, 0);
+                break;
             default:
                 goto unknown;
             }
@@ -844,7 +844,8 @@ string_handle(void) {
         case 52:
             if (narg > 2 && CONF_ALLOW_WINDOW_OPS) {
                 int32 dec_alloc_len;
-                char *dec = base64_decode(str_escape_seq.args[2], &dec_alloc_len);
+                char *dec = base64_decode(str_escape_seq.args[2],
+                                          &dec_alloc_len);
                 if (dec) {
                     selection_set(dec, CurrentTime);
                     user_clipboard_copy(NULL);
@@ -901,7 +902,8 @@ string_handle(void) {
                     if (p) {
                         error("erresc: invalid color j=%d, p=%s\n", j, p);
                     } else {
-                        error("erresc: invalid color j=%d, p=%s\n", j, "(null)");
+                        error("erresc: invalid color j=%d, p=%s\n",
+                              j, "(null)");
                     }
                 } else {
                     term_full_dirt();
@@ -987,7 +989,8 @@ string_handle(void) {
                 int64 trans_size = nimages*SIZEOF(bool);
                 bool *transparents = malloc2(trans_size);
                 int32 i_idx = 0;
-                for (ImageList *image = new_images; image; image = image->next) {
+                for (ImageList *image =
+                    new_images; image; image = image->next) {
                     transparents[i_idx] = image->transparent;
                     i_idx += 1;
                 }
@@ -995,7 +998,8 @@ string_handle(void) {
                     next_im = image->next;
                     if (image->y >= y1_im && image->y < y2_im) {
                         y_line = image->y - scr_offset;
-                        if (y_line >= 0 && y_line < term.nrows && term.dirts[y_line]) {
+                        if (y_line >= 0 && y_line < term.nrows
+                            && term.dirts[y_line]) {
                             StGlyph *line_ptr = term.lines[y_line];
                             j = MIN(image->x + image->cols, term.ncols);
                             for (i_idx = image->x; i_idx < j; i_idx += 1) {
@@ -1031,7 +1035,8 @@ string_handle(void) {
             if (term_mode_is_set(TERM_MODE_SIXEL_SDM)) {
                 ImageList *im_sdm;
                 int32 i_sdm;
-                for (i_sdm = 0, im_sdm = new_images; im_sdm; im_sdm = next_im, i_sdm += 1) {
+                for (i_sdm = 0, im_sdm =
+                    new_images; im_sdm; im_sdm = next_im, i_sdm += 1) {
                     next_im = im_sdm->next;
                     if (i_sdm >= term.nrows) {
                         sixel_image_delete(im_sdm);
@@ -1044,7 +1049,8 @@ string_handle(void) {
             } else {
                 ImageList *im_cur;
                 int32 i_cur;
-                for (i_cur = 0, im_cur = new_images; im_cur; im_cur = next_im, i_cur += 1) {
+                for (i_cur = 0, im_cur =
+                    new_images; im_cur; im_cur = next_im, i_cur += 1) {
                     next_im = im_cur->next;
                     if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
                         scr_offset = 0;
@@ -1052,7 +1058,8 @@ string_handle(void) {
                         scr_offset = term.scrolled_up;
                     }
                     im_cur->y = term.cursor.y + scr_offset;
-                    term_set_sixel_attr(term.lines[term.cursor.y], x1_im, x2_im);
+                    term_set_sixel_attr(term.lines[term.cursor.y], x1_im,
+                                        x2_im);
                     term.dirts[MIN(im_cur->y, term.nrows - 1)] = 1;
 
                     if (i_cur < nimages - 1) {
@@ -1064,7 +1071,8 @@ string_handle(void) {
 
                 if (term_mode_is_set(TERM_MODE_SIXEL_CUR_RT)) {
                     error("TERM_MODE_SIXEL_CUR_RT\n");
-                    term_move_to(term.cursor.x + new_images->cols, term.cursor.y);
+                    term_move_to(term.cursor.x + new_images->cols,
+                                 term.cursor.y);
                 } else {
                     error("not CUR_RT\n");
                     term_move_to(0, term.cursor.y);
@@ -1239,21 +1247,22 @@ dcs_handle(void) {
         error("erresc: unknown csi ");
         control_seq_intro_dump();
         break;
-	case '=':
-		if (csi_escape_seq.buffer[2] == 's' && csi_escape_seq.buffer[1] == '1')
-			tsync_begin();  /* BSU */
-		else if (csi_escape_seq.buffer[2] == 's' && csi_escape_seq.buffer[1] == '2')
-			tsync_end();  /* ESU */
-		else
-			goto unknown;
-		break;
+    case '=':
+        if (csi_escape_seq.buffer[2] == 's' && csi_escape_seq.buffer[1] == '1')
+            tsync_begin();  /* BSU */
+        else if (csi_escape_seq.buffer[2] == 's'
+            && csi_escape_seq.buffer[1] == '2')
+            tsync_end();  /* ESU */
+        else
+            goto unknown;
+        break;
     case 'q':
         if (csi_escape_seq.narg >= 2 && csi_escape_seq.arg[1] == 1) {
             transparent = 1;
         } else {
             transparent = 0;
         }
-        
+
         if (IS_TRUECOL(term.cursor.attr.bg)) {
             r = (term.cursor.attr.bg >> 16) & 255;
             g = (term.cursor.attr.bg >> 8) & 255;
@@ -1484,8 +1493,8 @@ st_wcwidth(uint32 u) {
     // In general, other kinds glyphs don't have this problem:
     // - chinese, japanese and korean are always double wide
 
-    /* 
-     * Modern Emojis, Flags, Playing Cards, and Pictographs 
+    /*
+     * Modern Emojis, Flags, Playing Cards, and Pictographs
      * (Expanded to start at 0x1F000 instead of 0x1F300)
      */
     if (BETWEEN(u, 0x1F000, 0x1FAFF)) {
@@ -1616,7 +1625,8 @@ check_control_code:
                 csi_escape_seq.buffer[csi_escape_seq.len] = (char)u;
                 csi_escape_seq.len += 1;
                 if (BETWEEN(u, 0x40, 0x7E)
-                    || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
+                    || csi_escape_seq.len >=
+                       SIZEOF(csi_escape_seq.buffer) - 1) {
                     term.esc = 0;
                     control_seq_intro_parse();
                     control_seq_intro_handle();
@@ -1624,11 +1634,13 @@ check_control_code:
                 return;
             } else {
                 if (term.esc & ESC_DCS) {
-                    if (csi_escape_seq.len < SIZEOF(csi_escape_seq.buffer) - 1) {
+                    if (csi_escape_seq.len
+                        < SIZEOF(csi_escape_seq.buffer) - 1) {
                         csi_escape_seq.buffer[csi_escape_seq.len] = (char)u;
                         csi_escape_seq.len += 1;
                         if (BETWEEN(u, 0x40, 0x7E)
-                            || csi_escape_seq.len >= SIZEOF(csi_escape_seq.buffer) - 1) {
+                            || csi_escape_seq.len >=
+                               SIZEOF(csi_escape_seq.buffer) - 1) {
                             control_seq_intro_parse();
                             dcs_handle();
                         }
@@ -1657,7 +1669,8 @@ check_control_code:
         }
     }
 
-    if (term.cursor.x != expected_cursor_x || term.cursor.y != expected_cursor_y) {
+    if (term.cursor.x != expected_cursor_x
+        || term.cursor.y != expected_cursor_y) {
         grapheme_state = 0;
         cursor_moved = 1;
     }
@@ -1688,16 +1701,19 @@ check_control_code:
     if (!cursor_moved && (prev_x != term.cursor.x || prev_y != term.cursor.y)) {
         StGlyph *prev_glyph = NULL;
         uint32 prev_rune = 0;
-        
+
         prev_glyph = &term.lines[prev_y][prev_x];
         prev_rune = prev_glyph->rune;
 
         if (prev_rune & MULTI_CODE_POINT_FLAG) {
             uint32 pool_index = prev_rune & ~MULTI_CODE_POINT_FLAG;
-            prev_rune = string_pool[pool_index].runes[string_pool[pool_index].length - 1];
+            prev_rune = string_pool[pool_index].runes[
+                string_pool[pool_index].length - 1];
         }
 
-        if (!utf8proc_grapheme_break_stateful((utf8proc_int32_t)prev_rune, (utf8proc_int32_t)u, &grapheme_state)) {
+        if (!utf8proc_grapheme_break_stateful((utf8proc_int32_t)prev_rune,
+                                              (utf8proc_int32_t)u,
+                                              &grapheme_state)) {
             is_modifier = 1;
         }
     }
@@ -1722,32 +1738,35 @@ check_control_code:
                                        old_cap, new_cap, SIZEOF(*string_pool));
                 string_pool_capacity = new_cap;
             }
-            
+
             string_pool[new_index].capacity = 4;
             string_pool[new_index].length = 1;
             string_pool[new_index].runes = malloc2(4 * SIZEOF(uint32));
             string_pool[new_index].runes[0] = prev_glyph->rune;
-            
+
             prev_glyph->rune = (uint32)new_index | MULTI_CODE_POINT_FLAG;
             string_pool_length += 1;
         }
-        
+
         pool_index = prev_glyph->rune & ~MULTI_CODE_POINT_FLAG;
-        if (string_pool[pool_index].length >= string_pool[pool_index].capacity) {
+        if (string_pool[pool_index].length
+            >= string_pool[pool_index].capacity) {
             int32 old_cap = string_pool[pool_index].capacity;
             int32 new_cap = old_cap * 2;
-            string_pool[pool_index].runes = realloc2(string_pool[pool_index].runes,
-                                                     old_cap, new_cap, SIZEOF(uint32));
+            string_pool[pool_index].runes =
+                realloc2(string_pool[pool_index].runes,
+                         old_cap, new_cap, SIZEOF(uint32));
             string_pool[pool_index].capacity = new_cap;
         }
-        
+
         string_pool[pool_index].runes[string_pool[pool_index].length] = u;
         string_pool[pool_index].length += 1;
-        
+
         if (width > 0 && !(prev_glyph->mode & ATTR_WIDE)) {
             prev_glyph->mode |= ATTR_WIDE;
             if (prev_x + 1 < term.ncols) {
-                if ((term.lines[prev_y][prev_x + 1].mode & ATTR_WIDE) && (prev_x + 2 < term.ncols)) {
+                if ((term.lines[prev_y][prev_x + 1].mode & ATTR_WIDE)
+                    && (prev_x + 2 < term.ncols)) {
                     term.lines[prev_y][prev_x + 2].rune = ' ';
                     term.lines[prev_y][prev_x + 2].mode &= ~ATTR_WDUMMY;
                 }
@@ -1762,7 +1781,7 @@ check_control_code:
                 }
             }
         }
-        
+
         term.dirts[prev_y] = true;
         expected_cursor_x = term.cursor.x;
         expected_cursor_y = term.cursor.y;
@@ -1824,7 +1843,7 @@ check_control_code:
         }
         term.cursor.state |= CURSOR_WRAPNEXT;
     }
-    
+
     expected_cursor_x = term.cursor.x;
     expected_cursor_y = term.cursor.y;
     return;
@@ -1834,8 +1853,8 @@ static int32
 term_write(char *buffer, int32 buflen, bool show_ctrl) {
     int32 char_size;
     int32 n;
-	int su0 = su;
-	twrite_aborted = 0;
+    int su0 = su;
+    twrite_aborted = 0;
 
     for (n = 0; n < buflen; n += char_size) {
         uint32 u;
@@ -1854,10 +1873,10 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
             u = buffer[n] & 0xFF;
             char_size = 1;
         }
-		if (su0 && !su) {
-			twrite_aborted = 1;
-			break;  // ESU - allow rendering before a new BSU
-		}
+        if (su0 && !su) {
+            twrite_aborted = 1;
+            break;  // ESU - allow rendering before a new BSU
+        }
         if (show_ctrl && IS_CONTROl(u)) {
             if (u & 0x80) {
                 u &= 0x7f;
@@ -2004,13 +2023,20 @@ main(void) {
         x_window.visual = DefaultVisual(x_window.display, x_window.screen);
         x_window.depth = DefaultDepth(x_window.display, x_window.screen);
         x_window.color_map = DefaultColormap(x_window.display, x_window.screen);
-        x_window.win = XCreateSimpleWindow(x_window.display, RootWindow(x_window.display, x_window.screen), 0, 0, 10, 10, 0, 0, 0);
+        x_window.win =
+            XCreateSimpleWindow(x_window.display,
+                                RootWindow(x_window.display, x_window.screen),
+                                0, 0, 10, 10, 0, 0, 0);
 
-        /* Initialize necessary X11 atoms to prevent BadAtom during property changes */
-        x_window.net_wm_name = XInternAtom(x_window.display, "_NET_WM_NAME", False);
-        x_window.net_wm_iconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
+        /* Initialize necessary X11 atoms to prevent BadAtom during property
+         * changes */
+        x_window.net_wm_name =
+            XInternAtom(x_window.display, "_NET_WM_NAME", False);
+        x_window.net_wm_iconname =
+            XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
 
-        /* Prevent tty_write crashes by routing the command output to /dev/null */
+        /* Prevent tty_write crashes by routing the command output to
+         * /dev/null */
         cmd_fd = open("/dev/null", O_WRONLY);
         if (cmd_fd < 0) {
             exit(EXIT_FAILURE);
@@ -2026,9 +2052,11 @@ main(void) {
 
         term_window.cw = 10;
         term_window.ch = 20;
-        x_window.drawable = XCreatePixmap(x_window.display, x_window.win, 100, 100, (uint32)x_window.depth);
-        x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable, x_window.visual, x_window.color_map);
-        
+        x_window.drawable = XCreatePixmap(x_window.display, x_window.win, 100,
+                                          100, (uint32)x_window.depth);
+        x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
+                                          x_window.visual, x_window.color_map);
+
         draw_context.colors_len = 256;
         draw_context.colors = malloc2(256 * SIZEOF(XftColor));
 
@@ -2047,12 +2075,12 @@ main(void) {
     /* 3. CSI Parse & Reset Tests */
     {
         char *csi_buf = "?1;23;45m";
-        
+
         control_seq_intro_reset();
         memcpy64(csi_escape_seq.buffer, csi_buf, 9);
         csi_escape_seq.len = 9;
         control_seq_intro_parse();
-        
+
         ASSERT_EQ(csi_escape_seq.priv, 1);
         ASSERT_EQ(csi_escape_seq.arg[1], 23);
     }
@@ -2080,7 +2108,7 @@ main(void) {
     /* 5. Terminal Mode Tests */
     {
         int32 term_args[1];
-        
+
         term_args[0] = 4;
         term_set_mode(0, 1, term_args, 1);
         ASSERT(term.mode & TERM_MODE_INSERT);
@@ -2093,9 +2121,9 @@ main(void) {
         term.cursor.attr.bg = CONF_COLOR_BG;
         term.charset = 0;
 
-        term_dec_test('8'); 
+        term_dec_test('8');
         ASSERT_EQ((int32)term.lines[0][0].rune, (int32)'E');
-        
+
         term.cursor.x = 0;
         term_put_tab(1);
         ASSERT_EQ(term.cursor.x, CONF_TAB_NSPACES);
@@ -2118,7 +2146,7 @@ main(void) {
         csi_escape_seq.arg[1] = 10;
         csi_escape_seq.narg = 2;
         control_seq_intro_handle();
-        
+
         ASSERT_EQ(term.cursor.y, 4);
         ASSERT_EQ(term.cursor.x, 9);
     }
@@ -2128,7 +2156,7 @@ main(void) {
         term.mode &= ~TERM_MODE_UTF8;
         term_def_utf8('G');
         ASSERT(term.mode & TERM_MODE_UTF8);
-        
+
         term.icharset = 0;
         term_def_tran('0');
         ASSERT_EQ(term.translation_table[0], CS_GRAPHIC0);
@@ -2136,8 +2164,8 @@ main(void) {
 
     /* 10. Control Codes and I/O Write Tests */
     {
-        term.esc = 0; 
-        
+        term.esc = 0;
+
         term.cursor.x = 10;
         term_control_code('\r');
         ASSERT_ZERO(term.cursor.x);
@@ -2147,13 +2175,14 @@ main(void) {
         ASSERT_EQ(term.cursor.y, 6);
 
         term_putc('Z');
-        ASSERT_EQ((int32)term.lines[term.cursor.y][term.cursor.x - 1].rune, (int32)'Z');
+        ASSERT_EQ((int32)term.lines[term.cursor.y][term.cursor.x - 1].rune,
+                  (int32)'Z');
     }
 
     /* 11. Escape Initializer Handle Test */
     {
         int32 esc_ret;
-        
+
         term.esc = 0;
         esc_ret = esc_handle('[');
         ASSERT(term.esc & ESC_CSI);
@@ -2164,13 +2193,13 @@ main(void) {
     {
         char *write_buf = "ABC";
         int32 write_len;
-        
+
         term_reset(); /* Clear state/charsets set by previous tests */
 
         term.cursor.x = 0;
         term.cursor.y = 10;
         write_len = term_write(write_buf, 3, false);
-        
+
         ASSERT_EQ(write_len, 3);
         ASSERT_EQ((int32)term.lines[10][0].rune, (int32)'A');
         ASSERT_EQ((int32)term.lines[10][1].rune, (int32)'B');
@@ -2181,15 +2210,15 @@ main(void) {
     {
         char *title_val = "0;TestWindow";
         int32 str_alloc = 20;
-        
+
         str_escape_seq.buffer = malloc2((int64)str_alloc);
         memcpy64(str_escape_seq.buffer, title_val, 12);
         str_escape_seq.buffer[12] = '\0';
         str_escape_seq.len = 12;
         str_escape_seq.type = ']';
-        
+
         string_handle();
-        
+
         free2(str_escape_seq.buffer, (int64)str_alloc);
         str_escape_seq.buffer = NULL;
     }
@@ -2204,8 +2233,8 @@ main(void) {
         control_seq_intro_reset();
         csi_escape_seq.mode[0] = 'q';
         csi_escape_seq.narg = 2;
-        csi_escape_seq.arg[1] = 1; 
-        
+        csi_escape_seq.arg[1] = 1;
+
         dcs_handle();
         ASSERT(term.mode & TERM_MODE_SIXEL);
     }

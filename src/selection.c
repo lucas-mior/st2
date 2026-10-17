@@ -108,7 +108,8 @@ selection_snap(int32 *x, int32 *y, int32 direction) {
 
             if (!(glyph->mode & ATTR_WDUMMY)
                 && (delim != prev_delim
-                    || (delim && !(glyph->rune == ' ' && prev_gp->rune == ' ')))) {
+                    || (delim && !(glyph->rune == ' '
+                        && prev_gp->rune == ' ')))) {
                 break;
             }
 
@@ -193,10 +194,12 @@ selection_normalize(void) {
     }
 
     /* Snap to wide character boundaries to ensure atomic selection */
-    if (selection.nb.x > 0 && (term_line(selection.nb.y)[selection.nb.x].mode & ATTR_WDUMMY)) {
+    if (selection.nb.x > 0
+        && (term_line(selection.nb.y)[selection.nb.x].mode & ATTR_WDUMMY)) {
         selection.nb.x -= 1;
     }
-    if (selection.ne.x + 1 < term.ncols && (term_line(selection.ne.y)[selection.ne.x].mode & ATTR_WIDE)) {
+    if (selection.ne.x + 1 < term.ncols
+        && (term_line(selection.ne.y)[selection.ne.x].mode & ATTR_WIDE)) {
         selection.ne.x += 1;
     }
     return;
@@ -359,7 +362,8 @@ selection_get(void) {
                 if (!(g->mode & ATTR_WDUMMY)) {
                     if (g->rune & MULTI_CODE_POINT_FLAG) {
                         uint32 pool_index = g->rune & ~MULTI_CODE_POINT_FLAG;
-                        required_bytes += string_pool[pool_index].length * UTF_SIZ;
+                        required_bytes +=
+                            string_pool[pool_index].length * UTF_SIZ;
                     } else {
                         required_bytes += UTF_SIZ;
                     }
@@ -517,7 +521,7 @@ main(void) {
         ASSERT(selection.mode == SELECTION_READY);
         ASSERT_EQ(selection.nb.x, 5);
         ASSERT_EQ(selection.ne.x, 10);
-        
+
         selection_extend(2, 2, SELECTION_NORMAL, 0);
         ASSERT_EQ(selection.nb.x, 2);
         ASSERT_EQ(selection.ne.x, 5);
@@ -531,9 +535,9 @@ main(void) {
         term.lines[10][1].mode |= ATTR_SET;
         term.lines[10][2].rune = 'B';
         term.lines[10][2].mode |= ATTR_SET;
-        
+
         selection_start(1, 10, SELECTION_SNAP_WORD);
-        
+
         ASSERT_EQ(selection.nb.x, 1);
         ASSERT_EQ(selection.ne.x, 2);
     }
@@ -548,7 +552,7 @@ main(void) {
 
         selection_start(10, 10, SELECTION_SNAP_NONE);
         selection_extend(20, 15, SELECTION_RECTANGULAR, 0);
-        
+
         ASSERT_EQ(selection_is_selected(15, 12), 1);
         ASSERT_EQ(selection_is_selected(5, 12), 0);
         ASSERT_EQ(selection_is_selected(15, 16), 0);
@@ -564,9 +568,9 @@ main(void) {
         term.lines[10][2].mode |= ATTR_SET;
 
         selection_start(1, 10, SELECTION_SNAP_NONE);
-        selection_extend(2, 10, SELECTION_NORMAL, 0); 
+        selection_extend(2, 10, SELECTION_NORMAL, 0);
         selection_extend(2, 10, SELECTION_NORMAL, 1);
-        
+
         result = selection_get();
         ASSERT(result != NULL);
         ASSERT_EQ(result[0], 'A');
@@ -588,26 +592,26 @@ main(void) {
 
         selection_start(0, 5, SELECTION_SNAP_NONE);
         selection_extend(0, 10, SELECTION_NORMAL, 0);
-        
+
         selection_move_y(2);
         ASSERT_EQ(selection.nb.y, 7);
         ASSERT_EQ(selection.ne.y, 12);
-        
+
         term.scrolled_up = 0;
         selection_scroll(0, 20, -1);
         ASSERT_EQ(selection.nb.y, 6);
-        
+
         selection_scroll(10, 20, 5);
         ASSERT_EQ(selection.ob.x, -1);
     }
 
     {
         char *clip = xstrdup("test clip");
-        selection.ob.x = 0; 
-        
+        selection.ob.x = 0;
+
         selection_set(clip, CurrentTime);
         ASSERT_EQ(xsel.primary, "test clip");
-        
+
         selection_clear();
         ASSERT_EQ(selection.ob.x, -1);
     }
@@ -617,18 +621,20 @@ main(void) {
         int32 row = 12;
         term_clear_region(0, row, term.ncols - 1, row, 0);
 
-        /* User clicks exactly on column 5, intending to start selection there */
+        /* User clicks exactly on column 5, intending to start selection
+         * there */
         selection_start(5, row, SELECTION_SNAP_NONE);
 
         /*
-         * BUG: Because term_line_len is 0, normalization forces nb.x = 0 
+         * BUG: Because term_line_len is 0, normalization forces nb.x = 0
          * and ne.x = 79. The entire line is selected instead of cell 5.
          */
         ASSERT_ZERO(selection.nb.x);
         ASSERT_EQ(selection.ne.x, term.ncols - 1);
     }
 
-    /* Test Case: Reproduce single-click bug clicking past text on active line */
+    /* Test Case: Reproduce single-click bug clicking past text on active
+     * line */
     {
         int32 row = 13;
         term_clear_region(0, row, term.ncols - 1, row, 0);
@@ -641,7 +647,7 @@ main(void) {
         /* User clicks column 10, intending to start selection in empty space */
         selection_start(10, row, SELECTION_SNAP_NONE);
 
-        /* 
+        /*
          * BUG: term_line_len is 2. The start pointer snaps back to index 2,
          * and the end pointer snaps to the right edge of the window.
          */

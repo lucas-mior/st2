@@ -164,7 +164,8 @@ run:
 
         x_load_spare_fonts();
 
-        x_window.color_map = XCreateColormap(x_window.display, parent, x_window.visual, None);
+        x_window.color_map =
+            XCreateColormap(x_window.display, parent, x_window.visual, None);
         x_load_colors();
 
         /* adjust fixed window geometry */
@@ -173,16 +174,19 @@ run:
         term_window.h = 2*term_window.vborderpx + 2*CONF_BORDER_PIXELS
                         + CONF_NROWS*term_window.ch;
         if (x_window.geo_mask & XNegative) {
-            x_window.left_offset += DisplayWidth(x_window.display, x_window.screen)
+            x_window.left_offset +=
+                DisplayWidth(x_window.display, x_window.screen)
                                     - term_window.w - 2;
         }
         if (x_window.geo_mask & YNegative) {
-            x_window.top_offset += DisplayHeight(x_window.display, x_window.screen)
+            x_window.top_offset +=
+                DisplayHeight(x_window.display, x_window.screen)
                                    - term_window.h - 2;
         }
 
         /* Events */
-        x_window.attrs.background_pixel = draw_context.colors[CONF_COLOR_BG].pixel;
+        x_window.attrs.background_pixel =
+            draw_context.colors[CONF_COLOR_BG].pixel;
         x_window.attrs.border_pixel = draw_context.colors[CONF_COLOR_BG].pixel;
         x_window.attrs.bit_gravity = NorthWestGravity;
         x_window.attrs.event_mask = FocusChangeMask
@@ -201,8 +205,10 @@ run:
                              | CWEventMask
                              | CWColormap;
             x_window.win = XCreateWindow(x_window.display, parent,
-                                         x_window.left_offset, x_window.top_offset,
-                                         (uint32)term_window.w, (uint32)term_window.h,
+                                         x_window.left_offset,
+                                         x_window.top_offset,
+                                         (uint32)term_window.w,
+                                         (uint32)term_window.h,
                                          0, x_window.depth,
                                          InputOutput, x_window.visual,
                                          cw_flags,
@@ -247,18 +253,21 @@ run:
             /* white cursor, black outline */
             XColor xmouse_fg;
             XColor xmouse_bg;
-            Cursor cursor = XCreateFontCursor(x_window.display, (uint32)CONF_MOUSE_SHAPE);
+            Cursor cursor =
+                XCreateFontCursor(x_window.display, (uint32)CONF_MOUSE_SHAPE);
             XDefineCursor(x_window.display, x_window.win, cursor);
 
             if (XParseColor(x_window.display, x_window.color_map,
-                            CONF_COLORS[CONF_MOUSE_COLOR_FG], &xmouse_fg) == 0) {
+                            CONF_COLORS[CONF_MOUSE_COLOR_FG],
+                            &xmouse_fg) == 0) {
                 xmouse_fg.red = 0xffff;
                 xmouse_fg.green = 0xffff;
                 xmouse_fg.blue = 0xffff;
             }
 
             if (XParseColor(x_window.display, x_window.color_map,
-                            CONF_COLORS[CONF_MOUSE_COLOR_BG], &xmouse_bg) == 0) {
+                            CONF_COLORS[CONF_MOUSE_COLOR_BG],
+                            &xmouse_bg) == 0) {
                 xmouse_bg.red = 0x0000;
                 xmouse_bg.green = 0x0000;
                 xmouse_bg.blue = 0x0000;
@@ -268,12 +277,17 @@ run:
         }
 
         x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
-        x_window.wm_delete_win = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
-        x_window.net_wm_name = XInternAtom(x_window.display, "_NET_WM_NAME", False);
-        x_window.net_wm_iconname = XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
-        XSetWMProtocols(x_window.display, x_window.win, &x_window.wm_delete_win, 1);
+        x_window.wm_delete_win =
+            XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
+        x_window.net_wm_name =
+            XInternAtom(x_window.display, "_NET_WM_NAME", False);
+        x_window.net_wm_iconname =
+            XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
+        XSetWMProtocols(x_window.display, x_window.win, &x_window.wm_delete_win,
+                        1);
 
-        x_window.net_wm_pid = XInternAtom(x_window.display, "_NET_WM_PID", False);
+        x_window.net_wm_pid = XInternAtom(x_window.display, "_NET_WM_PID",
+                                          False);
 
         XChangeProperty(x_window.display, x_window.win, x_window.net_wm_pid,
                         XA_CARDINAL, 32, PropModeReplace,
@@ -291,7 +305,8 @@ run:
         xsel.primary = NULL;
         xsel.clipboard = NULL;
         xsel.clipboard_len = 0;
-        if ((xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0)) == None) {
+        if ((xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING",
+                                        0)) == None) {
             xsel.xtarget = XA_STRING;
         }
         xsel.clipboard_target = xsel.xtarget;

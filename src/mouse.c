@@ -41,11 +41,12 @@ match_mask_state(uint32 mask, uint32 state) {
 static void
 mouse_select(XEvent *xevent, int32 done) {
     enum SelectionType seltype = SELECTION_NORMAL;
-    uint32 state = xevent->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
+    uint32 state =
+        xevent->xbutton.state & ~(Button1Mask | CONF_FORCE_MOUSE_MOD);
     int32 col;
     int32 row;
 
-    /* 
+    /*
      * Feature: Auto-scroll when dragging above or below the window.
      * We check the pixel coordinates directly against the borders.
      */
@@ -53,20 +54,22 @@ mouse_select(XEvent *xevent, int32 done) {
         if (xevent->xbutton.y < term_window.vborderpx) {
             /* Above the window: Scroll up into history */
             user_scroll_up(&(union Arg){.i = 1});
-        } else if (xevent->xbutton.y > term_window.vborderpx + term_window.tty_height) {
+        } else if (xevent->xbutton.y >
+                   term_window.vborderpx + term_window.tty_height) {
             /* Below the window: Scroll down toward active screen */
             user_scroll_down(&(union Arg){.i = 1});
         }
     }
 
-    /* 
-     * We calculate col and row AFTER potential scrolling to ensure 
+    /*
+     * We calculate col and row AFTER potential scrolling to ensure
      * the selection extension happens relative to the updated viewport.
      */
     col = xevent_col(xevent);
     row = xevent_row(xevent);
 
-    for (enum SelectionType type = 1; type < LENGTH(CONF_SELECTION_MASKS); type += 1) {
+    for (enum SelectionType type =
+        1; type < LENGTH(CONF_SELECTION_MASKS); type += 1) {
         if (match_mask_state(CONF_SELECTION_MASKS[type], state)) {
             seltype = type;
             break;
@@ -215,7 +218,8 @@ mouse_action(XEvent *xevent, uint32 release) {
                 mouse_shortcut->func(&(mouse_shortcut->arg));
                 return 1;
             }
-            if (match_mask_state(mouse_shortcut->mod, state & ~CONF_FORCE_MOUSE_MOD)) {
+            if (match_mask_state(mouse_shortcut->mod,
+                                 state & ~CONF_FORCE_MOUSE_MOD)) {
                 mouse_shortcut->func(&(mouse_shortcut->arg));
                 return 1;
             }
@@ -257,7 +261,7 @@ main(void) {
 
     /*
      * We create a pipe and point the global 'cmd_fd' to the write end.
-     * When mouse_report() calls the real tty_write(), it will write 
+     * When mouse_report() calls the real tty_write(), it will write
      * directly into our pipe via pselect/write64.
      */
     xpipe(pipefd);
@@ -275,7 +279,7 @@ main(void) {
 
     term_window.mode = 0; // Standard X10 mouse mode
     buttons = 0;
-    
+
     // Setup terminal geometry so the real xevent_col/row functions work
     term_window.cw = 10;
     term_window.ch = 20;
@@ -293,15 +297,16 @@ main(void) {
     ev.xbutton.x = 5 + 0; // hborderpx + col * cw
     ev.xbutton.y = 5 + 0; // vborderpx + row * ch
     mouse_report(&ev);
-    
+
     memset64(captured_tty_buf, 0, SIZEOF(captured_tty_buf));
-    bytes_read = read(pipefd[0], captured_tty_buf, SIZEOF(captured_tty_buf) - 1);
+    bytes_read = read(pipefd[0], captured_tty_buf,
+                      SIZEOF(captured_tty_buf) - 1);
     if (bytes_read < 0) {
         bytes_read = 0;
     }
     captured_tty_buf[bytes_read] = '\0';
 
-    // Expected output: "\033[M#!!" 
+    // Expected output: "\033[M#!!"
     // 32 + code (3 for release) = 35 '#'
     // 32 + x + 1 = 33 '!'
     // 32 + y + 1 = 33 '!'
@@ -309,20 +314,22 @@ main(void) {
 
     // Test 2: Border Click Mitigation
     // A click at absolute 0,0 is inside the 5px border.
-    // xevent->xbutton.x - hborderpx = -5. 
+    // xevent->xbutton.x - hborderpx = -5.
     // st.c's LIMIT macro clamps this to 0.
-    ev.xbutton.x = 0; 
+    ev.xbutton.x = 0;
     ev.xbutton.y = 0;
     mouse_report(&ev);
-    
+
     memset64(captured_tty_buf, 0, SIZEOF(captured_tty_buf));
-    bytes_read = read(pipefd[0], captured_tty_buf, SIZEOF(captured_tty_buf) - 1);
+    bytes_read = read(pipefd[0], captured_tty_buf,
+                      SIZEOF(captured_tty_buf) - 1);
     if (bytes_read < 0) {
         bytes_read = 0;
     }
     captured_tty_buf[bytes_read] = '\0';
-    
-    // Output should perfectly match col 0, row 0, proving no underflow injection
+
+    // Output should perfectly match col 0, row 0, proving no underflow
+    // injection
     ASSERT_EQ(captured_tty_buf, "\033[M#!!");
 
     /* Test 3: Reproduce "always selects whole lines" bug on click */
@@ -347,7 +354,7 @@ main(void) {
         ev_press.xbutton.y = term_window.vborderpx + row * term_window.ch;
 
         /* handler_button_press behavior: calls selection_start */
-        selection_start(xevent_col(&ev_press), xevent_row(&ev_press), 
+        selection_start(xevent_col(&ev_press), xevent_row(&ev_press),
                         SELECTION_SNAP_NONE);
 
         /* Simulate slight mouse movement locking in the selection */
@@ -360,10 +367,10 @@ main(void) {
         /* handler_button_motion behavior: calls mouse_select */
         mouse_select(&ev_motion, 0);
 
-        /* 
-         * BUG REPRODUCTION: 
-         * Instead of selecting just the clicked cell (col 15), the selection 
-         * normalizer expands the selection to the end of the window because 
+        /*
+         * BUG REPRODUCTION:
+         * Instead of selecting just the clicked cell (col 15), the selection
+         * normalizer expands the selection to the end of the window because
          * the click was past the text bounds.
          */
         ASSERT_EQ(selection.ne.x, term.ncols - 1);

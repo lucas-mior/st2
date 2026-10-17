@@ -32,7 +32,8 @@ xwrite(int32 fd, char *s, int64 len) {
 static double
 timediff_ms(struct timespec t1, struct timespec t2) {
     double diff;
-    diff = ((double)(t1.tv_sec - t2.tv_sec)*1000 + (double)(t1.tv_nsec - t2.tv_nsec)/1E6);
+    diff = ((double)(t1.tv_sec - t2.tv_sec)*1000
+            + (double)(t1.tv_nsec - t2.tv_nsec)/1E6);
     return diff;
 }
 
@@ -66,8 +67,8 @@ st_util_functions_sink(void) {
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_st_util */

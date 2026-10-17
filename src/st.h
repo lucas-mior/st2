@@ -360,7 +360,8 @@ static bool term_is_wrapped(StGlyph *line);
 static int32 term_line_len(StGlyph *line);
 static int32 term_write(char *buf, int32 len, bool show_ctrl);
 static void term_clear_glyph(StGlyph *glyph, bool use_current_attr);
-static void term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2, bool use_current_attr);
+static void term_clear_region(int32 x1, int32 y1, int32 x2, int32 y2,
+                              bool use_current_attr);
 static void term_delete_char(int32 n);
 static void term_delete_line(int32 n);
 static void term_dump(void);

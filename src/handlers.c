@@ -28,14 +28,15 @@ handler_sigchld(int32 unused) {
 
     if (st_pid != p) {
         pid_t ret = 0;
-        
+
         while ((ret = waitpid(-1, &stat, WNOHANG)) > 0) {
             if (ret == st_pid) {
                 if (WIFEXITED(stat) && WEXITSTATUS(stat)) {
                     error("child exited with status %d\n", WEXITSTATUS(stat));
                     exit(EXIT_FAILURE);
                 } else if (WIFSIGNALED(stat)) {
-                    error("child terminated due to signal %d\n", WTERMSIG(stat));
+                    error("child terminated due to signal %d\n",
+                          WTERMSIG(stat));
                     exit(EXIT_FAILURE);
                 }
                 _exit(0);
@@ -86,7 +87,8 @@ handler_button_press(XEvent *xevent) {
         int32 utf8_len;
         char *multi_code_point = "NO";
 
-        if (BETWEEN(row, 0, term.nrows - 1) && BETWEEN(col, 0, term.ncols - 1)) {
+        if (BETWEEN(row, 0,
+                    term.nrows - 1) && BETWEEN(col, 0, term.ncols - 1)) {
             StGlyph glyph = term.lines[row][col];
             StFont *st_font = &draw_context.font;
             XftFont *xfont;
@@ -105,7 +107,7 @@ handler_button_press(XEvent *xevent) {
             xfont = st_font->match;
 
             /* Search Font Ring Cache if glyph was rendered via fallback */
-            if (glyph.rune != ' ' && !XftCharIndex(x_window.display, xfont, 
+            if (glyph.rune != ' ' && !XftCharIndex(x_window.display, xfont,
                                                    glyph.rune)) {
                 for (int32 i = 0; i < frc_len; i += 1) {
                     if (frc[i].unicodep == glyph.rune) {
@@ -138,7 +140,8 @@ handler_button_press(XEvent *xevent) {
         clock_gettime(CLOCK_MONOTONIC, &tnow);
         if (timediff_ms(tnow, xsel.tclick2) <= CONF_TRIPLE_CLICK_TIMEOUT) {
             snap = SELECTION_SNAP_LINE;
-        } else if (timediff_ms(tnow, xsel.tclick1) <= CONF_DOUBLE_CLICK_TIMEOUT) {
+        } else if (timediff_ms(tnow,
+                               xsel.tclick1) <= CONF_DOUBLE_CLICK_TIMEOUT) {
             snap = SELECTION_SNAP_WORD;
         } else {
             snap = 0;
@@ -180,7 +183,8 @@ handler_selection_notify(XEvent *xevent) {
                                property, (int64)offset, BUFSIZ / 4,
                                False, AnyPropertyType,
                                &actual_type_return, &actual_format_return,
-                               &nitems_return, &bytes_after_return, &prop_return)) {
+                               &nitems_return, &bytes_after_return,
+                               &prop_return)) {
             error("Clipboard allocation failed\n");
             return;
         }
@@ -199,7 +203,7 @@ handler_selection_notify(XEvent *xevent) {
                                     &x_window.attrs);
             XDeleteProperty(x_window.display, x_window.win, (ulong)property);
             XFree(prop_return);
-            continue; 
+            continue;
         }
 
         ASSERT(prop_return);
@@ -217,7 +221,8 @@ handler_selection_notify(XEvent *xevent) {
         if (win_mode_is_set(WIN_MODE_BRCKTPASTE) && offset == 0) {
             tty_write("\033[200~", 6, 0);
         }
-        tty_write((char *)prop_return, nitems_return*(uint64)actual_format_return / 8, 1);
+        tty_write((char *)prop_return,
+                  nitems_return*(uint64)actual_format_return / 8, 1);
         if (win_mode_is_set(WIN_MODE_BRCKTPASTE) && bytes_after_return == 0) {
             tty_write("\033[201~", 6, 0);
         }
@@ -658,7 +663,8 @@ main(void) {
         }
 
         x_window.xembed = XInternAtom(x_window.display, "_XEMBED", False);
-        x_window.wm_delete_win = XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
+        x_window.wm_delete_win =
+            XInternAtom(x_window.display, "WM_DELETE_WINDOW", False);
     }
 
     {
@@ -682,7 +688,7 @@ main(void) {
         handler_unmap(&ev);
         ASSERT_ZERO((int32)(term_window.mode & WIN_MODE_VISIBLE));
     }
-    
+
     {
         XEvent ev;
 

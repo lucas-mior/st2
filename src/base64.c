@@ -111,10 +111,10 @@ main(void) {
 
         c1 = base64_decode_getc(&src);
         ASSERT_EQ(c1, 'A');
-        
+
         c2 = base64_decode_getc(&src);
         ASSERT_EQ(c2, '=');
-        
+
         c3 = base64_decode_getc(&src);
         ASSERT_EQ(c3, '=');
     }
@@ -139,14 +139,18 @@ main(void) {
         ASSERT_EQ(decoded, "");
         free2(decoded, len);
 
-        /* Expose the space bug: space evaluates to 0 ('A') instead of being skipped. 
-         * "SGVsb G8=" evaluates improperly instead of skipping the space to decode "Hello". */
+        /* Expose the space bug: space evaluates to 0 ('A') instead of being
+         * skipped.
+         * "SGVsb G8=" evaluates improperly instead of skipping the space to
+          * decode "Hello". */
         decoded = base64_decode("SGVsb G8=", &len);
         ASSERT_EQ(decoded, "Hello");
         free2(decoded, len);
 
-        /* Expose the unmapped character bug: '!' evaluates to 0 ('A') instead of -1. 
-         * The presence of an invalid character should abort the decode (returning ""), 
+        /* Expose the unmapped character bug: '!' evaluates to 0 ('A')
+         * instead of -1.
+         * The presence of an invalid character should abort the decode
+          * (returning ""),
          * but instead it silently corrupts the data. */
         decoded = base64_decode("S!VsbG8=", &len);
         ASSERT_EQ(decoded, "");

@@ -25,7 +25,7 @@ term_resize(int32 new_ncols, int32 new_nrows) {
                           term.nrows, new_nrows, SIZEOF(*(term.dirts)));
     term.tabs = realloc2(term.tabs,
                          term.ncols, new_ncols, SIZEOF(*(term.tabs)));
-    
+
     if (new_ncols > term.ncols) {
         bp = term.tabs + term.ncols;
         memset64(bp, 0, SIZEOF(*term.tabs)*(new_ncols - term.ncols));
@@ -125,20 +125,22 @@ term_resize_alt(int32 new_ncols, int32 new_nrows) {
     if (shift > 0) {
         /* Move the remaining pointers that fit in the new height */
         int32 to_move = MIN(new_nrows, term.nrows - shift);
-        memmove64(term.lines, term.lines + shift, to_move*SIZEOF(*(term.lines)));
+        memmove64(term.lines, term.lines + shift,
+                  to_move*SIZEOF(*(term.lines)));
         term.cursor.y = new_nrows - 1;
     }
 
     for (int32 i = MAX(new_nrows, shift + new_nrows); i < term.nrows; i += 1) {
         free2(term.lines[i], old_line_size);
     }
-    
+
     term.lines = realloc2(term.lines,
                           term.nrows, new_nrows, SIZEOF(*(term.lines)));
 
     for (int32 j = 0; j < MIN(new_nrows, term.nrows); j += 1) {
         term.lines[j] = realloc2(term.lines[j],
-                                 term.ncols, new_ncols, SIZEOF(*(term.lines[j])));
+                                 term.ncols, new_ncols,
+                                 SIZEOF(*(term.lines[j])));
         for (int32 k = term.ncols; k < new_ncols; k += 1) {
             term_clear_glyph(&term.lines[j][k], false);
         }
@@ -256,7 +258,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
             break;
         }
     }
-    
+
     {
         ImageList *im_bound = term.images;
         while (im_bound != NULL) {
@@ -340,7 +342,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         }
 
         if (step > 0) {
-            memcpy64(&ref_lines[new_y_idx][new_x_off], &line[old_x_off], step*SIZEOF(StGlyph));
+            memcpy64(&ref_lines[new_y_idx][new_x_off], &line[old_x_off],
+                     step*SIZEOF(StGlyph));
             new_x_off += step;
             old_x_off += step;
         }
@@ -380,7 +383,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         desired_screen_top = 0;
     }
 
-    /* Constraint 2: Prevent empty space at the bottom if history is available */
+    /* Constraint 2: Prevent empty space at the bottom if history is
+     * available */
     {
         int32 last_data_y = total_reflowed_count - 1;
         int32 old_empty = (old_nrows - 1) - last_used_line;
@@ -389,7 +393,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         }
 
         if (desired_screen_top + new_nrows > last_data_y + 1) {
-            int32 new_empty = (desired_screen_top + new_nrows) - (last_data_y + 1);
+            int32 new_empty =
+                (desired_screen_top + new_nrows) - (last_data_y + 1);
             if (new_empty > old_empty) {
                 desired_screen_top -= (new_empty - old_empty);
                 if (desired_screen_top < 0) {
@@ -563,8 +568,8 @@ resize_functions_sink(void) {
 
 int
 main(void) {
-	ASSERT(true);
-	exit(EXIT_SUCCESS);
+    ASSERT(true);
+    exit(EXIT_SUCCESS);
 }
 
 #endif /* TESTING_resize */

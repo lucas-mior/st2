@@ -9,7 +9,8 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *CONF_FONT = "Liberation Mono:pixelsize=18:antialias=true:autohint=true";
+static char *CONF_FONT =
+    "Liberation Mono:pixelsize=18:antialias=true:autohint=true";
 /* Spare fonts */
 static char *CONF_FONT2[] = {
     "Noto Color Emoji:pixelsize=18:antialias=true:autohint=true",
@@ -69,8 +70,10 @@ static int32 CONF_ALLOW_WINDOW_OPS = 0;
 /*
  * draw latency range in ms - from new content/keypress/etc until drawing.
  * within this range, st draws when content stops arriving (idle). mostly it's
- * near CONF_LATENCY_MIN, but it waits longer for slow updates to avoid partial draw.
- * low CONF_LATENCY_MIN will tear/flicker more, as it can "detect" idle too early.
+ * near CONF_LATENCY_MIN, but it waits longer for slow updates to avoid
+  * partial draw.
+ * low CONF_LATENCY_MIN will tear/flicker more, as it can "detect" idle too
+  * early.
  */
 static const double CONF_LATENCY_MIN = 2.0;
 static const double CONF_LATENCY_MAX = 33.0;
@@ -90,7 +93,8 @@ static uint32 CONF_CURSOR_THICKNESS = 2;
 /*
  * 1: render most of the lines/blocks characters without using the font for
  *    perfect alignment between cells (U2500 - U259F except dashes/diagonals).
- *    Bold affects lines thickness if CONF_BOXDRAW_BOLD is not 0. Italic is ignored.
+ * Bold affects lines thickness if CONF_BOXDRAW_BOLD is not 0. Italic is
+  * ignored.
  * 0: disable (render all U25XX glyphs normally from the font).
  */
 static const int32 CONF_BOXDRAW = 1;
@@ -181,7 +185,7 @@ static char *CONF_COLORS[] = {
     [39] = "#887800",
     [40] = "#888000",
     [41] = "#888800",
- 
+
     [255] = 0,
 
     /* more colors can be added after 255 to use with DefaultXX */
@@ -238,7 +242,7 @@ static char *CONF_COLORS_DARK[LENGTH(CONF_COLORS)] = {
     [39] = "#887800",
     [40] = "#888000",
     [41] = "#888800",
- 
+
     [255] = 0,
 
     [256] = "#000000",
@@ -313,7 +317,8 @@ static int32 CONF_COLOR_INDEX_CURSOR = 257;
 static int32 CONF_COLOR_INDEX_REVCURSOR = 258;
 static int32 CONF_COLOR_INDEX_SELECTION_BACK = 259;
 static int32 CONF_COLOR_INDEX_SELECTION_FONT = 7;
-/* If 0 use CONF_COLOR_INDEX_SELECTION_FONT as foreground in order to have a uniform foreground-color */
+/* If 0 use CONF_COLOR_INDEX_SELECTION_FONT as foreground in order to have a
+ * uniform foreground-color */
 /* Else if 1 keep original foreground-color of each cell => more colors :) */
 static int32 CONF_COLOR_IGNORE_SELECTION_FONT_COLOR = 1;
 
@@ -341,14 +346,17 @@ static int32 CONF_MOUSE_COLOR_FG = 7;
 static int32 CONF_MOUSE_COLOR_BG = 0;
 
 /*
- * Color used to display font attributes when fontconfig selection_is_selected a font which
+ * Color used to display font attributes when fontconfig
+  * selection_is_selected a font which
  * doesn't match the ones requested.
  */
 static uint32 CONF_DEFAULT_ATTR = 11;
 
 /*
- * Force mouse select/CONF_KEYBOARD_SHORTCUTS while mask is active (when WIN_MODE_MOUSE is set).
- * Note that if you want to use ShiftMask with CONF_SELECTION_MASKS, set this to an other
+ * Force mouse select/CONF_KEYBOARD_SHORTCUTS while mask is active (when
+  * WIN_MODE_MOUSE is set).
+ * Note that if you want to use ShiftMask with CONF_SELECTION_MASKS, set this
+  * to an other
  * modifier, set to 0 to not use it.
  */
 static uint32 CONF_FORCE_MOUSE_MOD = ShiftMask;
@@ -360,10 +368,14 @@ static uint32 CONF_FORCE_MOUSE_MOD = ShiftMask;
 static MouseShortcut CONF_MOUSE_SHORTCUTS[] = {
     /* mask        button   function                argument   release */
     { XK_ANY_MOD,  Button2, user_selection_paste,   {.i =  0}, 1 },
-    { ShiftMask,   Button4, user_smart_scroll_up,   {.i = -1}, 0 }, /* Page Up */
-    { XK_ANY_MOD,  Button4, user_smart_scroll_up,   {.i = +1}, 0 }, /* Line Up */
-    { ShiftMask,   Button5, user_smart_scroll_down, {.i = -1}, 0 }, /* Page Down */
-    { XK_ANY_MOD,  Button5, user_smart_scroll_down, {.i = +1}, 0 }, /* Line Down */
+    /* Page Up */
+    { ShiftMask,   Button4, user_smart_scroll_up,   {.i = -1}, 0 },
+    /* Line Up */
+    { XK_ANY_MOD,  Button4, user_smart_scroll_up,   {.i = +1}, 0 },
+    /* Page Down */
+    { ShiftMask,   Button5, user_smart_scroll_down, {.i = -1}, 0 },
+    /* Line Down */
+    { XK_ANY_MOD,  Button5, user_smart_scroll_down, {.i = +1}, 0 },
 };
 
 /* Internal keyboard CONF_KEYBOARD_SHORTCUTS. */
@@ -389,8 +401,10 @@ static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
     { ControlMask|ShiftMask, XK_B,          user_scroll_up,       {.i = -1} },
     { ControlMask|ShiftMask, XK_K,          user_scroll_down,     {.i = +1} },
     { ControlMask|ShiftMask, XK_L,          user_scroll_up,       {.i = +1} },
-    { ControlMask|ShiftMask, XK_N,          user_change_alpha,    {.f = -0.02} },
-    { ControlMask|ShiftMask, XK_M,          user_change_alpha,    {.f = +0.02} },
+    { ControlMask|ShiftMask, XK_N,          user_change_alpha,    {.f =
+        -0.02} },
+    { ControlMask|ShiftMask, XK_M,          user_change_alpha,    {.f =
+        +0.02} },
     { Mod1Mask,              XK_Escape,     user_vim_select,      {.i = 0} },
     { Mod1Mask,              XK_c,          user_copy_output,     {.i = 0} },
     { Mod1Mask,              XK_u,          user_url_select,      {.i = 0} },
@@ -404,8 +418,10 @@ static Shortcut CONF_KEYBOARD_SHORTCUTS[] = {
     { Mod1Mask,              XK_b,          user_scroll_down,     {.i = -1} },
     { Mod1Mask,              XK_l,          user_scroll_up,       {.i = +1} },
     { Mod1Mask,              XK_k,          user_scroll_down,     {.i = +1} },
-    { Mod1Mask,              XK_n,          user_change_alpha,    {.f = -0.02} },
-    { Mod1Mask,              XK_m,          user_change_alpha,    {.f = +0.02} },
+    { Mod1Mask,              XK_n,          user_change_alpha,    {.f =
+        -0.02} },
+    { Mod1Mask,              XK_m,          user_change_alpha,    {.f =
+        +0.02} },
     { Mod1Mask,              XK_t,          user_toggle_colorscheme, {.i = 0} },
 };
 
@@ -438,7 +454,8 @@ static KeySym CONF_MAPPED_KEYS[] = { (KeySym)-1 };
 
 /*
  * State bits to ignore when matching CONF_KEYS or button events.  By default,
- * user_toggle_numlock (Mod2Mask) and keyboard layout (XK_SWITCH_MOD) are ignored.
+ * user_toggle_numlock (Mod2Mask) and keyboard layout (XK_SWITCH_MOD) are
+  * ignored.
  */
 static uint32 CONF_IGNORE_MOD = Mod2Mask|XK_SWITCH_MOD;
 

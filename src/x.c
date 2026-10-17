@@ -300,7 +300,8 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
 
     if ((XftPatternGetInteger(pattern, "slant", 0, &want_attr)
          == XftResultMatch)) {
-        if ((XftPatternGetInteger(st_font->match->pattern, "slant", 0, &have_attr)
+        if ((XftPatternGetInteger(st_font->match->pattern, "slant", 0,
+                                  &have_attr)
              != XftResultMatch)
             || have_attr < want_attr) {
             st_font->bad_slant = true;
@@ -310,7 +311,8 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
 
     if ((XftPatternGetInteger(pattern, "weight", 0, &want_attr)
          == XftResultMatch)) {
-        if ((XftPatternGetInteger(st_font->match->pattern, "weight", 0, &have_attr)
+        if ((XftPatternGetInteger(st_font->match->pattern, "weight", 0,
+                                  &have_attr)
              != XftResultMatch)
             || have_attr != want_attr) {
             st_font->bad_weight = true;
@@ -329,7 +331,8 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
     st_font->descent = st_font->match->descent;
 
     st_font->height = st_font->ascent + st_font->descent;
-    st_font->width = DIVCEIL(extents.xOff, (int32)strlen32(CONF_ASCII_PRINTABLE));
+    st_font->width = DIVCEIL(extents.xOff,
+                             (int32)strlen32(CONF_ASCII_PRINTABLE));
 
     return 0;
 }
@@ -513,7 +516,8 @@ x_load_spare_font(FcPattern *pattern, int32 flags) {
         return 1;
     }
 
-    if (!(frc[frc_len].font = XftFontOpenPattern(x_window.display, fc_pattern))) {
+    if (!(frc[frc_len].font =
+        XftFontOpenPattern(x_window.display, fc_pattern))) {
         FcPatternDestroy(fc_pattern);
         return 1;
     }
@@ -788,7 +792,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
                 error("font spec buffer overflow avoided\n");
                 break;
             }
-            
+
             glyph_idx = boxdrawindex(&base_glyph);
             specs[nfont_specs].font = font_local->match;
             specs[nfont_specs].glyph = glyph_idx;
@@ -924,7 +928,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
                                                      font_local->match,
                                                      next_rune) != 0;
 
-                    if (!has_glyph || (current_xfont != font_local->match && primary_has_glyph)) {
+                    if (!has_glyph || (current_xfont != font_local->match
+                        && primary_has_glyph)) {
                         break;
                     }
                 }
@@ -1005,7 +1010,8 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
 
 static void
 x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
-                        StGlyph base, int32 glyph_count, int32 cell_count, int32 x, int32 y) {
+                        StGlyph base, int32 glyph_count, int32 cell_count,
+                        int32 x, int32 y) {
     int32 win_x = term_window.hborderpx + x*term_window.cw;
     int32 win_y = term_window.vborderpx + y*term_window.ch;
     int32 width = cell_count * term_window.cw;
@@ -1025,7 +1031,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
 
     if (base.mode & ATTR_ITALIC) {
         if (base.mode & ATTR_BOLD) {
-            if (draw_context.ibfont.bad_slant || draw_context.ibfont.bad_weight) {
+            if (draw_context.ibfont.bad_slant
+                || draw_context.ibfont.bad_weight) {
                 base.fg = (int32)CONF_DEFAULT_ATTR;
             }
         } else if (draw_context.ifont.bad_slant) {
@@ -1125,7 +1132,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     if (x == 0) {
         int32 limit_y;
         int32 clear_y;
-        if (win_y + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
+        if (win_y + term_window.ch
+            >= term_window.vborderpx + term_window.tty_height) {
             limit_y = term_window.h;
         } else {
             limit_y = 0;
@@ -1135,12 +1143,14 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
         } else {
             clear_y = win_y;
         }
-        x_clear(0, clear_y, term_window.hborderpx, win_y + term_window.ch + limit_y);
+        x_clear(0, clear_y, term_window.hborderpx,
+                win_y + term_window.ch + limit_y);
     }
     if (win_x + width >= term_window.hborderpx + term_window.tty_width) {
         int32 limit_y;
         int32 clear_y;
-        if (win_y + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
+        if (win_y + term_window.ch
+            >= term_window.vborderpx + term_window.tty_height) {
             limit_y = term_window.h;
         } else {
             limit_y = win_y + term_window.ch;
@@ -1156,7 +1166,8 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     if (y == 0) {
         x_clear(win_x, 0, win_x + width, term_window.vborderpx);
     }
-    if (win_y + term_window.ch >= term_window.vborderpx + term_window.tty_height) {
+    if (win_y + term_window.ch
+        >= term_window.vborderpx + term_window.tty_height) {
         x_clear(win_x, win_y + term_window.ch, win_x + width, term_window.h);
     }
 
@@ -1175,20 +1186,23 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     }
 
     if (base.mode & ATTR_BOXDRAW) {
-        drawboxes(win_x, win_y, single_char_width, term_window.ch, fg, bg, specs, glyph_count);
+        drawboxes(win_x, win_y, single_char_width, term_window.ch, fg, bg,
+                  specs, glyph_count);
     } else {
         XftDrawGlyphFontSpec(x_window.xft_draw, fg, specs, glyph_count);
     }
 
     if (base.mode & ATTR_UNDERLINE) {
         XftDrawRect(x_window.xft_draw, fg, win_x,
-                    win_y + (int32)((double)draw_context.font.ascent*CONF_CHAR_HEIGHT_SCALE) + 1,
+                    win_y + (int32)((double)draw_context.font.ascent*
+                                      CONF_CHAR_HEIGHT_SCALE) + 1,
                     (uint32)width, 1);
     }
 
     if (base.mode & ATTR_STRUCK) {
         XftDrawRect(x_window.xft_draw, fg, win_x,
-                    win_y + 2*(int32)((double)draw_context.font.ascent*CONF_CHAR_HEIGHT_SCALE / 3),
+                    win_y + 2*(int32)((double)draw_context.font.ascent*
+                                        CONF_CHAR_HEIGHT_SCALE / 3),
                     (uint32)width, 1);
     }
 
@@ -1229,7 +1243,8 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph glyph,
         return;
     }
 
-    glyph.mode &= ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK | ATTR_WIDE
+    glyph.mode &= ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE
+              | ATTR_STRUCK | ATTR_WIDE
               | ATTR_BOXDRAW;
 
     if (win_mode_is_set(WIN_MODE_REVERSE)) {
@@ -1257,7 +1272,8 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph glyph,
         case 4:
             XftDrawRect(x_window.xft_draw, &draw_color,
                         term_window.hborderpx + cx*term_window.cw,
-                        term_window.vborderpx + (cy + 1)*term_window.ch - (int32)CONF_CURSOR_THICKNESS,
+                        term_window.vborderpx + (cy + 1)*term_window.ch
+                            - (int32)CONF_CURSOR_THICKNESS,
                         (uint32)term_window.cw, (uint32)CONF_CURSOR_THICKNESS);
             break;
         case 5:
@@ -1308,7 +1324,8 @@ x_set_icon_title(char *p) {
         return;
     }
     XSetWMIconName(x_window.display, x_window.win, &prop);
-    XSetTextProperty(x_window.display, x_window.win, &prop, x_window.net_wm_iconname);
+    XSetTextProperty(x_window.display, x_window.win, &prop,
+                     x_window.net_wm_iconname);
     XFree(prop.value);
     return;
 }
@@ -1325,7 +1342,8 @@ x_set_title(char *title) {
 
     if (Xutf8TextListToTextProperty(x_window.display,
                                     &title, 1,
-                                    XUTF8StringStyle, &text_property) != Success) {
+                                    XUTF8StringStyle,
+                                    &text_property) != Success) {
         return;
     }
     XSetWMName(x_window.display, x_window.win, &text_property);
@@ -1357,12 +1375,12 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
 
     for (int32 x = x1; x < x2; x += 1) {
         StGlyph new_glyph = temp_line[x - x1];
-        
+
         if (new_glyph.mode & ATTR_WDUMMY) {
             i += 1;
             continue;
         }
-        
+
         if ((i > 0) && ATTRCMP(base, new_glyph)) {
             int32 nfont_specs;
 
@@ -1375,14 +1393,14 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
             ox = x;
             i = 0;
         }
-        
+
         if (i == 0) {
             base = new_glyph;
             ox = x;
         }
         i += 1;
     }
-    
+
     if (i > 0) {
         int32 nfont_specs;
         nfont_specs = x_make_glyph_font_specs(x_window.font_spec_buf,
@@ -1565,10 +1583,12 @@ main(void) {
                                     | StructureNotifyMask
                                     | PointerMotionMask;
 
-        cw_flags = CWBackPixel | CWBorderPixel | CWBitGravity | CWEventMask | CWColormap;
+        cw_flags = CWBackPixel | CWBorderPixel | CWBitGravity
+                   | CWEventMask | CWColormap;
         x_window.win = XCreateWindow(x_window.display, parent,
                                      0, 0,
-                                     (uint32)term_window.w, (uint32)term_window.h,
+                                     (uint32)term_window.w,
+                                     (uint32)term_window.h,
                                      0, x_window.depth,
                                      InputOutput, x_window.visual,
                                      cw_flags,
@@ -1608,8 +1628,9 @@ main(void) {
 
         term_window.tty_width = term_window.cw*term.ncols;
         term_window.tty_height = term_window.ch*term.nrows;
-        
-        boxdraw_xinit(x_window.display, x_window.color_map, x_window.xft_draw, x_window.visual);
+
+        boxdraw_xinit(x_window.display, x_window.color_map, x_window.xft_draw,
+                      x_window.visual);
     }
 
     /* Test: sixd_to_16bit */
@@ -1624,16 +1645,16 @@ main(void) {
     /* Test: x_geom_mask_to_gravity */
     {
         int32 gravity;
-        
+
         gravity = x_geom_mask_to_gravity(0);
         ASSERT_EQ(gravity, NorthWestGravity);
-        
+
         gravity = x_geom_mask_to_gravity(XNegative);
         ASSERT_EQ(gravity, NorthEastGravity);
-        
+
         gravity = x_geom_mask_to_gravity(YNegative);
         ASSERT_EQ(gravity, SouthWestGravity);
-        
+
         gravity = x_geom_mask_to_gravity(XNegative | YNegative);
         ASSERT_EQ(gravity, SouthEastGravity);
     }
@@ -1686,7 +1707,7 @@ main(void) {
     {
         x_clear(0, 0, 10, 10);
         x_resize(100, 30, term.ncols);
-        
+
         x_window.geo_mask = XNegative | YNegative;
         x_hints();
         x_window.geo_mask = 0;
@@ -1720,17 +1741,17 @@ main(void) {
         x_set_icon_title(NULL);
         x_set_icon_title("");
         x_set_icon_title("test_icon");
-        
+
         x_set_title(NULL);
         x_set_title("");
         x_set_title("test_title");
-        
+
         x_set_pointer_motion(0);
         x_set_pointer_motion(1);
-        
+
         x_set_urgency(1);
         x_set_urgency(0);
-        
+
         term_window.mode &= ~WIN_MODE_FOCUSED;
         x_bell();
     }
@@ -1743,7 +1764,9 @@ main(void) {
         StGlyph og = {0};
 
         glyph.rune = 'X';
-        glyph.mode = ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK | ATTR_REVERSE | ATTR_BLINK;
+        glyph.mode =
+            ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK
+            | ATTR_REVERSE | ATTR_BLINK;
         glyph.fg = CONF_COLOR_INDEX_FONT;
         glyph.bg = CONF_COLOR_BG;
 
@@ -1760,7 +1783,7 @@ main(void) {
         og.mode = 0;
         og.fg = 0;
         og.bg = 0;
-        
+
         term_window.mode &= ~WIN_MODE_FOCUSED;
         x_draw_cursor(0, 0, glyph, 0, 0, og);
 

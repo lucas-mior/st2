@@ -503,7 +503,7 @@ user_scroll_up(union Arg *a) {
 
 static void
 user_smart_scroll_up(union Arg *arg) {
-    /* 
+    /*
      * If Altscreen is on, or if the app has enabled Application Cursor Keys
      * (a very strong signal that a TUI like less or vim is running).
      */
@@ -582,7 +582,7 @@ dump_for_editor(int32 fd, int32 *out_row, int32 *out_col) {
                 xwrite(fd, buffer, utf8_encode_raw(line[x].rune, buffer));
             }
         }
-        
+
         if ((last_pos == 0)
                 || !(line[last_pos - 1].mode & ATTR_WRAP)
                 || (y == term.nrows - 1)) {
@@ -597,7 +597,7 @@ dump_for_editor(int32 fd, int32 *out_row, int32 *out_col) {
         *out_row = term.n_hist + term.cursor.y + 1;
         *out_col = term.cursor.x + 1;
     }
-    
+
     return;
 }
 
@@ -649,7 +649,7 @@ user_vim_select(union Arg *arg) {
                      "call cursor(%d, %d)", target_row, target_col);
             SNPRINTF(delete_command,
                      "autocmd VimLeave * call delete('%s')", tmp_file);
-            
+
             argv[argc++] = program_path;
             argv[argc++] = "-w";
             argv[argc++] = window;
@@ -722,7 +722,8 @@ dump_terminal_to_fd(int32 fd) {
         end = &line[last_pos + 1];
         while (line < end) {
             if (!(line->mode & ATTR_WDUMMY)) {
-                if (xwrite(fd, buffer, utf8_encode_raw(line->rune, buffer)) < 0) {
+                if (xwrite(fd, buffer,
+                           utf8_encode_raw(line->rune, buffer)) < 0) {
                     goto cleanup;
                 }
             }
@@ -928,14 +929,15 @@ main(void) {
         x_window.visual = DefaultVisual(x_window.display, x_window.screen);
         x_window.depth = DefaultDepth(x_window.display, x_window.screen);
         x_window.color_map = DefaultColormap(x_window.display, x_window.screen);
-        
+
         /* Initialize pointers to NULL to prevent xrealloc/XFree crashes */
         x_window.font_spec_buf = NULL;
         x_window.drawable = None;
-        
-        x_window.win = XCreateSimpleWindow(x_window.display, 
-                                           RootWindow(x_window.display, x_window.screen), 
-                                           0, 0, 100, 100, 0, 0, 0);
+
+        x_window.win =
+            XCreateSimpleWindow(x_window.display,
+                                RootWindow(x_window.display, x_window.screen),
+                                0, 0, 100, 100, 0, 0, 0);
 
         xsel.xtarget = XInternAtom(x_window.display, "UTF8_STRING", 0);
 
@@ -950,23 +952,24 @@ main(void) {
         term_window.h = 600;
 
         /* Create initial drawable and Xft context */
-        x_window.drawable = XCreatePixmap(x_window.display, x_window.win, 
-                                          (uint32)term_window.w, (uint32)term_window.h, 
+        x_window.drawable = XCreatePixmap(x_window.display, x_window.win,
+                                          (uint32)term_window.w,
+                                          (uint32)term_window.h,
                                           (uint32)x_window.depth);
-        
-        x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable, 
+
+        x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
                                           x_window.visual, x_window.color_map);
-        
+
         if (!x_window.xft_draw) {
             error("XftDrawCreate failed\n");
             exit(EXIT_FAILURE);
         }
 
-        draw_context.graphics = XCreateGC(x_window.display, x_window.win, 
+        draw_context.graphics = XCreateGC(x_window.display, x_window.win,
                                           GCGraphicsExposures, &xgc_values);
 
         term_reset();
-        
+
         default_font_size = 12.0;
         used_font_size = 12.0;
         used_font = CONF_FONT;
@@ -978,7 +981,7 @@ main(void) {
         term_window.mode = 0;
         user_toggle_numlock(NULL);
         ASSERT_EQ((int32)term_window.mode, WIN_MODE_NUMLOCK);
-        
+
         term.mode = 0;
         user_toggle_printer(NULL);
         ASSERT_EQ((int32)term.mode, TERM_MODE_PRINT);
@@ -998,7 +1001,7 @@ main(void) {
     /* 3. Functional Tests (Parent process) */
     {
         union Arg a;
-        
+
         /* Clipboard */
         xsel.primary = xstrdup("test_data");
         user_clipboard_copy(NULL);
@@ -1007,9 +1010,9 @@ main(void) {
         /* Visuals & Scaling */
         a.f = 0.1;
         user_change_alpha(&a);
-        
+
         /* This triggers x_resize via x_configure_resize(0, 0) */
-        a.f = 2.0; 
+        a.f = 2.0;
         user_zoom(&a);
         user_zoom_reset(NULL);
     }
@@ -1017,7 +1020,7 @@ main(void) {
     /* 4. Subsystem Isolation (Forked) */
     {
         if (fork() == 0) {
-            cmd_fd = -1; 
+            cmd_fd = -1;
             user_send_break(NULL);
             exit(EXIT_SUCCESS);
         }
@@ -1049,7 +1052,7 @@ main(void) {
     if (x_window.display) {
         XCloseDisplay(x_window.display);
     }
-    
+
     exit(EXIT_SUCCESS);
 }
 

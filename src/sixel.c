@@ -163,7 +163,8 @@ sixel_image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
     if (width > sixel_image->width) { /* if width is extended */
         for (int32 n = 0; n < min_height; n += 1) {
             /* copy from source sixel_image */
-            memcpy64(alt_buffer + width*n, sixel_image->data + sixel_image->width*n,
+            memcpy64(alt_buffer + width*n,
+                     sixel_image->data + sixel_image->width*n,
                      sixel_image->width*SIZEOF(uint16));
             /* fill extended area with background color */
             memset64(alt_buffer + width*n + sixel_image->width, 0,
@@ -172,7 +173,8 @@ sixel_image_buffer_resize(SixelImage *sixel_image, int32 width, int32 height) {
     } else {
         for (int32 n = 0; n < min_height; n += 1) {
             /* copy from source sixel_image */
-            memcpy64(alt_buffer + width*n, sixel_image->data + sixel_image->width*n,
+            memcpy64(alt_buffer + width*n,
+                     sixel_image->data + sixel_image->width*n,
                      width*SIZEOF(uint16));
         }
     }
@@ -409,17 +411,23 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 break;
             default:
                 if (*p >= '?' && *p <= '~') { /* sixel characters */
-                    if ((sixel_image->width < (sixel_state->pos_x + sixel_state->repeat_count)
+                    if ((sixel_image->width
+                         < (sixel_state->pos_x + sixel_state->repeat_count)
                          && sixel_image->width < DECSIXEL_WIDTH_MAX)
                         || (sixel_image->height < (sixel_state->pos_y + 6)
                             && sixel_image->height < DECSIXEL_HEIGHT_MAX)) {
                         sx = sixel_image->width*2;
                         sy = sixel_image->height*2;
-                        
+
                         /* Fix infinite loop risk from integer overflow */
-                        while ((sx < (sixel_state->pos_x + sixel_state->repeat_count) && sx < DECSIXEL_WIDTH_MAX)
-                               || (sy < (sixel_state->pos_y + 6) && sy < DECSIXEL_HEIGHT_MAX)) {
-                            if (sx < (sixel_state->pos_x + sixel_state->repeat_count) && sx < DECSIXEL_WIDTH_MAX) {
+                        while ((sx < (sixel_state->pos_x
+                                      + sixel_state->repeat_count)
+                                && sx < DECSIXEL_WIDTH_MAX)
+                               || (sy < (sixel_state->pos_y + 6)
+                                   && sy < DECSIXEL_HEIGHT_MAX)) {
+                            if (sx < (sixel_state->pos_x
+                                      + sixel_state->repeat_count)
+                                && sx < DECSIXEL_WIDTH_MAX) {
                                 int64 next_sx = sx*2;
                                 if (next_sx > DECSIXEL_WIDTH_MAX) {
                                     sx = DECSIXEL_WIDTH_MAX;
@@ -427,7 +435,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                     sx = (int32)next_sx;
                                 }
                             }
-                            if (sy < (sixel_state->pos_y + 6) && sy < DECSIXEL_HEIGHT_MAX) {
+                            if (sy < (sixel_state->pos_y + 6)
+                                && sy < DECSIXEL_HEIGHT_MAX) {
                                 int64 next_sy = sy*2;
                                 if (next_sy > DECSIXEL_HEIGHT_MAX) {
                                     sy = DECSIXEL_HEIGHT_MAX;
@@ -440,7 +449,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                         sx = MIN(sx, DECSIXEL_WIDTH_MAX);
                         sy = MIN(sy, DECSIXEL_HEIGHT_MAX);
 
-                        if (sixel_image_buffer_resize(sixel_image, sx, sy) < 0) {
+                        if (sixel_image_buffer_resize(sixel_image, sx,
+                                                      sy) < 0) {
                             error("Error in sixel_image_buffer_resize.\n");
                             sixel_state->state = PARSE_STATE_ERROR;
                             p++;
@@ -546,7 +556,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 p++;
             } else if (*p == ';') {
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
-                    sixel_state->params[sixel_state->nparams] = sixel_state->param;
+                    sixel_state->params[sixel_state->nparams] =
+                        sixel_state->param;
                     sixel_state->nparams += 1;
                 }
                 sixel_state->param = 0;
@@ -555,7 +566,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 sixel_state->state = PARSE_STATE_ESC;
             } else {
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
-                    sixel_state->params[sixel_state->nparams] = sixel_state->param;
+                    sixel_state->params[sixel_state->nparams] =
+                        sixel_state->param;
                     sixel_state->nparams += 1;
                 }
                 if (sixel_state->nparams > 0) {
@@ -592,8 +604,10 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     sx = MAX(sixel_image->width, sixel_state->attributed_ph);
                     sy = MAX(sixel_image->height, sixel_state->attributed_pv);
 
-                    /* the height of the sixel_image buffer must be divisible by 6
-                     * to avoid unnecessary resizing of the sixel_image buffer when
+                    /* the height of the sixel_image buffer must be divisible
+                     * by 6
+                     * to avoid unnecessary resizing of the sixel_image
+                      * buffer when
                      * parsing the last sixel line */
                     sy = (sy + 5) / 6*6;
 
@@ -638,7 +652,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 p++;
             } else if (*p == ';') {
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
-                    sixel_state->params[sixel_state->nparams] = sixel_state->param;
+                    sixel_state->params[sixel_state->nparams] =
+                        sixel_state->param;
                     sixel_state->nparams += 1;
                 }
                 sixel_state->param = 0;
@@ -648,7 +663,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             } else {
                 sixel_state->state = PARSE_STATE_DECSIXEL;
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
-                    sixel_state->params[sixel_state->nparams] = sixel_state->param;
+                    sixel_state->params[sixel_state->nparams] =
+                        sixel_state->param;
                     sixel_state->nparams += 1;
                 }
                 sixel_state->param = 0;
@@ -674,7 +690,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             (uint32)MIN(sixel_state->params[3], 100);
                         sixel_state->params[4] =
                             (uint32)MIN(sixel_state->params[4], 100);
-                        
+
                         if (DEBUGGING) {
                             fprintf(stderr,
                                     "SIXEL: Defined idx %d = HLS(%u,%u,%u)\n",
@@ -696,7 +712,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                                      100u);
                         sixel_state->params[4] = MIN(sixel_state->params[4],
                                                      100u);
-                        
+
                         if (DEBUGGING) {
                             fprintf(stderr,
                                     "SIXEL: Defined idx %d = RGB(%u,%u,%u)\n",
@@ -722,7 +738,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
             }
             p++;
             break;
-            
+
         default:
             p++;
             break;
@@ -810,7 +826,7 @@ hls2rgb(uint32 hue, uint32 lum, uint32 sat) {
     if ((c2 = ((2.0*lv) - 1.0)) < 0.0) {
         c2 = -c2;
     }
-    
+
     if ((hs = (int32)(hue % 120) - 60) < 0) {
         hs = -hs;
     }
