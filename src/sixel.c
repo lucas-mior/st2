@@ -331,8 +331,9 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
                         || dst[4] == 0
                         || dst[5] == 0
                         || dst[6] == 0
-                        || dst[7] == 0)
-                    trans = 1;
+                        || dst[7] == 0) {
+                        trans = 1;
+                    }
                 }
                 src += 8;
                 dst += 8;

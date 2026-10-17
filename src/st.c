@@ -37,8 +37,9 @@ static int
 tinsync(uint timeout) {
     struct timespec now;
     if (su && !clock_gettime(CLOCK_MONOTONIC, &now)
-           && timediff_ms(now, sutv) >= timeout)
+           && timediff_ms(now, sutv) >= timeout) {
         su = 0;
+    }
     return su;
 }
 

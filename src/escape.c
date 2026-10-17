@@ -1248,13 +1248,15 @@ dcs_handle(void) {
         control_seq_intro_dump();
         break;
     case '=':
-        if (csi_escape_seq.buffer[2] == 's' && csi_escape_seq.buffer[1] == '1')
+        if (csi_escape_seq.buffer[2] == 's'
+            && csi_escape_seq.buffer[1] == '1') {
             tsync_begin();  /* BSU */
-        else if (csi_escape_seq.buffer[2] == 's'
-            && csi_escape_seq.buffer[1] == '2')
+        } else if (csi_escape_seq.buffer[2] == 's'
+                   && csi_escape_seq.buffer[1] == '2') {
             tsync_end();  /* ESU */
-        else
+        } else {
             goto unknown;
+        }
         break;
     case 'q':
         if (csi_escape_seq.narg >= 2 && csi_escape_seq.arg[1] == 1) {
