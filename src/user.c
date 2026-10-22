@@ -207,13 +207,13 @@ copy_image_to_selection_pixels(ImageList *image,
     }
 
     rel_y = image->y + term.scrolled_up;
-    scaled_w = (image->width * term_window.cw) / image->cw;
-    scaled_h = (image->height * term_window.ch) / image->ch;
+    scaled_w = (image->width*term_window.cw) / image->cw;
+    scaled_h = (image->height*term_window.ch) / image->ch;
     scaled_w = MAX(scaled_w, 1);
     scaled_h = MAX(scaled_h, 1);
 
-    image_px_x = image->x * term_window.cw;
-    image_px_y = rel_y * term_window.ch;
+    image_px_x = image->x*term_window.cw;
+    image_px_y = rel_y*term_window.ch;
 
     ix1 = MAX(sel_px_x, image_px_x);
     iy1 = MAX(sel_px_y, image_px_y);
@@ -227,17 +227,17 @@ copy_image_to_selection_pixels(ImageList *image,
     src_pixels = image->pixels;
 
     for (int32 py = iy1; py < iy2; py += 1) {
-        int32 src_y = ((py - image_px_y) * image->height) / scaled_h;
+        int32 src_y = ((py - image_px_y)*image->height) / scaled_h;
         int32 dst_y = py - sel_px_y;
         LIMIT(src_y, 0, image->height - 1);
 
         for (int32 px = ix1; px < ix2; px += 1) {
-            int32 src_x = ((px - image_px_x) * image->width) / scaled_w;
+            int32 src_x = ((px - image_px_x)*image->width) / scaled_w;
             int32 dst_x = px - sel_px_x;
             uint32 pixel;
 
             LIMIT(src_x, 0, image->width - 1);
-            pixel = src_pixels[src_y * image->width + src_x];
+            pixel = src_pixels[src_y*image->width + src_x];
 
             /* The X11 renderer uses the clipmask only to skip transparent
              * source pixels; it does not alpha-blend them into the terminal.
@@ -246,7 +246,7 @@ copy_image_to_selection_pixels(ImageList *image,
                 continue;
             }
 
-            dst_pixels[dst_y * sel_px_w + dst_x] = pixel;
+            dst_pixels[dst_y*sel_px_w + dst_x] = pixel;
         }
     }
     return;
@@ -272,14 +272,14 @@ user_clipboard_copy_selection_image(Time time) {
         return 0;
     }
 
-    out_w = (x2 - x1 + 1) * term_window.cw;
-    out_h = (y2 - y1 + 1) * term_window.ch;
+    out_w = (x2 - x1 + 1)*term_window.cw;
+    out_h = (y2 - y1 + 1)*term_window.ch;
     if (out_w <= 0 || out_h <= 0) {
         return 0;
     }
 
-    pixel_count = (int64)out_w * (int64)out_h;
-    pixel_bytes = pixel_count * SIZEOF(*pixels);
+    pixel_count = (int64)out_w*(int64)out_h;
+    pixel_bytes = pixel_count*SIZEOF(*pixels);
     if (pixel_count <= 0 || pixel_bytes <= 0 || pixel_bytes > INT32_MAX) {
         return 0;
     }
@@ -299,8 +299,8 @@ user_clipboard_copy_selection_image(Time time) {
         }
 
         copy_image_to_selection_pixels(image,
-                                       x1 * term_window.cw,
-                                       y1 * term_window.ch,
+                                       x1*term_window.cw,
+                                       y1*term_window.ch,
                                        out_w, out_h,
                                        pixels);
 

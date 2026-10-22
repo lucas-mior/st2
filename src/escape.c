@@ -17,7 +17,7 @@
 #endif
 
 static void control_seq_intro_dump(void);
-static int32_t term_def_color(int32 *attr, int32 *npar, int32 l);
+static int32 term_def_color(int32 *attr, int32 *npar, int32 l);
 
 /* CSI Escape sequence structs */
 /* ESC '[' [[ [<priv>] <arg> [;]] <mode> [<mode>]] */
@@ -91,7 +91,7 @@ control_seq_intro_parse(void) {
 static void
 term_set_attr(int32 *attr, int32 l) {
     for (int32 i = 0; i < l; i += 1) {
-        int32_t idx;
+        int32 idx;
 
         switch (attr[i]) {
         case 0:
@@ -1576,7 +1576,7 @@ term_putc(uint32 u) {
 
         if (str_escape_seq.len + len >= str_escape_seq.siz) {
             int64 old_siz = (int64)str_escape_seq.siz;
-            int64 new_siz = old_siz * 2;
+            int64 new_siz = old_siz*2;
             if (new_siz > SIZEGB(1)) {
                 error("%s: escape sequence is allocating more than 1GB.\n",
                       __func__);
@@ -1734,7 +1734,7 @@ check_control_code:
                 if (new_cap == 0) {
                     new_cap = 64;
                 } else {
-                    new_cap = old_cap * 2;
+                    new_cap = old_cap*2;
                 }
                 string_pool = realloc2(string_pool,
                                        old_cap, new_cap, SIZEOF(*string_pool));
@@ -1743,7 +1743,7 @@ check_control_code:
 
             string_pool[new_index].capacity = 4;
             string_pool[new_index].length = 1;
-            string_pool[new_index].runes = malloc2(4 * SIZEOF(uint32));
+            string_pool[new_index].runes = malloc2(4*SIZEOF(uint32));
             string_pool[new_index].runes[0] = prev_glyph->rune;
 
             prev_glyph->rune = (uint32)new_index | MULTI_CODE_POINT_FLAG;
@@ -1754,7 +1754,7 @@ check_control_code:
         if (string_pool[pool_index].length
             >= string_pool[pool_index].capacity) {
             int32 old_cap = string_pool[pool_index].capacity;
-            int32 new_cap = old_cap * 2;
+            int32 new_cap = old_cap*2;
             string_pool[pool_index].runes =
                 realloc2(string_pool[pool_index].runes,
                          old_cap, new_cap, SIZEOF(uint32));
@@ -1930,9 +1930,9 @@ control_seq_intro_dump(void) {
     return;
 }
 
-static int32_t
+static int32
 term_def_color(int32 *attr, int32 *npar, int32 l) {
-    int32_t idx = -1;
+    int32 idx = -1;
     int32 r;
     int32 g;
     int32 b;
@@ -2060,7 +2060,7 @@ main(void) {
                                           x_window.visual, x_window.color_map);
 
         draw_context.colors_len = 256;
-        draw_context.colors = malloc2(256 * SIZEOF(XftColor));
+        draw_context.colors = malloc2(256*SIZEOF(XftColor));
 
         term_reset();
     }

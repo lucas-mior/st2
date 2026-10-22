@@ -63,10 +63,11 @@ boxdrawindex(StGlyph *g) {
 static void
 drawboxes(int32 x, int32 y, int32 cw, int32 ch, XftColor *fg, XftColor *bg,
           XftGlyphFontSpec *specs, int32 len) {
-    while (len-- > 0) {
+    while (len > 0) {
         drawbox(x, y, cw, ch, fg, bg, (uint16)specs->glyph);
         x += cw;
         specs += 1;
+        len -= 1;
     }
 
     return;

@@ -359,7 +359,7 @@ handler_button_release(XEvent *xevent) {
     uint32 button = xevent->xbutton.button;
 
     if (1 <= button && button <= 11) {
-        buttons &= (uint32) ~(1 << (button - 1));
+        buttons &= (uint32)~(1 << (button - 1));
     }
 
     if (win_mode_is_set(WIN_MODE_MOUSE)) {

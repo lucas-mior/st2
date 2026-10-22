@@ -326,11 +326,11 @@ main(void) {
         {
             char *state_texts[] = {
                 "", "", "", "", "", "", "", "", "",
-                "ABCDEFGHIJKLMNOPQRST", "UVWXYZ"
+                "ABCDEFGHIJKLMNOPQRST", "UVWXYZ",
             };
             bool state_wraps[] = {
                 false, false, false, false, false, false, false, false, false,
-                true, false
+                true, false,
             };
             test_verify_state(11, state_texts, state_wraps, 6, 9);
         }
@@ -345,11 +345,11 @@ main(void) {
         {
             char *state_texts[] = {
                 "", "", "", "", "", "", "", "", "",
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
             };
             bool state_wraps[] = {
                 false, false, false, false, false, false, false, false, false,
-                false
+                false,
             };
             test_verify_state(10, state_texts, state_wraps, 26, 9);
         }
@@ -364,11 +364,11 @@ main(void) {
         {
             char *state_texts[] = {
                 "", "", "", "", "", "", "", "", "",
-                "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ"
+                "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ",
             };
             bool state_wraps[] = {
                 false, false, false, false, false, false, false, false, false,
-                true, false
+                true, false,
             };
             test_verify_state(11, state_texts, state_wraps, 11, 9);
         }
@@ -607,10 +607,10 @@ main(void) {
 
         {
             char *state_texts[] = {
-                "AA", "BB", "CC", "DD", "EE", "FF", "GG", " $", "", ""
+                "AA", "BB", "CC", "DD", "EE", "FF", "GG", " $", "", "",
             };
             bool state_wraps[] = {
-                true, true, true, true, true, true, true, false, false, false
+                true, true, true, true, true, true, true, false, false, false,
             };
             test_verify_state(10, state_texts, state_wraps, 1, 7);
         }

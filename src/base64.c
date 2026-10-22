@@ -46,13 +46,13 @@ base64_decode(char *src, int32 *allocated_length) {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     };
 
     if (in_len % 4) {
         in_len += 4 - (in_len % 4);
     }
-    alloc_size = in_len / 4 * 3 + 1;
+    alloc_size = in_len / 4*3 + 1;
     result = malloc2(alloc_size);
     if (allocated_length) {
         *allocated_length = (int32)alloc_size;

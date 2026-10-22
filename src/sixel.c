@@ -259,11 +259,13 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
         return -1;
     }
 
-    if (++sixel_state->max_x < sixel_state->attributed_ph) {
+    sixel_state->max_x += 1;
+    if (sixel_state->max_x < sixel_state->attributed_ph) {
         sixel_state->max_x = sixel_state->attributed_ph;
     }
 
-    if (++sixel_state->max_y < sixel_state->attributed_pv) {
+    sixel_state->max_y += 1;
+    if (sixel_state->max_y < sixel_state->attributed_pv) {
         sixel_state->max_y = sixel_state->attributed_pv;
     }
 
@@ -343,7 +345,8 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
                 if (!trans && color == 0) {
                     trans = 1;
                 }
-                *dst++ = color;
+                *dst = color;
+                dst += 1;
             }
             y += 1;
         }
@@ -381,24 +384,24 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 sixel_state->state = PARSE_STATE_DECGRA;
-                p++;
+                p += 1;
                 break;
             case '!':
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 sixel_state->state = PARSE_STATE_DECGRI;
-                p++;
+                p += 1;
                 break;
             case '#':
                 sixel_state->param = 0;
                 sixel_state->nparams = 0;
                 sixel_state->state = PARSE_STATE_DECGCI;
-                p++;
+                p += 1;
                 break;
             case '$':
                 /* DECGCR Graphics Carriage Return */
                 sixel_state->pos_x = 0;
-                p++;
+                p += 1;
                 break;
             case '-':
                 /* DECGNL Graphics Next Line */
@@ -408,7 +411,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 } else {
                     sixel_state->pos_y = DECSIXEL_HEIGHT_MAX + 1;
                 }
-                p++;
+                p += 1;
                 break;
             default:
                 if (*p >= '?' && *p <= '~') { /* sixel characters */
@@ -454,7 +457,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                                       sy) < 0) {
                             error("Error in sixel_image_buffer_resize.\n");
                             sixel_state->state = PARSE_STATE_ERROR;
-                            p++;
+                            p += 1;
                             break;
                         }
                     }
@@ -543,7 +546,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     }
                     sixel_state->repeat_count = 1;
                 }
-                p++;
+                p += 1;
                 break;
             }
             break;
@@ -554,7 +557,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 sixel_state->param = sixel_state->param*10 + *p - '0';
                 sixel_state->param = (uint32)MIN(sixel_state->param,
                                                  DECSIXEL_PARAMVALUE_MAX);
-                p++;
+                p += 1;
             } else if (*p == ';') {
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
                     sixel_state->params[sixel_state->nparams] =
@@ -562,7 +565,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     sixel_state->nparams += 1;
                 }
                 sixel_state->param = 0;
-                p++;
+                p += 1;
             } else if (*p == '\x1b') {
                 sixel_state->state = PARSE_STATE_ESC;
             } else {
@@ -633,7 +636,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 sixel_state->param = sixel_state->param*10 + *p - '0';
                 sixel_state->param = (uint32)MIN(sixel_state->param,
                                                  DECSIXEL_PARAMVALUE_MAX);
-                p++;
+                p += 1;
             } else if (*p == '\x1b') {
                 sixel_state->state = PARSE_STATE_ESC;
             } else {
@@ -650,7 +653,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 sixel_state->param = sixel_state->param*10 + *p - '0';
                 sixel_state->param = (uint32)MIN(sixel_state->param,
                                                  DECSIXEL_PARAMVALUE_MAX);
-                p++;
+                p += 1;
             } else if (*p == ';') {
                 if (sixel_state->nparams < DECSIXEL_PARAMS_MAX) {
                     sixel_state->params[sixel_state->nparams] =
@@ -658,7 +661,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                     sixel_state->nparams += 1;
                 }
                 sixel_state->param = 0;
-                p++;
+                p += 1;
             } else if (*p == '\x1b') {
                 sixel_state->state = PARSE_STATE_ESC;
             } else {
@@ -678,7 +681,8 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                >= DECSIXEL_PALETTE_MAX) {
                         sixel_state->color_index = DECSIXEL_PALETTE_MAX - 1;
                     }
-                    sixel_state->color_index++; /* offset by 1 (background) */
+                    /* offset by 1 (background) */
+                    sixel_state->color_index += 1;
                 }
 
                 if (sixel_state->nparams > 4) {
@@ -737,11 +741,11 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                 sixel_state->state = PARSE_STATE_ESC;
                 goto end;
             }
-            p++;
+            p += 1;
             break;
 
         default:
-            p++;
+            p += 1;
             break;
         }
     }
@@ -796,7 +800,8 @@ sixel_create_clipmask(uint32 *pixels, int32 width, int32 height) {
                 }
             }
 
-            *dst++ = c;
+            *dst = c;
+            dst += 1;
         }
     }
 

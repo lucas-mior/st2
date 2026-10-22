@@ -350,8 +350,8 @@ main(void) {
         memset64(&ev_press, 0, SIZEOF(ev_press));
         ev_press.type = ButtonPress;
         ev_press.xbutton.button = Button1;
-        ev_press.xbutton.x = term_window.hborderpx + col * term_window.cw;
-        ev_press.xbutton.y = term_window.vborderpx + row * term_window.ch;
+        ev_press.xbutton.x = term_window.hborderpx + col*term_window.cw;
+        ev_press.xbutton.y = term_window.vborderpx + row*term_window.ch;
 
         /* handler_button_press behavior: calls selection_start */
         selection_start(xevent_col(&ev_press), xevent_row(&ev_press),

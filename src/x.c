@@ -90,7 +90,7 @@ x_load_color(int32 i, char *name, XftColor *xft_color) {
                 color.green = sixd_to_16bit(((i - 16) / 6) % 6);
                 color.blue = sixd_to_16bit(((i - 16) / 1) % 6);
             } else { /* greyscale */
-                color.red = (uint16) (0x0808 + 0x0a0a*(i - (6*6*6 + 16)));
+                color.red = (uint16)(0x0808 + 0x0a0a*(i - (6*6*6 + 16)));
                 color.green = color.red;
                 color.blue = color.red;
             }
@@ -712,8 +712,8 @@ x_im_open(Display *display) {
 static int32
 x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
                         StGlyph *glyphs, int32 len, int32 x, int32 y) {
-    int32 win_x = term_window.hborderpx + x * term_window.cw;
-    int32 win_y = term_window.vborderpx + y * term_window.ch;
+    int32 win_x = term_window.hborderpx + x*term_window.cw;
+    int32 win_y = term_window.vborderpx + y*term_window.ch;
     enum GlyphAttribute prevmode = ATTR_LAST;
     StFont *font_local = &draw_context.font;
     int32 frc_flags = FRC_NORMAL;
@@ -800,7 +800,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
             specs[nfont_specs].y = (int16)(win_y + font_local->ascent);
 
             if (mode & ATTR_WIDE) {
-                xp += term_window.cw * 2;
+                xp += term_window.cw*2;
             } else {
                 xp += term_window.cw;
             }
@@ -935,7 +935,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
                 }
             }
 
-            cell_width = (next_glyph.mode & ATTR_WIDE) ? (term_window.cw * 2)
+            cell_width = (next_glyph.mode & ATTR_WIDE) ? (term_window.cw*2)
                                                        : term_window.cw;
 
             if (glyphs[i + run_len].rune & MULTI_CODE_POINT_FLAG) {
@@ -1014,7 +1014,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
                         int32 x, int32 y) {
     int32 win_x = term_window.hborderpx + x*term_window.cw;
     int32 win_y = term_window.vborderpx + y*term_window.ch;
-    int32 width = cell_count * term_window.cw;
+    int32 width = cell_count*term_window.cw;
     int32 single_char_width;
     XftColor *fg;
     XftColor *bg;
@@ -1024,7 +1024,7 @@ x_draw_glyph_font_specs(XftGlyphFontSpec *specs,
     XRenderColor color_bg;
 
     if (base.mode & ATTR_WIDE) {
-        single_char_width = term_window.cw * 2;
+        single_char_width = term_window.cw*2;
     } else {
         single_char_width = term_window.cw;
     }
@@ -1364,7 +1364,7 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
     int32 ox = 0;
     StGlyph base = {0};
     int32 line_len = x2 - x1;
-    StGlyph *temp_line = malloc2((uint32)line_len * SIZEOF(StGlyph));
+    StGlyph *temp_line = malloc2((uint32)line_len*SIZEOF(StGlyph));
 
     for (int32 x = x1; x < x2; x += 1) {
         temp_line[x - x1] = line[x];
@@ -1411,7 +1411,7 @@ x_draw_line(StGlyph *line, int32 x1, int32 y1, int32 x2) {
                                 i, ox, y1);
     }
 
-    free2(temp_line, (uint32)line_len * SIZEOF(StGlyph));
+    free2(temp_line, (uint32)line_len*SIZEOF(StGlyph));
     return;
 }
 

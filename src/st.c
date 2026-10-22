@@ -829,15 +829,15 @@ term_dump_line(int32 n) {
         if (!(g->mode & ATTR_WDUMMY)) {
             if (g->rune & MULTI_CODE_POINT_FLAG) {
                 uint32 pool_index = g->rune & ~MULTI_CODE_POINT_FLAG;
-                required_bytes += string_pool[pool_index].length * UTF_SIZ;
+                required_bytes += string_pool[pool_index].length*UTF_SIZ;
             } else {
                 required_bytes += UTF_SIZ;
             }
         }
     }
 
-    if (required_bytes + 2 * UTF_SIZ > size) {
-        size = required_bytes + 2 * UTF_SIZ;
+    if (required_bytes + 2*UTF_SIZ > size) {
+        size = required_bytes + 2*UTF_SIZ;
     }
 
     string = malloc2(size);
@@ -1096,8 +1096,8 @@ draw(void) {
                     }
 
                     if (mode != 0) {
-                        int32 src_x = (x_start - image->x) * term_window.cw;
-                        int32 copy_w = (x_end - x_start) * term_window.cw;
+                        int32 src_x = (x_start - image->x)*term_window.cw;
+                        int32 copy_w = (x_end - x_start)*term_window.cw;
                         int32 remaining_w = scaled_w - src_x;
                         int32 dest_x;
 
@@ -1105,7 +1105,7 @@ draw(void) {
                             copy_w = remaining_w;
                         }
 
-                        dest_x = bw + (x_start * term_window.cw);
+                        dest_x = bw + (x_start*term_window.cw);
 
                         XCopyArea(x_window.display, image->pixmap,
                                   x_window.drawable, gc,
