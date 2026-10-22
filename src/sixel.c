@@ -777,13 +777,21 @@ sixel_create_clipmask(uint32 *pixels, int32 width, int32 height) {
             if (msb) {
                 int32 b = 0x80;
                 for (int32 i = 0; i < n; i += 1) {
-                    c |= (*src++) ? b : 0;
+                    uint32 pixel = *src;
+                    src += 1;
+                    if (pixel) {
+                        c |= (char)b;
+                    }
                     b >>= 1;
                 }
             } else {
                 int32 b = 0x01;
                 for (int32 i = 0; i < n; i += 1) {
-                    c |= (*src++) ? b : 0;
+                    uint32 pixel = *src;
+                    src += 1;
+                    if (pixel) {
+                        c |= (char)b;
+                    }
                     b <<= 1;
                 }
             }

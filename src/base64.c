@@ -13,14 +13,15 @@
 static char
 base64_decode_getc(char **src) {
     while (**src && (!is_print(**src) || is_space(**src))) {
-        (*src)++;
+        *src += 1;
     }
     /* emulate padding if string ends */
     if (**src) {
-        return *((*src)++);
-    } else {
-        return '=';
+        char value = **src;
+        *src += 1;
+        return value;
     }
+    return '=';
 }
 
 static char *
