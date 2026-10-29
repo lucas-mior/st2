@@ -1096,7 +1096,7 @@ string_handle(void) {
 
     error("erresc: unknown string ");
     {
-        fprintf(stderr, "ESC%c", str_escape_seq.type);
+        fmt_fprintf(stderr, "ESC%c", str_escape_seq.type);
         for (int32 i = 0; i < str_escape_seq.len; i += 1) {
             int32 c_code = str_escape_seq.buffer[i] & 0xff;
 
@@ -1112,20 +1112,20 @@ string_handle(void) {
 
             switch (c_code) {
             case '\n':
-                fprintf(stderr, "(\\n)");
+                fmt_fprintf(stderr, "(\\n)");
                 break;
             case '\r':
-                fprintf(stderr, "(\\r)");
+                fmt_fprintf(stderr, "(\\r)");
                 break;
             case 0x1b:
-                fprintf(stderr, "(\\e)");
+                fmt_fprintf(stderr, "(\\e)");
                 break;
             default:
-                fprintf(stderr, "(%02x)", (uint32)c_code);
+                fmt_fprintf(stderr, "(%02x)", (uint32)c_code);
                 break;
             }
         }
-        fprintf(stderr, "ESC\\\n");
+        fmt_fprintf(stderr, "ESC\\\n");
     }
 
     return;
@@ -1900,7 +1900,7 @@ term_write(char *buffer, int32 buflen, bool show_ctrl) {
 
 static void
 control_seq_intro_dump(void) {
-    fprintf(stderr, "ESC[");
+    fmt_fprintf(stderr, "ESC[");
 
     for (int64 i = 0; i < csi_escape_seq.len; i += 1) {
         int32 c = csi_escape_seq.buffer[i] & 0xff;
@@ -1912,16 +1912,16 @@ control_seq_intro_dump(void) {
 
         switch (c) {
         case '\n':
-            fprintf(stderr, "(\\n)");
+            fmt_fprintf(stderr, "(\\n)");
             break;
         case '\r':
-            fprintf(stderr, "(\\r)");
+            fmt_fprintf(stderr, "(\\r)");
             break;
         case 0x1b:
-            fprintf(stderr, "(\\e)");
+            fmt_fprintf(stderr, "(\\e)");
             break;
         default:
-            fprintf(stderr, "(%02x)", (uint32)c);
+            fmt_fprintf(stderr, "(%02x)", (uint32)c);
             break;
         }
     }

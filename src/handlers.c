@@ -124,13 +124,15 @@ handler_button_press(XEvent *xevent) {
             }
 
             fontname = FcNameUnparse(xfont->pattern);
-            fprintf(stderr, "st Cell [%d, %d] {\n", col, row);
-            fprintf(stderr, "  rune: U+%08X = %s\n", glyph.rune, utf8_buf);
-            fprintf(stderr, "  multi code point? %s\n", multi_code_point);
-            fprintf(stderr, "  font: %.50s\n", (char *)fontname);
-            fprintf(stderr, "  attr: %s\n", ATTR_str(glyph.mode));
-            fprintf(stderr, "  color: fg=%d, bg=%d\n\n", glyph.fg, glyph.bg);
-            fprintf(stderr, "}\n");
+            fmt_fprintf(stderr, "st Cell [%d, %d] {\n", col, row);
+            fmt_fprintf(stderr, "  rune: U+%08X = %s\n",
+                                glyph.rune, utf8_buf);
+            fmt_fprintf(stderr, "  multi code point? %s\n", multi_code_point);
+            fmt_fprintf(stderr, "  font: %.50s\n", (char *)fontname);
+            fmt_fprintf(stderr, "  attr: %s\n", ATTR_str(glyph.mode));
+            fmt_fprintf(stderr, "  color: fg=%d, bg=%d\n\n",
+                                glyph.fg, glyph.bg);
+            fmt_fprintf(stderr, "}\n");
             free(fontname);
         }
     }

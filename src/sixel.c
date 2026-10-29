@@ -697,7 +697,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                             (uint32)MIN(sixel_state->params[4], 100);
 
                         if (DEBUGGING) {
-                            fprintf(stderr,
+                            fmt_fprintf(stderr,
                                     "SIXEL: Defined idx %d = HLS(%u,%u,%u)\n",
                                     sixel_state->color_index,
                                     sixel_state->params[2],
@@ -719,7 +719,7 @@ sixel_parser_parse(SixelState *sixel_state, uchar *p, int32 len) {
                                                      100u);
 
                         if (DEBUGGING) {
-                            fprintf(stderr,
+                            fmt_fprintf(stderr,
                                     "SIXEL: Defined idx %d = RGB(%u,%u,%u)\n",
                                     sixel_state->color_index,
                                     sixel_state->params[2],

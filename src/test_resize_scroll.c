@@ -320,7 +320,7 @@ main(void) {
 
     {
         current_test_name = "Scenario A: Width Shrinkage";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         test_inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         check_consistent_state();
         {
@@ -339,7 +339,7 @@ main(void) {
 
     {
         current_test_name = "Scenario B: Width Expansion";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(30, 10);
         check_consistent_state();
         {
@@ -358,7 +358,7 @@ main(void) {
 
     {
         current_test_name = "Scenario C: Forced Wrap Re-shrink";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(15, 10);
         check_consistent_state();
         {
@@ -377,7 +377,7 @@ main(void) {
 
     {
         current_test_name = "Scenario J: Viewport Scroll Anchoring";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(init_cols, init_rows);
         term_reset();
         for (int32 i = 0; i < init_rows - 1; i += 1) {
@@ -397,7 +397,7 @@ main(void) {
 
     {
         current_test_name = "Scenario K: Inline Image Translation";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(init_cols, init_rows);
         term_reset();
         for (int32 i = 0; i < init_rows - 1; i += 1) {
@@ -431,7 +431,7 @@ main(void) {
 
     {
         current_test_name = "Scenario I: Fuzzing Phase";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         srand((uint)time(NULL));
         for (int32 i = 0; i < 100; i += 1) {
             int32 new_w = (rand_int() % 150) + 2;
@@ -459,7 +459,7 @@ main(void) {
 
     {
         current_test_name = "Scenario L: Viewport Desync Width Resize";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
         test_inject_text("00000000000000000000\n");
@@ -488,7 +488,7 @@ main(void) {
 
     {
         current_test_name = "Scenario M: Image Displacement Below Wrap";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 10);
         term_reset();
         test_inject_text("TOP_LINE\n");
@@ -525,7 +525,7 @@ main(void) {
 
     {
         current_test_name = "Scenario N: Image Push-Down Bug";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
         test_inject_text("TOP\n");
@@ -563,7 +563,7 @@ main(void) {
 
     {
         current_test_name = "Scenario O: Cursor Visibility on Shrink";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
         test_inject_text("1_TOP\n");
@@ -593,7 +593,7 @@ main(void) {
 
     {
         current_test_name = "Scenario P: Shrink Width then Expand Height Bug";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
         test_inject_text("AABBCCDDEEFFGG $");
@@ -619,7 +619,7 @@ main(void) {
 
     {
         current_test_name = "Scenario Q: Vim Select Trailing Cursor Padding";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
 
@@ -632,7 +632,7 @@ main(void) {
 
     {
         current_test_name = "Scenario R: Vim Select Alternate Screen Target";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
 
@@ -654,7 +654,7 @@ main(void) {
 
     {
         current_test_name = "Scenario S: Image Scaling Attributes Preservation";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 10);
         term_reset();
 
@@ -710,7 +710,7 @@ main(void) {
     {
         current_test_name =
             "Scenario U: Maintain Cursor Visual Y After Clear (Ctrl+L)";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
 
@@ -749,7 +749,7 @@ main(void) {
 
     {
         current_test_name = "Scenario V: Inactive Selection Width";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(180, 8);
         term_reset();
         term.lines[1][173].rune = 'X';
@@ -770,7 +770,7 @@ main(void) {
 
     {
         current_test_name = "Scenario W: Inactive Selection History";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
         for (int32 i = 0; i < 10; i += 1) {
@@ -794,7 +794,7 @@ main(void) {
         StGlyph *selected_line;
 
         current_test_name = "Scenario X: Height Growth Keeps Selection";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 5);
         term_reset();
         for (int32 i = 0; i < 8; i += 1) {
@@ -849,7 +849,7 @@ main(void) {
 
     {
         current_test_name = "Scenario Y: Height Shrink Selection Bounds";
-        printf("Running: %s...\n", current_test_name);
+        fmt_printf("Running: %s...\n", current_test_name);
         term_resize(20, 7);
         term_reset();
         selection_start(1, 6, SELECTION_SNAP_NONE);
@@ -873,7 +873,7 @@ main(void) {
         check_consistent_state();
     }
 
-    printf("\nAll tests passed successfully!\n");
+    fmt_printf("\nAll tests passed successfully!\n");
     return 0;
 }
 
