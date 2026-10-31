@@ -203,7 +203,10 @@ x_clear(int32 x1, int32 y1, int32 x2, int32 y2) {
 static void
 x_hints(void) {
     XClassHint class_hints;
-    XWMHints wm_hints = {.flags = InputHint, .input = 1};
+    XWMHints wm_hints = {
+        .flags = InputHint,
+        .input = 1
+    };
     XSizeHints *size_hints;
 
     if (opt_name) {

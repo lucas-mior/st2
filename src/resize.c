@@ -512,7 +512,7 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     for (int32 i = 0; i < total_reflowed_count; i += 1) {
         free2(ref_lines[i], new_line_size);
     }
-    free2(ref_lines, (int64)capacity*SIZEOF(StGlyph *));
+    free2(ref_lines, capacity*SIZEOF(StGlyph *));
 
     term.nrows = new_nrows;
     term.ncols = new_ncols;
