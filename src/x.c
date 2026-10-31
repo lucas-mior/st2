@@ -205,7 +205,7 @@ x_hints(void) {
     XClassHint class_hints;
     XWMHints wm_hints = {
         .flags = InputHint,
-        .input = 1
+        .input = 1,
     };
     XSizeHints *size_hints;
 
@@ -683,8 +683,14 @@ x_ic_destroy(XIC xim, XPointer client, XPointer call) {
 
 static int32
 x_im_open(Display *display) {
-    XIMCallback imdestroy = {.client_data = NULL, .callback = x_im_destroy};
-    XICCallback icdestroy = {.client_data = NULL, .callback = x_ic_destroy};
+    XIMCallback imdestroy = {
+        .client_data = NULL,
+        .callback = x_im_destroy,
+    };
+    XICCallback icdestroy = {
+        .client_data = NULL,
+        .callback = x_ic_destroy,
+    };
     (void)display;
 
     x_window.ime.xim = XOpenIM(x_window.display, NULL, NULL, NULL);
