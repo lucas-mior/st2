@@ -231,8 +231,8 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
     int32 screen_top_idx;
     int32 desired_screen_top;
 
-    int64 old_line_size = (int64)old_ncols*SIZEOF(StGlyph);
-    int64 new_line_size = (int64)new_ncols*SIZEOF(StGlyph);
+    int64 old_line_size = old_ncols*SIZEOF(StGlyph);
+    int64 new_line_size = new_ncols*SIZEOF(StGlyph);
 
     ASSERT_GT(new_ncols, 0);
     ASSERT_GT(new_nrows, 0);
