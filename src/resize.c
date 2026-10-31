@@ -103,7 +103,7 @@ term_resize_def(int32 new_ncols, int32 new_nrows) {
 static void
 term_resize_alt(int32 new_ncols, int32 new_nrows) {
     int32 shift = 0;
-    int64 old_line_size = (int64)term.ncols*SIZEOF(StGlyph);
+    int64 old_line_size = term.ncols*SIZEOF(StGlyph);
     ImageList *im_alt;
 
     if ((term.ncols == new_ncols) && (term.nrows == new_nrows)) {
