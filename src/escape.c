@@ -777,9 +777,11 @@ string_handle(void) {
     struct {
         int32 idx;
         char *string;
-    } osc_table[] = {{CONF_COLOR_INDEX_FONT, "foreground"},
-                     {CONF_COLOR_BG, "background"},
-                     {CONF_COLOR_INDEX_CURSOR, "cursor"}};
+    } osc_table[] = {
+        {CONF_COLOR_INDEX_FONT, "foreground"},
+        {CONF_COLOR_BG, "background"},
+        {CONF_COLOR_INDEX_CURSOR, "cursor"}
+    };
 
     if (term_mode_is_set(TERM_MODE_ALTSCREEN)) {
         scr_offset = 0;
