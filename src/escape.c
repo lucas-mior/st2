@@ -602,7 +602,7 @@ control_seq_intro_handle(void) {
     case 'n':
         switch (csi_escape_seq.arg[0]) {
         case 5:
-            tty_write("\033[0n", SIZEOF("\033[0n") - 1, 0);
+            tty_write(STRLIT("\033[0n"), 0);
             break;
         case 6:
             n = SNPRINTF(buffer,
