@@ -680,7 +680,7 @@ main(void) {
 
         ev.xvisibility.state = VisibilityFullyObscured;
         handler_visibility(&ev);
-        ASSERT_ZERO((int32)(term_window.mode & WIN_MODE_VISIBLE));
+        ASSERT_EQ((int32)(term_window.mode & WIN_MODE_VISIBLE), 0);
     }
 
     {
@@ -688,7 +688,7 @@ main(void) {
 
         term_window.mode = WIN_MODE_VISIBLE;
         handler_unmap(&ev);
-        ASSERT_ZERO((int32)(term_window.mode & WIN_MODE_VISIBLE));
+        ASSERT_EQ((int32)(term_window.mode & WIN_MODE_VISIBLE), 0);
     }
 
     {
@@ -698,7 +698,7 @@ main(void) {
         ev.xfocus.mode = NotifyGrab;
         term_window.mode = 0;
         handler_focus(&ev);
-        ASSERT_ZERO((int32)(term_window.mode & WIN_MODE_FOCUSED));
+        ASSERT_EQ((int32)(term_window.mode & WIN_MODE_FOCUSED), 0);
     }
 
     if (fork() == 0) {

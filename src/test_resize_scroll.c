@@ -824,7 +824,7 @@ main(void) {
         selected_line = term_line(selection.nb.y);
         term_resize(20, 7);
         ASSERT_EQ(term.scrolled_up, 1);
-        ASSERT_ZERO(selection.nb.y);
+        ASSERT_EQ(selection.nb.y, 0);
         ASSERT(term_line(selection.nb.y) == selected_line);
         check_consistent_state();
 
@@ -842,7 +842,7 @@ main(void) {
         ASSERT_EQ(selection.nb.y, -2);
         selected_line = term_line(selection.nb.y);
         term_resize(20, 7);
-        ASSERT_ZERO(selection.nb.y);
+        ASSERT_EQ(selection.nb.y, 0);
         ASSERT(term_line(selection.nb.y) == selected_line);
         check_consistent_state();
     }

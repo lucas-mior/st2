@@ -296,7 +296,7 @@ int
 main(void) {
     {
         int32 res = isboxdraw(0x2000);
-        ASSERT_ZERO(res);
+        ASSERT_EQ(res, 0);
     }
 
     {

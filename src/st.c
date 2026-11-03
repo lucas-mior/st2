@@ -1277,7 +1277,7 @@ main(void) {
             line[i].mode = ATTR_NONE;
         }
         len = term_line_len(line);
-        ASSERT_ZERO(len);
+        ASSERT_EQ(len, 0);
 
         line[4].mode = ATTR_SET;
         len = term_line_len(line);
@@ -1296,7 +1296,7 @@ main(void) {
 
         line[4].mode = ATTR_SET;
         wrapped = term_is_wrapped(line);
-        ASSERT_ZERO((int32)wrapped);
+        ASSERT_EQ((int32)wrapped, 0);
 
         line[4].mode = ATTR_SET | ATTR_WRAP;
         wrapped = term_is_wrapped(line);
@@ -1338,7 +1338,7 @@ main(void) {
 
         term_reset();
         res = term_attr_set(ATTR_BOLD);
-        ASSERT_ZERO((int32)res);
+        ASSERT_EQ((int32)res, 0);
 
         term.lines[0][0].mode |= ATTR_BOLD;
         res = term_attr_set(ATTR_BOLD);
@@ -1419,7 +1419,7 @@ main(void) {
 
         term.mode &= ~TERM_MODE_WRAP;
         res = term_mode_is_set(TERM_MODE_WRAP);
-        ASSERT_ZERO((int32)res);
+        ASSERT_EQ((int32)res, 0);
 
         term_window.mode |= WIN_MODE_VISIBLE;
         res = win_mode_is_set(WIN_MODE_VISIBLE);
@@ -1455,7 +1455,7 @@ main(void) {
 
         update_wrap_next(1, 5);
         ASSERT_EQ(term.cursor.x, 1);
-        ASSERT_ZERO((int32)(term.cursor.state & CURSOR_WRAPNEXT));
+        ASSERT_EQ((int32)(term.cursor.state & CURSOR_WRAPNEXT), 0);
     }
 
     /* Test: term_delete_images */
@@ -1575,10 +1575,10 @@ main(void) {
         term.dirts[0] = true;
 
         draw();
-        ASSERT_ZERO((int32)term.dirts[0]);
+        ASSERT_EQ((int32)term.dirts[0], 0);
 
         redraw();
-        ASSERT_ZERO((int32)term.dirts[0]);
+        ASSERT_EQ((int32)term.dirts[0], 0);
     }
 
     /* Test: check_consistent_state */
@@ -1592,7 +1592,7 @@ main(void) {
         ASSERT(term.mode & TERM_MODE_ALTSCREEN);
 
         term_load_def_screen(true, true);
-        ASSERT_ZERO((int32)(term.mode & TERM_MODE_ALTSCREEN));
+        ASSERT_EQ((int32)(term.mode & TERM_MODE_ALTSCREEN), 0);
     }
 
     /* Test: term_new_line */
@@ -1600,7 +1600,7 @@ main(void) {
         term_reset();
         term_new_line(true);
         ASSERT_EQ(term.cursor.y, 1);
-        ASSERT_ZERO(term.cursor.x);
+        ASSERT_EQ(term.cursor.x, 0);
     }
 
     /* Test: term_clear_glyph */

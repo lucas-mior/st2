@@ -2172,7 +2172,7 @@ main(void) {
 
         term.cursor.x = 10;
         term_control_code('\r');
-        ASSERT_ZERO(term.cursor.x);
+        ASSERT_EQ(term.cursor.x, 0);
 
         term.cursor.y = 5;
         term_control_code('\n');
@@ -2190,7 +2190,7 @@ main(void) {
         term.esc = 0;
         esc_ret = esc_handle('[');
         ASSERT(term.esc & ESC_CSI);
-        ASSERT_ZERO(esc_ret);
+        ASSERT_EQ(esc_ret, 0);
     }
 
     /* 12. Buffer Write Test */
