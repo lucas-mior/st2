@@ -368,6 +368,8 @@ static uint32 CONF_FORCE_MOUSE_MOD = ShiftMask;
 static MouseShortcut CONF_MOUSE_SHORTCUTS[] = {
     /* mask        button   function                argument   release */
     { XK_ANY_MOD,  Button2, user_selection_paste,   {.i =  0}, 1 },
+    { ControlMask, Button4, user_zoom,              {.f = +2}, 0 },
+    { ControlMask, Button5, user_zoom,              {.f = -2}, 0 },
     /* Page Up */
     { ShiftMask,   Button4, user_smart_scroll_up,   {.i = -1}, 0 },
     /* Line Up */
