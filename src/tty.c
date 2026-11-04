@@ -302,8 +302,7 @@ tty_write_raw(char *s, int64 n) {
         FD_SET(cmd_fd, &read_fd);
 
         /* Check if we can write. */
-        if (pselect(cmd_fd + 1, &read_fd, &write_fd, NULL, NULL, NULL)
-            < 0) {
+        if (pselect(cmd_fd + 1, &read_fd, &write_fd, NULL, NULL, NULL) < 0) {
             if (errno == EINTR) {
                 continue;
             }

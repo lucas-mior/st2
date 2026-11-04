@@ -1711,8 +1711,8 @@ check_control_code:
 
         if (prev_rune & MULTI_CODE_POINT_FLAG) {
             uint32 pool_index = prev_rune & ~MULTI_CODE_POINT_FLAG;
-            prev_rune = string_pool[pool_index].runes[
-                string_pool[pool_index].length - 1];
+            prev_rune =
+                string_pool[pool_index].runes[string_pool[pool_index].len - 1];
         }
 
         if (!utf8proc_grapheme_break_stateful((utf8proc_int32_t)prev_rune,

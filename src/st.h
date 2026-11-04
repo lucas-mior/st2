@@ -132,8 +132,8 @@ typedef struct StGlyph {
 
 typedef struct StringPool {
     uint32 *runes;
-    int32 length;
-    int32 capacity;
+    int32 len;
+    int32 cap;
 } StringPool;
 
 static StringPool *string_pool = NULL;
