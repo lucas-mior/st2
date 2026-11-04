@@ -362,8 +362,7 @@ selection_get(void) {
                 if (!(g->mode & ATTR_WDUMMY)) {
                     if (g->rune & MULTI_CODE_POINT_FLAG) {
                         uint32 pool_index = g->rune & ~MULTI_CODE_POINT_FLAG;
-                        required_bytes +=
-                            string_pool[pool_index].length*UTF_SIZ;
+                        required_bytes += string_pool[pool_index].len*UTF_SIZ;
                     } else {
                         required_bytes += UTF_SIZ;
                     }
