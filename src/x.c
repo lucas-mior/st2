@@ -950,8 +950,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
             if (glyphs[i + run_len].rune & MULTI_CODE_POINT_FLAG) {
                 uint32 pool_index = glyphs[i + run_len].rune
                                     & ~MULTI_CODE_POINT_FLAG;
-                int32 p = 0;
-                for (p = 0; p < string_pool[pool_index].length; p += 1) {
+                for (int32 p = 0; p < string_pool[pool_index].len; p += 1) {
                     text_run[text_run_len] = string_pool[pool_index].runes[p];
                     char_grid_x[text_run_len] = temp_xp;
                     text_run_len += 1;
