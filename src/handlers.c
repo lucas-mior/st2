@@ -316,7 +316,7 @@ handler_selection_request(XEvent *xevent) {
             if (xselection_request_event->target == xsel.xtarget
                 || xselection_request_event->target == XA_STRING) {
                 selection_text = xsel.primary;
-                if (selection_text != NULL) {
+                if (selection_text) {
                     selection_text_len = strlen32(selection_text);
                 }
             }
@@ -336,7 +336,7 @@ handler_selection_request(XEvent *xevent) {
                   (ullong)xselection_request_event->selection);
         }
 
-        if (selection_text != NULL) {
+        if (selection_text) {
             XChangeProperty(xselection_request_event->display,
                             xselection_request_event->requestor,
                             xselection_request_event->property,

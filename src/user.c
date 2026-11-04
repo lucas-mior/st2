@@ -97,7 +97,7 @@ pixels_to_png_bytes(uint32 *pixels, int32 width, int32 height,
     Imlib_Load_Error err = IMLIB_LOAD_ERROR_NONE;
     int32 ok;
 
-    if (!pixels || width <= 0 || height <= 0) {
+    if (pixels == NULL || width <= 0 || height <= 0) {
         return 0;
     }
 
@@ -197,8 +197,8 @@ copy_image_to_selection_pixels(ImageList *image,
     int32 iy2;
     uint32 *src_pixels;
 
-    if (!image
-        || !image->pixels
+    if (image == NULL
+        || image->pixels == NULL
         || image->width <= 0
         || image->height <= 0
         || image->cw <= 0

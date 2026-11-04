@@ -290,7 +290,7 @@ sixel_parser_finalize(SixelState *sixel_state, ImageList **new_images,
         int32 trans = 0;
         uint32 *dst;
 
-        if (!tail) {
+        if (tail == NULL) {
             *new_images = tail = image;
             image->prev = image->next = NULL;
         } else {
@@ -991,7 +991,7 @@ main(void) {
         nimages = sixel_parser_finalize(&state, &new_images, 0, 0, 10, 20);
         ASSERT_GT(nimages, -2);
 
-        if (new_images != NULL) {
+        if (new_images) {
             sixel_image_delete(new_images);
         }
 

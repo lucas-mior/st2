@@ -83,7 +83,7 @@ static int32
 x_load_color(int32 i, char *name, XftColor *xft_color) {
     XRenderColor color = {.alpha = 0xffff};
 
-    if (!name) {
+    if (name == NULL) {
         if (BETWEEN(i, 16 + CONF_NTRANSPARENT_COLORS, 255)) { /* 256 color */
             if (i < 6*6*6 + 16) { /* same colors as xterm */
                 color.red = sixd_to_16bit(((i - 16) / 36) % 6);
@@ -279,7 +279,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
     FT_Face face;
 
     configured = FcPatternDuplicate(pattern);
-    if (!configured) {
+    if (configured == NULL) {
         return 1;
     }
 
@@ -287,7 +287,7 @@ x_load_font(StFont *st_font, FcPattern *pattern) {
     XftDefaultSubstitute(x_window.display, x_window.screen, configured);
 
     match = FcFontMatch(NULL, configured, &fc_result);
-    if (!match) {
+    if (match == NULL) {
         FcPatternDestroy(configured);
         return 1;
     }
@@ -397,7 +397,7 @@ x_load_fonts_try(char *font_str, double font_size) {
     double new_default_font_size = default_font_size;
 
     fc_pattern = x_load_parse_font(font_str);
-    if (!fc_pattern) {
+    if (fc_pattern == NULL) {
         error("Error parsing font %s\n", font_str);
         return 1;
     }
@@ -515,7 +515,7 @@ x_load_spare_font(FcPattern *pattern, int32 flags) {
     FT_Face face;
 
     fc_pattern = FcFontMatch(NULL, pattern, &fc_result);
-    if (!fc_pattern) {
+    if (fc_pattern == NULL) {
         return 1;
     }
 
@@ -558,7 +558,7 @@ x_load_spare_fonts(void) {
         char *font_name = CONF_FONT2[i];
         FcPattern *fc_pattern = x_load_parse_font(font_name);
 
-        if (!fc_pattern) {
+        if (fc_pattern == NULL) {
             error("can't parse spare font %s\n", font_name);
             continue;
         }
@@ -1319,7 +1319,7 @@ x_draw_cursor(int32 cx, int32 cy, StGlyph glyph,
 static void
 x_set_icon_title(char *p) {
     XTextProperty prop;
-    if (!p) {
+    if (p == NULL) {
         p = opt_title;
     }
     if (p[0] == '\0') {
@@ -1341,7 +1341,7 @@ x_set_icon_title(char *p) {
 static void
 x_set_title(char *title) {
     XTextProperty text_property;
-    if (!title) {
+    if (title == NULL) {
         title = opt_title;
     }
     if (title[0] == '\0') {

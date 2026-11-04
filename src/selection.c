@@ -428,7 +428,7 @@ selection_scroll(int32 top, int32 bot, int32 n) {
 
 static void
 selection_set(char *string, Time t) {
-    if (!string) {
+    if (string == NULL) {
         return;
     }
 
