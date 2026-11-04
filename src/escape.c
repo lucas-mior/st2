@@ -1743,8 +1743,8 @@ check_control_code:
                 string_pool_capacity = new_cap;
             }
 
-            string_pool[new_index].capacity = 4;
-            string_pool[new_index].length = 1;
+            string_pool[new_index].cap = 4;
+            string_pool[new_index].len = 1;
             string_pool[new_index].runes = malloc2(4*SIZEOF(uint32));
             string_pool[new_index].runes[0] = prev_glyph->rune;
 
