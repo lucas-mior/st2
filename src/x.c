@@ -743,7 +743,7 @@ x_make_glyph_font_specs(XftGlyphFontSpec *specs, int32 specs_capacity,
     for (int32 k = 0; k < len; k += 1) {
         if (glyphs[k].rune & MULTI_CODE_POINT_FLAG) {
             uint32 pool_index = glyphs[k].rune & ~MULTI_CODE_POINT_FLAG;
-            total_runes += (uint32)string_pool[pool_index].length;
+            total_runes += (uint32)string_pool[pool_index].len;
         } else {
             total_runes += 1;
         }
