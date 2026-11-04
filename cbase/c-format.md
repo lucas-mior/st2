@@ -193,6 +193,36 @@ As a last resource, sometimes it might be useful to create auxiliar variables.
     int32 value = my_array_has_a_long_name[idx];
 ```
 
+## Arithmetic line wrapping and alignment
+For simple assignments to arithmetic expressions, break before binary
+arithmetic operators (`+`, `-`, `*`, `/`, `%`) when a line break is needed.
+Align a wrapped operator with the beginning of its left-hand precedence
+subexpression. Higher-precedence operations can therefore be indented further
+than lower-precedence operations:
+
+```c
+// bad: continuation is not aligned with the right-hand expression
+// and the next operator is not aligned with its precedence group.
+double x = 2.0*a_long_variable
+   + (some_other_variable*(xyz + 4.0)) / SQUARE(variable);
+
+double x = 2.0*a_long_variable
+               + (some_other_variable*(xyz + 4.0)) / SQUARE(variable);
+
+// good: + aligns with the first token after =
+double x = 2.0*a_long_variable
+           + (some_other_variable*(xyz + 4.0)) / SQUARE(variable);
+
+// also good: / aligns with the parenthesized right-hand term
+double x = 2.0*a_long_variable
+           + (some_other_variable*(xyz + 4.0))
+             / SQUARE(variable);
+```
+
+The arithmetic-assignment check does not inspect arithmetic inside function
+calls or array subscripts. Parenthesized arithmetic subexpressions follow
+their own precedence alignment.
+
 ## Rules for reducing long lines.
 When it happens that a line of code has more than 80 chars, the rules are:
 For function calls, check the rules above.
@@ -581,9 +611,12 @@ if (this_condition
 }
 ```
 
-For an `if` or `else if` with just one comparison operator, keep the entire
-`if (...) {` header on one line when it fits within the 80-column limit.
-This includes comparisons with parenthesized operands.
+For a simple `if` or `else if` condition, keep the entire `if (...) {`
+header on one line when it fits within the 80-column limit. This applies to
+single comparisons (including parenthesized operands), predicates, and
+assignments used as conditions. Compound boolean expressions with `&&` or
+`||` and ternary expressions are exempt, since line breaks can clarify their
+structure.
 
 ```c
 // bad: the combined header fits
@@ -593,6 +626,15 @@ if (fields
 
 // good
 if (fields == (FIELD_T1 | FIELD_NSTEPS)) {
+}
+
+// bad: the assignment condition and its function call fit
+} else if ((p = BEGINS_WITH(line, line_len,
+                            "CY_META_POLY2_VALUE"))) {
+}
+
+// good
+} else if ((p = BEGINS_WITH(line, line_len, "CY_META_POLY2_VALUE"))) {
 }
 ```
 

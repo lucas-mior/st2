@@ -269,7 +269,7 @@ term_get_glyphs(char *buffer, StGlyph *glyph, StGlyph *lgp) {
 
         if (glyph->rune & MULTI_CODE_POINT_FLAG) {
             uint32 pool_index = glyph->rune & ~MULTI_CODE_POINT_FLAG;
-            for (int32 i = 0; i < string_pool[pool_index].length; i += 1) {
+            for (int32 i = 0; i < string_pool[pool_index].len; i += 1) {
                 buffer += utf8_encode_raw(string_pool[pool_index].runes[i],
                                           buffer);
             }
@@ -673,7 +673,7 @@ term_set_char(uint32 u, StGlyph *attr, int32 x, int32 y) {
 
     if (term.lines[y][x].rune & MULTI_CODE_POINT_FLAG) {
         uint32 pool_index = term.lines[y][x].rune & ~MULTI_CODE_POINT_FLAG;
-        string_pool[pool_index].length = 0;
+        string_pool[pool_index].len = 0;
     }
 
     term.dirts[y] = true;
@@ -829,7 +829,7 @@ term_dump_line(int32 n) {
         if (!(g->mode & ATTR_WDUMMY)) {
             if (g->rune & MULTI_CODE_POINT_FLAG) {
                 uint32 pool_index = g->rune & ~MULTI_CODE_POINT_FLAG;
-                required_bytes += string_pool[pool_index].length*UTF_SIZ;
+                required_bytes += string_pool[pool_index].len*UTF_SIZ;
             } else {
                 required_bytes += UTF_SIZ;
             }
