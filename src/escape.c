@@ -1753,18 +1753,17 @@ check_control_code:
         }
 
         pool_index = prev_glyph->rune & ~MULTI_CODE_POINT_FLAG;
-        if (string_pool[pool_index].length
-            >= string_pool[pool_index].capacity) {
-            int32 old_cap = string_pool[pool_index].capacity;
+        if (string_pool[pool_index].len >= string_pool[pool_index].cap) {
+            int32 old_cap = string_pool[pool_index].cap;
             int32 new_cap = old_cap*2;
             string_pool[pool_index].runes =
                 realloc2(string_pool[pool_index].runes,
                          old_cap, new_cap, SIZEOF(uint32));
-            string_pool[pool_index].capacity = new_cap;
+            string_pool[pool_index].cap = new_cap;
         }
 
-        string_pool[pool_index].runes[string_pool[pool_index].length] = u;
-        string_pool[pool_index].length += 1;
+        string_pool[pool_index].runes[string_pool[pool_index].len] = u;
+        string_pool[pool_index].len += 1;
 
         if (width > 0 && !(prev_glyph->mode & ATTR_WIDE)) {
             prev_glyph->mode |= ATTR_WIDE;
