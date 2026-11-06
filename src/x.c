@@ -80,24 +80,24 @@ x_get_color(int32 x, uint *r, uint *g, uint *b) {
 }
 
 static int32
-x_load_color(int32 i, char *name, XftColor *xft_color) {
+x_load_color(int32 idx, char *name, XftColor *xft_color) {
     XRenderColor color = {.alpha = 0xffff};
 
     if (name == NULL) {
-        if (BETWEEN(i, 16 + CONF_NTRANSPARENT_COLORS, 255)) { /* 256 color */
-            if (i < 6*6*6 + 16) { /* same colors as xterm */
-                color.red = sixd_to_16bit(((i - 16) / 36) % 6);
-                color.green = sixd_to_16bit(((i - 16) / 6) % 6);
-                color.blue = sixd_to_16bit(((i - 16) / 1) % 6);
+        if (BETWEEN(idx, 16 + CONF_NTRANSPARENT_COLORS, 255)) { /* 256 color */
+            if (idx < 6*6*6 + 16) { /* same colors as xterm */
+                color.red = sixd_to_16bit(((idx - 16) / 36) % 6);
+                color.green = sixd_to_16bit(((idx - 16) / 6) % 6);
+                color.blue = sixd_to_16bit(((idx - 16) / 1) % 6);
             } else { /* greyscale */
-                color.red = (uint16)(0x0808 + 0x0a0a*(i - (6*6*6 + 16)));
+                color.red = (uint16)(0x0808 + 0x0a0a*(idx - (6*6*6 + 16)));
                 color.green = color.red;
                 color.blue = color.red;
             }
             return XftColorAllocValue(x_window.display, x_window.visual,
                                       x_window.color_map, &color, xft_color);
         } else {
-            name = CONF_COLORS[i];
+            name = CONF_COLORS[idx];
         }
     }
 
