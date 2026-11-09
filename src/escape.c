@@ -869,7 +869,7 @@ string_handle(void) {
                 break;
             }
 
-            if (!strcmp(p, "?")) {
+            if (strequal(p, "?")) {
                 osc_color_response(par, osc_table[j].idx, 0);
             } else {
                 if (x_set_color_name(osc_table[j].idx, p)) {
@@ -893,7 +893,7 @@ string_handle(void) {
                 j = -1;
             }
 
-            if (p && !strcmp(p, "?")) {
+            if (p && strequal(p, "?")) {
                 osc_color_response(j, 0, 1);
             } else {
                 if (x_set_color_name(j, p)) {

@@ -82,7 +82,7 @@ test_verify_viewport_line(int32 screen_y, char *expected_text) {
     }
     *ptr = '\0';
 
-    if (strcmp(buffer, expected_text) != 0) {
+    if (!strequal(buffer, expected_text)) {
         error("[%s] Viewport assertion failed at screen row %d:\n",
               current_test_name, screen_y);
         error("  Expected: '%s'\n", expected_text);
@@ -122,7 +122,7 @@ test_verify_dump(char *expected_text) {
 
     fclose(tmp);
 
-    if (strcmp(buffer, expected_text) != 0) {
+    if (!strequal(buffer, expected_text)) {
         error("[%s] Dump to FD mismatch:\n", current_test_name);
         error("  Expected: '%s'\n", expected_text);
         error("  Actual:   '%s'\n", buffer);
@@ -165,7 +165,7 @@ test_verify_editor_dump(char *expected_text,
 
     fclose(tmp);
 
-    if (strcmp(buffer, expected_text) != 0) {
+    if (!strequal(buffer, expected_text)) {
         error("[%s] Editor Dump mismatch:\n", current_test_name);
         error("  Expected: [%d]'%s'\n", expected_len, expected_text);
         error("  Actual:   [%zd]'%s'\n", read_bytes, buffer);
@@ -271,7 +271,7 @@ test_verify_state(int32 expected_count,
 
         actual_wrap = term_is_wrapped(line);
 
-        if (strcmp(buffer, expected_texts[idx]) != 0) {
+        if (!strequal(buffer, expected_texts[idx])) {
             char *is_hist = NULL;
 
             if (idx < active_hist) {
@@ -553,7 +553,7 @@ main(void) {
             n_img_line = term_line_abs(term.images->y);
             term_get_glyphs(n_buf, &n_img_line[0], &n_img_line[5]);
             n_buf[6] = '\0';
-            if (strcmp(n_buf, "ANCHOR") != 0) {
+            if (!STREQUAL(n_buf, 6, "ANCHOR")) {
                 error("[%s] Image sync failed. Expected 'ANCHOR', Found '%s'\n",
                       current_test_name, n_buf);
                 assert(false);
