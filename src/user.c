@@ -237,7 +237,7 @@ copy_image_to_selection_pixels(ImageList *image,
             uint32 pixel;
 
             LIMIT(src_x, 0, image->width - 1);
-            pixel = src_pixels[src_y*image->width + src_x];
+            pixel = ST_PIXEL_AT(src_pixels, image->width, src_y, src_x);
 
             /* The X11 renderer uses the clipmask only to skip transparent
              * source pixels; it does not alpha-blend them into the terminal.
@@ -246,7 +246,7 @@ copy_image_to_selection_pixels(ImageList *image,
                 continue;
             }
 
-            dst_pixels[dst_y*sel_px_w + dst_x] = pixel;
+            ST_PIXEL_AT(dst_pixels, sel_px_w, dst_y, dst_x) = pixel;
         }
     }
     return;

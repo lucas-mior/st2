@@ -59,6 +59,9 @@
                            || (a).bg   != (b).bg)
 #define MODBIT(x, set, bit)    ((set) ? ((x) |= (bit)) : ((x) &= ~(bit)))
 
+#define ST_PIXEL_AT(PIXELS, NCOLS, ROW, COLUMN) \
+    ((PIXELS)[(ROW)*(NCOLS) + (COLUMN)])
+
 #define TRUECOLOR(r,g,b)    (1 << 24 | (r) << 16 | (g) << 8 | (b))
 #define IS_TRUECOL(x)        (1 << 24 & (x))
 

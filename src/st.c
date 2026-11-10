@@ -997,8 +997,9 @@ draw(void) {
                     int32 orig_y = (sy*image->height) / scaled_h;
                     for (int32 sx = 0; sx < scaled_w; sx += 1) {
                         int32 orig_x = (sx*image->width) / scaled_w;
-                        scaled_pixels[sy*scaled_w + sx] =
-                            src_pixels[orig_y*image->width + orig_x];
+                        ST_PIXEL_AT(scaled_pixels, scaled_w, sy, sx) =
+                            ST_PIXEL_AT(src_pixels, image->width,
+                                        orig_y, orig_x);
                     }
                 }
 
