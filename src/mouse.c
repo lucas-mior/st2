@@ -12,7 +12,6 @@
 #define TESTING_mouse 0
 #endif
 
-
 static int32
 xevent_col(XEvent *xevent) {
     int32 x = xevent->xbutton.x - term_window.hborderpx;
@@ -207,7 +206,6 @@ mouse_action(XEvent *xevent, uint32 release) {
     MouseShortcut *mouse_shortcut;
     /* ignore Button<N>mask for Button<N> - it's set on release */
     uint32 state = xevent->xbutton.state & ~button_mask(xevent->xbutton.button);
-
 
     for (mouse_shortcut = CONF_MOUSE_SHORTCUTS;
          mouse_shortcut < CONF_MOUSE_SHORTCUTS + LENGTH(CONF_MOUSE_SHORTCUTS);
