@@ -519,8 +519,8 @@ x_load_spare_font(FcPattern *pattern, int32 flags) {
         return 1;
     }
 
-    if (!(frc[frc_len].font =
-        XftFontOpenPattern(x_window.display, fc_pattern))) {
+    if (!(frc[frc_len].font = XftFontOpenPattern(x_window.display,
+                                                 fc_pattern))) {
         FcPatternDestroy(fc_pattern);
         return 1;
     }
