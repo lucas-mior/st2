@@ -493,69 +493,61 @@ main(void) {
         term_reset();
     }
 
-    {
-        selection.mode = SELECTION_READY;
-        selection.ob.x = 10;
-        selection_remove();
-        ASSERT(selection.mode == SELECTION_IDLE);
-        ASSERT_EQ(selection.ob.x, -1);
+    selection.mode = SELECTION_READY;
+    selection.ob.x = 10;
+    selection_remove();
+    ASSERT(selection.mode == SELECTION_IDLE);
+    ASSERT_EQ(selection.ob.x, -1);
+
+    for (int32 i = 0; i < 20; i += 1) {
+        term.lines[2][i].rune = 'A';
+        term.lines[2][i].mode |= ATTR_SET;
+        term.lines[5][i].rune = 'A';
+        term.lines[5][i].mode |= ATTR_SET;
+        term.lines[10][i].rune = 'A';
+        term.lines[10][i].mode |= ATTR_SET;
     }
 
-    {
-        for (int32 i = 0; i < 20; i += 1) {
-            term.lines[2][i].rune = 'A';
-            term.lines[2][i].mode |= ATTR_SET;
-            term.lines[5][i].rune = 'A';
-            term.lines[5][i].mode |= ATTR_SET;
-            term.lines[10][i].rune = 'A';
-            term.lines[10][i].mode |= ATTR_SET;
+    selection_start(5, 5, SELECTION_SNAP_NONE);
+    ASSERT(selection.mode == SELECTION_EMPTY);
+    ASSERT_EQ(selection.nb.x, 5);
+    ASSERT_EQ(selection.nb.y, 5);
+
+    selection_extend(10, 10, SELECTION_NORMAL, 0);
+    ASSERT(selection.mode == SELECTION_READY);
+    ASSERT_EQ(selection.nb.x, 5);
+    ASSERT_EQ(selection.ne.x, 10);
+
+    selection_extend(2, 2, SELECTION_NORMAL, 0);
+    ASSERT_EQ(selection.nb.x, 2);
+    ASSERT_EQ(selection.ne.x, 5);
+    ASSERT_EQ(selection.nb.y, 2);
+    ASSERT_EQ(selection.ne.y, 5);
+
+    term_clear_region(0, 10, term.ncols - 1, 10, 0);
+    term.lines[10][1].rune = 'A';
+    term.lines[10][1].mode |= ATTR_SET;
+    term.lines[10][2].rune = 'B';
+    term.lines[10][2].mode |= ATTR_SET;
+
+    selection_start(1, 10, SELECTION_SNAP_WORD);
+
+    ASSERT_EQ(selection.nb.x, 1);
+    ASSERT_EQ(selection.ne.x, 2);
+
+    for (int32 y = 10; y <= 15; y += 1) {
+        for (int32 x = 0; x < 30; x += 1) {
+            term.lines[y][x].rune = 'X';
+            term.lines[y][x].mode |= ATTR_SET;
         }
-
-        selection_start(5, 5, SELECTION_SNAP_NONE);
-        ASSERT(selection.mode == SELECTION_EMPTY);
-        ASSERT_EQ(selection.nb.x, 5);
-        ASSERT_EQ(selection.nb.y, 5);
-
-        selection_extend(10, 10, SELECTION_NORMAL, 0);
-        ASSERT(selection.mode == SELECTION_READY);
-        ASSERT_EQ(selection.nb.x, 5);
-        ASSERT_EQ(selection.ne.x, 10);
-
-        selection_extend(2, 2, SELECTION_NORMAL, 0);
-        ASSERT_EQ(selection.nb.x, 2);
-        ASSERT_EQ(selection.ne.x, 5);
-        ASSERT_EQ(selection.nb.y, 2);
-        ASSERT_EQ(selection.ne.y, 5);
     }
 
-    {
-        term_clear_region(0, 10, term.ncols - 1, 10, 0);
-        term.lines[10][1].rune = 'A';
-        term.lines[10][1].mode |= ATTR_SET;
-        term.lines[10][2].rune = 'B';
-        term.lines[10][2].mode |= ATTR_SET;
+    selection_start(10, 10, SELECTION_SNAP_NONE);
+    selection_extend(20, 15, SELECTION_RECTANGULAR, 0);
 
-        selection_start(1, 10, SELECTION_SNAP_WORD);
-
-        ASSERT_EQ(selection.nb.x, 1);
-        ASSERT_EQ(selection.ne.x, 2);
-    }
-
-    {
-        for (int32 y = 10; y <= 15; y += 1) {
-            for (int32 x = 0; x < 30; x += 1) {
-                term.lines[y][x].rune = 'X';
-                term.lines[y][x].mode |= ATTR_SET;
-            }
-        }
-
-        selection_start(10, 10, SELECTION_SNAP_NONE);
-        selection_extend(20, 15, SELECTION_RECTANGULAR, 0);
-
-        ASSERT_EQ(selection_is_selected(15, 12), 1);
-        ASSERT_EQ(selection_is_selected(5, 12), 0);
-        ASSERT_EQ(selection_is_selected(15, 16), 0);
-    }
+    ASSERT_EQ(selection_is_selected(15, 12), 1);
+    ASSERT_EQ(selection_is_selected(5, 12), 0);
+    ASSERT_EQ(selection_is_selected(15, 16), 0);
 
     {
         char *result;
@@ -583,26 +575,24 @@ main(void) {
         }
     }
 
-    {
-        for (int32 y = 0; y < 24; y += 1) {
-            term.lines[y][0].rune = 'X';
-            term.lines[y][0].mode |= ATTR_SET;
-        }
-
-        selection_start(0, 5, SELECTION_SNAP_NONE);
-        selection_extend(0, 10, SELECTION_NORMAL, 0);
-
-        selection_move_y(2);
-        ASSERT_EQ(selection.nb.y, 7);
-        ASSERT_EQ(selection.ne.y, 12);
-
-        term.scrolled_up = 0;
-        selection_scroll(0, 20, -1);
-        ASSERT_EQ(selection.nb.y, 6);
-
-        selection_scroll(10, 20, 5);
-        ASSERT_EQ(selection.ob.x, -1);
+    for (int32 y = 0; y < 24; y += 1) {
+        term.lines[y][0].rune = 'X';
+        term.lines[y][0].mode |= ATTR_SET;
     }
+
+    selection_start(0, 5, SELECTION_SNAP_NONE);
+    selection_extend(0, 10, SELECTION_NORMAL, 0);
+
+    selection_move_y(2);
+    ASSERT_EQ(selection.nb.y, 7);
+    ASSERT_EQ(selection.ne.y, 12);
+
+    term.scrolled_up = 0;
+    selection_scroll(0, 20, -1);
+    ASSERT_EQ(selection.nb.y, 6);
+
+    selection_scroll(10, 20, 5);
+    ASSERT_EQ(selection.ob.x, -1);
 
     {
         char *clip = xstrdup("test clip");

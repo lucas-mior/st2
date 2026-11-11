@@ -1347,19 +1347,17 @@ main(void) {
     }
 
     /* Test: term_set_dirt, term_set_dirt_attr, term_full_dirt */
-    {
-        term_full_dirt();
-        ASSERT_EQ((int32)term.dirts[0], 1);
+    term_full_dirt();
+    ASSERT_EQ((int32)term.dirts[0], 1);
 
-        term.dirts[0] = false;
-        term_set_dirt(0, 0);
-        ASSERT_EQ((int32)term.dirts[0], 1);
+    term.dirts[0] = false;
+    term_set_dirt(0, 0);
+    ASSERT_EQ((int32)term.dirts[0], 1);
 
-        term.dirts[0] = false;
-        term.lines[0][0].mode |= ATTR_ITALIC;
-        term_set_dirt_attr(ATTR_ITALIC);
-        ASSERT_EQ((int32)term.dirts[0], 1);
-    }
+    term.dirts[0] = false;
+    term.lines[0][0].mode |= ATTR_ITALIC;
+    term_set_dirt_attr(ATTR_ITALIC);
+    ASSERT_EQ((int32)term.dirts[0], 1);
 
     /* Test: term_swap_screen */
     {
@@ -1372,15 +1370,13 @@ main(void) {
     }
 
     /* Test: term_move_abs_to, term_move_to */
-    {
-        term_move_to(5, 2);
-        ASSERT_EQ(term.cursor.x, 5);
-        ASSERT_EQ(term.cursor.y, 2);
+    term_move_to(5, 2);
+    ASSERT_EQ(term.cursor.x, 5);
+    ASSERT_EQ(term.cursor.y, 2);
 
-        term_move_abs_to(1, 1);
-        ASSERT_EQ(term.cursor.x, 1);
-        ASSERT_EQ(term.cursor.y, 1);
-    }
+    term_move_abs_to(1, 1);
+    ASSERT_EQ(term.cursor.x, 1);
+    ASSERT_EQ(term.cursor.y, 1);
 
     /* Test: term_set_char */
     {
@@ -1396,19 +1392,17 @@ main(void) {
     }
 
     /* Test: term_delete_char, term_insert_blank */
-    {
-        term_reset();
-        term.lines[0][0].rune = 'A';
-        term.lines[0][0].mode |= ATTR_SET;
-        term.lines[0][1].rune = 'B';
-        term.lines[0][1].mode |= ATTR_SET;
+    term_reset();
+    term.lines[0][0].rune = 'A';
+    term.lines[0][0].mode |= ATTR_SET;
+    term.lines[0][1].rune = 'B';
+    term.lines[0][1].mode |= ATTR_SET;
 
-        term_delete_char(1);
-        ASSERT_EQ(term.lines[0][0].rune, 'B');
+    term_delete_char(1);
+    ASSERT_EQ(term.lines[0][0].rune, 'B');
 
-        term_insert_blank(1);
-        ASSERT_EQ(term.lines[0][0].rune, ' ');
-    }
+    term_insert_blank(1);
+    ASSERT_EQ(term.lines[0][0].rune, ' ');
 
     /* Test: term_mode_is_set & win_mode_is_set */
     {
@@ -1448,16 +1442,14 @@ main(void) {
     }
 
     /* Test: update_wrap_next */
-    {
-        term_reset();
-        term.cursor.state |= CURSOR_WRAPNEXT;
-        term.cursor.x = 0;
-        term.wrap_char_width[1] = 1;
+    term_reset();
+    term.cursor.state |= CURSOR_WRAPNEXT;
+    term.cursor.x = 0;
+    term.wrap_char_width[1] = 1;
 
-        update_wrap_next(1, 5);
-        ASSERT_EQ(term.cursor.x, 1);
-        ASSERT_EQ((int32)(term.cursor.state & CURSOR_WRAPNEXT), 0);
-    }
+    update_wrap_next(1, 5);
+    ASSERT_EQ(term.cursor.x, 1);
+    ASSERT_EQ((int32)(term.cursor.state & CURSOR_WRAPNEXT), 0);
 
     /* Test: term_delete_images */
     {
@@ -1472,77 +1464,67 @@ main(void) {
     }
 
     /* Test: term_clear_region */
-    {
-        term_reset();
-        term.lines[1][1].rune = 'X';
-        term.lines[1][1].mode = ATTR_SET;
+    term_reset();
+    term.lines[1][1].rune = 'X';
+    term.lines[1][1].mode = ATTR_SET;
 
-        term_clear_region(0, 0, 2, 2, false);
-        ASSERT_EQ(term.lines[1][1].rune, ' ');
-    }
+    term_clear_region(0, 0, 2, 2, false);
+    ASSERT_EQ(term.lines[1][1].rune, ' ');
 
     /* Test: term_scroll_up and term_scroll_down */
-    {
-        term_reset();
-        term.lines[1][0].rune = 'Y';
+    term_reset();
+    term.lines[1][0].rune = 'Y';
 
-        term_scroll_up(0, 2, 1, SCROLL_NOSAVEHIST);
-        ASSERT_EQ(term.lines[0][0].rune, 'Y');
+    term_scroll_up(0, 2, 1, SCROLL_NOSAVEHIST);
+    ASSERT_EQ(term.lines[0][0].rune, 'Y');
 
-        term_scroll_down(0, 1);
-        ASSERT_EQ(term.lines[1][0].rune, 'Y');
-        ASSERT_EQ(term.lines[0][0].rune, ' ');
-    }
+    term_scroll_down(0, 1);
+    ASSERT_EQ(term.lines[1][0].rune, 'Y');
+    ASSERT_EQ(term.lines[0][0].rune, ' ');
 
     /* Test: term_insert_blank_line and term_delete_line */
-    {
-        term_reset();
-        term.cursor.y = 0;
-        term.lines[0][0].rune = 'Z';
+    term_reset();
+    term.cursor.y = 0;
+    term.lines[0][0].rune = 'Z';
 
-        term_insert_blank_line(1);
-        ASSERT_EQ(term.lines[1][0].rune, 'Z');
-        ASSERT_EQ(term.lines[0][0].rune, ' ');
+    term_insert_blank_line(1);
+    ASSERT_EQ(term.lines[1][0].rune, 'Z');
+    ASSERT_EQ(term.lines[0][0].rune, ' ');
 
-        term.cursor.y = 0;
-        term_delete_line(1);
-        ASSERT_EQ(term.lines[0][0].rune, 'Z');
-    }
+    term.cursor.y = 0;
+    term_delete_line(1);
+    ASSERT_EQ(term.lines[0][0].rune, 'Z');
 
     /* Test: reflow_scroll_down (via term_resize) */
-    {
-        term_reset();
-        term.n_hist = 1;
-        term.i_hist = 0;
-        term.hist[0][0].rune = 'H';
+    term_reset();
+    term.n_hist = 1;
+    term.i_hist = 0;
+    term.hist[0][0].rune = 'H';
 
-        term_resize(10, 6);
-        ASSERT_EQ(term.lines[0][0].rune, 'H');
-    }
+    term_resize(10, 6);
+    ASSERT_EQ(term.lines[0][0].rune, 'H');
 
     /* Test: resize, reflow, x_configure_resize */
-    {
-        term_reset();
-        term_resize(20, 10);
-        ASSERT_EQ(term.ncols, 20);
-        ASSERT_EQ(term.nrows, 10);
+    term_reset();
+    term_resize(20, 10);
+    ASSERT_EQ(term.ncols, 20);
+    ASSERT_EQ(term.nrows, 10);
 
-        term_load_alt_screen(true, true);
-        term_resize(15, 8);
-        ASSERT_EQ(term.ncols, 15);
-        ASSERT_EQ(term.nrows, 8);
-        term_load_def_screen(true, true);
+    term_load_alt_screen(true, true);
+    term_resize(15, 8);
+    ASSERT_EQ(term.ncols, 15);
+    ASSERT_EQ(term.nrows, 8);
+    term_load_def_screen(true, true);
 
-        /* Initialize mock character dimensions if font load failed */
-        if (term_window.cw == 0 || term_window.ch == 0) {
-            term_window.cw = 10;
-            term_window.ch = 20;
-        }
-
-        x_configure_resize(400, 300);
-        ASSERT_EQ(term_window.w, 400);
-        ASSERT_EQ(term_window.h, 300);
+    /* Initialize mock character dimensions if font load failed */
+    if (term_window.cw == 0 || term_window.ch == 0) {
+        term_window.cw = 10;
+        term_window.ch = 20;
     }
+
+    x_configure_resize(400, 300);
+    ASSERT_EQ(term_window.w, 400);
+    ASSERT_EQ(term_window.h, 300);
 
     /* Test: printer and dump functions */
     {
@@ -1571,38 +1553,30 @@ main(void) {
     }
 
     /* Test: draw and redraw */
-    {
-        term_reset();
-        term.dirts[0] = true;
+    term_reset();
+    term.dirts[0] = true;
 
-        draw();
-        ASSERT_EQ((int32)term.dirts[0], 0);
+    draw();
+    ASSERT_EQ((int32)term.dirts[0], 0);
 
-        redraw();
-        ASSERT_EQ((int32)term.dirts[0], 0);
-    }
+    redraw();
+    ASSERT_EQ((int32)term.dirts[0], 0);
 
     /* Test: check_consistent_state */
-    {
-        check_consistent_state();
-    }
+    check_consistent_state();
 
     /* Test: term_load_alt_screen and term_load_def_screen */
-    {
-        term_load_alt_screen(true, true);
-        ASSERT(term.mode & TERM_MODE_ALTSCREEN);
+    term_load_alt_screen(true, true);
+    ASSERT(term.mode & TERM_MODE_ALTSCREEN);
 
-        term_load_def_screen(true, true);
-        ASSERT_EQ((int32)(term.mode & TERM_MODE_ALTSCREEN), 0);
-    }
+    term_load_def_screen(true, true);
+    ASSERT_EQ((int32)(term.mode & TERM_MODE_ALTSCREEN), 0);
 
     /* Test: term_new_line */
-    {
-        term_reset();
-        term_new_line(true);
-        ASSERT_EQ(term.cursor.y, 1);
-        ASSERT_EQ(term.cursor.x, 0);
-    }
+    term_reset();
+    term_new_line(true);
+    ASSERT_EQ(term.cursor.y, 1);
+    ASSERT_EQ(term.cursor.x, 0);
 
     /* Test: term_clear_glyph */
     {

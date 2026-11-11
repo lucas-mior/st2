@@ -272,20 +272,18 @@ term_reflow(int32 new_ncols, int32 new_nrows) {
         }
     }
 
-    {
-        for (int32 i = -term.n_hist; i <= last_used_line; i += 1) {
-            StGlyph *line = term_line_abs(i);
-            int32 len = term_line_len(line);
-            if (len <= 0) {
-                capacity += 1;
-            } else {
-                capacity += (len + new_ncols - 1) / new_ncols;
-            }
+    for (int32 i = -term.n_hist; i <= last_used_line; i += 1) {
+        StGlyph *line = term_line_abs(i);
+        int32 len = term_line_len(line);
+        if (len <= 0) {
+            capacity += 1;
+        } else {
+            capacity += (len + new_ncols - 1) / new_ncols;
         }
-        capacity += 2;
-        ref_lines = malloc2(capacity*SIZEOF(StGlyph *));
-        memset64(ref_lines, 0, capacity*SIZEOF(StGlyph *));
     }
+    capacity += 2;
+    ref_lines = malloc2(capacity*SIZEOF(StGlyph *));
+    memset64(ref_lines, 0, capacity*SIZEOF(StGlyph *));
 
     while (old_y_idx <= last_used_line) {
         StGlyph *line = term_line_abs(old_y_idx);

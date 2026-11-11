@@ -1097,38 +1097,36 @@ string_handle(void) {
     }
 
     error("erresc: unknown string ");
-    {
-        fmt_fprintf(stderr, "ESC%c", str_escape_seq.type);
-        for (int32 i = 0; i < str_escape_seq.len; i += 1) {
-            int32 c_code = str_escape_seq.buffer[i] & 0xff;
+    fmt_fprintf(stderr, "ESC%c", str_escape_seq.type);
+    for (int32 i = 0; i < str_escape_seq.len; i += 1) {
+        int32 c_code = str_escape_seq.buffer[i] & 0xff;
 
-            if (c_code == '\0') {
-                putc('\n', stderr);
-                return;
-            }
-
-            if (is_print(c_code)) {
-                putc(c_code, stderr);
-                continue;
-            }
-
-            switch (c_code) {
-            case '\n':
-                fmt_fprintf(stderr, "(\\n)");
-                break;
-            case '\r':
-                fmt_fprintf(stderr, "(\\r)");
-                break;
-            case 0x1b:
-                fmt_fprintf(stderr, "(\\e)");
-                break;
-            default:
-                fmt_fprintf(stderr, "(%02x)", (uint32)c_code);
-                break;
-            }
+        if (c_code == '\0') {
+            putc('\n', stderr);
+            return;
         }
-        fmt_fprintf(stderr, "ESC\\\n");
+
+        if (is_print(c_code)) {
+            putc(c_code, stderr);
+            continue;
+        }
+
+        switch (c_code) {
+        case '\n':
+            fmt_fprintf(stderr, "(\\n)");
+            break;
+        case '\r':
+            fmt_fprintf(stderr, "(\\r)");
+            break;
+        case 0x1b:
+            fmt_fprintf(stderr, "(\\e)");
+            break;
+        default:
+            fmt_fprintf(stderr, "(%02x)", (uint32)c_code);
+            break;
+        }
     }
+    fmt_fprintf(stderr, "ESC\\\n");
 
     return;
 }
@@ -2017,63 +2015,59 @@ escape_functions_sink(void) {
 int32
 main(void) {
     /* 1. Global Setup */
-    {
-        x_window.display = XOpenDisplay(NULL);
-        if (!x_window.display) {
-            exit(EXIT_FAILURE);
-        }
-        x_window.screen = XDefaultScreen(x_window.display);
-        x_window.visual = DefaultVisual(x_window.display, x_window.screen);
-        x_window.depth = DefaultDepth(x_window.display, x_window.screen);
-        x_window.color_map = DefaultColormap(x_window.display, x_window.screen);
-        x_window.win =
-            XCreateSimpleWindow(x_window.display,
-                                RootWindow(x_window.display, x_window.screen),
-                                0, 0, 10, 10, 0, 0, 0);
-
-        /* Initialize necessary X11 atoms to prevent BadAtom during property
-         * changes */
-        x_window.net_wm_name =
-            XInternAtom(x_window.display, "_NET_WM_NAME", False);
-        x_window.net_wm_iconname =
-            XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
-
-        /* Prevent tty_write crashes by routing the command output to
-         * /dev/null */
-        cmd_fd = open("/dev/null", O_WRONLY);
-        if (cmd_fd < 0) {
-            exit(EXIT_FAILURE);
-        }
-
-        CONF_NCOLS = 80;
-        CONF_NROWS = 24;
-
-        term_allocate();
-
-        term.charset = 0;
-        term.icharset = 0;
-
-        term_window.cw = 10;
-        term_window.ch = 20;
-        x_window.drawable = XCreatePixmap(x_window.display, x_window.win, 100,
-                                          100, (uint32)x_window.depth);
-        x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
-                                          x_window.visual, x_window.color_map);
-
-        draw_context.colors_len = 256;
-        draw_context.colors = malloc2(256*SIZEOF(XftColor));
-
-        term_reset();
+    x_window.display = XOpenDisplay(NULL);
+    if (!x_window.display) {
+        exit(EXIT_FAILURE);
     }
+    x_window.screen = XDefaultScreen(x_window.display);
+    x_window.visual = DefaultVisual(x_window.display, x_window.screen);
+    x_window.depth = DefaultDepth(x_window.display, x_window.screen);
+    x_window.color_map = DefaultColormap(x_window.display, x_window.screen);
+    x_window.win =
+        XCreateSimpleWindow(x_window.display,
+                            RootWindow(x_window.display, x_window.screen),
+                            0, 0, 10, 10, 0, 0, 0);
+
+    /* Initialize necessary X11 atoms to prevent BadAtom during property
+     * changes */
+    x_window.net_wm_name =
+        XInternAtom(x_window.display, "_NET_WM_NAME", False);
+    x_window.net_wm_iconname =
+        XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
+
+    /* Prevent tty_write crashes by routing the command output to
+     * /dev/null */
+    cmd_fd = open("/dev/null", O_WRONLY);
+    if (cmd_fd < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    CONF_NCOLS = 80;
+    CONF_NROWS = 24;
+
+    term_allocate();
+
+    term.charset = 0;
+    term.icharset = 0;
+
+    term_window.cw = 10;
+    term_window.ch = 20;
+    x_window.drawable = XCreatePixmap(x_window.display, x_window.win, 100,
+                                      100, (uint32)x_window.depth);
+    x_window.xft_draw = XftDrawCreate(x_window.display, x_window.drawable,
+                                      x_window.visual, x_window.color_map);
+
+    draw_context.colors_len = 256;
+    draw_context.colors = malloc2(256*SIZEOF(XftColor));
+
+    term_reset();
 
     /* 2. Cursor Movement Tests */
-    {
-        term.cursor.x = 42;
-        term_cursor(CURSOR_SAVE);
-        term.cursor.x = 0;
-        term_cursor(CURSOR_LOAD);
-        ASSERT_EQ(term.cursor.x, 42);
-    }
+    term.cursor.x = 42;
+    term_cursor(CURSOR_SAVE);
+    term.cursor.x = 0;
+    term_cursor(CURSOR_LOAD);
+    ASSERT_EQ(term.cursor.x, 42);
 
     /* 3. CSI Parse & Reset Tests */
     {
@@ -2118,69 +2112,59 @@ main(void) {
     }
 
     /* 6. Tabs and Alignment Display Tests */
-    {
-        memset64(&term.cursor.attr, 0, SIZEOF(term.cursor.attr));
-        term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
-        term.cursor.attr.bg = CONF_COLOR_BG;
-        term.charset = 0;
+    memset64(&term.cursor.attr, 0, SIZEOF(term.cursor.attr));
+    term.cursor.attr.fg = CONF_COLOR_INDEX_FONT;
+    term.cursor.attr.bg = CONF_COLOR_BG;
+    term.charset = 0;
 
-        term_dec_test('8');
-        ASSERT_EQ((int32)term.lines[0][0].rune, (int32)'E');
+    term_dec_test('8');
+    ASSERT_EQ((int32)term.lines[0][0].rune, (int32)'E');
 
-        term.cursor.x = 0;
-        term_put_tab(1);
-        ASSERT_EQ(term.cursor.x, CONF_TAB_NSPACES);
-    }
+    term.cursor.x = 0;
+    term_put_tab(1);
+    ASSERT_EQ(term.cursor.x, CONF_TAB_NSPACES);
 
     /* 7. Strings and Sequence Initiation Tests */
-    {
-        term_str_sequence(0x9d);
-        ASSERT(term.esc & ESC_STR);
-        ASSERT_EQ(str_escape_seq.type, ']');
-    }
+    term_str_sequence(0x9d);
+    ASSERT(term.esc & ESC_STR);
+    ASSERT_EQ(str_escape_seq.type, ']');
 
     /* 8. CSI Absolute Positioning Handling Tests */
-    {
-        control_seq_intro_reset();
-        term.cursor.x = 0;
-        term.cursor.y = 0;
-        csi_escape_seq.mode[0] = 'H';
-        csi_escape_seq.arg[0] = 5;
-        csi_escape_seq.arg[1] = 10;
-        csi_escape_seq.narg = 2;
-        control_seq_intro_handle();
+    control_seq_intro_reset();
+    term.cursor.x = 0;
+    term.cursor.y = 0;
+    csi_escape_seq.mode[0] = 'H';
+    csi_escape_seq.arg[0] = 5;
+    csi_escape_seq.arg[1] = 10;
+    csi_escape_seq.narg = 2;
+    control_seq_intro_handle();
 
-        ASSERT_EQ(term.cursor.y, 4);
-        ASSERT_EQ(term.cursor.x, 9);
-    }
+    ASSERT_EQ(term.cursor.y, 4);
+    ASSERT_EQ(term.cursor.x, 9);
 
     /* 9. Charset and UTF-8 Configuration Tests */
-    {
-        term.mode &= ~TERM_MODE_UTF8;
-        term_def_utf8('G');
-        ASSERT(term.mode & TERM_MODE_UTF8);
+    term.mode &= ~TERM_MODE_UTF8;
+    term_def_utf8('G');
+    ASSERT(term.mode & TERM_MODE_UTF8);
 
-        term.icharset = 0;
-        term_def_tran('0');
-        ASSERT_EQ(term.translation_table[0], CS_GRAPHIC0);
-    }
+    term.icharset = 0;
+    term_def_tran('0');
+    ASSERT_EQ(term.translation_table[0], CS_GRAPHIC0);
 
     /* 10. Control Codes and I/O Write Tests */
-    {
-        term.esc = 0;
+    term.esc = 0;
 
-        term.cursor.x = 10;
-        term_control_code('\r');
-        ASSERT_EQ(term.cursor.x, 0);
+    term.cursor.x = 10;
+    term_control_code('\r');
+    ASSERT_EQ(term.cursor.x, 0);
 
-        term.cursor.y = 5;
-        term_control_code('\n');
-        ASSERT_EQ(term.cursor.y, 6);
+    term.cursor.y = 5;
+    term_control_code('\n');
+    ASSERT_EQ(term.cursor.y, 6);
 
-        term_putc('Z');
-        ASSERT_EQ((int32)term.lines[term.cursor.y][term.cursor.x - 1].rune,
-                  (int32)'Z');
-    }
+    term_putc('Z');
+    ASSERT_EQ((int32)term.lines[term.cursor.y][term.cursor.x - 1].rune,
+              (int32)'Z');
 
     /* 11. Escape Initializer Handle Test */
     {
@@ -2227,49 +2211,41 @@ main(void) {
     }
 
     /* 14. OSC Color Response Path Test */
-    {
-        osc_color_response(4, 0, 1);
-    }
+    osc_color_response(4, 0, 1);
 
     /* 15. DCS Handling (Sixel Trigger) Test */
-    {
-        control_seq_intro_reset();
-        csi_escape_seq.mode[0] = 'q';
-        csi_escape_seq.narg = 2;
-        csi_escape_seq.arg[1] = 1;
+    control_seq_intro_reset();
+    csi_escape_seq.mode[0] = 'q';
+    csi_escape_seq.narg = 2;
+    csi_escape_seq.arg[1] = 1;
 
-        dcs_handle();
-        ASSERT(term.mode & TERM_MODE_SIXEL);
-    }
+    dcs_handle();
+    ASSERT(term.mode & TERM_MODE_SIXEL);
 
     /* 16. Private CSI S must not fall through to scroll-up */
-    {
-        term_reset();
-        term.cursor.x = 0;
-        term.cursor.y = 1;
-        term_putc('A');
-        term.cursor.x = 0;
-        term.cursor.y = 2;
-        term_putc('B');
+    term_reset();
+    term.cursor.x = 0;
+    term.cursor.y = 1;
+    term_putc('A');
+    term.cursor.x = 0;
+    term.cursor.y = 2;
+    term_putc('B');
 
-        control_seq_intro_reset();
-        csi_escape_seq.priv = 1;
-        csi_escape_seq.mode[0] = 'S';
-        csi_escape_seq.narg = 0;
+    control_seq_intro_reset();
+    csi_escape_seq.priv = 1;
+    csi_escape_seq.mode[0] = 'S';
+    csi_escape_seq.narg = 0;
 
-        control_seq_intro_handle();
+    control_seq_intro_handle();
 
-        ASSERT_EQ((int32)term.lines[1][0].rune, (int32)'A');
-        ASSERT_EQ((int32)term.lines[2][0].rune, (int32)'B');
-    }
+    ASSERT_EQ((int32)term.lines[1][0].rune, (int32)'A');
+    ASSERT_EQ((int32)term.lines[2][0].rune, (int32)'B');
 
     /* 17. CSI Dump Path Testing */
-    {
-        control_seq_intro_reset();
-        csi_escape_seq.buffer[0] = 'm';
-        csi_escape_seq.len = 1;
-        control_seq_intro_dump();
-    }
+    control_seq_intro_reset();
+    csi_escape_seq.buffer[0] = 'm';
+    csi_escape_seq.len = 1;
+    control_seq_intro_dump();
 
     XCloseDisplay(x_window.display);
     exit(EXIT_SUCCESS);

@@ -473,16 +473,14 @@ main(void) {
     }
     wait(NULL);
 
-    {
-        st_pid = fork();
-        if (st_pid == 0) {
-            sleep(1);
-            exit(EXIT_SUCCESS);
-        }
-        tty_hangup();
-        wait(NULL);
-        ASSERT(true);
+    st_pid = fork();
+    if (st_pid == 0) {
+        sleep(1);
+        exit(EXIT_SUCCESS);
     }
+    tty_hangup();
+    wait(NULL);
+    ASSERT(true);
 
     exit(EXIT_SUCCESS);
 }

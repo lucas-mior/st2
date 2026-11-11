@@ -977,15 +977,13 @@ main(void) {
     }
 
     /* 2. Logic & State Tests */
-    {
-        term_window.mode = 0;
-        user_toggle_numlock(NULL);
-        ASSERT_EQ((int32)term_window.mode, WIN_MODE_NUMLOCK);
+    term_window.mode = 0;
+    user_toggle_numlock(NULL);
+    ASSERT_EQ((int32)term_window.mode, WIN_MODE_NUMLOCK);
 
-        term.mode = 0;
-        user_toggle_printer(NULL);
-        ASSERT_EQ((int32)term.mode, TERM_MODE_PRINT);
-    }
+    term.mode = 0;
+    user_toggle_printer(NULL);
+    ASSERT_EQ((int32)term.mode, TERM_MODE_PRINT);
 
     {
         union Arg a;
@@ -1018,29 +1016,27 @@ main(void) {
     }
 
     /* 4. Subsystem Isolation (Forked) */
-    {
-        if (fork() == 0) {
-            cmd_fd = -1;
-            user_send_break(NULL);
-            exit(EXIT_SUCCESS);
-        }
-        wait(NULL);
-
-        if (fork() == 0) {
-            io_fd = open("/dev/null", O_WRONLY);
-            user_print_screen(NULL);
-            user_print_sel(NULL);
-            exit(EXIT_SUCCESS);
-        }
-        wait(NULL);
-
-        if (fork() == 0) {
-            union Arg a = {.s = "test"};
-            user_tty_send(&a);
-            exit(EXIT_SUCCESS);
-        }
-        wait(NULL);
+    if (fork() == 0) {
+        cmd_fd = -1;
+        user_send_break(NULL);
+        exit(EXIT_SUCCESS);
     }
+    wait(NULL);
+
+    if (fork() == 0) {
+        io_fd = open("/dev/null", O_WRONLY);
+        user_print_screen(NULL);
+        user_print_sel(NULL);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
+
+    if (fork() == 0) {
+        union Arg a = {.s = "test"};
+        user_tty_send(&a);
+        exit(EXIT_SUCCESS);
+    }
+    wait(NULL);
 
     /* Cleanup */
     if (x_window.xft_draw) {

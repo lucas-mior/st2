@@ -1712,14 +1712,12 @@ main(void) {
     }
 
     /* Test: Window resize and hints */
-    {
-        x_clear(0, 0, 10, 10);
-        x_resize(100, 30, term.ncols);
+    x_clear(0, 0, 10, 10);
+    x_resize(100, 30, term.ncols);
 
-        x_window.geo_mask = XNegative | YNegative;
-        x_hints();
-        x_window.geo_mask = 0;
-    }
+    x_window.geo_mask = XNegative | YNegative;
+    x_hints();
+    x_window.geo_mask = 0;
 
     /* Test: Mode toggling and status properties */
     {
@@ -1829,9 +1827,7 @@ main(void) {
     }
 
     /* Cleanup */
-    {
-        x_unload_fonts();
-    }
+    x_unload_fonts();
 
     XCloseDisplay(x_window.display);
     exit(EXIT_SUCCESS);

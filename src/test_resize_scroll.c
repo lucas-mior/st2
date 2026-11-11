@@ -318,477 +318,443 @@ main(void) {
         term_new_line(true);
     }
 
+    current_test_name = "Scenario A: Width Shrinkage";
+    fmt_printf("Running: %s...\n", current_test_name);
+    test_inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check_consistent_state();
     {
-        current_test_name = "Scenario A: Width Shrinkage";
-        fmt_printf("Running: %s...\n", current_test_name);
-        test_inject_text("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-        check_consistent_state();
-        {
-            char *state_texts[] = {
-                "", "", "", "", "", "", "", "", "",
-                "ABCDEFGHIJKLMNOPQRST", "UVWXYZ",
-            };
-            bool state_wraps[] = {
-                false, false, false, false, false, false, false, false, false,
-                true, false,
-            };
-            test_verify_state(11, state_texts, state_wraps, 6, 9);
-        }
-        test_verify_dump("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+        char *state_texts[] = {
+            "", "", "", "", "", "", "", "", "",
+            "ABCDEFGHIJKLMNOPQRST", "UVWXYZ",
+        };
+        bool state_wraps[] = {
+            false, false, false, false, false, false, false, false, false,
+            true, false,
+        };
+        test_verify_state(11, state_texts, state_wraps, 6, 9);
+    }
+    test_verify_dump("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+
+    current_test_name = "Scenario B: Width Expansion";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(30, 10);
+    check_consistent_state();
+    {
+        char *state_texts[] = {
+            "", "", "", "", "", "", "", "", "",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        };
+        bool state_wraps[] = {
+            false, false, false, false, false, false, false, false, false,
+            false,
+        };
+        test_verify_state(10, state_texts, state_wraps, 26, 9);
+    }
+    test_verify_dump("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+
+    current_test_name = "Scenario C: Forced Wrap Re-shrink";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(15, 10);
+    check_consistent_state();
+    {
+        char *state_texts[] = {
+            "", "", "", "", "", "", "", "", "",
+            "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ",
+        };
+        bool state_wraps[] = {
+            false, false, false, false, false, false, false, false, false,
+            true, false,
+        };
+        test_verify_state(11, state_texts, state_wraps, 11, 9);
+    }
+    test_verify_dump("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+
+    current_test_name = "Scenario J: Viewport Scroll Anchoring";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(init_cols, init_rows);
+    term_reset();
+    for (int32 i = 0; i < init_rows - 1; i += 1) {
+        term_new_line(true);
+    }
+    for (int32 i = 0; i < 5; i += 1) {
+        test_inject_text("HISTORY_LINE\n");
+    }
+    term.scrolled_up = 3;
+    term_resize(20, 12);
+    if (term.scrolled_up != 1) {
+        error("[%s] Viewport scroll mismatch. Expected: 1, Actual: %d\n",
+              current_test_name, term.scrolled_up);
+        assert(false);
     }
 
-    {
-        current_test_name = "Scenario B: Width Expansion";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(30, 10);
-        check_consistent_state();
-        {
-            char *state_texts[] = {
-                "", "", "", "", "", "", "", "", "",
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-            };
-            bool state_wraps[] = {
-                false, false, false, false, false, false, false, false, false,
-                false,
-            };
-            test_verify_state(10, state_texts, state_wraps, 26, 9);
-        }
-        test_verify_dump("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+    current_test_name = "Scenario K: Inline Image Translation";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(init_cols, init_rows);
+    term_reset();
+    for (int32 i = 0; i < init_rows - 1; i += 1) {
+        term_new_line(true);
     }
-
-    {
-        current_test_name = "Scenario C: Forced Wrap Re-shrink";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(15, 10);
-        check_consistent_state();
-        {
-            char *state_texts[] = {
-                "", "", "", "", "", "", "", "", "",
-                "ABCDEFGHIJKLMNO", "PQRSTUVWXYZ",
-            };
-            bool state_wraps[] = {
-                false, false, false, false, false, false, false, false, false,
-                true, false,
-            };
-            test_verify_state(11, state_texts, state_wraps, 11, 9);
-        }
-        test_verify_dump("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+    for (int32 i = 0; i < 3; i += 1) {
+        test_inject_text("PADDING\n");
     }
-
     {
-        current_test_name = "Scenario J: Viewport Scroll Anchoring";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(init_cols, init_rows);
-        term_reset();
-        for (int32 i = 0; i < init_rows - 1; i += 1) {
-            term_new_line(true);
-        }
-        for (int32 i = 0; i < 5; i += 1) {
-            test_inject_text("HISTORY_LINE\n");
-        }
-        term.scrolled_up = 3;
+        ImageList *dummy_img = malloc2(SIZEOF(ImageList));
+        memset64(dummy_img, 0, SIZEOF(ImageList));
+        dummy_img->x = 2;
+        dummy_img->y = 5;
+        dummy_img->ch = 16;
+        dummy_img->cw = 8;
+        dummy_img->height = 32;
+        dummy_img->width = 32;
+        dummy_img->cols = 4;
+        dummy_img->next = term.images;
+        term.images = dummy_img;
+        term_set_sixel_attr(term.lines[5], 2, 5);
+
         term_resize(20, 12);
-        if (term.scrolled_up != 1) {
-            error("[%s] Viewport scroll mismatch. Expected: 1, Actual: %d\n",
-                  current_test_name, term.scrolled_up);
+        if (term.images->y != 7) {
+            error("[%s] Image coordinate mismatch.\n", current_test_name);
+            error("Expected: 7, Actual: %d\n", term.images->y);
             assert(false);
         }
     }
 
-    {
-        current_test_name = "Scenario K: Inline Image Translation";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(init_cols, init_rows);
-        term_reset();
-        for (int32 i = 0; i < init_rows - 1; i += 1) {
-            term_new_line(true);
-        }
-        for (int32 i = 0; i < 3; i += 1) {
-            test_inject_text("PADDING\n");
-        }
-        {
-            ImageList *dummy_img = malloc2(SIZEOF(ImageList));
-            memset64(dummy_img, 0, SIZEOF(ImageList));
-            dummy_img->x = 2;
-            dummy_img->y = 5;
-            dummy_img->ch = 16;
-            dummy_img->cw = 8;
-            dummy_img->height = 32;
-            dummy_img->width = 32;
-            dummy_img->cols = 4;
-            dummy_img->next = term.images;
-            term.images = dummy_img;
-            term_set_sixel_attr(term.lines[5], 2, 5);
-
-            term_resize(20, 12);
-            if (term.images->y != 7) {
-                error("[%s] Image coordinate mismatch.\n", current_test_name);
-                error("Expected: 7, Actual: %d\n", term.images->y);
-                assert(false);
-            }
-        }
-    }
-
-    {
-        current_test_name = "Scenario I: Fuzzing Phase";
-        fmt_printf("Running: %s...\n", current_test_name);
-        srand((uint)time(NULL));
-        for (int32 i = 0; i < 100; i += 1) {
-            int32 new_w = (rand_int() % 150) + 2;
-            int32 new_h = (rand_int() % 100) + 2;
-            int32 actions = rand_int() % 5;
-            term_resize(new_w, new_h);
-            check_consistent_state();
-            for (int32 a = 0; a < actions; a += 1) {
-                int32 choice = rand_int() % 2;
-                if (choice == 0) {
-                    term_new_line(true);
-                } else {
-                    int32 slen = (rand_int() % 80) + 1;
-                    char buf[128];
-                    for (int32 c = 0; c < slen; c += 1) {
-                        buf[c] = (char)('A' + (rand_int() % 26));
-                    }
-                    buf[slen] = '\0';
-                    test_inject_text(buf);
+    current_test_name = "Scenario I: Fuzzing Phase";
+    fmt_printf("Running: %s...\n", current_test_name);
+    srand((uint)time(NULL));
+    for (int32 i = 0; i < 100; i += 1) {
+        int32 new_w = (rand_int() % 150) + 2;
+        int32 new_h = (rand_int() % 100) + 2;
+        int32 actions = rand_int() % 5;
+        term_resize(new_w, new_h);
+        check_consistent_state();
+        for (int32 a = 0; a < actions; a += 1) {
+            int32 choice = rand_int() % 2;
+            if (choice == 0) {
+                term_new_line(true);
+            } else {
+                int32 slen = (rand_int() % 80) + 1;
+                char buf[128];
+                for (int32 c = 0; c < slen; c += 1) {
+                    buf[c] = (char)('A' + (rand_int() % 26));
                 }
-            }
-            check_consistent_state();
-        }
-    }
-
-    {
-        current_test_name = "Scenario L: Viewport Desync Width Resize";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 5);
-        term_reset();
-        test_inject_text("00000000000000000000\n");
-        test_inject_text("11111111111111111111\n");
-        test_inject_text("22222222222222222222\n");
-        test_inject_text("33333333333333333333\n");
-        test_inject_text("44444444444444444444\n");
-        test_inject_text("55555555555555555555\n");
-        test_inject_text("66666666666666666666\n");
-        test_inject_text("77777777777777777777");
-        check_consistent_state();
-        term.scrolled_up = 2;
-        test_verify_viewport_line(0, "11111111111111111111");
-        term_resize(10, 5);
-        check_consistent_state();
-        test_verify_viewport_line(0, "1111111111");
-        test_verify_dump("00000000000000000000\n"
-                         "11111111111111111111\n"
-                         "22222222222222222222\n"
-                         "33333333333333333333\n"
-                         "44444444444444444444\n"
-                         "55555555555555555555\n"
-                         "66666666666666666666\n"
-                         "77777777777777777777\n");
-    }
-
-    {
-        current_test_name = "Scenario M: Image Displacement Below Wrap";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 10);
-        term_reset();
-        test_inject_text("TOP_LINE\n");
-        test_inject_text("IMAGE_ANCHOR_LINE\n");
-        test_inject_text("THIS_LONG_LINE_WILL_WRAP_INTO_MULTIPLE_ROWS_LATER\n");
-        check_consistent_state();
-        {
-            ImageList *img = malloc2(SIZEOF(ImageList));
-            StGlyph *img_line = NULL;
-            char buf[32];
-            memset64(img, 0, SIZEOF(ImageList));
-            img->x = 0;
-            img->y = 1;
-            img->ch = 16;
-            img->cw = 8;
-            img->height = 16;
-            img->width = 16;
-            img->cols = 2;
-            img->next = NULL;
-            term.images = img;
-            term_set_sixel_attr(term.lines[1], 0, 1);
-
-            term_resize(10, 10);
-            check_consistent_state();
-            img_line = term_line_abs(term.images->y);
-            term_get_glyphs(buf, &img_line[0], &img_line[term.ncols - 1]);
-            if (MEMMEM(buf, strlen32(buf), "IMAGE_ANCH") == NULL) {
-                error("[%s] Image sync failed. Found: %s\n",
-                      current_test_name, buf);
-                assert(false);
+                buf[slen] = '\0';
+                test_inject_text(buf);
             }
         }
+        check_consistent_state();
     }
 
-    {
-        current_test_name = "Scenario N: Image Push-Down Bug";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 5);
-        term_reset();
-        test_inject_text("TOP\n");
-        test_inject_text("ANCHOR\n");
-        test_inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_"
-                         "MANY_ROWS_WHEN_SHRINKING");
-        {
-            ImageList *img = malloc2(SIZEOF(ImageList));
-            StGlyph *n_img_line = NULL;
-            char n_buf[32];
-            memset64(img, 0, SIZEOF(ImageList));
-            img->x = 0;
-            img->y = 0;
-            img->ch = 16;
-            img->cw = 8;
-            img->height = 16;
-            img->width = 16;
-            img->cols = 2;
-            img->next = NULL;
-            term.images = img;
-            term_set_sixel_attr(term.lines[0], 0, 1);
+    current_test_name = "Scenario L: Viewport Desync Width Resize";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 5);
+    term_reset();
+    test_inject_text("00000000000000000000\n");
+    test_inject_text("11111111111111111111\n");
+    test_inject_text("22222222222222222222\n");
+    test_inject_text("33333333333333333333\n");
+    test_inject_text("44444444444444444444\n");
+    test_inject_text("55555555555555555555\n");
+    test_inject_text("66666666666666666666\n");
+    test_inject_text("77777777777777777777");
+    check_consistent_state();
+    term.scrolled_up = 2;
+    test_verify_viewport_line(0, "11111111111111111111");
+    term_resize(10, 5);
+    check_consistent_state();
+    test_verify_viewport_line(0, "1111111111");
+    test_verify_dump("00000000000000000000\n"
+                     "11111111111111111111\n"
+                     "22222222222222222222\n"
+                     "33333333333333333333\n"
+                     "44444444444444444444\n"
+                     "55555555555555555555\n"
+                     "66666666666666666666\n"
+                     "77777777777777777777\n");
 
-            term_resize(10, 5);
-            check_consistent_state();
-            n_img_line = term_line_abs(term.images->y);
-            term_get_glyphs(n_buf, &n_img_line[0], &n_img_line[5]);
-            n_buf[6] = '\0';
-            if (!STREQUAL(n_buf, 6, "ANCHOR")) {
-                error("[%s] Image sync failed. Expected 'ANCHOR', Found '%s'\n",
-                      current_test_name, n_buf);
-                assert(false);
-            }
-        }
-    }
-
+    current_test_name = "Scenario M: Image Displacement Below Wrap";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 10);
+    term_reset();
+    test_inject_text("TOP_LINE\n");
+    test_inject_text("IMAGE_ANCHOR_LINE\n");
+    test_inject_text("THIS_LONG_LINE_WILL_WRAP_INTO_MULTIPLE_ROWS_LATER\n");
+    check_consistent_state();
     {
-        current_test_name = "Scenario O: Cursor Visibility on Shrink";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 5);
-        term_reset();
-        test_inject_text("1_TOP\n");
-        test_inject_text("2_MIDDLE\n");
-        test_inject_text("3_BOTTOM\n");
-        test_inject_text("4_THIS_LONG_LINE_WILL_WRAP_A_LOT_HERE");
+        ImageList *img = malloc2(SIZEOF(ImageList));
+        StGlyph *img_line = NULL;
+        char buf[32];
+        memset64(img, 0, SIZEOF(ImageList));
+        img->x = 0;
+        img->y = 1;
+        img->ch = 16;
+        img->cw = 8;
+        img->height = 16;
+        img->width = 16;
+        img->cols = 2;
+        img->next = NULL;
+        term.images = img;
+        term_set_sixel_attr(term.lines[1], 0, 1);
+
+        term_resize(10, 10);
         check_consistent_state();
-        term_resize(10, 5);
-        check_consistent_state();
-        if (term.scrolled_up != 0) {
-            error("[%s] Viewport scrolled incorrectly.\n", current_test_name);
-            error("Expected 0, Actual: %d\n", term.scrolled_up);
+        img_line = term_line_abs(term.images->y);
+        term_get_glyphs(buf, &img_line[0], &img_line[term.ncols - 1]);
+        if (MEMMEM(buf, strlen32(buf), "IMAGE_ANCH") == NULL) {
+            error("[%s] Image sync failed. Found: %s\n",
+                  current_test_name, buf);
             assert(false);
         }
-        {
-            int32 target_y = term.cursor.y;
-            StGlyph *c_line = term_line(target_y);
-            char c_buf[32];
-            term_get_glyphs(c_buf, &c_line[0], &c_line[term.ncols - 1]);
-            if (MEMMEM(c_buf, strlen32(c_buf), "OT_HERE") == NULL) {
-                error("[%s] Cursor line content mismatch. Found: '%s'\n",
-                      current_test_name, c_buf);
-                assert(false);
-            }
-        }
     }
 
+    current_test_name = "Scenario N: Image Push-Down Bug";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 5);
+    term_reset();
+    test_inject_text("TOP\n");
+    test_inject_text("ANCHOR\n");
+    test_inject_text("THIS_IS_A_VERY_LONG_LINE_THAT_WILL_WRAP_INTO_"
+                     "MANY_ROWS_WHEN_SHRINKING");
     {
-        current_test_name = "Scenario P: Shrink Width then Expand Height Bug";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 5);
-        term_reset();
-        test_inject_text("AABBCCDDEEFFGG $");
-        check_consistent_state();
+        ImageList *img = malloc2(SIZEOF(ImageList));
+        StGlyph *n_img_line = NULL;
+        char n_buf[32];
+        memset64(img, 0, SIZEOF(ImageList));
+        img->x = 0;
+        img->y = 0;
+        img->ch = 16;
+        img->cw = 8;
+        img->height = 16;
+        img->width = 16;
+        img->cols = 2;
+        img->next = NULL;
+        term.images = img;
+        term_set_sixel_attr(term.lines[0], 0, 1);
 
-        term_resize(2, 5);
-        check_consistent_state();
-
-        term_resize(2, 10);
-        check_consistent_state();
-
-        {
-            char *state_texts[] = {
-                "AA", "BB", "CC", "DD", "EE", "FF", "GG", " $", "", "",
-            };
-            bool state_wraps[] = {
-                true, true, true, true, true, true, true, false, false, false,
-            };
-            test_verify_state(10, state_texts, state_wraps, 1, 7);
-        }
-        test_verify_dump("AABBCCDDEEFFGG $\n");
-    }
-
-    {
-        current_test_name = "Scenario Q: Vim Select Trailing Cursor Padding";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 5);
-        term_reset();
-
-        test_inject_text("SHORT\n");
-        term.cursor.x = 8;
-        term.cursor.y = 1;
-
-        test_verify_editor_dump("SHORT\n         \n\n\n\n", 2, 9);
-    }
-
-    {
-        current_test_name = "Scenario R: Vim Select Alternate Screen Target";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 5);
-        term_reset();
-
-        for (int32 i = 0; i < 10; i += 1) {
-            term_new_line(true);
-        }
-
-        test_inject_text("ALTSCREEN\n");
-        term.cursor.x = 5;
-        term.cursor.y = 1;
-
-        term.mode |= TERM_MODE_ALTSCREEN;
-
-        test_verify_editor_dump("\n\n\n\n\n\n\n\n      \n\nALTSCREEN\n\n",
-                                term.n_hist + 1, 1);
-
-        term.mode &= ~TERM_MODE_ALTSCREEN;
-    }
-
-    {
-        current_test_name = "Scenario S: Image Scaling Attributes Preservation";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 10);
-        term_reset();
-
-        term_window.cw = 10;
-        term_window.ch = 20;
-
-        {
-            ImageList *img = malloc2(SIZEOF(ImageList));
-            union Arg zoom_arg;
-
-            memset64(img, 0, SIZEOF(ImageList));
-            img->x = 0;
-            img->y = 0;
-            img->cw = term_window.cw;
-            img->ch = term_window.ch;
-            img->width = 100;
-            img->height = 200;
-            img->cols = 10;
-            img->next = NULL;
-            term.images = img;
-            term_set_sixel_attr(term.lines[0], 0, 9);
-
-            /* Simulate a user zoom-in event (+4.0 font size) */
-            zoom_arg.f = 4.0;
-            user_zoom(&zoom_arg);
-            check_consistent_state();
-
-            if (term.images->cw != 10 || term.images->ch != 20 ||
-                term.images->width != 100 || term.images->height != 200) {
-                error("[%s] Image attributes mutated unexpectedly "
-                      "after zoom in.\n", current_test_name);
-                error("Expected: cw=10, ch=20, w=100, h=200\n");
-                error("Actual:   cw=%d, ch=%d, w=%d, h=%d\n",
-                      term.images->cw, term.images->ch,
-                      term.images->width, term.images->height);
-                assert(false);
-            }
-
-            /* Simulate a user resetting the zoom */
-            zoom_arg.f = 0.0;
-            user_zoom_reset(&zoom_arg);
-            check_consistent_state();
-
-            if (term.images->cw != 10 || term.images->ch != 20 ||
-                term.images->width != 100 || term.images->height != 200) {
-                error("[%s] Image attributes mutated unexpectedly "
-                      "after zoom reset.\n", current_test_name);
-                assert(false);
-            }
-        }
-    }
-
-    {
-        current_test_name =
-            "Scenario U: Maintain Cursor Visual Y After Clear (Ctrl+L)";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 5);
-        term_reset();
-
-        /* 1. Fill the terminal and history to simulate a busy session */
-        for (int32 i = 0; i < 15; i += 1) {
-            test_inject_text("OLD_HISTORY_DATA\n");
-        }
-
-        /* 2. Simulate Ctrl+L (Clear Screen)
-         * Shell typically moves cursor to 0,0 and clears the visible display */
-        term_move_to(0, 0);
-        term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, true);
-
-        /* 3. Shell draws the new prompt at the top */
-        test_inject_text("prompt> ");
-        check_consistent_state();
-
-        /* 4. Shrink the width of the terminal */
         term_resize(10, 5);
         check_consistent_state();
+        n_img_line = term_line_abs(term.images->y);
+        term_get_glyphs(n_buf, &n_img_line[0], &n_img_line[5]);
+        n_buf[6] = '\0';
+        if (!STREQUAL(n_buf, 6, "ANCHOR")) {
+            error("[%s] Image sync failed. Expected 'ANCHOR', Found '%s'\n",
+                  current_test_name, n_buf);
+            assert(false);
+        }
+    }
 
-        /* 5. ASSERTIONS:
-         * The cursor MUST remain at Y=0.
-         * The history MUST NOT bleed into the visible screen. */
-        if (term.cursor.y != 0) {
-            error("[%s] Cursor shifted downwards after clear and resize.\n",
-                  current_test_name);
-            error("Expected Y=0, Actual Y=%d\n", term.cursor.y);
+    current_test_name = "Scenario O: Cursor Visibility on Shrink";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 5);
+    term_reset();
+    test_inject_text("1_TOP\n");
+    test_inject_text("2_MIDDLE\n");
+    test_inject_text("3_BOTTOM\n");
+    test_inject_text("4_THIS_LONG_LINE_WILL_WRAP_A_LOT_HERE");
+    check_consistent_state();
+    term_resize(10, 5);
+    check_consistent_state();
+    if (term.scrolled_up != 0) {
+        error("[%s] Viewport scrolled incorrectly.\n", current_test_name);
+        error("Expected 0, Actual: %d\n", term.scrolled_up);
+        assert(false);
+    }
+    {
+        int32 target_y = term.cursor.y;
+        StGlyph *c_line = term_line(target_y);
+        char c_buf[32];
+        term_get_glyphs(c_buf, &c_line[0], &c_line[term.ncols - 1]);
+        if (MEMMEM(c_buf, strlen32(c_buf), "OT_HERE") == NULL) {
+            error("[%s] Cursor line content mismatch. Found: '%s'\n",
+                  current_test_name, c_buf);
+            assert(false);
+        }
+    }
+
+    current_test_name = "Scenario P: Shrink Width then Expand Height Bug";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 5);
+    term_reset();
+    test_inject_text("AABBCCDDEEFFGG $");
+    check_consistent_state();
+
+    term_resize(2, 5);
+    check_consistent_state();
+
+    term_resize(2, 10);
+    check_consistent_state();
+
+    {
+        char *state_texts[] = {
+            "AA", "BB", "CC", "DD", "EE", "FF", "GG", " $", "", "",
+        };
+        bool state_wraps[] = {
+            true, true, true, true, true, true, true, false, false, false,
+        };
+        test_verify_state(10, state_texts, state_wraps, 1, 7);
+    }
+    test_verify_dump("AABBCCDDEEFFGG $\n");
+
+    current_test_name = "Scenario Q: Vim Select Trailing Cursor Padding";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 5);
+    term_reset();
+
+    test_inject_text("SHORT\n");
+    term.cursor.x = 8;
+    term.cursor.y = 1;
+
+    test_verify_editor_dump("SHORT\n         \n\n\n\n", 2, 9);
+
+    current_test_name = "Scenario R: Vim Select Alternate Screen Target";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 5);
+    term_reset();
+
+    for (int32 i = 0; i < 10; i += 1) {
+        term_new_line(true);
+    }
+
+    test_inject_text("ALTSCREEN\n");
+    term.cursor.x = 5;
+    term.cursor.y = 1;
+
+    term.mode |= TERM_MODE_ALTSCREEN;
+
+    test_verify_editor_dump("\n\n\n\n\n\n\n\n      \n\nALTSCREEN\n\n",
+                            term.n_hist + 1, 1);
+
+    term.mode &= ~TERM_MODE_ALTSCREEN;
+
+    current_test_name = "Scenario S: Image Scaling Attributes Preservation";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 10);
+    term_reset();
+
+    term_window.cw = 10;
+    term_window.ch = 20;
+
+    {
+        ImageList *img = malloc2(SIZEOF(ImageList));
+        union Arg zoom_arg;
+
+        memset64(img, 0, SIZEOF(ImageList));
+        img->x = 0;
+        img->y = 0;
+        img->cw = term_window.cw;
+        img->ch = term_window.ch;
+        img->width = 100;
+        img->height = 200;
+        img->cols = 10;
+        img->next = NULL;
+        term.images = img;
+        term_set_sixel_attr(term.lines[0], 0, 9);
+
+        /* Simulate a user zoom-in event (+4.0 font size) */
+        zoom_arg.f = 4.0;
+        user_zoom(&zoom_arg);
+        check_consistent_state();
+
+        if (term.images->cw != 10 || term.images->ch != 20 ||
+            term.images->width != 100 || term.images->height != 200) {
+            error("[%s] Image attributes mutated unexpectedly "
+                  "after zoom in.\n", current_test_name);
+            error("Expected: cw=10, ch=20, w=100, h=200\n");
+            error("Actual:   cw=%d, ch=%d, w=%d, h=%d\n",
+                  term.images->cw, term.images->ch,
+                  term.images->width, term.images->height);
             assert(false);
         }
 
-        /* Row 0 should be the prompt, Row 1 should be completely empty */
-        test_verify_viewport_line(0, "prompt> ");
-        test_verify_viewport_line(1, "");
-    }
-
-    {
-        current_test_name = "Scenario V: Inactive Selection Width";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(180, 8);
-        term_reset();
-        term.lines[1][173].rune = 'X';
-        term.lines[1][173].mode = ATTR_SET;
-        selection_start(173, 1, SELECTION_SNAP_NONE);
-        selection_extend(173, 1, SELECTION_NORMAL, 0);
-        selection_extend(173, 1, SELECTION_NORMAL, 1);
-
-        term_load_alt_screen(true, true);
-        term_resize(98, 8);
-        ASSERT_EQ(selection.ne.x, 173);
+        /* Simulate a user resetting the zoom */
+        zoom_arg.f = 0.0;
+        user_zoom_reset(&zoom_arg);
         check_consistent_state();
 
-        term_load_def_screen(false, true);
-        ASSERT_EQ(selection.ob.x, -1);
-        check_consistent_state();
-    }
-
-    {
-        current_test_name = "Scenario W: Inactive Selection History";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 5);
-        term_reset();
-        for (int32 i = 0; i < 10; i += 1) {
-            term_new_line(true);
+        if (term.images->cw != 10 || term.images->ch != 20 ||
+            term.images->width != 100 || term.images->height != 200) {
+            error("[%s] Image attributes mutated unexpectedly "
+                  "after zoom reset.\n", current_test_name);
+            assert(false);
         }
-
-        term.scrolled_up = term.n_hist;
-        selection_start(1, 0, SELECTION_SNAP_NONE);
-        selection_extend(2, 0, SELECTION_NORMAL, 0);
-        selection_extend(2, 0, SELECTION_NORMAL, 1);
-        user_scroll_down(&(union Arg){.i = term.n_hist});
-        ASSERT_LT(selection.nb.y, 0);
-
-        term_load_alt_screen(true, true);
-        check_consistent_state();
-        term_load_def_screen(false, true);
-        check_consistent_state();
     }
+
+    current_test_name =
+        "Scenario U: Maintain Cursor Visual Y After Clear (Ctrl+L)";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 5);
+    term_reset();
+
+    /* 1. Fill the terminal and history to simulate a busy session */
+    for (int32 i = 0; i < 15; i += 1) {
+        test_inject_text("OLD_HISTORY_DATA\n");
+    }
+
+    /* 2. Simulate Ctrl+L (Clear Screen)
+     * Shell typically moves cursor to 0,0 and clears the visible display */
+    term_move_to(0, 0);
+    term_clear_region(0, 0, term.ncols - 1, term.nrows - 1, true);
+
+    /* 3. Shell draws the new prompt at the top */
+    test_inject_text("prompt> ");
+    check_consistent_state();
+
+    /* 4. Shrink the width of the terminal */
+    term_resize(10, 5);
+    check_consistent_state();
+
+    /* 5. ASSERTIONS:
+     * The cursor MUST remain at Y=0.
+     * The history MUST NOT bleed into the visible screen. */
+    if (term.cursor.y != 0) {
+        error("[%s] Cursor shifted downwards after clear and resize.\n",
+              current_test_name);
+        error("Expected Y=0, Actual Y=%d\n", term.cursor.y);
+        assert(false);
+    }
+
+    /* Row 0 should be the prompt, Row 1 should be completely empty */
+    test_verify_viewport_line(0, "prompt> ");
+    test_verify_viewport_line(1, "");
+
+    current_test_name = "Scenario V: Inactive Selection Width";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(180, 8);
+    term_reset();
+    term.lines[1][173].rune = 'X';
+    term.lines[1][173].mode = ATTR_SET;
+    selection_start(173, 1, SELECTION_SNAP_NONE);
+    selection_extend(173, 1, SELECTION_NORMAL, 0);
+    selection_extend(173, 1, SELECTION_NORMAL, 1);
+
+    term_load_alt_screen(true, true);
+    term_resize(98, 8);
+    ASSERT_EQ(selection.ne.x, 173);
+    check_consistent_state();
+
+    term_load_def_screen(false, true);
+    ASSERT_EQ(selection.ob.x, -1);
+    check_consistent_state();
+
+    current_test_name = "Scenario W: Inactive Selection History";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 5);
+    term_reset();
+    for (int32 i = 0; i < 10; i += 1) {
+        term_new_line(true);
+    }
+
+    term.scrolled_up = term.n_hist;
+    selection_start(1, 0, SELECTION_SNAP_NONE);
+    selection_extend(2, 0, SELECTION_NORMAL, 0);
+    selection_extend(2, 0, SELECTION_NORMAL, 1);
+    user_scroll_down(&(union Arg){.i = term.n_hist});
+    ASSERT_LT(selection.nb.y, 0);
+
+    term_load_alt_screen(true, true);
+    check_consistent_state();
+    term_load_def_screen(false, true);
+    check_consistent_state();
 
     {
         StGlyph *selected_line;
@@ -847,31 +813,29 @@ main(void) {
         check_consistent_state();
     }
 
-    {
-        current_test_name = "Scenario Y: Height Shrink Selection Bounds";
-        fmt_printf("Running: %s...\n", current_test_name);
-        term_resize(20, 7);
-        term_reset();
-        selection_start(1, 6, SELECTION_SNAP_NONE);
-        selection_extend(2, 6, SELECTION_NORMAL, 0);
-        selection_extend(2, 6, SELECTION_NORMAL, 1);
-        term_resize(20, 5);
-        ASSERT_EQ(selection.ob.x, -1);
-        check_consistent_state();
+    current_test_name = "Scenario Y: Height Shrink Selection Bounds";
+    fmt_printf("Running: %s...\n", current_test_name);
+    term_resize(20, 7);
+    term_reset();
+    selection_start(1, 6, SELECTION_SNAP_NONE);
+    selection_extend(2, 6, SELECTION_NORMAL, 0);
+    selection_extend(2, 6, SELECTION_NORMAL, 1);
+    term_resize(20, 5);
+    ASSERT_EQ(selection.ob.x, -1);
+    check_consistent_state();
 
-        term_resize(20, 7);
-        term_reset();
-        for (int32 i = 0; i < 6; i += 1) {
-            term_new_line(true);
-        }
-        selection_start(1, 5, SELECTION_SNAP_NONE);
-        selection_extend(2, 5, SELECTION_NORMAL, 0);
-        selection_extend(2, 5, SELECTION_NORMAL, 1);
-        term_resize(20, 5);
-        ASSERT_EQ(selection.nb.y, 3);
-        ASSERT_EQ(selection.ne.y, 3);
-        check_consistent_state();
+    term_resize(20, 7);
+    term_reset();
+    for (int32 i = 0; i < 6; i += 1) {
+        term_new_line(true);
     }
+    selection_start(1, 5, SELECTION_SNAP_NONE);
+    selection_extend(2, 5, SELECTION_NORMAL, 0);
+    selection_extend(2, 5, SELECTION_NORMAL, 1);
+    term_resize(20, 5);
+    ASSERT_EQ(selection.nb.y, 3);
+    ASSERT_EQ(selection.ne.y, 3);
+    check_consistent_state();
 
     fmt_printf("\nAll tests passed successfully!\n");
     return 0;

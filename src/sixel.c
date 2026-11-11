@@ -934,19 +934,17 @@ sixel_functions_sink(void) {
 
 int
 main(void) {
-    {
-        ASSERT_EQ(hls2rgb(  0,   0,   0), SIXEL_RGB(0,     0,   0));
-        ASSERT_EQ(hls2rgb(  0, 100,   0), SIXEL_RGB(255, 255, 255));
-        ASSERT_EQ(hls2rgb(120,  50, 100), SIXEL_RGB(255,   0,   0));
-        ASSERT_EQ(hls2rgb(240,  50, 100), SIXEL_RGB(  0, 255,   0));
-        ASSERT_EQ(hls2rgb(  0,  50, 100), SIXEL_RGB(  0,   0, 255));
-        ASSERT_EQ(hls2rgb(180,  50, 100), SIXEL_RGB(255, 255,   0));
-        ASSERT_EQ(hls2rgb(300,  50, 100), SIXEL_RGB(  0, 255, 255));
-        ASSERT_EQ(hls2rgb( 60,  50, 100), SIXEL_RGB(255,   0, 255));
-        ASSERT_EQ(hls2rgb(  0,  50,   0), SIXEL_RGB(127, 127, 127));
-        ASSERT_EQ(hls2rgb(  0,   0, 100), SIXEL_RGB(0,     0,   0));
-        ASSERT_EQ(hls2rgb(  0, 100, 100), SIXEL_RGB(255, 255, 255));
-    }
+    ASSERT_EQ(hls2rgb(  0,   0,   0), SIXEL_RGB(0,     0,   0));
+    ASSERT_EQ(hls2rgb(  0, 100,   0), SIXEL_RGB(255, 255, 255));
+    ASSERT_EQ(hls2rgb(120,  50, 100), SIXEL_RGB(255,   0,   0));
+    ASSERT_EQ(hls2rgb(240,  50, 100), SIXEL_RGB(  0, 255,   0));
+    ASSERT_EQ(hls2rgb(  0,  50, 100), SIXEL_RGB(  0,   0, 255));
+    ASSERT_EQ(hls2rgb(180,  50, 100), SIXEL_RGB(255, 255,   0));
+    ASSERT_EQ(hls2rgb(300,  50, 100), SIXEL_RGB(  0, 255, 255));
+    ASSERT_EQ(hls2rgb( 60,  50, 100), SIXEL_RGB(255,   0, 255));
+    ASSERT_EQ(hls2rgb(  0,  50,   0), SIXEL_RGB(127, 127, 127));
+    ASSERT_EQ(hls2rgb(  0,   0, 100), SIXEL_RGB(0,     0,   0));
+    ASSERT_EQ(hls2rgb(  0, 100, 100), SIXEL_RGB(255, 255, 255));
 
     {
         SixelImage img;
