@@ -914,6 +914,11 @@ draw(void) {
     int32 cx = term.cursor.x;
     int32 old_cursor_x = term.old_cursor_x;
     int32 old_cursor_y = term.old_cursor_y;
+    int32 bw;
+    int32 bh;
+    int32 term_h;
+    GC gc;
+    ImageList *next;
 
     if (!x_start_draw()) {
         return;
@@ -947,200 +952,195 @@ draw(void) {
     term.old_cursor_x = cx;
     term.old_cursor_y = term.cursor.y;
 
-    /* x_finish_draw() */ {
-        int32 bw = term_window.hborderpx;
-        int32 bh = term_window.vborderpx;
-        int32 term_h = term.nrows*term_window.ch;
-        GC gc = NULL;
-        ImageList *next;
+    /* x_finish_draw() */
+    bw = term_window.hborderpx;
+    bh = term_window.vborderpx;
+    term_h = term.nrows*term_window.ch;
+    gc = NULL;
+    XSetClipMask(x_window.display, draw_context.graphics, None);
 
-        XSetClipMask(x_window.display, draw_context.graphics, None);
+    for (ImageList *image = term.images; image; image = next) {
+        int32 rel_y = image->y + term.scrolled_up;
+        int32 height_in_rows = (image->height + image->ch - 1) / image->ch;
+        int32 scaled_w;
+        int32 scaled_h;
+        int32 draw_w;
+        int32 draw_h;
+        int32 src_y;
+        int32 dest_y;
+        next = image->next;
 
-        for (ImageList *image = term.images; image; image = next) {
-            int32 rel_y = image->y + term.scrolled_up;
-            int32 height_in_rows = (image->height + image->ch - 1) / image->ch;
-            int32 scaled_w;
-            int32 scaled_h;
-            int32 draw_w;
-            int32 draw_h;
-            int32 src_y;
-            int32 dest_y;
-            next = image->next;
+        /* Check if ANY part of the image is on the visible screen */
+        if ((image->x >= term.ncols)
+                || (rel_y >= term.nrows)
+                || (rel_y + height_in_rows <= 0)) {
+            continue;
+        }
 
-            /* Check if ANY part of the image is on the visible screen */
-            if ((image->x >= term.ncols)
-                    || (rel_y >= term.nrows)
-                    || (rel_y + height_in_rows <= 0)) {
-                continue;
+        /*
+         * Calculate the new dimensions based on current font cell size
+         * vs the font cell size when the image was generated.
+         */
+        scaled_w = (image->width*term_window.cw) / image->cw;
+        scaled_h = (image->height*term_window.ch) / image->ch;
+        scaled_w = MAX(scaled_w, 1);
+        scaled_h = MAX(scaled_h, 1);
+
+        if (image->pixmap == None) {
+            uint32 *scaled_pixels;
+            uint32 *src_pixels;
+            XImage ximage;
+
+            scaled_pixels = malloc2(scaled_w*scaled_h*SIZEOF(*scaled_pixels));
+            src_pixels = image->pixels;
+
+            /* Fast Nearest-Neighbor scaling */
+            for (int32 sy = 0; sy < scaled_h; sy += 1) {
+                int32 orig_y = (sy*image->height) / scaled_h;
+                for (int32 sx = 0; sx < scaled_w; sx += 1) {
+                    int32 orig_x = (sx*image->width) / scaled_w;
+                    ST_PIXEL_AT(scaled_pixels, scaled_w, sy, sx) =
+                        ST_PIXEL_AT(src_pixels, image->width,
+                                    orig_y, orig_x);
+                }
             }
 
-            /*
-             * Calculate the new dimensions based on current font cell size
-             * vs the font cell size when the image was generated.
-             */
-            scaled_w = (image->width*term_window.cw) / image->cw;
-            scaled_h = (image->height*term_window.ch) / image->ch;
-            scaled_w = MAX(scaled_w, 1);
-            scaled_h = MAX(scaled_h, 1);
+            image->pixmap = XCreatePixmap(x_window.display, x_window.win,
+                                          (uint32)scaled_w,
+                                          (uint32)scaled_h,
+                                          (uint32)x_window.depth);
 
-            if (image->pixmap == None) {
-                uint32 *scaled_pixels;
-                uint32 *src_pixels;
-                XImage ximage;
+            if (image->transparent) {
+                image->clipmask = sixel_create_clipmask(scaled_pixels,
+                                                        scaled_w, scaled_h);
+            }
 
-                scaled_pixels =
-                    malloc2(scaled_w*scaled_h*SIZEOF(*scaled_pixels));
-                src_pixels = image->pixels;
+            ximage.format = ZPixmap;
+            ximage.data = (char *)scaled_pixels;
+            ximage.width = scaled_w;
+            ximage.height = scaled_h;
+            ximage.depth = x_window.depth;
+            ximage.bits_per_pixel = 32;
+            ximage.bytes_per_line = scaled_w*4;
+            ximage.byte_order = ImageByteOrder(x_window.display);
+            ximage.bitmap_unit = 32;
+            ximage.bitmap_pad = 32;
 
-                /* Fast Nearest-Neighbor scaling */
-                for (int32 sy = 0; sy < scaled_h; sy += 1) {
-                    int32 orig_y = (sy*image->height) / scaled_h;
-                    for (int32 sx = 0; sx < scaled_w; sx += 1) {
-                        int32 orig_x = (sx*image->width) / scaled_w;
-                        ST_PIXEL_AT(scaled_pixels, scaled_w, sy, sx) =
-                            ST_PIXEL_AT(src_pixels, image->width,
-                                        orig_y, orig_x);
+            XPutImage(x_window.display, image->pixmap,
+                      draw_context.graphics, &ximage, 0, 0, 0, 0,
+                      (uint32)scaled_w,
+                      (uint32)scaled_h);
+
+            free2(scaled_pixels, scaled_w*scaled_h*SIZEOF(*scaled_pixels));
+        }
+
+        if (gc == NULL) {
+            XGCValues gcvalues;
+            memset64(&gcvalues, 0, SIZEOF(gcvalues));
+            gcvalues.graphics_exposures = False;
+            gc = XCreateGC(x_window.display, x_window.win,
+                           GCGraphicsExposures, &gcvalues);
+        }
+
+        draw_w = scaled_w;
+        draw_h = scaled_h;
+        src_y = 0;
+        dest_y = bh + rel_y*term_window.ch;
+
+        /* Clip the top if the image starts in history */
+        if (dest_y < bh) {
+            src_y = bh - dest_y;
+            draw_h -= src_y;
+            dest_y = bh;
+        }
+
+        /* Clip the bottom if the image extends past the screen */
+        if (dest_y + draw_h > bh + term_h) {
+            draw_h = (bh + term_h) - dest_y;
+        }
+
+        if (draw_h > 0 && draw_w > 0) {
+            bool is_deleted = true;
+            int32 x_limit;
+            int32 x_start;
+            StGlyph *line_ptr;
+
+            if (image->transparent && image->clipmask) {
+                /* Mask origin must track the logical position */
+                XSetClipOrigin(x_window.display, gc,
+                               bw + image->x*term_window.cw,
+                               bh + rel_y*term_window.ch);
+                XSetClipMask(x_window.display, gc, image->clipmask);
+            } else {
+                XSetClipMask(x_window.display, gc, None);
+            }
+
+            x_limit = image->x + image->cols;
+            if (term.ncols < x_limit) {
+                x_limit = term.ncols;
+            }
+
+            x_start = image->x;
+            line_ptr = term_line_abs(image->y) + image->x;
+
+            while (x_start < x_limit) {
+                int32 mode = line_ptr->mode & ATTR_SIXEL;
+                int32 x_end = x_start + 1;
+
+                while (x_end < x_limit) {
+                    int32 next_mode;
+
+                    line_ptr += 1;
+                    next_mode = line_ptr->mode & ATTR_SIXEL;
+                    if (next_mode != mode) {
+                        break;
                     }
+                    x_end += 1;
                 }
 
-                image->pixmap = XCreatePixmap(x_window.display, x_window.win,
-                                              (uint32)scaled_w,
-                                              (uint32)scaled_h,
-                                              (uint32)x_window.depth);
+                if (mode != 0) {
+                    int32 src_x = (x_start - image->x)*term_window.cw;
+                    int32 copy_w = (x_end - x_start)*term_window.cw;
+                    int32 remaining_w = scaled_w - src_x;
+                    int32 dest_x;
 
-                if (image->transparent) {
-                    image->clipmask = sixel_create_clipmask(scaled_pixels,
-                                                            scaled_w, scaled_h);
-                }
-
-                ximage.format = ZPixmap;
-                ximage.data = (char *)scaled_pixels;
-                ximage.width = scaled_w;
-                ximage.height = scaled_h;
-                ximage.depth = x_window.depth;
-                ximage.bits_per_pixel = 32;
-                ximage.bytes_per_line = scaled_w*4;
-                ximage.byte_order = ImageByteOrder(x_window.display);
-                ximage.bitmap_unit = 32;
-                ximage.bitmap_pad = 32;
-
-                XPutImage(x_window.display, image->pixmap,
-                          draw_context.graphics, &ximage, 0, 0, 0, 0,
-                          (uint32)scaled_w,
-                          (uint32)scaled_h);
-
-                free2(scaled_pixels, scaled_w*scaled_h*SIZEOF(*scaled_pixels));
-            }
-
-            if (gc == NULL) {
-                XGCValues gcvalues;
-                memset64(&gcvalues, 0, SIZEOF(gcvalues));
-                gcvalues.graphics_exposures = False;
-                gc = XCreateGC(x_window.display, x_window.win,
-                               GCGraphicsExposures, &gcvalues);
-            }
-
-            draw_w = scaled_w;
-            draw_h = scaled_h;
-            src_y = 0;
-            dest_y = bh + rel_y*term_window.ch;
-
-            /* Clip the top if the image starts in history */
-            if (dest_y < bh) {
-                src_y = bh - dest_y;
-                draw_h -= src_y;
-                dest_y = bh;
-            }
-
-            /* Clip the bottom if the image extends past the screen */
-            if (dest_y + draw_h > bh + term_h) {
-                draw_h = (bh + term_h) - dest_y;
-            }
-
-            if (draw_h > 0 && draw_w > 0) {
-                bool is_deleted = true;
-                int32 x_limit;
-                int32 x_start;
-                StGlyph *line_ptr;
-
-                if (image->transparent && image->clipmask) {
-                    /* Mask origin must track the logical position */
-                    XSetClipOrigin(x_window.display, gc,
-                                   bw + image->x*term_window.cw,
-                                   bh + rel_y*term_window.ch);
-                    XSetClipMask(x_window.display, gc, image->clipmask);
-                } else {
-                    XSetClipMask(x_window.display, gc, None);
-                }
-
-                x_limit = image->x + image->cols;
-                if (term.ncols < x_limit) {
-                    x_limit = term.ncols;
-                }
-
-                x_start = image->x;
-                line_ptr = term_line_abs(image->y) + image->x;
-
-                while (x_start < x_limit) {
-                    int32 mode = line_ptr->mode & ATTR_SIXEL;
-                    int32 x_end = x_start + 1;
-
-                    while (x_end < x_limit) {
-                        int32 next_mode;
-
-                        line_ptr += 1;
-                        next_mode = line_ptr->mode & ATTR_SIXEL;
-                        if (next_mode != mode) {
-                            break;
-                        }
-                        x_end += 1;
-                    }
-
-                    if (mode != 0) {
-                        int32 src_x = (x_start - image->x)*term_window.cw;
-                        int32 copy_w = (x_end - x_start)*term_window.cw;
-                        int32 remaining_w = scaled_w - src_x;
-                        int32 dest_x;
-
-                        if (remaining_w < copy_w) {
-                            copy_w = remaining_w;
-                        }
-
-                        dest_x = bw + (x_start*term_window.cw);
-
-                        XCopyArea(x_window.display, image->pixmap,
-                                  x_window.drawable, gc,
-                                  src_x, src_y, (uint32)copy_w, (uint32)draw_h,
-                                  dest_x, dest_y);
-                        is_deleted = 0;
+                    if (remaining_w < copy_w) {
+                        copy_w = remaining_w;
                     }
 
-                    x_start = x_end;
+                    dest_x = bw + (x_start*term_window.cw);
+
+                    XCopyArea(x_window.display, image->pixmap,
+                              x_window.drawable, gc,
+                              src_x, src_y, (uint32)copy_w, (uint32)draw_h,
+                              dest_x, dest_y);
+                    is_deleted = 0;
                 }
 
-                if (image->clipmask) {
-                    XSetClipMask(x_window.display, gc, None);
-                }
+                x_start = x_end;
+            }
 
-                if (is_deleted != 0) {
-                    if ((image->x + image->cols) <= term.ncols) {
-                        sixel_image_delete(image);
-                    }
+            if (image->clipmask) {
+                XSetClipMask(x_window.display, gc, None);
+            }
+
+            if (is_deleted != 0) {
+                if ((image->x + image->cols) <= term.ncols) {
+                    sixel_image_delete(image);
                 }
             }
         }
-
-        if (gc) {
-            XFreeGC(x_window.display, gc);
-        }
-
-        XCopyArea(x_window.display, x_window.drawable, x_window.win,
-                  draw_context.graphics,
-                  0, 0,
-                  (uint32)term_window.w, (uint32)term_window.h,
-                  0, 0);
     }
 
+    if (gc) {
+        XFreeGC(x_window.display, gc);
+    }
+
+    XCopyArea(x_window.display, x_window.drawable, x_window.win,
+              draw_context.graphics,
+              0, 0,
+              (uint32)term_window.w, (uint32)term_window.h,
+              0, 0);
     if (old_cursor_x != term.old_cursor_x
         || old_cursor_y != term.old_cursor_y) {
         x_xim_spot(term.old_cursor_x, term.old_cursor_y);
