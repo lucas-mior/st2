@@ -1317,7 +1317,7 @@ main(void) {
 
         ptr = term_get_glyphs(buffer, &line[0], &line[1]);
         *ptr = '\0';
-        ASSERT_EQ(buffer, strlen32(buffer), STRLIT("AB"));
+        ASSERT_EQ(buffer, strlen32(buffer), SL("AB"));
     }
 
     /* Test: term_set_sixel_attr */
