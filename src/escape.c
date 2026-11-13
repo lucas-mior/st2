@@ -2030,8 +2030,7 @@ main(void) {
 
     /* Initialize necessary X11 atoms to prevent BadAtom during property
      * changes */
-    x_window.net_wm_name =
-        XInternAtom(x_window.display, "_NET_WM_NAME", False);
+    x_window.net_wm_name = XInternAtom(x_window.display, "_NET_WM_NAME", False);
     x_window.net_wm_iconname =
         XInternAtom(x_window.display, "_NET_WM_ICON_NAME", False);
 
