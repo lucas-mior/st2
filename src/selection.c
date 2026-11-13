@@ -433,9 +433,7 @@ selection_set(char *string, Time t) {
     }
 
     if (xsel.primary) {
-        int64 primary_len;
-
-        primary_len = (int64)strlen32(xsel.primary) + 1;
+        int64 primary_len = (int64)strlen32(xsel.primary) + 1;
         free2(xsel.primary, primary_len);
     }
     xsel.primary = string;
@@ -568,9 +566,7 @@ main(void) {
         ASSERT_EQ(result[1], 'B');
 
         if (result) {
-            int64 result_len;
-
-            result_len = (int64)strlen32(result) + 1;
+            int64 result_len = (int64)strlen32(result) + 1;
             free2(result, result_len);
         }
     }
@@ -667,8 +663,7 @@ main(void) {
         ASSERT(rect_res != NULL);
 
         if (rect_res) {
-            int64 rect_len;
-            rect_len = (int64)strlen32(rect_res) + 1;
+            int64 rect_len = (int64)strlen32(rect_res) + 1;
             free2(rect_res, rect_len);
         }
     }

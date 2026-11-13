@@ -1361,9 +1361,7 @@ main(void) {
 
     /* Test: term_swap_screen */
     {
-        enum TermMode prev_mode;
-
-        prev_mode = term.mode & TERM_MODE_ALTSCREEN;
+        enum TermMode prev_mode = term.mode & TERM_MODE_ALTSCREEN;
         term_swap_screen();
         ASSERT((term.mode & TERM_MODE_ALTSCREEN) != prev_mode);
         term_swap_screen();
@@ -1453,9 +1451,7 @@ main(void) {
 
     /* Test: term_delete_images */
     {
-        ImageList *img;
-
-        img = malloc2(SIZEOF(ImageList));
+        ImageList *img = malloc2(SIZEOF(ImageList));
         memset64(img, 0, SIZEOF(ImageList));
         term.images = img;
 
